@@ -102,8 +102,20 @@ if ( !Date.prototype.toISOString ) {
             }
             catch(e)
             {
-                log("Error trying to hash -- " + e);
+                ADL.XAPIWrapper.log("Error trying to hash -- " + e);
                 return null;
+            }
+        };
+
+        this.changeConfig = function(config){
+            try
+            {
+                ADL.XAPIWrapper.log("updating lrs object with new configuration");
+                this.lrs = mergeRecursive(this.lrs, config);
+            }
+            catch(e)
+            {
+                ADL.XAPIWrapper.log("error while chaning configuration -- " + e);
             }
         };
     };
@@ -225,18 +237,18 @@ if ( !Date.prototype.toISOString ) {
             }
 
             var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback);
-            if(result === undefined || result.status == 404)
+            if(res === undefined || res.status == 404)
             {
                 return null
             }
             
             try
             {
-                return JSON.parse(result.responseText);
+                return JSON.parse(res.responseText);
             }
             catch(e)
             {
-                return result.responseText;
+                return res.responseText;
             }
         }
     };
@@ -625,7 +637,7 @@ if ( !Date.prototype.toISOString ) {
         for (var p in obj2) 
         {
             prop = obj2[p];
-            console.log(prop);
+            console.log(p + " : " + prop);
             try 
             {
                 // Property in destination object set; update its value.
@@ -638,7 +650,6 @@ if ( !Date.prototype.toISOString ) {
                 {
                     obj1[p] = obj2[p];
                 } 
-                console.log(obj2[p]);
             } 
             catch(e) 
             {
