@@ -60,7 +60,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.xapiVersion = "1.0.0";
-        this.build = "2013-09-04T14:12:07Z";
+        this.build = "2013-09-06T16:25Z";
         this.lrs = getLRSObject(config);
 
         if (verifyxapiversion && testConfig.call(this))
