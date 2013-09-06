@@ -174,7 +174,7 @@ if ( !Date.prototype.toISOString ) {
         if (this.testConfig())
         {
             this.prepareStatement(stmt);
-            ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements?statementId="+ruuid(), 
+            ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements?statementId="+ADL.ruuid(), 
                 "PUT", JSON.stringify(stmt), this.lrs.auth, callback);
         }
     };
@@ -728,7 +728,7 @@ if ( !Date.prototype.toISOString ) {
     function delay() 
     {
         var xhr = new XMLHttpRequest();
-        var url = window.location + '?forcenocache='+ruuid();
+        var url = window.location + '?forcenocache='+ADL.ruuid();
         xhr.open('GET', url, false);
         xhr.send(null);
     }
