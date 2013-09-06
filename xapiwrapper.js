@@ -96,6 +96,7 @@ if ( !Date.prototype.toISOString ) {
         };
 
         this.hash = function(tohash){
+            if (!tohash) return null;
             try
             {
                 var digestBytes = Crypto.SHA1(tohash, { asBytes: true });
