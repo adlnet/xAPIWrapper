@@ -26,6 +26,7 @@ if ( !Date.prototype.toISOString ) {
 }
 
 (function(ADL){
+    log.debug = true;
     // config object used w/ url params to configure the lrs object
     // change these to match your lrs
     var Config = function()
@@ -38,7 +39,7 @@ if ( !Date.prototype.toISOString ) {
         }
         catch (e)
         {
-            log("Exception trying to encode auth: " + e);
+            log("Exception in Config trying to encode auth: " + e);
         }
 
         // Statement defaults
@@ -115,7 +116,7 @@ if ( !Date.prototype.toISOString ) {
             }
             catch(e)
             {
-                ADL.XAPIWrapper.log("error while chaning configuration -- " + e);
+                ADL.XAPIWrapper.log("error while changing configuration -- " + e);
             }
         };
     };
@@ -623,6 +624,7 @@ if ( !Date.prototype.toISOString ) {
     // outputs the message to the console if available
     function log(message) 
     {
+        if (!log.debug) return false;
         try
         {
             console.log(message);
