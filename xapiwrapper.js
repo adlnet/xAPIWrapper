@@ -330,16 +330,16 @@ if ( !Date.prototype.toISOString ) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            try
+            if (stateval)
             {
-                var state = JSON.stringify(stateval);
+                stateval = (typeof stateval === "string") ? stateval : JSON.stringify(stateval);
             }
-            catch(e)
+            else
             {
-                state = stateval;
+                this.log("No activity profile was included.");
             }
         
-            ADL.XHR_request(this.lrs, url, "PUT", state, this.lrs.auth, callback);
+            ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback);
         }
     };
 
@@ -434,7 +434,16 @@ if ( !Date.prototype.toISOString ) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            ADL.XHR_request(this.lrs, url, "PUT", JSON.stringify(profileval), this.lrs.auth, callback, false, headers);
+            if (profileval)
+            {
+                profileval = (typeof profileval === "string") ? profileval : JSON.stringify(profileval);
+            }
+            else
+            {
+                this.log("No activity profile was included.");
+            }
+
+            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, false, headers);
         }
     };
 
@@ -556,7 +565,16 @@ if ( !Date.prototype.toISOString ) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            ADL.XHR_request(this.lrs, url, "PUT", JSON.stringify(profileval), this.lrs.auth, callback, false, headers);
+            if (profileval)
+            {
+                profileval = (typeof profileval === "string") ? profileval : JSON.stringify(profileval);
+            }
+            else
+            {
+                this.log("No activity profile was included.");
+            }
+
+            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, false, headers);
         }
     };
 
