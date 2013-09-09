@@ -134,8 +134,8 @@ if ( !Date.prototype.toISOString ) {
         if(stmt.actor === undefined){
             stmt.actor = JSON.parse(lrs.actor);
         }
-        if (this.lrs.grouping | 
-            this.lrs.registration | 
+        if (this.lrs.grouping || 
+            this.lrs.registration || 
             this.lrs.activity_platform) {
             if (!stmt.context) {
                 stmt.context = {};
