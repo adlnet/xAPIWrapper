@@ -32,7 +32,7 @@ most cases will also require the authorization information as well.
 This wrapper provides two options for configuration. You may:  
 * Edit the configuration object (`Config`) in the xapiwrapper.js file 
 
-``` javascript
+```JavaScript
 var Config = function()
 {
     var conf = {};
@@ -56,7 +56,7 @@ var Config = function()
 ```  
 * Create your own configuration object and pass it to the xapiwrapper object
 
-``` javascript
+```JavaScript
 var conf = {
   "endpoint" : "http://lrs.adlnet.gov/xapi/";
   "auth" : "Basic " + Base64.encode('tom:1234');
@@ -106,7 +106,7 @@ the request happen asynchronously, otherwise Send Statement
 will block until it receives the response from the LRS.  
 _Send Statement without Callback_
 
-```javascript
+```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
@@ -117,7 +117,7 @@ ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + re
 ```
 _Send Statement with Callback_
 
-```javascript
+```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
@@ -136,13 +136,12 @@ _URL_
 ` http://localhost:8000/content/example.html?registration=51a6f860-1997-11e3-8ffd-0800200c9a66 `  
 _Client Calls_ 
 
-```javascript
+```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
 var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
 ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
 >> {"version": "1.0.0", 
     "timestamp": "2013-09-09 21:36:40.185841+00:00", 
@@ -151,7 +150,29 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
     "stored": "2013-09-09 21:36:40.186124+00:00", 
     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
-    "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"}, 
+>   "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"}, 
     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
 ```
 
+_Send Statement with ADL xAPI Verbs_  
+ADL also has collected the [ADL xAPI Verbs](https://github.com/adlnet/xAPIVerbs) 
+into a Javascript object to easily include. To use...  
+_Include verbs.js_  
+`<script type="text/javascript" src="./verbs.js"></script>`  
+_Client Calls_  
+
+```JavaScript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
+>> {"version": "1.0.0", 
+    "timestamp": "2013-09-09 22:08:51.440327+00:00", 
+    "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
+    "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"}, 
+    "stored": "2013-09-09 22:08:51.440614+00:00", 
+>   "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
+    "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
+    "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
+```
