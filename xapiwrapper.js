@@ -175,7 +175,17 @@ if ( !Date.prototype.toISOString ) {
         if (this.testConfig())
         {
             this.prepareStatement(stmt);
-            ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements?statementId="+ADL.ruuid(), 
+            var id;
+            if (stmt['id'])
+            {
+                id = stmt['id'];
+            }
+            else
+            {
+                id = ADL.ruuid();
+                stmt['id'] = id;
+            }
+            ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
                 "PUT", JSON.stringify(stmt), this.lrs.auth, callback);
         }
     };
