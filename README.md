@@ -80,6 +80,35 @@ instantiated xAPI Wrapper object. The object is created using the
 configuration object inside the xapiwrapper.js file. If you modified this 
 object with your configuration, then xAPI Wrapper object is ready to use.
 ``` shell
-> ADL.XAPIWrappper.testConfig();
-  true
+ADL.XAPIWrappper.testConfig();
+>> true
 ```
+
+#### Statements
+__Send Statement__  
+Sends a single Statement to the LRS using a PUT request. This 
+method will automatically create the Statement ID. Providing a 
+function to call after the send Statement request will make 
+the request happen asynchronously, otherwise Send Statement 
+will block until it receives the response from the LRS.  
+_Send Statement without Callback_
+```javascript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+                      "display" : {"en-US" : "answered"}},
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+>> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
+```
+_Send Statement with Callback_
+```javascript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+                      "display" : {"en-US" : "answered"}},
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
+    ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
+>> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
+```
+
