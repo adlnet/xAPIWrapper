@@ -8,7 +8,8 @@ Wrapper to simplify communication to an LRS
 Javascript Experience API wrapper.  
 This javascript file can be included to web based xAPI clients to 
 simplify the process of connecting and communicating to an LRS. It 
-is enclosed in an ADL object like the ADL xAPI Verbs project, allowing 
+is enclosed in an ADL object like the 
+[ADL xAPI Verbs project](https://github.com/adlnet/xAPIVerbs), allowing 
 a single object to contain both the ADL verbs and the ADL xapiwrapper.
 
 This wrapper has two version identifiers within the code. One, ```xapiVersion```
