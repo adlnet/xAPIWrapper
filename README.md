@@ -60,7 +60,12 @@ var conf = {
   "auth" : "Basic " + Base64.encode('tom:1234');
 }
 ADL.XAPIWrapper.changeConfig(conf);
-```
+```  
+
+_Logging_  
+The wrapper comes with a logging function (```ADL.XAPIWrapper.log(message)```) 
+which attempts to write a message to console.log. This can be configured 
+to not write messages by setting ```log.debug = false;```.
 
 ### Use
 Include the wrapper file, and optionally the dependencies.
