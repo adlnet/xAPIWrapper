@@ -61,3 +61,11 @@ Include the wrapper file, and optionally the dependencies.
 <script type="text/javascript" src="./verbs.js"></script>
 <script type="text/javascript" src="./xAPIWrapper/xapiwrapper.js"></script>
 ```
+The script automatically runs, creating or adding to an ADL object an 
+instantiated xAPI Wrapper object. The object is created using the 
+configuration object inside the xapiwrapper.js file. If you modified this 
+object with your configuration, then xAPI Wrapper object is ready to use.
+``` shell
+> ADL.XAPIWrappper.testConfig();
+  true
+```
