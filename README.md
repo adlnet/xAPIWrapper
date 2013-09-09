@@ -36,7 +36,7 @@ var Config = function()
         log("Exception in Config trying to encode auth: " + e);
     }
 
-    // Statement defaults
+    // Statement defaults [optional configuration]
     // conf["actor"] = {"mbox":"default@example.com"};
     // conf["registration"] =  ruuid();
     // conf["grouping"] = {"id":"ctxact:default/grouping"};
@@ -54,4 +54,10 @@ ADL.XAPIWrapper.changeConfig(conf);
 ```
 
 ### Use
-
+Include the wrapper file, and optionally the dependencies.
+``` html
+<script type="text/javascript" src="./base64.js"></script>
+<script type="text/javascript" src="./2.5.3-crypto-sha1.js"></script>
+<script type="text/javascript" src="./verbs.js"></script>
+<script type="text/javascript" src="./xAPIWrapper/xapiwrapper.js"></script>
+```
