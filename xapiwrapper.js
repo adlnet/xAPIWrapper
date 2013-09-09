@@ -164,11 +164,14 @@ if ( !Date.prototype.toISOString ) {
 
     /*
      * sendStatement
-     * Send a single statement to the LRS.
+     * Send a single statement to the LRS. Makes a Javascript object 
+     * with the statement id as 'id' available to the callback function. 
      * stmt - statement object to send
      * callback - function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
+     *            * and an object with an id property assigned the id 
+     *            * of the statement
      */
     XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
     {
@@ -185,8 +188,11 @@ if ( !Date.prototype.toISOString ) {
                 id = ADL.ruuid();
                 stmt['id'] = id;
             }
-            ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
-                "PUT", JSON.stringify(stmt), this.lrs.auth, callback);
+            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
+                "PUT", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id});
+            if (!callback)
+                return {"xhr":resp,
+                        "id" :id};
         }
     };
 
@@ -280,7 +286,7 @@ if ( !Date.prototype.toISOString ) {
             var url = this.lrs.endpoint + "activities?activityId=<activityid>";
             url = url.replace('<activityid>', encodeURIComponent(activityid));
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, true);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
             
             if(result === undefined || result.status == 404)
             {
@@ -392,7 +398,7 @@ if ( !Date.prototype.toISOString ) {
                 url += '&since=' + encodeURIComponent(since.toISOString());
             }
             
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, true);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
             
             if(result === undefined || result.status == 404)
             {
@@ -454,7 +460,7 @@ if ( !Date.prototype.toISOString ) {
                 this.log("No activity profile was included.");
             }
 
-            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, false, headers);
+            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers);
         }
     };
 
@@ -488,7 +494,7 @@ if ( !Date.prototype.toISOString ) {
                 url += '&since=' + encodeURIComponent(since.toISOString());
             }
             
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, true);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
             
             if(result === undefined || result.status == 404)
             {
@@ -523,7 +529,7 @@ if ( !Date.prototype.toISOString ) {
             var url = this.lrs.endpoint + "agents?agent=<agent>";
             url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, true);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
             
             if(result === undefined || result.status == 404)
             {
@@ -585,7 +591,7 @@ if ( !Date.prototype.toISOString ) {
                 this.log("No activity profile was included.");
             }
 
-            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, false, headers);
+            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers);
         }
     };
 
@@ -619,7 +625,7 @@ if ( !Date.prototype.toISOString ) {
                 url += '&since=' + encodeURIComponent(since.toISOString());
             }
             
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, true);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
             
             if(result === undefined || result.status == 404)
             {
@@ -847,11 +853,11 @@ if ( !Date.prototype.toISOString ) {
      * auth - the value for the Authorization header
      * callback - function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     * callbackargs - (optional) additional javascript object to be passed to the callback function
      * ignore 404 - allow page not found errors to pass
      * extraHeaders - other header key-values to be added to this request
      */
-    ADL.XHR_request = function(lrs, url, method, data, auth, callback, ignore404, extraHeaders) 
+    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
     {
         "use strict";
         
@@ -923,7 +929,7 @@ if ( !Date.prototype.toISOString ) {
                 var notFoundOk = (ignore404 && xhr.status === 404);
                 if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
                     if (callback) {
-                        callback(xhr);
+                        callback(xhr, callbackargs);
                     } else {
                         result = xhr;
                         return xhr;
