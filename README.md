@@ -185,6 +185,7 @@ is supplied. The response of the XHR request upon success will
 contain a list of Statement IDs.
 
 ###### Send Statements without callback
+
 ```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "verb" : ADL.verbs.answered,
@@ -199,6 +200,7 @@ JSON.parse(r.response)
 ```
 
 ###### Send Statements with callback
+
 ```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "verb" : ADL.verbs.answered,
@@ -209,4 +211,29 @@ var stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
 var stmts = [stmt, stmt2];
 ADL.XAPIWrapper.sendStatements(stmts, function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
 >> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
+```
+
+##### Get Statements
+Get a single or collection of Statements based on 
+search parameters or a StatementResult more value.
+
+###### Get all Statements without callback
+This could be potentially a very large request. It is preferable to include 
+a search parameter object to narrow down the StatementResult set. However, 
+this call is included to support report style pages.
+
+```JavaScript
+var ret = ADL.XAPIWrapper.getStatements();
+if (ret)
+   API.Wrapper.log(ret.statements)
+
+>> <Array of statements>
+```
+
+###### Get all Statements with callback
+
+```JavaScript
+var ret = ADL.XAPIWrapper.getStatements(null, null, 
+                function(r){ADL.XAPIWrapper.log(JSON.parse(r.response).statements);});
+>> <Array of statements>
 ```
