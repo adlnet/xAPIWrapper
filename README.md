@@ -266,3 +266,16 @@ ADL.XAPIWrapper.getStatements(null, null,
 >> <Array of statements>
 ...
 ```
+
+###### Get Statements based on search parameters
+The Experience API provides search parameters to narrow down 
+the result of a Statement request. See the [Experience API Spec](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#getstatements) 
+for more information.
+
+```JavaScript
+var search = ADL.XAPIWrapper.searchParams();
+search['verb'] = ADL.verbs.answered.id;
+var res = ADL.XAPIWrapper.getStatements(search);
+ADL.XAPIWrapper.log(res.statements);
+>> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/answered">
+```
