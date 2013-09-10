@@ -233,7 +233,36 @@ if (ret)
 ###### Get all Statements with callback
 
 ```JavaScript
-var ret = ADL.XAPIWrapper.getStatements(null, null, 
-                function(r){ADL.XAPIWrapper.log(JSON.parse(r.response).statements);});
+ADL.XAPIWrapper.getStatements(null, null, 
+        function(r){ADL.XAPIWrapper.log(JSON.parse(r.response).statements);});
 >> <Array of statements>
+```
+
+###### Use the more property to get more Statements
+
+```JavaScript
+var res = ADL.XAPIWrapper.getStatements();
+ADL.XAPIWrapper.log(res.statements);
+>> <Array of statements>
+
+if (res.more !== ""){
+   var more = ADL.XAPIWrapper.getStatements(null, res.more);
+   ADL.XAPIWrapper.log(more.statements);
+>> <Array of statements>
+```
+
+###### Use the more property to get more Statements with callback
+
+```JavaScript
+ADL.XAPIWrapper.getStatements(null, null, 
+   function getmore(r){
+      var res = JSON.parse(r.response);
+      ADL.XAPIWrapper.log(res.statements);
+      if (res.more !== ""){
+         ADL.XAPIWrapper.getStatements(null, res.more, getmore);
+      }
+   });
+>> <Array of statements>
+>> <Array of statements>
+...
 ```
