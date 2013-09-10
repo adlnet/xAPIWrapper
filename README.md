@@ -279,3 +279,23 @@ var res = ADL.XAPIWrapper.getStatements(search);
 ADL.XAPIWrapper.log(res.statements);
 >> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/answered">
 ```
+
+#### Activities
+##### Get Activity
+Get the Activity object from the LRS by providing an Activity ID.
+
+###### Get Activity without callback
+
+```JavaScript
+var res = ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
+ADL.XAPIWrapper.log(res);
+>> <Activity object>
+```
+
+###### Get Activity with callback
+
+```JavaScript
+ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question", 
+                         function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> <Activity object>
+```
