@@ -176,3 +176,37 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
     "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
 ```
+
+##### Send Statements
+Sends a list of Statements to the LRS in one batch. It 
+accepts the list of Statements and a callback function as 
+arguments and returns the XHR request object if no callback 
+is supplied. The response of the XHR request upon success will 
+contain a list of Statement IDs.
+
+###### Send Statements without callback
+```JavaScript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/1"}};
+var stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/2"}};
+var stmts = [stmt, stmt2];
+var r = ADL.XAPIWrapper.sendStatements(stmts);
+JSON.parse(r.response)
+>> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
+```
+
+###### Send Statements with callback
+```JavaScript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/1"}};
+var stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/2"}};
+var stmts = [stmt, stmt2];
+ADL.XAPIWrapper.sendStatements(stmts, function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
+```
