@@ -63,7 +63,7 @@ var conf = {
 }
 ADL.XAPIWrapper.changeConfig(conf);
 ```  
-_Launch Parameters_
+#### Launch Parameters
 The configuration will also look for url query parameters and use those 
 name - value pairs in the XAPIWrapper's internal configuration. That means 
 that `http://localhost:8000/content/example.html?actor={"mbox":"mailto:tom@example.com"}`  
@@ -73,7 +73,7 @@ __NOTE:__ endpoint, auth, actor, registration, activity_id, grouping, and activi
 are keywords that if found are used in send statement requests. See below for 
 usage examples.
 
-_Logging_  
+#### Logging  
 The wrapper comes with a logging function (`ADL.XAPIWrapper.log(message)`) 
 which attempts to write a message to console.log. This can be configured 
 to not write messages by setting `log.debug = false;`.
@@ -98,13 +98,13 @@ ADL.XAPIWrappper.testConfig();
 ```
 
 #### Statements
-__Send Statement__  
+##### Send Statement
 Sends a single Statement to the LRS using a PUT request. This 
 method will automatically create the Statement ID. Providing a 
 function to call after the send Statement request will make 
 the request happen asynchronously, otherwise Send Statement 
 will block until it receives the response from the LRS.  
-_Send Statement without Callback_
+###### Send Statement without Callback
 
 ```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
@@ -115,7 +115,7 @@ var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
 ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
 >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
 ```
-_Send Statement with Callback_
+###### Send Statement with Callback
 
 ```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
@@ -127,7 +127,7 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
 >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
 ```
 
-_Send Statement with URL query string values_  
+###### Send Statement with URL query string values
 The wrapper looks for URL query string values to include in 
 its internal configuration. If certain keys 
 ("endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform") 
@@ -154,7 +154,7 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
 ```
 
-_Send Statement with ADL xAPI Verbs_  
+###### Send Statement with ADL xAPI Verbs
 ADL also has collected the [ADL xAPI Verbs](https://github.com/adlnet/xAPIVerbs) 
 into a Javascript object to easily include. To use...  
 _Include verbs.js_  
