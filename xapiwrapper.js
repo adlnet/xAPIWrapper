@@ -212,8 +212,12 @@ if ( !Date.prototype.toISOString ) {
             {
                 this.prepareStatement(stmtArray[i]);
             }
-            ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements", 
+            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements", 
                 "POST", JSON.stringify(stmtArray), this.lrs.auth, callback);
+            if (!callback)
+            {
+                return resp;
+            }
         }
     };
 
@@ -262,11 +266,11 @@ if ( !Date.prototype.toISOString ) {
             
             try
             {
-                return JSON.parse(res.responseText);
+                return JSON.parse(res.response);
             }
             catch(e)
             {
-                return res.responseText;
+                return res.response;
             }
         }
     };
