@@ -299,3 +299,32 @@ ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question",
                          function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
 >> <Activity object>
 ```
+
+##### Send Activity State
+Save activity state information for a particular agent, and optional registration.
+
+###### Send Activity State 
+
+```JavaScript
+var stateval = {"info":"the state info"};
+ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
+                          {"mbox":"mailto:tom@example.com"}, 
+                          "questionstate", null, stateval);
+ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+>> {info: "the state info"}
+```
+
+###### Change Activity State
+
+```JavaScript
+var oldstateval = {"info":"the state info"};
+var newstateval = {"info":"the new value"};
+ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
+                          {"mbox":"mailto:tom@example.com"}, 
+                          "questionstate", null, newstateval, 
+                          ADL.XAPIWrapper.hash(JSON.stringify(oldstateval)));
+ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+>> {info: "the new value"}
+```
