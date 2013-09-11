@@ -71,8 +71,17 @@ if ( !Date.prototype.toISOString ) {
                     {
                         try
                         {
-                            var lrsabout = JSON.parse(r.responseText);
-                            if (lrsabout.version !== ADL.XAPIWrapper.xapiVersion)
+                            var lrsabout = JSON.parse(r.response);
+                            var versionOK = false;
+                            for (var idx in lrsabout.version)
+                            {
+                                if(lrsabout.version[idx] == ADL.XAPIWrapper.xapiVersion)
+                                {
+                                    versionOK = true;
+                                    break;
+                                }
+                            }
+                            if (!versionOK)
                             {
                                 ADL.XAPIWrapper.log("The lrs version [" + lrsabout.version +"]"+
                                     " does not match this wrapper's XAPI version [" + ADL.XAPIWrapper.xapiVersion + "]");
@@ -299,11 +308,11 @@ if ( !Date.prototype.toISOString ) {
             
             try
             {
-                return JSON.parse(result.responseText);
+                return JSON.parse(result.response);
             }
             catch(e)
             {
-                return result.responseText;
+                return result.response;
             }
         }
     };
@@ -353,14 +362,19 @@ if ( !Date.prototype.toISOString ) {
 
             if (stateval)
             {
-                stateval = (typeof stateval === "string") ? stateval : JSON.stringify(stateval);
+                if (typeof stateval === "object")
+                {
+                    stateval = JSON.stringify(stateval);
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/json";
+                }
             }
             else
             {
                 this.log("No activity profile was included.");
             }
-        
-            ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback);
+            //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
+            ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers);
         }
     };
 
@@ -411,11 +425,11 @@ if ( !Date.prototype.toISOString ) {
             
             try
             {
-                return JSON.parse(result.responseText);
+                return JSON.parse(result.response);
             }
             catch(e)
             {
-                return result.responseText;
+                return result.response;
             }
         }
     };
@@ -507,11 +521,11 @@ if ( !Date.prototype.toISOString ) {
             
             try
             {
-                return JSON.parse(result.responseText);
+                return JSON.parse(result.response);
             }
             catch(e)
             {
-                return result.responseText;
+                return result.response;
             }
         }
     };
@@ -542,11 +556,11 @@ if ( !Date.prototype.toISOString ) {
             
             try
             {
-                return JSON.parse(result.responseText);
+                return JSON.parse(result.response);
             }
             catch(e)
             {
-                return result.responseText;
+                return result.response;
             }
         }
     };
@@ -638,11 +652,11 @@ if ( !Date.prototype.toISOString ) {
             
             try
             {
-                return JSON.parse(result.responseText);
+                return JSON.parse(result.response);
             }
             catch(e)
             {
-                return result.responseText;
+                return result.response;
             }
         }
     };
@@ -941,7 +955,7 @@ if ( !Date.prototype.toISOString ) {
                 } else {
                     try {
                         alert("There was a problem communicating with the Learning Record Store. ( " 
-                            + xhr.status + " | " + xhr.responseText+ " )" + xhr.url);
+                            + xhr.status + " | " + xhr.response+ " )" + xhr.url);
                     } catch (ex) {alert (ex.toString());}
                     //throw new Error("debugger");
                     return xhr;
