@@ -347,7 +347,7 @@ ADL.XAPIWrapper.log(states);
 
 ```JavaScript
 var since = new Date();
-since.setHours(since.getMinutes() - 15);
+since.setMinutes(since.getMinutes() - 15);
 var states = ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
                         {"mbox":"mailto:tom@example.com"}, null, null, since);
 ADL.XAPIWrapper.log(states);
@@ -382,4 +382,27 @@ ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question
                                   "actprofile", null,
                                   function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
 >> {info: "the profile", new: "changes to profile"} 
+```
+
+###### Get all profiles about a specific Activity
+
+```JavaScript
+var profile = {"info":"the profile"};
+ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                    "otheractprofile", profile, null, "*");
+ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                  null, null,
+                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> ["otheractprofile", "actprofile"] 
+```
+
+###### Get profiles about an Activity since a certain time
+
+```JavaScript
+var since = new Date();
+since.setMinutes(since.getMinutes() - 15);
+var profiles = ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                                  null, since);
+ADL.XAPIWrapper.log(profiles);
+>> ["otheractprofile"]
 ```
