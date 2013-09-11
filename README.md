@@ -328,3 +328,27 @@ ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
                         {"mbox":"mailto:tom@example.com"}, "questionstate");
 >> {info: "the new value"}
 ```
+
+###### Get all states for given Activity and Agent
+
+```JavaScript
+var anotherstate = {"more": "info about act and agent"};
+ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
+                          {"mbox":"mailto:tom@example.com"}, 
+                          "another_state", null, anotherstate);
+var states = ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"});
+ADL.XAPIWrapper.log(states);
+>> ["another_state", "questionstate"]
+```
+
+###### Get states for given Activity and Agent since a certain time
+
+```JavaScript
+var since = new Date();
+since.setHours(since.getMinutes() - 15);
+var states = ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"}, null, null, since);
+ADL.XAPIWrapper.log(states);
+>> ["another_state"]
+```
