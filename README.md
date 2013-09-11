@@ -357,7 +357,7 @@ ADL.XAPIWrapper.log(states);
 ##### Activity Profile
 Allows for the storage and retrieval of data about an Activity.
 
-###### Send / Retrieve Activity Profile
+###### Send / Retrieve New Activity Profile
 
 ```JavaScript
 var profile = {"info":"the profile"};
@@ -367,4 +367,19 @@ ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question
                                   "actprofile", null,
                                   function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
 >> {info: "the profile"} 
+```
+
+###### Update Activity Profile
+
+```JavaScript
+var profile = ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                                 "actprofile");
+var oldprofhash = ADL.XAPIWrapper.hash(JSON.stringify(profile));
+profile['new'] = "changes to profile";
+ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                    "actprofile", profile, oldprofhash);
+ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                  "actprofile", null,
+                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the profile", new: "changes to profile"} 
 ```
