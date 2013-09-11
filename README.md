@@ -325,7 +325,8 @@ ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
                           "questionstate", null, newstateval, 
                           ADL.XAPIWrapper.hash(JSON.stringify(oldstateval)));
 ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
-                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+                        {"mbox":"mailto:tom@example.com"}, "questionstate",
+                        null, null, function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
 >> {info: "the new value"}
 ```
 
@@ -351,4 +352,19 @@ var states = ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/quest
                         {"mbox":"mailto:tom@example.com"}, null, null, since);
 ADL.XAPIWrapper.log(states);
 >> ["another_state"]
+```
+
+##### Activity Profile
+Allows for the storage and retrieval of data about an Activity.
+
+###### Send / Retrieve Activity Profile
+
+```JavaScript
+var profile = {"info":"the profile"};
+ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                    "actprofile", profile, null, "*");
+ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                  "actprofile", null,
+                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the profile"} 
 ```
