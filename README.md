@@ -300,10 +300,10 @@ ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question",
 >> <Activity object>
 ```
 
-##### Send Activity State
-Save activity state information for a particular agent, and optional registration.
+##### Activity State
+Save / Retrieve activity state information for a particular agent, and optional registration.
 
-###### Send Activity State 
+###### Send / Retrieve New Activity State 
 
 ```JavaScript
 var stateval = {"info":"the state info"};
