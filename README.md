@@ -99,6 +99,7 @@ ADL.XAPIWrappper.testConfig();
 
 #### Statements
 ##### Send Statement
+`function sendStatement(statement, callback)`  
 Sends a single Statement to the LRS using a PUT request. This 
 method will automatically create the Statement ID. Providing a 
 function to call after the send Statement request will make 
@@ -178,6 +179,7 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
 ```
 
 ##### Send Statements
+`function sendStatements(statementArray, callback)`  
 Sends a list of Statements to the LRS in one batch. It 
 accepts the list of Statements and a callback function as 
 arguments and returns the XHR request object if no callback 
@@ -214,6 +216,7 @@ ADL.XAPIWrapper.sendStatements(stmts, function(r){ADL.XAPIWrapper.log(JSON.parse
 ```
 
 ##### Get Statements
+`function getStatements(searchParams, more, callback)`  
 Get a single or collection of Statements based on 
 search parameters or a StatementResult more value.
 
@@ -282,6 +285,7 @@ ADL.XAPIWrapper.log(res.statements);
 
 #### Activities
 ##### Get Activity
+`function getActivities(activityid, callback)`
 Get the Activity object from the LRS by providing an Activity ID.
 
 ###### Get Activity without callback
@@ -301,6 +305,8 @@ ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question",
 ```
 
 ##### Activity State
+`function sendState(activityid, agent, stateid, registration, statevalue, matchHash, noneMatchHash, callback)`  
+`function getState(activityid, agent, stateid, registration, since, callback)`  
 Save / Retrieve activity state information for a particular agent, and optional registration.
 
 ###### Send / Retrieve New Activity State 
@@ -355,6 +361,8 @@ ADL.XAPIWrapper.log(states);
 ```
 
 ##### Activity Profile
+`function sendActivityProfile(activityid, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
+`function getActivityProfile(activityid, profileid, since, callback)`  
 Allows for the storage and retrieval of data about an Activity.
 
 ###### Send / Retrieve New Activity Profile
@@ -408,6 +416,7 @@ ADL.XAPIWrapper.log(profiles);
 ```
 #### Agents
 ##### Get Agent
+`function getAgents(agent, callback)`  
 Gets a special Person object containing all the values 
 of an Agent the LRS knows about. The Person object's 
 identifying properties are arrays and it may have more 
@@ -429,6 +438,8 @@ ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"},
 ```
 
 ##### Agent Profile
+`function sendAgentProfile(agent, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
+`function getAgentProfile(agent, profileid, since, callback)`  
 Allows for the storage and retrieval of data about an Agent.
 
 ###### Send / Retrieve New Agent Profile
