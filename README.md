@@ -406,3 +406,77 @@ var profiles = ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/acti
 ADL.XAPIWrapper.log(profiles);
 >> ["otheractprofile"]
 ```
+#### Agents
+##### Get Agent
+Gets a special Person object containing all the values 
+of an Agent the LRS knows about. The Person object's 
+identifying properties are arrays and it may have more 
+than one identifier. [See more about Person in the spec](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#getagents)
+###### Get Agent without callback
+
+```JavaScript
+var res = ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
+ADL.XAPIWrapper.log(res);
+>> <Person object>
+```
+
+###### Get Agent with callback
+
+```JavaScript
+ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"}, 
+                         function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> <Person object>
+```
+
+##### Agent Profile
+Allows for the storage and retrieval of data about an Agent.
+
+###### Send / Retrieve New Agent Profile
+
+```JavaScript
+var profile = {"info":"the agent profile"};
+ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                  "agentprofile", profile, null, "*");
+ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                 "agentprofile", null,
+                                 function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the agent profile"} 
+```
+
+###### Update Agent Profile
+
+```JavaScript
+var profile = ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                               "agentprofile");
+var oldprofhash = ADL.XAPIWrapper.hash(JSON.stringify(profile));
+profile['new'] = "changes to the agent profile";
+ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                  "agentprofile", profile, oldprofhash);
+ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                 "agentprofile", null,
+                                 function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the agent profile", new: "changes to the agent profile"} 
+```
+
+###### Get all profiles about a specific Agent
+
+```JavaScript
+var profile = {"info":"the agent profile"};
+ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                  "othergentprofile", profile, null, "*");
+ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                 null, null,
+                                 function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> ["otheragentprofile", "agentprofile"] 
+```
+
+###### Get profiles about an Agent since a certain time
+
+```JavaScript
+var since = new Date();
+since.setMinutes(since.getMinutes() - 15);
+var profiles = ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                                  null, since);
+ADL.XAPIWrapper.log(profiles);
+>> ["otheragentprofile"]
+```
