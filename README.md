@@ -3,6 +3,12 @@ xAPIWrapper
 
 Wrapper to simplify communication to an LRS. [Read more about the Experience API Spec here.](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md)
 
+## Contributing to the project
+We welcome contributions to this project. Fork this repository, 
+make changes and submit pull requests. If you're not comfortable 
+with editing the code, please submit an issue and we'll be happy 
+to address it.  
+
 ## xapiwrapper.js
 
 Javascript Experience API wrapper.  
