@@ -1001,6 +1001,6 @@ if ( !Date.prototype.toISOString ) {
         }
     };
 
-    ADL.XAPIWrapper = new XAPIWrapper(Config, true);
+    ADL.XAPIWrapper = new XAPIWrapper(Config, false);
     
 }(window.ADL = window.ADL || {}));
