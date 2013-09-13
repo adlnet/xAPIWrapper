@@ -62,6 +62,17 @@ if ( !Date.prototype.toISOString ) {
         this.xapiVersion = "1.0.0";
         this.build = "2013-09-12T12:48Z";
         this.lrs = getLRSObject(config);
+        this.base = getbase(this.lrs.endpoint);
+
+        function getbase(url)
+        {
+            var l = document.createElement("a");
+            l.href = url;
+            if (l.protocol && l.host)
+                return l.protocol + "//" + l.host;
+            else
+                ADL.XAPIWrapper.log("Couldn't create base url from endpoint: " + this.lrs.endpoint);
+        }
 
         if (verifyxapiversion && testConfig.call(this))
         {
@@ -123,6 +134,7 @@ if ( !Date.prototype.toISOString ) {
             {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
                 this.lrs = mergeRecursive(this.lrs, config);
+                this.base = getbase(this.lrs.endpoint);
             }
             catch(e)
             {
@@ -253,7 +265,7 @@ if ( !Date.prototype.toISOString ) {
             var url = this.lrs.endpoint + "statements";
             if (more)
             {
-                url = this.lrs.endpoint + more
+                url = this.base + more;
             }
             else
             {
