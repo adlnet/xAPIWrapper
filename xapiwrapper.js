@@ -60,7 +60,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.xapiVersion = "1.0.0";
-        this.build = "2013-09-13T14:25Z";
+        this.build = "2013-09-13T18:41Z";
         this.lrs = getLRSObject(config);
         this.base = getbase(this.lrs.endpoint);
 
@@ -210,7 +210,7 @@ if ( !Date.prototype.toISOString ) {
                 stmt['id'] = id;
             }
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
-                "PUT", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id});
+                "POST", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id});
             if (!callback)
                 return {"xhr":resp,
                         "id" :id};
