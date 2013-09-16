@@ -254,7 +254,7 @@ var res = ADL.XAPIWrapper.getStatements();
 ADL.XAPIWrapper.log(res.statements);
 >> <Array of statements>
 
-if (res.more !== ""){
+if (res.more && res.more !== ""){
    var more = ADL.XAPIWrapper.getStatements(null, res.more);
    ADL.XAPIWrapper.log(more.statements);
 >> <Array of statements>
@@ -267,7 +267,7 @@ ADL.XAPIWrapper.getStatements(null, null,
    function getmore(r){
       var res = JSON.parse(r.response);
       ADL.XAPIWrapper.log(res.statements);
-      if (res.more !== ""){
+      if (res.more && res.more !== ""){
          ADL.XAPIWrapper.getStatements(null, res.more, getmore);
       }
    });
