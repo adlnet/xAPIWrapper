@@ -60,7 +60,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.xapiVersion = "1.0.0";
-        this.build = "2013-09-13T18:41Z";
+        this.build = "2013-09-20T13:49Z";
         this.lrs = getLRSObject(config);
         this.base = getbase(this.lrs.endpoint);
 
@@ -970,6 +970,7 @@ if ( !Date.prototype.toISOString ) {
                             + xhr.status + " | " + xhr.response+ " )" + xhr.url);
                     } catch (ex) {alert (ex.toString());}
                     //throw new Error("debugger");
+                    result = xhr;
                     return xhr;
                 }
             } else {
@@ -979,7 +980,7 @@ if ( !Date.prototype.toISOString ) {
 
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
-                requestComplete();
+               return requestComplete();
             }
         };
 
