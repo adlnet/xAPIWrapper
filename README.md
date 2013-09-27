@@ -87,7 +87,7 @@ var creds = {
   "user" : "lou",
   "password" : "5678",
 };
-ADL.XAPIWrapper.updateAuth(creds);
+ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
 ```  
 
 #### Launch Parameters
