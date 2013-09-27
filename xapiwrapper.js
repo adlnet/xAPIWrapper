@@ -60,8 +60,10 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.xapiVersion = "1.0.0";
-        this.build = "2013-09-25T17:16Z";
+        this.build = "2013-09-27T17:58Z";
         this.lrs = getLRSObject(config);
+        if (this.lrs.user && this.lrs.password)
+            updateAuth(this.lrs, this.lrs.user, this.lrs.password);
         this.base = getbase(this.lrs.endpoint);
 
         function getbase(url)
@@ -72,6 +74,10 @@ if ( !Date.prototype.toISOString ) {
                 return l.protocol + "//" + l.host;
             else
                 ADL.XAPIWrapper.log("Couldn't create base url from endpoint: " + this.lrs.endpoint);
+        }
+
+        function updateAuth(obj, username, password){
+            obj.auth = "Basic " + Base64.encode(username + ":" + password);
         }
 
         if (verifyxapiversion && testConfig.call(this))
@@ -144,9 +150,7 @@ if ( !Date.prototype.toISOString ) {
             }
         };
 
-        this.updateAuth = function(username, password){
-            this.lrs.auth = "Basic " + Base64.encode(username + ":" + password);
-        }
+        this.updateAuth = updateAuth;
     };
 
     /*
@@ -742,17 +746,23 @@ if ( !Date.prototype.toISOString ) {
         var lrs = new Object();
         var qsVars, prop;
         
-        qsVars = mergeRecursive(config, parseQueryString());
-        
-        for (var i = 0; i<lrsProps.length; i++){
-            prop = lrsProps[i];
-            if (qsVars[prop]){
-                lrs[prop] = qsVars[prop];
-                delete qsVars[prop];
+        qsVars = parseQueryString();
+        if (qsVars !== undefined) {
+            for (var i = 0; i<lrsProps.length; i++){
+                prop = lrsProps[i];
+                if (qsVars[prop]){
+                    lrs[prop] = qsVars[prop];
+                    delete qsVars[prop];
+                }
             }
+            
+            lrs.extended = qsVars;
+
+            lrs = mergeRecursive(lrs, config);
         }
-        
-        lrs.extended = qsVars;
+        else {
+            lrs = config;
+        }
         
         return lrs;
     }
@@ -760,12 +770,13 @@ if ( !Date.prototype.toISOString ) {
     // parses the params in the url query string
     function parseQueryString() 
     {
-        var loc, qs, pairs, pair, ii, parsed = {};
+        var loc, qs, pairs, pair, ii, parsed;
         
         loc = window.location.href.split('?');
         if (loc.length === 2) {
             qs = loc[1];
             pairs = qs.split('&');
+            parsed = {};
             for ( ii = 0; ii < pairs.length; ii++) {
                 pair = pairs[ii].split('=');
                 if (pair.length === 2 && pair[0]) {
