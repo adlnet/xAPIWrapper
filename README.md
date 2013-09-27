@@ -64,11 +64,32 @@ var Config = function()
 
 ```JavaScript
 var conf = {
-  "endpoint" : "http://lrs.adlnet.gov/xapi/";
-  "auth" : "Basic " + Base64.encode('tom:1234');
-}
+  "endpoint" : "http://lrs.adlnet.gov/xapi/",
+  "auth" : "Basic " + Base64.encode('tom:1234'),
+};
 ADL.XAPIWrapper.changeConfig(conf);
 ```  
+Optionally, auth credentials can be updated by user and password properties on the 
+configuration object:  
+
+```JavaScript
+var conf = {
+  "endpoint" : "http://lrs.adlnet.gov/xapi/",
+  "user" : "lou",
+  "password" : "5678",
+};
+ADL.XAPIWrapper.changeConfig(conf);
+```  
+or  
+
+```JavaScript
+var creds = {
+  "user" : "lou",
+  "password" : "5678",
+};
+ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
+```  
+
 #### Launch Parameters
 The configuration will also look for url query parameters and use those 
 name - value pairs in the XAPIWrapper's internal configuration. That means 
