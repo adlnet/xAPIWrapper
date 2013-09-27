@@ -62,6 +62,7 @@ if ( !Date.prototype.toISOString ) {
         this.xapiVersion = "1.0.0";
         this.build = "2013-09-25T17:16Z";
         this.lrs = getLRSObject(config);
+        this.changeConfig(config);
         this.base = getbase(this.lrs.endpoint);
 
         function getbase(url)
