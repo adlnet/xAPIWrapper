@@ -539,10 +539,19 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 ###### Get profiles about an Agent since a certain time
 
 ```JavaScript
+var otheragent = {"mbox":"mailto:tom@example.com"};
+var profile = {"info":"the other agent profile"};
+var otherprofid = "the-other-profile-id";
+
+ADL.XAPIWrapper.sendAgentProfile(otheragent, otherprofid, profile, null, "*");
+
 var since = new Date();
-since.setMinutes(since.getMinutes() - 15);
-var profiles = ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
-                                                  null, since);
-ADL.XAPIWrapper.log(profiles);
->> ["otheragentprofile"]
+var newprof = {"info":"the new other agent profile"};
+var newotherprofid = "the-new-other-profile-id";
+
+ADL.XAPIWrapper.sendAgentProfile(otheragent, newotherprofid, newprof, null, "*");
+var sinceprofiles = ADL.XAPIWrapper.getAgentProfile(otheragent, null, since);
+
+ADL.XAPIWrapper.log(sinceprofiles);
+>> ["the-new-other-profile-id"]
 ```
