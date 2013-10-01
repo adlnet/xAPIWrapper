@@ -255,7 +255,7 @@ this call is included to support report style pages.
 ```JavaScript
 var ret = ADL.XAPIWrapper.getStatements();
 if (ret)
-   API.Wrapper.log(ret.statements);
+   ADL.XAPIWrapper.log(ret.statements);
 
 >> <Array of statements>
 ```
