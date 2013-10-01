@@ -60,7 +60,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.xapiVersion = "1.0.0";
-        this.build = "2013-09-27T17:58Z";
+        this.build = "2013-10-01T14:00Z";
         this.lrs = getLRSObject(config);
         if (this.lrs.user && this.lrs.password)
             updateAuth(this.lrs, this.lrs.user, this.lrs.password);
@@ -396,7 +396,7 @@ if ( !Date.prototype.toISOString ) {
                 this.log("No activity profile was included.");
             }
             //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
-            ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers);
+            ADL.XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers);
         }
     };
 
@@ -500,7 +500,7 @@ if ( !Date.prototype.toISOString ) {
                 this.log("No activity profile was included.");
             }
 
-            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers);
+            ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers);
         }
     };
 
@@ -631,7 +631,7 @@ if ( !Date.prototype.toISOString ) {
                 this.log("No activity profile was included.");
             }
 
-            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers);
+            ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers);
         }
     };
 
