@@ -382,20 +382,20 @@ ADL.XAPIWrapper.log(states);
 ```JavaScript
 var actid = "tag:adlnet.gov,2013:expapi:1.0.0:activity:question/1";
 var stateval = {"info":"the state info"};
-var statehash = TestThis.hash(JSON.stringify(stateval));
-TestThis.sendState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
-var stateret = TestThis.getState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate");
+var statehash = ADL.XAPIWrapper.hash(JSON.stringify(stateval));
+ADL.XAPIWrapper.sendState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
+var stateret = ADL.XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate");
 ADL.XAPIWrapper.log(stateret);
 >> {"info":"the state info"}
 
 var sincehere = new Date();
 var anotherstate = {"more": "info about act and agent","other":"stuff"};
-TestThis.sendState(actid, {"mbox":"mailto:tom@example.com"}, "another_state", null, anotherstate);
-var states = TestThis.getState(actid, {"mbox":"mailto:tom@example.com"});
+ADL.XAPIWrapper.sendState(actid, {"mbox":"mailto:tom@example.com"}, "another_state", null, anotherstate);
+var states = ADL.XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"});
 ADL.XAPIWrapper.log(states);
 >> ["questionstate", "another_state"] 
 
-var states = TestThis.getState(actid, {"mbox":"mailto:tom@example.com"}, null, null, sincehere);
+var states = ADL.XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"}, null, null, sincehere);
 ADL.XAPIWrapper.log(states);
 >> ["another_state"] 
 ```
