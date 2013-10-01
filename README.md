@@ -278,6 +278,7 @@ ADL.XAPIWrapper.log(res.statements);
 if (res.more && res.more !== ""){
    var more = ADL.XAPIWrapper.getStatements(null, res.more);
    ADL.XAPIWrapper.log(more.statements);
+}
 >> <Array of statements>
 ```
 
