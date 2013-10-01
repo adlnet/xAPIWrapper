@@ -447,12 +447,27 @@ ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question
 ###### Get profiles about an Activity since a certain time
 
 ```JavaScript
+var actid = "tag:adlnet.gov,2013:expapi:1.0.0:activity:testing/xapiwrapper/activityprofile";
+var profid = "testprofile";
+var actprof = {"info":"the activity profile info"};
+var actprofhash = ADL.XAPIWrapper.hash(JSON.stringify(actprof));
+
+ADL.XAPIWrapper.sendActivityProfile(actid, profid, actprof, null, actprofhash);
+var actprofret = ADL.XAPIWrapper.getActivityProfile(actid, profid);
+
+ADL.XAPIWrapper.log(actprofret);
+>> {"info": "the activity profile info"}
+
 var since = new Date();
-since.setMinutes(since.getMinutes() - 15);
-var profiles = ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
-                                                  null, since);
+
+var newprofid = "new-profile";
+var profile = {"info":"the profile"};
+
+ADL.XAPIWrapper.sendActivityProfile(actid, newprofid, profile, null, "*");
+var profiles = ADL.XAPIWrapper.getActivityProfile(actid, null, since);
+
 ADL.XAPIWrapper.log(profiles);
->> ["otheractprofile"]
+>> ["new-profile"]
 ```
 #### Agents
 ##### Get Agent
