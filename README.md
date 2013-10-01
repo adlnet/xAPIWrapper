@@ -120,7 +120,7 @@ configuration object inside the xapiwrapper.js file. If you modified this
 object with your configuration, then xAPI Wrapper object is ready to use.
 
 ``` shell
-ADL.XAPIWrappper.testConfig();
+ADL.XAPIWrapper.testConfig();
 >> true
 ```
 
