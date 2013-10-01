@@ -380,6 +380,7 @@ ADL.XAPIWrapper.log(states);
 ###### Get states for given Activity and Agent since a certain time
 
 ```JavaScript
+var actid = "tag:adlnet.gov,2013:expapi:1.0.0:activity:question/1";
 var stateval = {"info":"the state info"};
 var statehash = TestThis.hash(JSON.stringify(stateval));
 TestThis.sendState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
