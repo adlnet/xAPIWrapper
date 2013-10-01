@@ -380,12 +380,23 @@ ADL.XAPIWrapper.log(states);
 ###### Get states for given Activity and Agent since a certain time
 
 ```JavaScript
-var since = new Date();
-since.setMinutes(since.getMinutes() - 15);
-var states = ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
-                        {"mbox":"mailto:tom@example.com"}, null, null, since);
+var stateval = {"info":"the state info"};
+var statehash = TestThis.hash(JSON.stringify(stateval));
+TestThis.sendState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
+var stateret = TestThis.getState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate");
+ADL.XAPIWrapper.log(stateret);
+>> {"info":"the state info"}
+
+var sincehere = new Date();
+var anotherstate = {"more": "info about act and agent","other":"stuff"};
+TestThis.sendState(actid, {"mbox":"mailto:tom@example.com"}, "another_state", null, anotherstate);
+var states = TestThis.getState(actid, {"mbox":"mailto:tom@example.com"});
 ADL.XAPIWrapper.log(states);
->> ["another_state"]
+>> ["questionstate", "another_state"] 
+
+var states = TestThis.getState(actid, {"mbox":"mailto:tom@example.com"}, null, null, sincehere);
+ADL.XAPIWrapper.log(states);
+>> ["another_state"] 
 ```
 
 ##### Activity Profile
