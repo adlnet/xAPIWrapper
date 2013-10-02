@@ -141,7 +141,7 @@ if ( !Date.prototype.toISOString ) {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
                 this.lrs = mergeRecursive(this.lrs, config);
                 if (config.user && config.password)
-                    this.updateAuth(config.user, config.password);
+                    this.updateAuth(this.lrs, config.user, config.password);
                 this.base = getbase(this.lrs.endpoint);
             }
             catch(e)
@@ -382,21 +382,30 @@ if ( !Date.prototype.toISOString ) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
+            var method = "PUT";
             if (stateval)
             {
-                if (typeof stateval === "object")
+                if (stateval instanceof Array)
                 {
                     stateval = JSON.stringify(stateval);
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                 }
+                if (stateval instanceof Object)
+                {
+                    stateval = JSON.stringify(stateval);
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/json";
+                    method = "POST";
+                }
             }
             else
             {
-                this.log("No activity profile was included.");
+                this.log("No activity state was included.");
+                return false;
             }
             //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
-            ADL.XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers);
+            ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback, null, null, headers);
         }
     };
 
@@ -491,16 +500,30 @@ if ( !Date.prototype.toISOString ) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
+            var method = "PUT";
             if (profileval)
             {
-                profileval = (typeof profileval === "string") ? profileval : JSON.stringify(profileval);
+                if (profileval instanceof Array)
+                {
+                    profileval = JSON.stringify(profileval);
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/json";
+                }
+                if (profileval instanceof Object)
+                {
+                    profileval = JSON.stringify(profileval);
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/json";
+                    method = "POST";
+                }
             }
             else
             {
                 this.log("No activity profile was included.");
+                return false;
             }
 
-            ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers);
+            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers);
         }
     };
 
@@ -622,16 +645,30 @@ if ( !Date.prototype.toISOString ) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
+            var method = "PUT";
             if (profileval)
             {
-                profileval = (typeof profileval === "string") ? profileval : JSON.stringify(profileval);
+                if (profileval instanceof Array)
+                {
+                    profileval = JSON.stringify(profileval);
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/json";
+                }
+                if (profileval instanceof Object)
+                {
+                    profileval = JSON.stringify(profileval);
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/json";
+                    method = "POST";
+                }
             }
             else
             {
-                this.log("No activity profile was included.");
+                this.log("No agent profile was included.");
+                return false;
             }
 
-            ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers);
+            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers);
         }
     };
 
@@ -758,7 +795,7 @@ if ( !Date.prototype.toISOString ) {
             
             lrs.extended = qsVars;
 
-            lrs = mergeRecursive(lrs, config);
+            lrs = mergeRecursive(config, lrs);
         }
         else {
             lrs = config;
