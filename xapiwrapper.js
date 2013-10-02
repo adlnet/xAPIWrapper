@@ -141,7 +141,7 @@ if ( !Date.prototype.toISOString ) {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
                 this.lrs = mergeRecursive(this.lrs, config);
                 if (config.user && config.password)
-                    this.updateAuth(config.user, config.password);
+                    this.updateAuth(this.lrs, config.user, config.password);
                 this.base = getbase(this.lrs.endpoint);
             }
             catch(e)
@@ -758,7 +758,7 @@ if ( !Date.prototype.toISOString ) {
             
             lrs.extended = qsVars;
 
-            lrs = mergeRecursive(lrs, config);
+            lrs = mergeRecursive(config, lrs);
         }
         else {
             lrs = config;
