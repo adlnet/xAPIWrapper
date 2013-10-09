@@ -59,8 +59,6 @@ if ( !Date.prototype.toISOString ) {
      */
     XAPIWrapper = function(config, verifyxapiversion)
     {
-        this.xapiVersion = "1.0.0";
-        this.build = "2013-10-01T14:00Z";
         this.lrs = getLRSObject(config);
         if (this.lrs.user && this.lrs.password)
             updateAuth(this.lrs, this.lrs.user, this.lrs.password);
@@ -152,6 +150,12 @@ if ( !Date.prototype.toISOString ) {
 
         this.updateAuth = updateAuth;
     };
+
+    // This wrapper is based on the Experience API Spec version:
+    XAPIWrapper.prototype.xapiVersion = "1.0.1";
+
+    // This wrapper was built on:
+    XAPIWrapper.prototype.build = "2013-10-09T12:13Z";
 
     /*
      * prepareStatement
@@ -973,7 +977,7 @@ if ( !Date.prototype.toISOString ) {
         var headers = {};
         headers["Content-Type"] = "application/json";
         headers["Authorization"] = auth;
-        headers['X-Experience-API-Version'] = '1.0.0';
+        headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
         if(extraHeaders !== null){
             for(var headerName in extraHeaders){
                 headers[headerName] = extraHeaders[headerName];
