@@ -169,6 +169,9 @@ if ( !Date.prototype.toISOString ) {
         if(stmt.actor === undefined){
             stmt.actor = JSON.parse(lrs.actor);
         }
+        else if(typeof stmt.actor === "string") {
+            stmt.actor = JSON.parse(stmt.actor);
+        }
         if (this.lrs.grouping || 
             this.lrs.registration || 
             this.lrs.activity_platform) {
