@@ -155,7 +155,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2013-10-09T12:13Z";
+    XAPIWrapper.prototype.build = "2013-10-18T19:58Z";
 
     /*
      * prepareStatement
