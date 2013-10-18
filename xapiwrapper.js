@@ -964,18 +964,7 @@ if ( !Date.prototype.toISOString ) {
             extended,
             prop,
             until;
-
-        // add extended LMS-specified values to the URL
-        if (lrs !== null && lrs.extended !== undefined) {
-            extended = new Array();
-            for (prop in lrs.extended) {
-                extended.push(prop + "=" + encodeURIComponent(lrs.extended[prop]));
-            }
-            if (extended.length > 0) {
-                url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
-            }
-        }
-         
+ 
         //Consolidate headers
         var headers = {};
         headers["Content-Type"] = "application/json";
