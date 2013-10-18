@@ -155,7 +155,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2013-10-09T12:13Z";
+    XAPIWrapper.prototype.build = "2013-10-18T19:58Z";
 
     /*
      * prepareStatement
@@ -964,18 +964,7 @@ if ( !Date.prototype.toISOString ) {
             extended,
             prop,
             until;
-
-        // add extended LMS-specified values to the URL
-        if (lrs !== null && lrs.extended !== undefined) {
-            extended = new Array();
-            for (prop in lrs.extended) {
-                extended.push(prop + "=" + encodeURIComponent(lrs.extended[prop]));
-            }
-            if (extended.length > 0) {
-                url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
-            }
-        }
-         
+ 
         //Consolidate headers
         var headers = {};
         headers["Content-Type"] = "application/json";
