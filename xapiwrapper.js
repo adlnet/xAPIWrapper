@@ -155,7 +155,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2013-10-18T19:58Z";
+    XAPIWrapper.prototype.build = "2013-10-28T17:08Z";
 
     /*
      * prepareStatement
@@ -398,12 +398,17 @@ if ( !Date.prototype.toISOString ) {
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                 }
-                if (stateval instanceof Object)
+                else if (stateval instanceof Object)
                 {
                     stateval = JSON.stringify(stateval);
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                     method = "POST";
+                }
+                else
+                {
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/octect-stream";
                 }
             }
             else
@@ -516,12 +521,17 @@ if ( !Date.prototype.toISOString ) {
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                 }
-                if (profileval instanceof Object)
+                else if (profileval instanceof Object)
                 {
                     profileval = JSON.stringify(profileval);
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                     method = "POST";
+                }
+                else
+                {
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/octect-stream";
                 }
             }
             else
@@ -661,12 +671,17 @@ if ( !Date.prototype.toISOString ) {
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                 }
-                if (profileval instanceof Object)
+                else if (profileval instanceof Object)
                 {
                     profileval = JSON.stringify(profileval);
                     headers = headers || {};
                     headers["Content-Type"] ="application/json";
                     method = "POST";
+                }
+                else
+                {
+                    headers = headers || {};
+                    headers["Content-Type"] ="application/octect-stream";
                 }
             }
             else
@@ -907,7 +922,7 @@ if ( !Date.prototype.toISOString ) {
     ADL.dateFromISOString = function(isostr) 
     {
         var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
-            "(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
+            "([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
             "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?";
         var d = isostr.match(new RegExp(regexp));
 
