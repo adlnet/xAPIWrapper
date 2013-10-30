@@ -155,7 +155,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2013-10-28T17:08Z";
+    XAPIWrapper.prototype.build = "2013-10-30T15:00Z";
 
     /*
      * prepareStatement
@@ -784,11 +784,19 @@ if ( !Date.prototype.toISOString ) {
                 } 
                 else 
                 {
+                  if (obj1 == undefined)
+                  {
+                    obj1 = new Object();
+                  }
                     obj1[p] = obj2[p];
                 } 
             } 
             catch(e) 
             {
+              if (obj1 == undefined)
+              {
+                obj1 = new Object();
+              }              
               // Property in destination object not set; create it and set its value.
               obj1[p] = obj2[p];
             }
