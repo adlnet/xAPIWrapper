@@ -155,7 +155,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2013-10-30T15:00Z";
+    XAPIWrapper.prototype.build = "2013-12-09T20:00Z";
 
     /*
      * prepareStatement
@@ -167,7 +167,7 @@ if ( !Date.prototype.toISOString ) {
     XAPIWrapper.prototype.prepareStatement = function(stmt)
     {
         if(stmt.actor === undefined){
-            stmt.actor = JSON.parse(lrs.actor);
+            stmt.actor = JSON.parse(this.lrs.actor);
         }
         else if(typeof stmt.actor === "string") {
             stmt.actor = JSON.parse(stmt.actor);
