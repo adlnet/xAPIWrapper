@@ -1032,7 +1032,18 @@ if ( !Date.prototype.toISOString ) {
                 var notFoundOk = (ignore404 && xhr.status === 404);
                 if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
                     if (callback) {
-                        callback(xhr, callbackargs);
+                        if(callbackargs){
+                            callback(xhr, callbackargs);
+                        }
+                        else {
+                            try {
+                                var body = JSON.parse(xhr.responseText);
+                                callback(xhr,body);
+                            }
+                            catch(e){
+                                callback(xhr,xhr.responseText);
+                            }
+                        }
                     } else {
                         result = xhr;
                         return xhr;
