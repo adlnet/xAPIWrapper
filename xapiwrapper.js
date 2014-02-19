@@ -1087,5 +1087,93 @@ if ( !Date.prototype.toISOString ) {
     };
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
-    
+
+
+
+	/*******************************************************************************
+	 * XAPIStatement - a convenience class to wrap statement objects               *
+	 *******************************************************************************/
+
+	var XAPIStatement = function(actor,verb,object)
+	{
+		// uninherited methods
+		this.isValid = function()
+		{
+			var hasValidActor = this.actor && (
+				this.actor.mbox || this.actor.mbox_sha1sum || this.actor.openid
+		        || (this.actor.account.homePage && this.actor.account.name)
+		        || (this.actor.objectType == 'Group' && this.actor.member));
+
+			return hasValidActor;
+		};
+
+		// initialize
+
+		// if first arg is an xapi statement, parse and exit
+		if( actor && actor.actor && actor.object && actor.verb ){
+			for(var i in actor){
+				this[i] = actor[i];
+			}
+			return;
+		}
+		
+		// decide if actor is valid (either an IFI or a member list)
+		if(actor && (actor.mbox || actor.mbox_sha1sum || actor.openid
+		|| (actor.account.homePage && actor.account.name)
+		|| (actor.objectType == 'Group' && actor.member)))
+		{
+			this.actor = actor;
+		}
+		else {
+			this.actor = {};
+		}
+	};
+
+	XAPIStatement.prototype.toString = function()
+	{
+		return JSON.stringify(this);
+	};
+
+	var Agent = function(identifier, name)
+	{
+		this.objectType = 'Agent';
+		this.name = name;
+
+		// figure out what type of identifier was given
+		if( identifier && identifier.objectType && (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
+			for(var i in identifier){
+				this[i] = identifier[i];
+			}
+		}
+		else if( /^mailto:/.test(identifier) ){
+			this.mbox = identifier;
+		}
+		else if( /[0-9a-f]{20}/i.test(identifier) ){
+			this.mbox_sha1sum = identifier;
+		}
+		else if( /^http[s]?:/.test(identifier) ){
+			this.openid = identifier;
+		}
+		else if( identifier && identifier.homePage && identifier.name ){
+			this.account = identifier;
+		}
+	};
+
+	Agent.prototype.toString = function()
+	{
+		return this.name || this.mbox || this.openid;
+	};
+
+	var Group = function(identifier, members, name)
+	{
+		Agent.call(this, identifier, name);
+		this.member = members;
+		this.objectType = 'Group';
+	};
+	Group.prototype = new Agent;
+
+	XAPIStatement.Agent = Agent;
+	XAPIStatement.Group = Group;
+	ADL.XAPIStatement = XAPIStatement;
+
 }(window.ADL = window.ADL || {}));
