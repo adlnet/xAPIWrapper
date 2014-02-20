@@ -1096,36 +1096,31 @@ if ( !Date.prototype.toISOString ) {
 
 	var XAPIStatement = function(actor,verb,object)
 	{
-		// uninherited methods
-		this.isValid = function()
-		{
-			var hasValidActor = this.actor && (
-				this.actor.mbox || this.actor.mbox_sha1sum || this.actor.openid
-		        || (this.actor.account.homePage && this.actor.account.name)
-		        || (this.actor.objectType == 'Group' && this.actor.member));
-
-			return hasValidActor;
-		};
 
 		// initialize
 
 		// if first arg is an xapi statement, parse and exit
-		if( actor && actor.actor && actor.object && actor.verb ){
+		/*if( actor && actor.actor && actor.object && actor.verb ){
 			for(var i in actor){
 				this[i] = actor[i];
 			}
 			return;
-		}
+		}*/
 		
 		// decide if actor is valid (either an IFI or a member list)
-		if(actor && (actor.mbox || actor.mbox_sha1sum || actor.openid
-		|| (actor.account.homePage && actor.account.name)
-		|| (actor.objectType == 'Group' && actor.member)))
-		{
-			this.actor = actor;
+		if( Agent.prototype.isValid.call(actor) ){
+			this.actor = new Agent(actor);
 		}
 		else {
-			this.actor = {};
+			this.actor = new Agent();
+		}
+
+		// decide if verb is valid
+		if( Verb.prototype.isValid.call(verb) ){
+			this.verb = new Verb(verb);
+		}
+		else {
+			this.verb = new Verb();
 		}
 	};
 
@@ -1134,13 +1129,16 @@ if ( !Date.prototype.toISOString ) {
 		return JSON.stringify(this);
 	};
 
+	/*
+	 * Agent - provides easy constructor for xAPI agent objects
+	 */
 	var Agent = function(identifier, name)
 	{
 		this.objectType = 'Agent';
 		this.name = name;
 
 		// figure out what type of identifier was given
-		if( identifier && identifier.objectType && (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
+		if( identifier && (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
 			for(var i in identifier){
 				this[i] = identifier[i];
 			}
@@ -1158,12 +1156,17 @@ if ( !Date.prototype.toISOString ) {
 			this.account = identifier;
 		}
 	};
-
-	Agent.prototype.toString = function()
+	Agent.prototype = new XAPIStatement;
+	Agent.prototype.isValid = function()
 	{
-		return this.name || this.mbox || this.openid;
-	};
+		return this.mbox || this.mbox_sha1sum || this.openid
+	    || (this.account.homePage && this.account.name)
+	    || (this.objectType === 'Group' && this.member);
+	}
 
+	/*
+	 * Group - Type of agent, can contain multiple agents
+	 */
 	var Group = function(identifier, members, name)
 	{
 		Agent.call(this, identifier, name);
@@ -1172,8 +1175,39 @@ if ( !Date.prototype.toISOString ) {
 	};
 	Group.prototype = new Agent;
 
+	/*
+	 * Verb - Really only provides a convenient language map
+	 */
+	var Verb = function(id, description)
+	{
+		// if passed a verb object then copy and return
+		if( id instanceof Object && id.id ){
+			for(var i in id){
+				this[i] = id[i];
+			}
+			return;
+		}
+
+		// save id and build language map
+		this.id = id;
+		if(description)
+		{
+			if( typeof(description) === 'string' || description instanceof String ){
+				this.display = {'en-US': description};
+			}
+			else {
+				this.display = description;
+			}
+		}
+	};
+	Verb.prototype = new XAPIStatement;
+	Verb.prototype.isValid = function(){
+		return this.id;
+	};
+
 	XAPIStatement.Agent = Agent;
 	XAPIStatement.Group = Group;
+	XAPIStatement.Verb = Verb;
 	ADL.XAPIStatement = XAPIStatement;
 
 }(window.ADL = window.ADL || {}));
