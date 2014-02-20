@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="base64.js"></script>
+		<script src="xapiwrapper.js"></script>
+		<script type="text/javascript">
+
+		function init()
+		{
+			var stmt = new ADL.XAPIStatement(
+				new ADL.XAPIStatement.Agent('mailto:steve.vergenz.ctr@adlnet.gov', 'Steven Vergenz'),
+				new ADL.XAPIStatement.Verb('http://adlnet.gov/expapi/verbs/launched', 'launched'),
+				new ADL.XAPIStatement.Activity('act:wrapper_test', 'xAPIWrapper test page',
+					'A website that exercises the functions of the xAPIWrapper')
+			);
+			
+			var stmt2 = new ADL.XAPIStatement(
+				new ADL.XAPIStatement.Agent('mailto:steve.vergenz.ctr@adlnet.gov', 'Steven Vergenz'),
+				new ADL.XAPIStatement.Verb('http://adlnet.gov/expapi/verbs/voided', 'voided'),
+				new ADL.XAPIStatement.SubStatement(stmt)
+			);
+			console.log(stmt2.toString());
+			var o = document.getElementById('output');
+			o.innerText = JSON.stringify(stmt2, null, '    ');
+		}
+
+		</script>
+	</head>
+	<body onload='init()'>
+		<code><pre id='output'></pre></code>
+	</body>
+</html>

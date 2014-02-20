@@ -1099,36 +1099,50 @@ if ( !Date.prototype.toISOString ) {
 
 		// initialize
 
-		// if first arg is an xapi statement, parse and exit
-		/*if( actor && actor.actor && actor.object && actor.verb ){
-			for(var i in actor){
-				this[i] = actor[i];
+		// if first arg is an xapi statement, parse
+		if( actor && actor.actor && actor.verb && actor.object ){
+			var stmt = actor;
+			for(var i in stmt){
+				if(i != 'actor' && i != 'verb' && i != 'object')
+					this[i] = stmt[i];
 			}
-			return;
-		}*/
+			actor = stmt.actor;
+			verb = stmt.verb;
+			object = stmt.object;
+		}
 		
-		// decide if actor is valid (either an IFI or a member list)
-		if( Agent.prototype.isValid.call(actor) ){
-			this.actor = new Agent(actor);
+		if(actor){
+			if(actor.objectType === 'Agent' || !actor.objectType)
+				this.actor = new Agent(actor);
+			else if(actor.objectType === 'Group')
+				this.actor = new Group(actor);
 		}
-		else {
-			this.actor = new Agent();
-		}
-
-		// decide if verb is valid
-		if( Verb.prototype.isValid.call(verb) ){
+		
+		if(verb)
 			this.verb = new Verb(verb);
-		}
-		else {
-			this.verb = new Verb();
+		
+		// decide what kind of object was passed
+		if(object)
+		{
+			if( object.objectType === 'Activity' || !object.objectType )
+				this.object = new Activity(object);
+			else if( object.objectType === 'Agent' )
+				this.object = new Agent(object);
+			else if( object.objectType === 'Group' )
+				this.object = new Group(object);
+			else if( object.objectType === 'StatementRef' )
+				this.object = new StatementRef(object);
+			else if( object.objectType === 'SubStatement' )
+				this.object = new SubStatement(object);
 		}
 	};
 
-	XAPIStatement.prototype.toString = function()
-	{
-		return JSON.stringify(this);
+	XAPIStatement.prototype.toString = function(){
+		console.log('Statement print');
+		return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString();
 	};
 
+	
 	/*
 	 * Agent - provides easy constructor for xAPI agent objects
 	 */
@@ -1156,14 +1170,17 @@ if ( !Date.prototype.toISOString ) {
 			this.account = identifier;
 		}
 	};
-	Agent.prototype = new XAPIStatement;
+	Agent.prototype.toString = function(){
+		return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
+	};
 	Agent.prototype.isValid = function()
 	{
 		return this.mbox || this.mbox_sha1sum || this.openid
 	    || (this.account.homePage && this.account.name)
 	    || (this.objectType === 'Group' && this.member);
-	}
+	};
 
+	
 	/*
 	 * Group - Type of agent, can contain multiple agents
 	 */
@@ -1175,13 +1192,14 @@ if ( !Date.prototype.toISOString ) {
 	};
 	Group.prototype = new Agent;
 
+	
 	/*
 	 * Verb - Really only provides a convenient language map
 	 */
 	var Verb = function(id, description)
 	{
 		// if passed a verb object then copy and return
-		if( id instanceof Object && id.id ){
+		if( id && id.id ){
 			for(var i in id){
 				this[i] = id[i];
 			}
@@ -1200,14 +1218,98 @@ if ( !Date.prototype.toISOString ) {
 			}
 		}
 	};
-	Verb.prototype = new XAPIStatement;
+	Verb.prototype.toString = function(){
+		if(this.display && (this.display['en-US'] || this.display['en']))
+			return this.display['en-US'] || this.display['en'];
+		else
+			return this.id;
+	};
 	Verb.prototype.isValid = function(){
 		return this.id;
 	};
 
+	
+	/*
+	 * Activity - Describes an object that an agent interacts with
+	 */
+	var Activity = function(id, name, description)
+	{
+		// if first arg is activity, copy everything over
+		if(id.id){
+			var act = id;
+			for(var i in act){
+				this[i] = act[i];
+			}
+			return;
+		}
+		
+		this.objectType = 'Activity';
+		this.id = id;
+		if( name || description )
+		{
+			this.definition = {};
+			
+			if( typeof(name) === 'string' || name instanceof String )
+				this.definition.name = {'en-US': name};
+			else
+				this.definition.name = name;
+			
+			if( typeof(description) === 'string' || description instanceof String )
+				this.definition.description = {'en-US': description};
+			else 
+				this.definition.description = description;
+		}
+	};
+	Activity.prototype.toString = function(){
+		if(this.definition && this.definition.name && (this.definition.name['en-US'] || this.definition.name['en']))
+			return this.definition.name['en-US'] || this.definition.name['en'];
+		else
+			return this.id;
+	};
+	Activity.prototype.isValid = function(){
+		return this.id && (!this.objectType || this.objectType === 'Activity');
+	};
+	
+	/*
+	 * StatementRef - An object that refers to a separate statement
+	 */
+	var StatementRef = function(id){
+		if(id && id.id){
+			for(var i in id){
+				this[i] = id[i];
+			}
+		}
+		else {
+			this.objectType = 'StatementRef';
+			this.id = id;
+		}
+	};
+	StatementRef.prototype.toString = function(){
+		return 'statement('+this.id+')';
+	};
+	StatementRef.prototype.isValid = function(){
+		return this.id && this.objectType && this.objectType === 'StatementRef';
+	};
+	
+	/*
+	 * SubStatement
+	 */
+	var SubStatement = function(actor, verb, object){
+		XAPIStatement.call(this,actor,verb,object);
+		this.objectType = 'SubStatement';
+	};
+	SubStatement.prototype = new XAPIStatement;
+	SubStatement.prototype.toString = function(){
+		console.log('substatement print');
+		return '"' + SubStatement.prototype.prototype.toString.call(this) + '"';
+	}
+	
 	XAPIStatement.Agent = Agent;
 	XAPIStatement.Group = Group;
 	XAPIStatement.Verb = Verb;
+	XAPIStatement.Activity = Activity;
+	XAPIStatement.StatementRef = StatementRef;
+	XAPIStatement.SubStatement = SubStatement;
 	ADL.XAPIStatement = XAPIStatement;
 
 }(window.ADL = window.ADL || {}));
