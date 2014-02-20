@@ -1094,6 +1094,9 @@ if ( !Date.prototype.toISOString ) {
 	 * XAPIStatement - a convenience class to wrap statement objects               *
 	 *******************************************************************************/
 
+	/*
+	 * XAPIStatement
+	 */
 	var XAPIStatement = function(actor,verb,object)
 	{
 
@@ -1112,33 +1115,58 @@ if ( !Date.prototype.toISOString ) {
 		}
 		
 		if(actor){
-			if(actor.objectType === 'Agent' || !actor.objectType)
+			if( actor instanceof Agent )
+				this.actor = actor;
+			else if(actor.objectType === 'Agent' || !actor.objectType)
 				this.actor = new Agent(actor);
 			else if(actor.objectType === 'Group')
 				this.actor = new Group(actor);
 		}
 		
-		if(verb)
-			this.verb = new Verb(verb);
-		
+		if(verb){
+			if( verb instanceof Verb )
+				this.verb = verb;
+			else
+				this.verb = new Verb(verb);
+		}
+
 		// decide what kind of object was passed
 		if(object)
 		{
-			if( object.objectType === 'Activity' || !object.objectType )
-				this.object = new Activity(object);
-			else if( object.objectType === 'Agent' )
-				this.object = new Agent(object);
-			else if( object.objectType === 'Group' )
-				this.object = new Group(object);
-			else if( object.objectType === 'StatementRef' )
-				this.object = new StatementRef(object);
-			else if( object.objectType === 'SubStatement' )
-				this.object = new SubStatement(object);
+			if( object.objectType === 'Activity' || !object.objectType ){
+				if( object instanceof Activity )
+					this.object = object;
+				else
+					this.object = new Activity(object);
+			}
+			else if( object.objectType === 'Agent' ){
+				if( object instanceof Agent )
+					this.object = object;
+				else
+					this.object = new Agent(object);
+			}
+			else if( object.objectType === 'Group' ){
+				if( object instanceof Group )
+					this.object = object;
+				else
+					this.object = new Group(object);
+			}
+			else if( object.objectType === 'StatementRef' ){
+				if( object instanceof StatementRef )
+					this.object = object;
+				else
+					this.object = new StatementRef(object);
+			}
+			else if( object.objectType === 'SubStatement' ){
+				if( object instanceof SubStatement )
+					this.object = object;
+				else
+					this.object = new SubStatement(object);
+			}
 		}
 	};
 
 	XAPIStatement.prototype.toString = function(){
-		console.log('Statement print');
 		return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString();
 	};
 
@@ -1292,15 +1320,19 @@ if ( !Date.prototype.toISOString ) {
 	};
 	
 	/*
-	 * SubStatement
+	 * SubStatement - A self-contained statement as the object of another statement
 	 */
 	var SubStatement = function(actor, verb, object){
 		XAPIStatement.call(this,actor,verb,object);
 		this.objectType = 'SubStatement';
+
+		delete this.id;
+		delete this.stored;
+		delete this.version;
+		delete this.authority;
 	};
 	SubStatement.prototype = new XAPIStatement;
 	SubStatement.prototype.toString = function(){
-		console.log('substatement print');
 		return '"' + SubStatement.prototype.prototype.toString.call(this) + '"';
 	}
 	
