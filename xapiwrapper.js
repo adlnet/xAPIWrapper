@@ -25,6 +25,22 @@ if ( !Date.prototype.toISOString ) {
   }() );
 }
 
+// shim for old-style Base64 lib
+function toBase64(text){
+	if(CryptoJS && CryptoJS.enc.Base64) 
+		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
+	else
+		return Base64.encode(text);
+}
+
+// shim for old-style crypto lib
+function toSHA1(text){
+	if(CryptoJS && CryptoJS.SHA1)
+		return CryptoJS.SHA1(text).toString();
+	else
+		return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
+}
+
 (function(ADL){
     log.debug = true;
     // config object used w/ url params to configure the lrs object
@@ -35,7 +51,7 @@ if ( !Date.prototype.toISOString ) {
         conf['endpoint'] = "http://localhost:8000/xapi/";
         try
         {
-            conf['auth'] = "Basic " + Base64.encode('tom:1234'); 
+            conf['auth'] = "Basic " + toBase64('tom:1234'); 
         }
         catch (e)
         {
@@ -75,7 +91,7 @@ if ( !Date.prototype.toISOString ) {
         }
 
         function updateAuth(obj, username, password){
-            obj.auth = "Basic " + Base64.encode(username + ":" + password);
+            obj.auth = "Basic " + toBase64(username + ":" + password);
         }
 
         if (verifyxapiversion && testConfig.call(this))
@@ -123,8 +139,7 @@ if ( !Date.prototype.toISOString ) {
             if (!tohash) return null;
             try
             {
-                var digestBytes = Crypto.SHA1(tohash, { asBytes: true });
-                return Crypto.util.bytesToHex(digestBytes);
+                return toSHA1(tohash);
             }
             catch(e)
             {
