@@ -1111,11 +1111,31 @@ if ( !Date.prototype.toISOString ) {
 	}
 
 	/*******************************************************************************
-	 * XAPIStatement - a convenience class to wrap statement objects               *
+	 * XAPIStatement - a convenience class to wrap statement objects
+	 *
+	 * This sub-API is supposed to make it easier to author valid xAPI statements
+	 * by adding constructors and encouraging best practices. All objects in this
+	 * API are fully JSON-compatible, so anything expecting an xAPI statement can
+	 * take an improved statement and vice versa.
+	 *
+	 * A working knowledge of what exactly the LRS expects is still expected,
+	 * but it's easier to map an 'I did this' statement to xAPI now.
+	 *
+	 * Tech note: All constructors also double as shallow clone functions. E.g.
+	 *
+	 * 	var activity1 = new Activity('A walk in the park');
+	 * 	var activity2 = new Activity(activity1);
+	 * 	var activity3 = new Activity(stmt_from_lrs.object);
+	 *
 	 *******************************************************************************/
 
 	/*
 	 * XAPIStatement
+	 * A convenient JSON-compatible xAPI statement wrapper
+	 * All args are optional, but the statement may not be complete or valid
+	 * actor - The Agent or Group committing the action described by the statement
+	 * verb - The Verb for the action described by the statement
+	 * object - The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
 	 */
 	var XAPIStatement = function(actor,verb,object)
 	{
@@ -1223,7 +1243,12 @@ if ( !Date.prototype.toISOString ) {
 
 	
 	/*
-	 * Agent - provides easy constructor for xAPI agent objects
+	 * Agent
+	 * Provides an easy constructor for xAPI agent objects
+	 * identifier - One of the Inverse Functional Identifiers specified in the spec.
+	 *     That is, an email, a hashed email, an OpenID, or an account object.
+	 *     See (https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional)
+	 * name - (optional) The natural-language name of the agent
 	 */
 	var Agent = function(identifier, name)
 	{
@@ -1261,7 +1286,11 @@ if ( !Date.prototype.toISOString ) {
 
 	
 	/*
-	 * Group - Type of agent, can contain multiple agents
+	 * Group
+	 * A type of agent, can contain multiple agents
+	 * identifier - (optional if `members` specified) See Agent.
+	 * members - (optional) An array of Agents describing the membership of the group
+	 * name - (optional) The natural-language name of the agent
 	 */
 	var Group = function(identifier, members, name)
 	{
@@ -1273,7 +1302,10 @@ if ( !Date.prototype.toISOString ) {
 
 	
 	/*
-	 * Verb - Really only provides a convenient language map
+	 * Verb
+	 * Really only provides a convenient language map
+	 * id - The IRI of the action taken
+	 * description - (optional) An English-language description, or a Language Map
 	 */
 	var Verb = function(id, description)
 	{
@@ -1309,7 +1341,11 @@ if ( !Date.prototype.toISOString ) {
 
 	
 	/*
-	 * Activity - Describes an object that an agent interacts with
+	 * Activity
+	 * Describes an object that an agent interacts with
+	 * id - The unique activity IRI
+	 * name - An English-language identifier for the activity, or a Language Map
+	 * description - An English-language description of the activity, or a Language Map
 	 */
 	var Activity = function(id, name, description)
 	{
@@ -1350,7 +1386,9 @@ if ( !Date.prototype.toISOString ) {
 	};
 	
 	/*
-	 * StatementRef - An object that refers to a separate statement
+	 * StatementRef
+	 * An object that refers to a separate statement
+	 * id - The UUID of another xAPI statement
 	 */
 	var StatementRef = function(id){
 		if(id && id.id){
@@ -1371,7 +1409,9 @@ if ( !Date.prototype.toISOString ) {
 	};
 	
 	/*
-	 * SubStatement - A self-contained statement as the object of another statement
+	 * SubStatement
+	 * A self-contained statement as the object of another statement
+	 * See XAPIStatement for constructor details
 	 */
 	var SubStatement = function(actor, verb, object){
 		XAPIStatement.call(this,actor,verb,object);

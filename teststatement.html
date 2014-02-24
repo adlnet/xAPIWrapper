@@ -15,6 +15,15 @@
 			);
 			stmt.generateId();
 			stmt.addOtherContextActivity( new ADL.XAPIStatement.Activity('compId:internet_proficiency') );
+			stmt.generateRegistration();
+
+			ADL.XAPIWrapper.changeConfig({
+				'endpoint': 'https://lrs.adlnet.gov/xapi/',
+				'user': 'steven',
+				'password': 'test123'
+			});
+
+			ADL.XAPIWrapper.sendStatement(stmt);
 
 			var o = document.getElementById('output');
 			o.innerText = JSON.stringify(stmt, null, '    ');
