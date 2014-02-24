@@ -1133,6 +1133,7 @@ if ( !Date.prototype.toISOString ) {
 	 * XAPIStatement
 	 * A convenient JSON-compatible xAPI statement wrapper
 	 * All args are optional, but the statement may not be complete or valid
+	 * Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args
 	 * actor - The Agent or Group committing the action described by the statement
 	 * verb - The Verb for the action described by the statement
 	 * object - The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
