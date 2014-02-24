@@ -205,6 +205,27 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
     "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
 ```
 
+###### Send Statement with XAPIStatement
+
+By including _xapistatement.js_, you gain access to a convenience wrapper to ease the building
+of xAPI statements without a lot of the formatting fluff.
+
+```JavaScript
+var stmt = new ADL.XAPIStatement("mailto:tom@example.com", null, "http://adlnet.gov/expapi/activities/question");
+stmt.verb = new ADL.XAPIStatement.Verb("http://adlnet.gov/expapi/verbs/answered", "answered");
+stmt.generateId();
+ADL.XAPIWrapper.sendStatement(stmt);
+ADL.XAPIWrapper.getStatements({"statementId": stmt.id});
+>> {"version": "1.0.0", 
+    "timestamp": "2013-09-09 22:08:51.440327+00:00", 
+    "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
+    "actor": {"mbox": "mailto:tom@example.com", "objectType": "Agent"}, 
+    "stored": "2013-09-09 22:08:51.440614+00:00", 
+>   "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
+    "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
+    "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
+```
+
 ##### Send Statements
 `function sendStatements(statementArray, callback)`  
 Sends a list of Statements to the LRS in one batch. It 
