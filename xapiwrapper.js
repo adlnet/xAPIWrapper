@@ -1089,6 +1089,26 @@ if ( !Date.prototype.toISOString ) {
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
 
+	function _getobj(obj, path){
+		var parts = path.split('.');
+
+		var part = parts[0];
+		path = parts.slice(1).join('.');
+
+		if( !obj[part] ){
+			if( /\[\]$/.test(part) ){
+				part = part.slice(0,-2);
+				obj[part] = [];
+			}
+			else
+				obj[part] = {};
+		}
+
+		if( !path )
+			return obj[part];
+		else
+			return _getobj(obj[part], path);
+	}
 
 	/*******************************************************************************
 	 * XAPIStatement - a convenience class to wrap statement objects               *
@@ -1122,6 +1142,7 @@ if ( !Date.prototype.toISOString ) {
 			else if(actor.objectType === 'Group')
 				this.actor = new Group(actor);
 		}
+		else this.actor = null;
 		
 		if(verb){
 			if( verb instanceof Verb )
@@ -1129,6 +1150,7 @@ if ( !Date.prototype.toISOString ) {
 			else
 				this.verb = new Verb(verb);
 		}
+		else this.verb = null;
 
 		// decide what kind of object was passed
 		if(object)
@@ -1163,11 +1185,40 @@ if ( !Date.prototype.toISOString ) {
 				else
 					this.object = new SubStatement(object);
 			}
+			else this.object = null;
 		}
+		else this.object = null;
+
+
+		this.generateId = function(){
+			this.id = ADL.ruuid();
+		};
 	};
 
 	XAPIStatement.prototype.toString = function(){
 		return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString();
+	};
+
+	XAPIStatement.prototype.isValid = function(){
+		return this.actor && this.actor.isValid() 
+			&& this.verb && this.verb.isValid() 
+			&& this.object && this.object.isValid();
+	};
+
+	XAPIStatement.prototype.generateRegistration = function(){
+		_getobj(this,'context').registration = ADL.ruuid();
+	};
+
+	XAPIStatement.prototype.addParentActivity = function(activity){
+		_getobj(this,'context.contextActivities.parent[]').push(activity);
+	};
+
+	XAPIStatement.prototype.addGroupingActivity = function(activity){
+		_getobj(this,'context.contextActivities.grouping[]').push(activity);
+	};
+
+	XAPIStatement.prototype.addOtherContextActivity = function(activity){
+		_getobj(this,'context.contextActivities.other[]').push(activity);
 	};
 
 	
