@@ -8,7 +8,7 @@
 		{
 			var stmt = new ADL.XAPIStatement(
 				new ADL.XAPIStatement.Agent(ADL.XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
-				new ADL.XAPIStatement.Verb('http://adlnet.gov/expapi/verbs/launched', 'launched'),
+				ADL.verbs.launched,
 				new ADL.XAPIStatement.Activity('act:wrapper_test', 'xAPIWrapper test page',
 					'A website that exercises the functions of the xAPIWrapper')
 			);
