@@ -26,10 +26,28 @@ determine if the wrapper is compatible with an LRS implementing a specific
 xAPI Specification version. The `build` value may be used to help 
 determine if you have the current version of the wrapper.
 
+### Minified version
+
+The minified wrapper is self-contained. It includes all required dependencies
+in addition to the ADL Verbs and the XAPIStatement module. Instructions to build
+the minified library are included in the *COMPILING.md* file.
+
 ### Dependencies
-The wrapper relies on external dependencies to perform some actions.
+The wrapper relies on external dependencies to perform some actions. Make sure you include
+our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
+in your pages.
+
+``` html
+<script type="text/javascript" src="./cryptojs_v3.1.2.min.js"></script>
+```
+
+In the past we used the below libraries for the same purpose. You may continue to use them
+for current systems, but the CryptoJS compilation is recommended.
+
 * base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
-* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=  
+* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
+
+
 
 ### Configuration
 The wrapper at a minimum needs to know the url of the LRS, though 
@@ -45,7 +63,7 @@ var Config = function()
     conf['endpoint'] = "http://localhost:8000/xapi/";
     try
     {
-        conf['auth'] = "Basic " + Base64.encode('tom:1234'); 
+        conf['auth'] = "Basic " + toBase64('tom:1234'); 
     }
     catch (e)
     {
@@ -65,7 +83,7 @@ var Config = function()
 ```JavaScript
 var conf = {
   "endpoint" : "http://lrs.adlnet.gov/xapi/",
-  "auth" : "Basic " + Base64.encode('tom:1234'),
+  "auth" : "Basic " + toBase64('tom:1234'),
 };
 ADL.XAPIWrapper.changeConfig(conf);
 ```  
@@ -109,11 +127,17 @@ to not write messages by setting `log.debug = false;`.
 Include the wrapper file, and optionally the dependencies.
 
 ``` html
-<script type="text/javascript" src="./base64.js"></script>
-<script type="text/javascript" src="./2.5.3-crypto-sha1.js"></script>
+<script type="text/javascript" src="./cryptojs_v3.1.2.min.js"></script>
 <script type="text/javascript" src="./verbs.js"></script>
 <script type="text/javascript" src="./xAPIWrapper/xapiwrapper.js"></script>
 ```
+
+Alternatively:
+
+``` html
+<script type="text/javascript" src="./xapiwrapper.min.js"></script>
+```
+
 The script automatically runs, creating or adding to an ADL object an 
 instantiated xAPI Wrapper object. The object is created using the 
 configuration object inside the xapiwrapper.js file. If you modified this 
@@ -125,6 +149,139 @@ ADL.XAPIWrapper.testConfig();
 ```
 
 #### Statements
+
+##### Statement Object (xapistatement.js)
+
+```JavaScript
+new ADL.XAPIStatement(actor, verb, object)
+new ADL.XAPIStatement.Agent(identifier, name)
+new ADL.XAPIStatement.Group(identifier, members, name)
+new ADL.XAPIStatement.Verb(id, description)
+new ADL.XAPIStatement.Activity(id, name, description)
+new ADL.XAPIStatement.StatementRef(uuid)
+new ADL.XAPIStatement.SubStatement(actor, verb, object)
+```
+
+This sub-API makes it easier to author valid xAPI statements
+by adding constructors and encouraging best practices. All objects in this
+API are fully JSON-compatible, so anything expecting an xAPI statement can
+take an improved statement and vice versa.
+
+In addition to the above forms, each constructor can instead take as an argument
+another instance of the object or the equivalent plain object. So you can convert
+a plain xAPI statement to an improved one by calling `new XAPIStatement(plain_obj)`.
+
+###### Building a Simple "I Did This"
+
+Passing in strings produces a default form: Agent Verb Activity.
+
+```JavaScript
+var stmt = new ADL.XAPIStatement(
+	'mailto:steve.vergenz.ctr@adlnet.gov',
+	'http://adlnet.gov/expapi/verbs/launched',
+	'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
+);
+>> {
+	"actor": {
+		"objectType": "Agent",
+		"mbox": "mailto:steve.vergenz.ctr@adlnet.gov" },
+	"verb": {
+		"id": "http://adlnet.gov/expapi/verbs/launched" },
+	"object": {
+		"objectType": "Activity",
+		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
+```
+
+###### Adding Descriptors
+
+```JavaScript
+var stmt = new ADL.XAPIStatement(
+	new ADL.XAPIStatement.Agent(ADL.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
+	new ADL.XAPIStatement.Verb('http://adlnet.gov/expapi/verbs/launched', 'launched'),
+	new ADL.XAPIStatement.Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox', 'the Virtual World Sandbox')
+);
+>> {
+	"actor": {
+		"objectType": "Agent",
+		"name": "Steven Vergenz",
+		"mbox_sha1sum": "f9fa1a084b2b0825cabb802fcc1bb6024141eee2" },
+	"verb": {
+		"id": "http://adlnet.gov/expapi/verbs/launched",
+		"display": {
+			"en-US": "launched" }},
+	"object": {
+		"objectType": "Activity",
+		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox",
+		"definition": {
+			"name": {
+				"en-US": "the Virtual World Sandbox" }}}}
+```
+
+###### Adding Additional Fields
+
+You can mix generated and manual fields without any conflicts.
+
+```JavaScript
+var stmt = new ADL.XAPIStatement(
+	'mailto:steve.vergenz.ctr@adlnet.gov',
+	'http://adlnet.gov/expapi/verbs/launched',
+	'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
+);
+stmt.generateId();
+stmt.result = { 'response': 'Everything is a-okay!' };
+>> {
+	"actor": {
+		"objectType": "Agent",
+		"mbox": "mailto:steve.vergenz.ctr@adlnet.gov" },
+	"verb": {
+		"id": "http://adlnet.gov/expapi/verbs/launched" },
+	"object": {
+		"objectType": "Activity",
+		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" },
+	"id": "d60ffbaa-52af-44b6-932d-c08865c540ff",
+	"result": {
+		"response": "Everything is a-okay!" }}
+```
+
+###### Using Multiple Languages
+
+Any of the `name` or `description` fields in the constructors can instead take a language map,
+as defined in the xAPI specification.
+
+```JavaScript
+var stmt = new ADL.XAPIStatement();
+stmt.actor = new ADL.XAPIStatement.Agent('https://plus.google.com/113407910174370737235');
+stmt.verb = new ADL.XAPIStatement.Verb(
+	'http://adlnet.gov/expapi/verbs/launched',
+	{
+		'en-US': 'launched',
+		'de-DE': 'startete'
+	}
+);
+stmt.object = new ADL.XAPIStatement.Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox');
+>> {
+	"actor": {
+		"objectType": "Agent",
+		"openid": "https://plus.google.com/113407910174370737235" },
+	"verb": {
+		"id": "http://adlnet.gov/expapi/verbs/launched",
+		"display": {
+			"en-US": "launched",
+			"de-DE": "startete" }},
+	"object": {
+		"objectType": "Activity",
+		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
+```
+
+###### Using an ADL Verb
+
+Manually specified verbs have been used until now for illustrative purposes, but you could just
+as easily use the ADL verbs.
+
+```JavaScript
+var stmt = ADL.XAPIStatement(myactor, ADL.verbs.launched, myactivity);
+```
+
 ##### Send Statement
 `function sendStatement(statement, callback)`  
 Sends a single Statement to the LRS using a PUT request. This 
@@ -199,6 +356,27 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
     "timestamp": "2013-09-09 22:08:51.440327+00:00", 
     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"}, 
+    "stored": "2013-09-09 22:08:51.440614+00:00", 
+>   "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
+    "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
+    "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
+```
+
+###### Send Statement with XAPIStatement
+
+By including _xapistatement.js_, you gain access to a convenience wrapper to ease the building
+of xAPI statements without a lot of the formatting fluff.
+
+```JavaScript
+var stmt = new ADL.XAPIStatement("mailto:tom@example.com", null, "http://adlnet.gov/expapi/activities/question");
+stmt.verb = new ADL.XAPIStatement.Verb("http://adlnet.gov/expapi/verbs/answered", "answered");
+stmt.generateId();
+ADL.XAPIWrapper.sendStatement(stmt);
+ADL.XAPIWrapper.getStatements({"statementId": stmt.id});
+>> {"version": "1.0.0", 
+    "timestamp": "2013-09-09 22:08:51.440327+00:00", 
+    "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
+    "actor": {"mbox": "mailto:tom@example.com", "objectType": "Agent"}, 
     "stored": "2013-09-09 22:08:51.440614+00:00", 
 >   "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
