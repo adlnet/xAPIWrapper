@@ -176,7 +176,7 @@
 		else if( /^mailto:/.test(identifier) ){
 			this.mbox = identifier;
 		}
-		else if( /[0-9a-f]{20}/i.test(identifier) ){
+		else if( /^[0-9a-f]{20}$/i.test(identifier) ){
 			this.mbox_sha1sum = identifier;
 		}
 		else if( /^http[s]?:/.test(identifier) ){
