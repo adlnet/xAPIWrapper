@@ -170,7 +170,7 @@ function toSHA1(text){
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2013-12-09T20:00Z";
+    XAPIWrapper.prototype.build = "2014-02-25T14:00Z";
 
     /*
      * prepareStatement
