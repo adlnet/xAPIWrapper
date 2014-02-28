@@ -262,7 +262,7 @@
 	var Activity = function(id, name, description)
 	{
 		// if first arg is activity, copy everything over
-		if(id.id){
+		if(id && id.id){
 			var act = id;
 			for(var i in act){
 				this[i] = act[i];
