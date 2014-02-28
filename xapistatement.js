@@ -142,15 +142,15 @@
 	};
 
 	XAPIStatement.prototype.addParentActivity = function(activity){
-		_getobj(this,'context.contextActivities.parent[]').push(activity);
+		_getobj(this,'context.contextActivities.parent[]').push(new Activity(activity));
 	};
 
 	XAPIStatement.prototype.addGroupingActivity = function(activity){
-		_getobj(this,'context.contextActivities.grouping[]').push(activity);
+		_getobj(this,'context.contextActivities.grouping[]').push(new Activity(activity));
 	};
 
 	XAPIStatement.prototype.addOtherContextActivity = function(activity){
-		_getobj(this,'context.contextActivities.other[]').push(activity);
+		_getobj(this,'context.contextActivities.other[]').push(new Activity(activity));
 	};
 
 	
@@ -278,12 +278,12 @@
 			
 			if( typeof(name) === 'string' || name instanceof String )
 				this.definition.name = {'en-US': name};
-			else
+			else if(name)
 				this.definition.name = name;
 			
 			if( typeof(description) === 'string' || description instanceof String )
 				this.definition.description = {'en-US': description};
-			else 
+			else if(description)
 				this.definition.description = description;
 		}
 	};
