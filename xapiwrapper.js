@@ -170,7 +170,7 @@ function toSHA1(text){
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2014-02-25T14:00Z";
+    XAPIWrapper.prototype.build = "2014-04-16T14:00Z";
 
     /*
      * prepareStatement
@@ -829,7 +829,7 @@ function toSHA1(text){
         var qsVars, prop;
         
         qsVars = parseQueryString();
-        if (qsVars !== undefined) {
+        if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
             for (var i = 0; i<lrsProps.length; i++){
                 prop = lrsProps[i];
                 if (qsVars[prop]){
@@ -837,8 +837,9 @@ function toSHA1(text){
                     delete qsVars[prop];
                 }
             }
-            
-            lrs.extended = qsVars;
+            if (Object.keys(qsVars).length !== 0) {
+              lrs.extended = qsVars;
+            }
 
             lrs = mergeRecursive(config, lrs);
         }
