@@ -6,4 +6,4 @@ To minify the library and all its dependencies, follow these steps:
 4. Download the latest version of the [ADL Verbs](https://github.com/adlnet/xAPIVerbs/blob/master/verbs.js) project and
 	copy it to your working directory.
 5. Run all the JS files through Uglify:
-	* `$ uglifyjs core.js enc-base64.js sha1.js verbs.js xapiwrapper.js xapistatement.js -o xapistatement.min.js -m -c`
+	* `$ uglifyjs core.js enc-base64.js sha1.js verbs.js xapiwrapper.js xapistatement.js -o xapiwrapper.min.js -m -c`
