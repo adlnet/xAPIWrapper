@@ -829,7 +829,7 @@ function toSHA1(text){
         var qsVars, prop;
         
         qsVars = parseQueryString();
-        if (qsVars !== undefined && Object.getOwnPropertyNames(qsVars).length !== 0) {
+        if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
             for (var i = 0; i<lrsProps.length; i++){
                 prop = lrsProps[i];
                 if (qsVars[prop]){
@@ -837,7 +837,7 @@ function toSHA1(text){
                     delete qsVars[prop];
                 }
             }
-            if (Object.getOwnPropertyNames(qsVars).length !== 0) {
+            if (Object.keys(qsVars).length !== 0) {
               lrs.extended = qsVars;
             }
 
