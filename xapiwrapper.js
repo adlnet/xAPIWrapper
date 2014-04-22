@@ -75,7 +75,7 @@ function toSHA1(text){
      */
     XAPIWrapper = function(config, verifyxapiversion)
     {
-        this.lrs = getLRSObject(config);
+        this.lrs = getLRSObject(config || {});
         if (this.lrs.user && this.lrs.password)
             updateAuth(this.lrs, this.lrs.user, this.lrs.password);
         this.base = getbase(this.lrs.endpoint);
