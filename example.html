@@ -27,6 +27,12 @@
 			var o = document.getElementById('output');
 			o.innerText = JSON.stringify(stmt, null, '    ');
 		}
+		
+		ADL.XAPIWrapper.changeConfig({
+  'endpoint': 'https://cloud.scorm.com/tc/YOUR_LRS_ENDPOINT_HERE/',
+  'user': 'YOUR_USERNAME_HERE',
+  'password': 'YOUR_PASSWORD_HERE'
+});
 
 		</script>
 	</head>
