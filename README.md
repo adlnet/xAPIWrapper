@@ -129,6 +129,7 @@ Include the wrapper file, and optionally the dependencies.
 ``` html
 <script type="text/javascript" src="./cryptojs_v3.1.2.min.js"></script>
 <script type="text/javascript" src="./verbs.js"></script>
+<script type="text/javascript" src="./xapistatement.js"></script>
 <script type="text/javascript" src="./xAPIWrapper/xapiwrapper.js"></script>
 ```
 
@@ -196,7 +197,7 @@ var stmt = new ADL.XAPIStatement(
 
 ```JavaScript
 var stmt = new ADL.XAPIStatement(
-	new ADL.XAPIStatement.Agent(ADL.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
+	new ADL.XAPIStatement.Agent(ADL.XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
 	new ADL.XAPIStatement.Verb('http://adlnet.gov/expapi/verbs/launched', 'launched'),
 	new ADL.XAPIStatement.Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox', 'the Virtual World Sandbox')
 );
