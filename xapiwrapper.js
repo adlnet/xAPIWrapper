@@ -1065,9 +1065,9 @@ function toSHA1(text){
                     }
                 } else {
                     try {
-                        alert("There was a problem communicating with the Learning Record Store. ( " 
+                        console.warning("There was a problem communicating with the Learning Record Store. ( " 
                             + xhr.status + " | " + xhr.response+ " )" + xhr.url);
-                    } catch (ex) {alert (ex.toString());}
+                    } catch (ex) {console.warning(ex.toString());}
                     //throw new Error("debugger");
                     result = xhr;
                     return xhr;
