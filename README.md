@@ -30,11 +30,12 @@ The minified wrapper is self-contained. It includes all required dependencies
 in addition to the ADL Verbs and the XAPIStatement module. For production sites,
 this version of the wrapper is recommended.
 
-Compiling the minified version is easy. Install Node.js and NPM if you don't already have them.
-Then install the build system, Grunt:
+Compiling the minified version is easy. Install Node.js and NPM if you don't already have them
+(download them [here](http://nodejs.org/download/)). Then install the build system, Grunt. This
+may require root/admin privileges on your system.
 
 ```bash
-$ npm install -g grunt
+$ sudo npm install -g grunt
 ```
 
 Install the xAPIWrapper dependencies:
