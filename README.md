@@ -5,7 +5,7 @@ Wrapper to simplify communication to an LRS. [Read more about the Experience API
 
 ## Contributing to the project
 We welcome contributions to this project. Fork this repository, 
-make changes and submit pull requests. If you're not comfortable 
+make changes, re-minify, and submit pull requests. If you're not comfortable 
 with editing the code, please submit an issue and we'll be happy 
 to address it.  
 
@@ -19,18 +19,38 @@ is enclosed in an ADL object like the
 a single object to contain both the ADL verbs and the ADL xapiwrapper.
 
 This wrapper has two version identifiers within the code. One, `xapiVersion`
-is the version of the Experience API Specification for which it was built. 
-The second, `build` indicates, using an ISO date time, when the 
-wrapper was last modified. The `xapiVersion` value can be used to 
-determine if the wrapper is compatible with an LRS implementing a specific 
-xAPI Specification version. The `build` value may be used to help 
-determine if you have the current version of the wrapper.
+is the version of the Experience API Specification for which it was built,
+and can be used to determine if the wrapper is compatible with an LRS implementing a specific 
+xAPI Specification version. The second is the build date in the header of the minified file,
+which can be used to tell if you're using the latest version.
 
 ### Minified version
 
 The minified wrapper is self-contained. It includes all required dependencies
-in addition to the ADL Verbs and the XAPIStatement module. Instructions to build
-the minified library are included in the *COMPILING.md* file.
+in addition to the ADL Verbs and the XAPIStatement module. For production sites,
+this version of the wrapper is recommended.
+
+Compiling the minified version is easy. Install Node.js and NPM if you don't already have them.
+Then install the build system, Grunt:
+
+```bash
+$ npm install -g grunt
+```
+
+Install the xAPIWrapper dependencies:
+
+```bash
+$ npm install
+```
+
+Then execute the build script:
+
+```bash
+$ grunt
+```
+
+This will overwrite `xapiwrapper.min.js` with the minifed versions of the wrapper and all its
+dependencies.
 
 ### Dependencies
 The wrapper relies on external dependencies to perform some actions. Make sure you include
