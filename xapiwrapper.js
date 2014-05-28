@@ -169,9 +169,6 @@ function toSHA1(text){
     // This wrapper is based on the Experience API Spec version:
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
-    // This wrapper was built on:
-    XAPIWrapper.prototype.build = "2014-05-27T11:30:00-0400";
-
     /*
      * prepareStatement
      * Adds info from the lrs object to the statement, if available.
