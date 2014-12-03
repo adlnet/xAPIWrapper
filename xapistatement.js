@@ -337,7 +337,7 @@
 	SubStatement.prototype = new XAPIStatement;
 	SubStatement.prototype.toString = function(){
 		return '"' + SubStatement.prototype.prototype.toString.call(this) + '"';
-	}
+	};
 	
 	XAPIStatement.Agent = Agent;
 	XAPIStatement.Group = Group;
