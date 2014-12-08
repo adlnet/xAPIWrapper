@@ -1065,7 +1065,11 @@ function toSHA1(text){
                     try {
                         console.warn("There was a problem communicating with the Learning Record Store. ( " 
                             + xhr.status + " | " + xhr.response+ " )" + url);
-                    } catch (ex) {console.warn(ex.toString());}
+                            ADL.xhrRequestOnError(xhr, method, url);
+                    } catch (ex) {
+                        console.warn(ex.toString());
+                        ADL.xhrRequestOnError(xhr, method, url);
+                    }
                     //throw new Error("debugger");
                     result = xhr;
                     return xhr;
@@ -1083,6 +1087,7 @@ function toSHA1(text){
 
         xhr.onload = requestComplete;
         xhr.onerror = requestComplete;
+        //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
 
         xhr.send(ieXDomain ? ieModeRequest.data : data);
         
@@ -1098,6 +1103,14 @@ function toSHA1(text){
             return requestComplete();
         }
     };
+
+    /*
+     * Holder for custom global error callback
+     * xhr - xhr object or null
+     * method - XMLHttpRequest request method
+     * url - full endpoint url
+     */
+    ADL.xhrRequestOnError = function(xhr, method, url){};
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
