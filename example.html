@@ -17,9 +17,7 @@
 			stmt.generateRegistration();
 
 			ADL.XAPIWrapper.changeConfig({
-				'endpoint': 'https://lrs.adlnet.gov/xapi/',
-				'user': 'steven',
-				'password': 'test123'
+				'endpoint': 'https://lrs.adlnet.gov/xapi/'
 			});
 
 			ADL.XAPIWrapper.sendStatement(stmt);
