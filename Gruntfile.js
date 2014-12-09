@@ -3,9 +3,15 @@ module.exports = function(grunt) {
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
+		bump: {
+			options: {
+				updateConfigs: ['pkg'],
+				commitFiles: ['-a']
+			}
+		},
 		uglify: {
 			options: {
-				banner: '/*! <%= pkg.name %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
+				banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
 			},
 			build: {
 				files: {
@@ -20,10 +26,16 @@ module.exports = function(grunt) {
 		}
 	});
 
-	// Load the plugin that provides the "uglify" task.
+	// Load the plugins.
+	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 
 	// Default task(s).
 	grunt.registerTask('default', ['uglify']);
+	grunt.registerTask('release', 'Build the release of xapiwrapper', function(n) {
+		var vertype = n;
+		if (vertype == null) vertype = 'minor';
+		grunt.task.run('bump-only:' + vertype, 'default', 'bump-commit');
+	});
 
 };
