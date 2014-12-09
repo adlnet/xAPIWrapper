@@ -33,6 +33,7 @@ module.exports = function(grunt) {
 	// Default task(s).
 	grunt.registerTask('default', ['uglify']);
 	// those with adl repo access can use this to publish a tag and release
+	// $> grunt release:minor
 	grunt.registerTask('release', 'Build the release of xapiwrapper', function(n) {
 		var vertype = n;
 		if (vertype == null) vertype = 'minor';
