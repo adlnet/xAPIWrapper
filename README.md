@@ -103,7 +103,7 @@ var Config = function()
 
 ```JavaScript
 var conf = {
-  "endpoint" : "http://lrs.adlnet.gov/xapi/",
+  "endpoint" : "https://lrs.adlnet.gov/xapi/",
   "auth" : "Basic " + toBase64('tom:1234'),
 };
 ADL.XAPIWrapper.changeConfig(conf);
@@ -113,7 +113,7 @@ configuration object:
 
 ```JavaScript
 var conf = {
-  "endpoint" : "http://lrs.adlnet.gov/xapi/",
+  "endpoint" : "https://lrs.adlnet.gov/xapi/",
   "user" : "lou",
   "password" : "5678",
 };
