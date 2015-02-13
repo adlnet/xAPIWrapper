@@ -490,6 +490,66 @@ function toSHA1(text){
     };
 
     /*
+     * deleteState
+     * Delete activity state in the LRS
+     * activityid - the id of the Activity this state is about
+     * agent - the agent this Activity state is related to 
+     * stateid - the id you want associated with this state
+     * registration - (optional) the registraton id associated with this state
+     * matchHash - the hash of the state to replace or * to replace any
+     * noneMatchHash - the hash of the current state or * to indicate no previous state
+     * callback - function to be called after the LRS responds 
+     *            to this request (makes the call asynchronous)
+     *            * the function will be passed the XMLHttpRequest object
+     */
+    XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)
+    {
+        if (this.testConfig())
+        {
+            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
+        
+            url = url.replace('<activity ID>',encodeURIComponent(activityid));
+            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            url = url.replace('<stateid>',encodeURIComponent(stateid));
+
+            if (registration) 
+            {
+                url += "&registration=" + encodeURIComponent(registration);
+            }
+
+            var headers = null;
+            if(matchHash && noneMatchHash)
+            {
+                log("Can't have both If-Match and If-None-Match");
+            }
+            else if (matchHash)
+            {
+                headers = {"If-Match":'"'+matchHash+'"'};
+            }
+            else if (noneMatchHash)
+            {
+                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+            }
+
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers);
+            
+            if(result === undefined || result.status == 404)
+            {
+                return null
+            }
+            
+            try
+            {
+                return JSON.parse(result.response);
+            }
+            catch(e)
+            {
+                return result;
+            }
+        }
+    };
+
+    /*
      * sendActivityProfile
      * Store activity profile in the LRS
      * activityid - the id of the Activity this profile is about
@@ -600,6 +660,58 @@ function toSHA1(text){
             catch(e)
             {
                 return result.response;
+            }
+        }
+    };
+
+    /*
+     * deleteActivityProfile
+     * Delete activity profile in the LRS
+     * activityid - the id of the Activity this profile is about
+     * profileid - the id you want associated with this profile
+     * matchHash - the hash of the profile to replace or * to replace any
+     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
+     * callback - function to be called after the LRS responds 
+     *            to this request (makes the call asynchronous)
+     *            * the function will be passed the XMLHttpRequest object
+     */
+    XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback) 
+    {
+        if (this.testConfig())
+        {
+            var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
+            
+            url = url.replace('<activity ID>',encodeURIComponent(activityid));
+            url = url.replace('<profileid>',encodeURIComponent(profileid));
+            
+            var headers = null;
+            if(matchHash && noneMatchHash)
+            {
+                log("Can't have both If-Match and If-None-Match");
+            }
+            else if (matchHash)
+            {
+                headers = {"If-Match":'"'+matchHash+'"'};
+            }
+            else if (noneMatchHash)
+            {
+                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+            }
+
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers);
+            
+            if(result === undefined || result.status == 404)
+            {
+                return null
+            }
+            
+            try
+            {
+                return JSON.parse(result.response);
+            }
+            catch(e)
+            {
+                return result;
             }
         }
     };
@@ -750,6 +862,58 @@ function toSHA1(text){
             catch(e)
             {
                 return result.response;
+            }
+        }
+    };
+
+    /*
+     * deleteAgentProfile
+     * Delete agent profile in the LRS
+     * agent - the id of the Agent this profile is about
+     * profileid - the id you want associated with this profile
+     * matchHash - the hash of the profile to replace or * to replace any
+     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
+     * callback - function to be called after the LRS responds 
+     *            to this request (makes the call asynchronous)
+     *            * the function will be passed the XMLHttpRequest object
+     */
+    XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback) 
+    {
+        if (this.testConfig())
+        {
+            var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
+            
+            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            url = url.replace('<profileid>',encodeURIComponent(profileid));
+            
+            var headers = null;
+            if(matchHash && noneMatchHash)
+            {
+                log("Can't have both If-Match and If-None-Match");
+            }
+            else if (matchHash)
+            {
+                headers = {"If-Match":'"'+matchHash+'"'};
+            }
+            else if (noneMatchHash)
+            {
+                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+            }
+
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers);
+            
+            if(result === undefined || result.status == 404)
+            {
+                return null
+            }
+            
+            try
+            {
+                return JSON.parse(result.response);
+            }
+            catch(e)
+            {
+                return result;
             }
         }
     };
