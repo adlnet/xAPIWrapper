@@ -535,7 +535,8 @@ ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question",
 ##### Activity State
 `function sendState(activityid, agent, stateid, registration, statevalue, matchHash, noneMatchHash, callback)`  
 `function getState(activityid, agent, stateid, registration, since, callback)`  
-Save / Retrieve activity state information for a particular agent, and optional registration.
+`function deleteState(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)` 
+Save / Retrieve / Delete activity state information for a particular agent, and optional registration.
 
 ###### Send / Retrieve New Activity State 
 
@@ -600,10 +601,31 @@ ADL.XAPIWrapper.log(states);
 >> ["another_state"] 
 ```
 
+###### Delete Activity State
+
+```javascript
+var stateval = {"info":"the state info"};
+ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
+                          {"mbox":"mailto:tom@example.com"}, 
+                          "questionstate", null, stateval);
+ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+>> {info: "the state info"}
+
+ADL.XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+>> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+
+ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+>> 404
+```
+
 ##### Activity Profile
 `function sendActivityProfile(activityid, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
 `function getActivityProfile(activityid, profileid, since, callback)`  
-Allows for the storage and retrieval of data about an Activity.
+`function deleteActivityProfile(activityid, profileid, matchHash, noneMatchHash, callback)`  
+Allows for the storage, retrieval and deletion of data about an Activity.
 
 ###### Send / Retrieve New Activity Profile
 
@@ -669,6 +691,27 @@ var profiles = ADL.XAPIWrapper.getActivityProfile(actid, null, since);
 ADL.XAPIWrapper.log(profiles);
 >> ["new-profile"]
 ```
+
+###### Delete Activity Profile
+
+```javascript
+var profile = {"info":"the profile"};
+ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                    "actprofile", profile, null, "*");
+ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                  "actprofile", null,
+                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the profile"} 
+
+ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                        "actprofile");
+>> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+
+ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+                                  "actprofile");
+>> 404
+```
+
 #### Agents
 ##### Get Agent
 `function getAgents(agent, callback)`  
@@ -695,7 +738,8 @@ ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"},
 ##### Agent Profile
 `function sendAgentProfile(agent, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
 `function getAgentProfile(agent, profileid, since, callback)`  
-Allows for the storage and retrieval of data about an Agent.
+`function deleteAgentProfile(agent, profileid, matchHash, noneMatchHash, callback)`  
+Allows for the storage, retrieval and deletion of data about an Agent.
 
 ###### Send / Retrieve New Agent Profile
 
@@ -754,4 +798,24 @@ var sinceprofiles = ADL.XAPIWrapper.getAgentProfile(otheragent, null, since);
 
 ADL.XAPIWrapper.log(sinceprofiles);
 >> ["the-new-other-profile-id"]
+```
+
+###### Delete Agent Profile
+
+```javascript
+var profile = {"info":"the agent profile"};
+ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                  "agentprofile", profile, null, "*");
+ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                 "agentprofile", null,
+                                 function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the agent profile"} 
+
+ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                        "agentprofile");
+>> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+
+ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+                                 "agentprofile");
+>> 404
 ```
