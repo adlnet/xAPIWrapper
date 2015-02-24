@@ -43,8 +43,15 @@ function toSHA1(text){
 
 (function(ADL){
     log.debug = true;
-    /* Config object used w/ url params to configure the lrs object
+    /* @function Config
+     * @description Config object used w/ url params to configure the lrs object
      * change these to match your lrs
+     * @example
+     * var conf = {
+     *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
+     *    "auth" : "Basic " + toBase64('tom:1234'),
+     * };
+     * ADL.XAPIWrapper.changeConfig(conf);
      */ 
     var Config = function()
     {
@@ -220,6 +227,25 @@ function toSHA1(text){
      *            the function will be passed the XMLHttpRequest object
      *            and an object with an id property assigned the id 
      *            of the statement
+     * @example
+     * // Send Statement
+     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+     *                       "display" : {"en-US" : "answered"}},
+     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+     * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
+     * 
+     * // Send Statement with Callback
+     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+     *                       "display" : {"en-US" : "answered"}},
+     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+     * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
+     *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
+     * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
+     * 
      */
     XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
     {
@@ -251,6 +277,22 @@ function toSHA1(text){
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+     *                       "display" : {"en-US" : "answered"}},
+     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+     * ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
+     * >> {"version": "1.0.0", 
+     *     "timestamp": "2013-09-09 21:36:40.185841+00:00", 
+     *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
+     *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"}, 
+     *     "stored": "2013-09-09 21:36:40.186124+00:00", 
+     *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
+     *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
+     *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"}, 
+     *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
      */
     XAPIWrapper.prototype.sendStatements = function(stmtArray, callback) 
     {
@@ -284,6 +326,12 @@ function toSHA1(text){
      * @param {function} [callback] - function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
+     * @example
+     * var ret = ADL.XAPIWrapper.getStatements();
+     * if (ret)
+     *     ADL.XAPIWrapper.log(ret.statements);
+     *
+     * >> <Array of statements>
      */
     XAPIWrapper.prototype.getStatements = function(searchparams, more, callback) 
     {

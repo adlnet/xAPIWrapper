@@ -48,6 +48,21 @@
 	 * @param {string} actor   The Agent or Group committing the action described by the statement
 	 * @param {string} verb   The Verb for the action described by the statement
 	 * @param {string} object   The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
+   * @example
+   * var stmt = new ADL.XAPIStatement(
+   *     'mailto:steve.vergenz.ctr@adlnet.gov',
+   *    'http://adlnet.gov/expapi/verbs/launched',
+   *    'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
+   * );
+   * >> {
+   *     "actor": {
+   *         "objectType": "Agent",
+   *         "mbox": "mailto:steve.vergenz.ctr@adlnet.gov" },
+   *     "verb": {
+   *         "id": "http://adlnet.gov/expapi/verbs/launched" },
+   *     "object": {
+   *         "objectType": "Activity",
+   *         "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
 	 */
 	var XAPIStatement = function(actor,verb,object)
 	{
