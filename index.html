@@ -232,7 +232,20 @@
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="XAPIStatement-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var stmt = new ADL.XAPIStatement(
+    &#x27;mailto:steve.vergenz.ctr@adlnet.gov&#x27;,
+   &#x27;http://adlnet.gov/expapi/verbs/launched&#x27;,
+   &#x27;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&#x27;
+);
+&gt;&gt; {
+    &quot;actor&quot;: {
+        &quot;objectType&quot;: &quot;Agent&quot;,
+        &quot;mbox&quot;: &quot;mailto:steve.vergenz.ctr@adlnet.gov&quot; },
+    &quot;verb&quot;: {
+        &quot;id&quot;: &quot;http://adlnet.gov/expapi/verbs/launched&quot; },
+    &quot;object&quot;: {
+        &quot;objectType&quot;: &quot;Activity&quot;,
+        &quot;id&quot;: &quot;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&quot; }}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="XAPIStatement-source">
                                             <pre><code class="language-javascript">var XAPIStatement = function(actor,verb,object)
@@ -1026,7 +1039,23 @@
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="sendStatement-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">// Send Statement
+var stmt = {&quot;actor&quot; : {&quot;mbox&quot; : &quot;mailto:tom@example.com&quot;},
+            &quot;verb&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/verbs/answered&quot;,
+                      &quot;display&quot; : {&quot;en-US&quot; : &quot;answered&quot;}},
+            &quot;object&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/activities/question&quot;}};
+var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+ADL.XAPIWrapper.log(&quot;[&quot; + resp_obj.id + &quot;]: &quot; + resp_obj.xhr.status + &quot; - &quot; + resp_obj.xhr.statusText);
+&gt;&gt; [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
+
+// Send Statement with Callback
+var stmt = {&quot;actor&quot; : {&quot;mbox&quot; : &quot;mailto:tom@example.com&quot;},
+            &quot;verb&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/verbs/answered&quot;,
+                      &quot;display&quot; : {&quot;en-US&quot; : &quot;answered&quot;}},
+            &quot;object&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/activities/question&quot;}};
+ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
+    ADL.XAPIWrapper.log(&quot;[&quot; + obj.id + &quot;]: &quot; + resp.status + &quot; - &quot; + resp.statusText);});
+&gt;&gt; [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT</code></pre>
                                         </div>
                                         <div class="tab-pane" id="sendStatement-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
@@ -1110,7 +1139,21 @@
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="sendStatements-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var stmt = {&quot;actor&quot; : {&quot;mbox&quot; : &quot;mailto:tom@example.com&quot;},
+            &quot;verb&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/verbs/answered&quot;,
+                      &quot;display&quot; : {&quot;en-US&quot; : &quot;answered&quot;}},
+            &quot;object&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/activities/question&quot;}};
+var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
+&gt;&gt; {&quot;version&quot;: &quot;1.0.0&quot;, 
+    &quot;timestamp&quot;: &quot;2013-09-09 21:36:40.185841+00:00&quot;, 
+    &quot;object&quot;: {&quot;id&quot;: &quot;http://adlnet.gov/expapi/activities/question&quot;, &quot;objectType&quot;: &quot;Activity&quot;}, 
+    &quot;actor&quot;: {&quot;mbox&quot;: &quot;mailto:tom@example.com&quot;, &quot;name&quot;: &quot;tom creighton&quot;, &quot;objectType&quot;: &quot;Agent&quot;}, 
+    &quot;stored&quot;: &quot;2013-09-09 21:36:40.186124+00:00&quot;, 
+    &quot;verb&quot;: {&quot;id&quot;: &quot;http://adlnet.gov/expapi/verbs/answered&quot;, &quot;display&quot;: {&quot;en-US&quot;: &quot;answered&quot;}}, 
+    &quot;authority&quot;: {&quot;mbox&quot;: &quot;mailto:tom@adlnet.gov&quot;, &quot;name&quot;: &quot;tom&quot;, &quot;objectType&quot;: &quot;Agent&quot;}, 
+    &quot;context&quot;: {&quot;registration&quot;: &quot;51a6f860-1997-11e3-8ffd-0800200c9a66&quot;}, 
+    &quot;id&quot;: &quot;ea9c1d01-0606-4ec7-8e5d-20f87b1211ed&quot;}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="sendStatements-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.sendStatements = function(stmtArray, callback) 
@@ -1203,7 +1246,11 @@
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="getStatements-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var ret = ADL.XAPIWrapper.getStatements();
+if (ret)
+    ADL.XAPIWrapper.log(ret.statements);
+
+&gt;&gt; &lt;Array of statements&gt;</code></pre>
                                         </div>
                                         <div class="tab-pane" id="getStatements-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.getStatements = function(searchparams, more, callback) 
