@@ -41,13 +41,13 @@
 	 *******************************************************************************/
 
 	/*
-	 * XAPIStatement
-	 * A convenient JSON-compatible xAPI statement wrapper
+	 * @function XAPIStatement
+	 * @description A convenient JSON-compatible xAPI statement wrapper
 	 * All args are optional, but the statement may not be complete or valid
 	 * Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args
-	 * actor - The Agent or Group committing the action described by the statement
-	 * verb - The Verb for the action described by the statement
-	 * object - The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
+	 * @param {string} actor   The Agent or Group committing the action described by the statement
+	 * @param {string} verb   The Verb for the action described by the statement
+	 * @param {string} object   The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
 	 */
 	var XAPIStatement = function(actor,verb,object)
 	{
@@ -155,12 +155,12 @@
 
 	
 	/*
-	 * Agent
-	 * Provides an easy constructor for xAPI agent objects
-	 * identifier - One of the Inverse Functional Identifiers specified in the spec.
+	 * @function Agent
+	 * @description Provides an easy constructor for xAPI agent objects
+	 * @param {string} identifier   One of the Inverse Functional Identifiers specified in the spec.
 	 *     That is, an email, a hashed email, an OpenID, or an account object.
 	 *     See (https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional)
-	 * name - (optional) The natural-language name of the agent
+	 * @param {string} [name]   The natural-language name of the agent
 	 */
 	var Agent = function(identifier, name)
 	{
@@ -198,11 +198,11 @@
 
 	
 	/*
-	 * Group
-	 * A type of agent, can contain multiple agents
-	 * identifier - (optional if `members` specified) See Agent.
-	 * members - (optional) An array of Agents describing the membership of the group
-	 * name - (optional) The natural-language name of the agent
+	 * @founction Group
+	 * @description A type of agent, can contain multiple agents
+	 * @param {string} [identifier]   (optional if `members` specified) See Agent.
+	 * @param {string} [members]    An array of Agents describing the membership of the group
+	 * @param {string} [name]   The natural-language name of the agent
 	 */
 	var Group = function(identifier, members, name)
 	{
@@ -214,10 +214,10 @@
 
 	
 	/*
-	 * Verb
-	 * Really only provides a convenient language map
-	 * id - The IRI of the action taken
-	 * description - (optional) An English-language description, or a Language Map
+	 * @function Verb
+	 * @description Really only provides a convenient language map
+	 * @param {string} id   The IRI of the action taken
+	 * @param {string} [description]    An English-language description, or a Language Map
 	 */
 	var Verb = function(id, description)
 	{
@@ -253,11 +253,11 @@
 
 	
 	/*
-	 * Activity
-	 * Describes an object that an agent interacts with
-	 * id - The unique activity IRI
-	 * name - An English-language identifier for the activity, or a Language Map
-	 * description - An English-language description of the activity, or a Language Map
+	 * @function Activity
+	 * @description Describes an object that an agent interacts with
+	 * @param {string} id   The unique activity IRI
+	 * @param {string} name   An English-language identifier for the activity, or a Language Map
+	 * @param {string} description   An English-language description of the activity, or a Language Map
 	 */
 	var Activity = function(id, name, description)
 	{
@@ -298,9 +298,9 @@
 	};
 	
 	/*
-	 * StatementRef
-	 * An object that refers to a separate statement
-	 * id - The UUID of another xAPI statement
+	 * @function StatementRef
+	 * @description An object that refers to a separate statement
+	 * @param {string} id   The UUID of another xAPI statement
 	 */
 	var StatementRef = function(id){
 		if(id && id.id){
@@ -321,9 +321,12 @@
 	};
 	
 	/*
-	 * SubStatement
-	 * A self-contained statement as the object of another statement
+	 * @function SubStatement
+	 * @description A self-contained statement as the object of another statement
 	 * See XAPIStatement for constructor details
+	 * @param {string} actor   The Agent or Group committing the action described by the statement
+	 * @param {string} verb   The Verb for the action described by the statement
+	 * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
 	 */
 	var SubStatement = function(actor, verb, object){
 		XAPIStatement.call(this,actor,verb,object);

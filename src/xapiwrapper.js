@@ -43,8 +43,9 @@ function toSHA1(text){
 
 (function(ADL){
     log.debug = true;
-    // config object used w/ url params to configure the lrs object
-    // change these to match your lrs
+    /* Config object used w/ url params to configure the lrs object
+     * change these to match your lrs
+     */ 
     var Config = function()
     {
         var conf = {};
@@ -66,12 +67,10 @@ function toSHA1(text){
         return conf
     }();
 
-    /*
-     * XAPIWrapper Constructor
-     * config - object with a minimum of an endoint property
-     * verifyxapiversion - boolean indicating whether to verify the 
-     *                     version of the LRS is compatible with this
-     *                     wrapper
+    /* @function XAPIWrapper
+     * @description XAPIWrapper Constructor
+     * @param {object} config   with a minimum of an endoint property
+     * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
     XAPIWrapper = function(config, verifyxapiversion)
     {
@@ -170,11 +169,10 @@ function toSHA1(text){
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     /*
-     * prepareStatement
-     * Adds info from the lrs object to the statement, if available.
-     * These values could be initialized from the Config object or from 
-     * the url query string.
-     * stmt - the statement object
+     * @function prepareStatement
+     * @description Adds info from the lrs object to the statement, if available.
+     * These values could be initialized from the Config object or from the url query string.
+     * @param {object} stmt   the statement object
      */
     XAPIWrapper.prototype.prepareStatement = function(stmt)
     {
@@ -213,15 +211,15 @@ function toSHA1(text){
     XAPIWrapper.prototype.log = log;
 
     /*
-     * sendStatement
-     * Send a single statement to the LRS. Makes a Javascript object 
+     * @function sendStatement
+     * @description Send a single statement to the LRS. Makes a Javascript object 
      * with the statement id as 'id' available to the callback function. 
-     * stmt - statement object to send
-     * callback - function to be called after the LRS responds 
+     * @param {object} stmt   statement object to send
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
-     *            * and an object with an id property assigned the id 
-     *            * of the statement
+     *            the function will be passed the XMLHttpRequest object
+     *            and an object with an id property assigned the id 
+     *            of the statement
      */
     XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
     {
@@ -247,12 +245,12 @@ function toSHA1(text){
     };
 
     /*
-     * sendStatements
-     * Send a list of statements to the LRS.
-     * stmtArray - the list of statement objects to send
-     * callback - function to be called after the LRS responds 
+     * @function sendStatements
+     * @description Send a list of statements to the LRS.
+     * @param {array} stmtArray   the list of statement objects to send
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
      */
     XAPIWrapper.prototype.sendStatements = function(stmtArray, callback) 
     {
@@ -272,18 +270,18 @@ function toSHA1(text){
     };
 
     /*
-     * getStatements
-     * Get statement(s) based on the searchparams or more url.
-     * searchparams - an ADL.XAPIWrapper.searchParams object of 
+     * @function getStatements
+     * @description Get statement(s) based on the searchparams or more url.
+     * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of 
      *                key(search parameter)-value(parameter value) pairs. 
      *                Example:
      *                  var myparams = ADL.XAPIWrapper.searchParams();
      *                  myparams['verb'] = ADL.verbs.completed.id;
      *                  var completedStmts = ADL.XAPIWrapper.getStatements(myparams);
-     * more - the more url found in the StatementResults object, if there are more 
+     * @param {string} more   the more url found in the StatementResults object, if there are more 
      *        statements available based on your get statements request. Pass the 
      *        more url as this parameter to retrieve those statements.
-     * callback - function to be called after the LRS responds 
+     * @param {function} [callback] - function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -326,10 +324,10 @@ function toSHA1(text){
     };
 
     /*
-     * getActivities
-     * Gets the Activity object from the LRS.
-     * activityid - the id of the Activity to get
-     * callback - function to be called after the LRS responds 
+     * @function getActivities
+     * @description Gets the Activity object from the LRS.
+     * @param {string} activityid   the id of the Activity to get
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -359,16 +357,16 @@ function toSHA1(text){
     };
 
     /*
-     * sendState
-     * Store activity state in the LRS
-     * activityid - the id of the Activity this state is about
-     * agent - the agent this Activity state is related to 
-     * stateid - the id you want associated with this state
-     * registration - (optional) the registraton id associated with this state
-     * stateval - the state
-     * matchHash - the hash of the state to replace or * to replace any
-     * noneMatchHash - the hash of the current state or * to indicate no previous state
-     * callback - function to be called after the LRS responds 
+     * @function sendState
+     * @description Store activity state in the LRS
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to 
+     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} stateval   the state
+     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -434,16 +432,15 @@ function toSHA1(text){
     };
 
     /*
-     * getState
-     * Get activity state from the LRS
-     * activityid - the id of the Activity this state is about
-     * agent - the agent this Activity state is related to 
-     * stateid - (optional - if not included, the response will be a list of stateids 
+     * @function getState
+     * @description Get activity state from the LRS
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to 
+     * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids 
      *            associated with the activity and agent)
-     *            the id of the state
-     * registration - (optional) the registraton id associated with this state
-     * since - date object telling the LRS to return objects newer than the date supplied
-     * callback - function to be called after the LRS responds 
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -490,15 +487,15 @@ function toSHA1(text){
     };
 
     /*
-     * deleteState
-     * Delete activity state in the LRS
-     * activityid - the id of the Activity this state is about
-     * agent - the agent this Activity state is related to 
-     * stateid - the id you want associated with this state
-     * registration - (optional) the registraton id associated with this state
-     * matchHash - the hash of the state to replace or * to replace any
-     * noneMatchHash - the hash of the current state or * to indicate no previous state
-     * callback - function to be called after the LRS responds 
+     * @function deleteState
+     * @description Delete activity state in the LRS
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to 
+     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -550,14 +547,14 @@ function toSHA1(text){
     };
 
     /*
-     * sendActivityProfile
-     * Store activity profile in the LRS
-     * activityid - the id of the Activity this profile is about
-     * profileid - the id you want associated with this profile
-     * profileval - the profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @function sendActivityProfile
+     * @description Store activity profile in the LRS
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} profileval   the profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -617,14 +614,13 @@ function toSHA1(text){
     };
 
     /*
-     * getActivityProfile
-     * Get activity profile from the LRS
-     * activityid - the id of the Activity this profile is about
-     * profileid - (optional - if not included, the response will be a list of profileids 
-     *              associated with the activity)
-     *              the id of the profile
-     * since - date object telling the LRS to return objects newer than the date supplied
-     * callback - function to be called after the LRS responds 
+     * @function getActivityProfile
+     * @description Get activity profile from the LRS
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
+     *              associated with the activity
+     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -665,13 +661,13 @@ function toSHA1(text){
     };
 
     /*
-     * deleteActivityProfile
-     * Delete activity profile in the LRS
-     * activityid - the id of the Activity this profile is about
-     * profileid - the id you want associated with this profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @function deleteActivityProfile
+     * @description Delete activity profile in the LRS
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -717,12 +713,12 @@ function toSHA1(text){
     };
 
     /*
-     * getAgents
-     * Gets the Person object from the LRS based on an agent object.
+     * @function getAgents
+     * @description Gets the Person object from the LRS based on an agent object.
      * The Person object may contain more information about an agent. 
      * See the xAPI Spec for details.
-     * agent - the agent object to get a Person
-     * callback - function to be called after the LRS responds 
+     * @param {object} agent   the agent object to get a Person
+     * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -752,14 +748,14 @@ function toSHA1(text){
     };
 
     /*
-     * sendAgentProfile
-     * Store agent profile in the LRS
-     * agent - the agent this profile is related to
-     * profileid - the id you want associated with this profile
-     * profileval - the profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @function sendAgentProfile
+     * @description Store agent profile in the LRS
+     * @param {object} agent   the agent this profile is related to
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} profileval   the profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -819,14 +815,13 @@ function toSHA1(text){
     };
 
     /*
-     * getAgentProfile
-     * Get agnet profile from the LRS
-     * agent - the agent associated with this profile
-     * profileid - (optional - if not included, the response will be a list of profileids 
-     *              associated with the agent)
-     *              the id of the profile
-     * since - date object telling the LRS to return objects newer than the date supplied
-     * callback - function to be called after the LRS responds 
+     * @function getAgentProfile
+     * @description Get agnet profile from the LRS
+     * @param {object} agent   the agent associated with this profile
+     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
+     *              associated with the agent
+     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -867,13 +862,13 @@ function toSHA1(text){
     };
 
     /*
-     * deleteAgentProfile
-     * Delete agent profile in the LRS
-     * agent - the id of the Agent this profile is about
-     * profileid - the id you want associated with this profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @function deleteAgentProfile
+     * @description Delete agent profile in the LRS
+     * @param {oject} agent   the id of the Agent this profile is about
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
      */
@@ -918,7 +913,10 @@ function toSHA1(text){
         }
     };
 
-    // tests the configuration of the lrs object
+    /*
+     * @function testConfig
+     * @description tests the configuration of the lrs object
+     */
     function testConfig()
     {
         try
@@ -1042,12 +1040,12 @@ function toSHA1(text){
     }
 
     /* 
-     * ie_request
-     * formats a request in a way that IE will allow
-     * method - the http request method (ex: "PUT", "GET")
-     * url - the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
-     * headers - (optional) headers to include in the request
-     * data - (optional) the body of the request, if there is one
+     * @function ie_request
+     * @description formats a request in a way that IE will allow
+     * @param {string} method   the http request method (ex: "PUT", "GET")
+     * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
+     * @param {array} [headers]   headers to include in the request
+     * @param {string} [data]   the body of the request, if there is one
      */
     function ie_request(method, url, headers, data)
     {
@@ -1135,18 +1133,18 @@ function toSHA1(text){
 
     // Synchronous if callback is not provided (not recommended)
     /*
-     * XHR_request
-     * makes a request to a server (if possible, use functions provided in XAPIWrapper)
-     * lrs - the lrs connection info, such as endpoint, auth, etc
-     * url - the url of this request
-     * method - the http request method
-     * data - the payload
-     * auth - the value for the Authorization header
-     * callback - function to be called after the LRS responds 
+     * @function XHR_request
+     * @description makes a request to a server (if possible, use functions provided in XAPIWrapper)
+     * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
+     * @param {string} url   the url of this request
+     * @param {string} method   the http request method
+     * @param {string} data   the payload
+     * @param {string} auth   the value for the Authorization header
+     * @param {function} callback   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     * callbackargs - (optional) additional javascript object to be passed to the callback function
-     * ignore 404 - allow page not found errors to pass
-     * extraHeaders - other header key-values to be added to this request
+     * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+     * @param {boolean} ignore404    allow page not found errors to pass
+     * @param {object} extraHeaders   other header key-values to be added to this request
      */
     ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
     {
@@ -1270,10 +1268,11 @@ function toSHA1(text){
     };
 
     /*
-     * Holder for custom global error callback
-     * xhr - xhr object or null
-     * method - XMLHttpRequest request method
-     * url - full endpoint url
+     * @function xhrRequestOnError
+     * @description Holder for custom global error callback
+     * @param {object} xhr   xhr object or null
+     * @param {string} method   XMLHttpRequest request method
+     * @param {string} url   full endpoint url
      */
     ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){};
 

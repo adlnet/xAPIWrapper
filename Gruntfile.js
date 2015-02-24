@@ -15,23 +15,27 @@ module.exports = function(grunt) {
 			},
 			build: {
 				files: {
-					'xapiwrapper.min.js': [
-						'cryptojs_v3.1.2.js',
-						'verbs.js',
-						'xapiwrapper.js',
-						'xapistatement.js'
+					'dist/xapiwrapper.min.js': [
+						'src/cryptojs_v3.1.2.js',
+						'src/verbs.js',
+						'src/xapiwrapper.js',
+						'src/xapistatement.js'
 					]
 				}
 			}
-		}
+		},
+    exec: {
+      docs: 'doxstrap --title "xAPIWrapper <%= pkg.version %> Reference" --output doc'
+    }
 	});
 
 	// Load the plugins.
 	grunt.loadNpmTasks('grunt-bump');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-exec');
 
 	// Default task(s).
-	grunt.registerTask('default', ['uglify']);
+	grunt.registerTask('default', ['uglify','exec']);
 	// those with adl repo access can use this to publish a tag and release
 	// $> grunt release:minor
 	grunt.registerTask('release', 'Build the release of xapiwrapper', function(n) {
