@@ -27,24 +27,24 @@ if ( !Date.prototype.toISOString ) {
 
 // shim for old-style Base64 lib
 function toBase64(text){
-	if(CryptoJS && CryptoJS.enc.Base64) 
-		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
-	else
-		return Base64.encode(text);
+  if(CryptoJS && CryptoJS.enc.Base64) 
+    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
+  else
+    return Base64.encode(text);
 }
 
 // shim for old-style crypto lib
 function toSHA1(text){
-	if(CryptoJS && CryptoJS.SHA1)
-		return CryptoJS.SHA1(text).toString();
-	else
-		return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
+  if(CryptoJS && CryptoJS.SHA1)
+    return CryptoJS.SHA1(text).toString();
+  else
+    return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
 }
 
 (function(ADL){
     log.debug = true;
-    /* @function Config
-     * @description Config object used w/ url params to configure the lrs object
+    /* 
+     * Config object used w/ url params to configure the lrs object
      * change these to match your lrs
      * @example
      * var conf = {
@@ -74,8 +74,8 @@ function toSHA1(text){
         return conf
     }();
 
-    /* @function XAPIWrapper
-     * @description XAPIWrapper Constructor
+    /* 
+     * XAPIWrapper Constructor
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
@@ -176,8 +176,7 @@ function toSHA1(text){
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     /*
-     * @function prepareStatement
-     * @description Adds info from the lrs object to the statement, if available.
+     * Adds info from the lrs object to the statement, if available.
      * These values could be initialized from the Config object or from the url query string.
      * @param {object} stmt   the statement object
      */
@@ -218,8 +217,7 @@ function toSHA1(text){
     XAPIWrapper.prototype.log = log;
 
     /*
-     * @function sendStatement
-     * @description Send a single statement to the LRS. Makes a Javascript object 
+     * Send a single statement to the LRS. Makes a Javascript object 
      * with the statement id as 'id' available to the callback function. 
      * @param {object} stmt   statement object to send
      * @param {function} [callback]   function to be called after the LRS responds 
@@ -271,8 +269,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function sendStatements
-     * @description Send a list of statements to the LRS.
+     * Send a list of statements to the LRS.
      * @param {array} stmtArray   the list of statement objects to send
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
@@ -312,8 +309,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function getStatements
-     * @description Get statement(s) based on the searchparams or more url.
+     * Get statement(s) based on the searchparams or more url.
      * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of 
      *                key(search parameter)-value(parameter value) pairs. 
      *                Example:
@@ -372,8 +368,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function getActivities
-     * @description Gets the Activity object from the LRS.
+     * Gets the Activity object from the LRS.
      * @param {string} activityid   the id of the Activity to get
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
@@ -405,8 +400,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function sendState
-     * @description Store activity state in the LRS
+     * Store activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to 
      * @param {string} stateid   the id you want associated with this state
@@ -480,8 +474,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function getState
-     * @description Get activity state from the LRS
+     * Get activity state from the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to 
      * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids 
@@ -535,8 +528,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function deleteState
-     * @description Delete activity state in the LRS
+     * Delete activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to 
      * @param {string} stateid   the id you want associated with this state
@@ -595,8 +587,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function sendActivityProfile
-     * @description Store activity profile in the LRS
+     * Store activity profile in the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} profileid   the id you want associated with this profile
      * @param {string} profileval   the profile
@@ -662,8 +653,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function getActivityProfile
-     * @description Get activity profile from the LRS
+     * Get activity profile from the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the activity
@@ -709,8 +699,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function deleteActivityProfile
-     * @description Delete activity profile in the LRS
+     * Delete activity profile in the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} profileid   the id you want associated with this profile
      * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
@@ -761,8 +750,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function getAgents
-     * @description Gets the Person object from the LRS based on an agent object.
+     * Gets the Person object from the LRS based on an agent object.
      * The Person object may contain more information about an agent. 
      * See the xAPI Spec for details.
      * @param {object} agent   the agent object to get a Person
@@ -796,8 +784,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function sendAgentProfile
-     * @description Store agent profile in the LRS
+     * Store agent profile in the LRS
      * @param {object} agent   the agent this profile is related to
      * @param {string} profileid   the id you want associated with this profile
      * @param {string} profileval   the profile
@@ -863,8 +850,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function getAgentProfile
-     * @description Get agnet profile from the LRS
+     * Get agnet profile from the LRS
      * @param {object} agent   the agent associated with this profile
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the agent
@@ -910,8 +896,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function deleteAgentProfile
-     * @description Delete agent profile in the LRS
+     * Delete agent profile in the LRS
      * @param {oject} agent   the id of the Agent this profile is about
      * @param {string} profileid   the id you want associated with this profile
      * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
@@ -962,8 +947,8 @@ function toSHA1(text){
     };
 
     /*
-     * @function testConfig
-     * @description tests the configuration of the lrs object
+
+     * tests the configuration of the lrs object
      */
     function testConfig()
     {
@@ -1088,8 +1073,7 @@ function toSHA1(text){
     }
 
     /* 
-     * @function ie_request
-     * @description formats a request in a way that IE will allow
+     * formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
      * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
      * @param {array} [headers]   headers to include in the request
@@ -1181,8 +1165,7 @@ function toSHA1(text){
 
     // Synchronous if callback is not provided (not recommended)
     /*
-     * @function XHR_request
-     * @description makes a request to a server (if possible, use functions provided in XAPIWrapper)
+     * makes a request to a server (if possible, use functions provided in XAPIWrapper)
      * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
      * @param {string} url   the url of this request
      * @param {string} method   the http request method
@@ -1316,8 +1299,7 @@ function toSHA1(text){
     };
 
     /*
-     * @function xhrRequestOnError
-     * @description Holder for custom global error callback
+     * Holder for custom global error callback
      * @param {object} xhr   xhr object or null
      * @param {string} method   XMLHttpRequest request method
      * @param {string} url   full endpoint url
