@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>xAPIWrapper 1.3.0 Reference</title>
+        <title>xAPIWrapper 1.3.1 Reference</title>
 
         <link rel="stylesheet" href="static/bootstrap.min.css">
         <link rel="stylesheet" href="static/prism.css">
@@ -57,10 +57,11 @@
                 margin-top: 0;
                 /*padding-top: 0;*/
             }
-
+            
             nav > ul {
-                position:fixed;
+                position: fixed;
             }
+
             nav ul {
                 padding-left: 1em;
                 list-style: none;
@@ -118,7 +119,7 @@
 
     <body>
 
-        <h1>xAPIWrapper 1.3.0 Reference</h1>
+        <h1>xAPIWrapper 1.3.1 Reference</h1>
 
         <div class="wrap">
 
@@ -900,6 +901,71 @@
                         <h2>XAPIwrapper</h2>
 
 
+                            <section id="xapiwrapper-Config">
+
+
+                                <h3>
+                                    Config
+                                    <em> ()</em>
+                                </h3>
+
+                                <div class="block">
+
+                                    <p>Config object used w/ url params to configure the lrs object<br />change these to match your lrs</p>
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        config object
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#Config-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#Config-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="Config-example-0">
+                                            <pre><code class="language-javascript">var conf = {
+   &quot;endpoint&quot; : &quot;https://lrs.adlnet.gov/xapi/&quot;,
+   &quot;auth&quot; : &quot;Basic &quot; + toBase64(&#x27;tom:1234&#x27;),
+};
+ADL.XAPIWrapper.changeConfig(conf);</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="Config-source">
+                                            <pre><code class="language-javascript">var Config = function()
+    {
+        var conf = {};
+        conf[&#x27;endpoint&#x27;] = &quot;http://localhost:8000/xapi/&quot;;
+        try
+        {
+            conf[&#x27;auth&#x27;] = &quot;Basic &quot; + toBase64(&#x27;tom:1234&#x27;); 
+        }
+        catch (e)
+        {
+            log(&quot;Exception in Config trying to encode auth: &quot; + e);
+        }
+
+        // Statement defaults
+        // conf[&quot;actor&quot;] = {&quot;mbox&quot;:&quot;default@example.com&quot;};
+        // conf[&quot;registration&quot;] =  ruuid();
+        // conf[&quot;grouping&quot;] = {&quot;id&quot;:&quot;ctxact:default/grouping&quot;};
+        // conf[&quot;activity_platform&quot;] = &quot;default platform&quot;;
+        return conf
+    }();</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
 
                             <section id="xapiwrapper-prepareStatement">
 
@@ -1032,6 +1098,16 @@
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        object containing xhr object and id of statement
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#sendStatement-example-0" data-toggle="tab">Example</a></li>
@@ -1132,6 +1208,16 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#sendStatements-example-0" data-toggle="tab">Example</a></li>
@@ -1230,7 +1316,7 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     - function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1239,6 +1325,16 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#getStatements-example-0" data-toggle="tab">Example</a></li>
@@ -1342,6 +1438,16 @@ if (ret)
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#getActivities-example-0" data-toggle="tab">Example</a></li>
@@ -1490,6 +1596,16 @@ ADL.XAPIWrapper.log(res);
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">boolean</span>
+                                        &nbsp;
+                                        false if no activity state is included
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#sendState-example-0" data-toggle="tab">Example</a></li>
@@ -1655,6 +1771,16 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#getState-example-0" data-toggle="tab">Example</a></li>
@@ -1810,6 +1936,16 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#deleteState-example-0" data-toggle="tab">Example</a></li>
@@ -1972,6 +2108,16 @@ ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">bolean</span>
+                                        &nbsp;
+                                        false if no activity profile is included
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#sendActivityProfile-example-0" data-toggle="tab">Example</a></li>
@@ -2110,6 +2256,16 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#getActivityProfile-example-0" data-toggle="tab">Example</a></li>
@@ -2240,6 +2396,16 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#deleteActivityProfile-example-0" data-toggle="tab">Example</a></li>
@@ -2344,6 +2510,16 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#getAgents-example-0" data-toggle="tab">Example</a></li>
@@ -2472,6 +2648,16 @@ ADL.XAPIWrapper.log(res);
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        false if no agent profile is included
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#sendAgentProfile-example-0" data-toggle="tab">Example</a></li>
@@ -2610,6 +2796,16 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#getAgentProfile-example-0" data-toggle="tab">Example</a></li>
@@ -2740,6 +2936,16 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object or null if 404
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#deleteAgentProfile-example-0" data-toggle="tab">Example</a></li>
@@ -2864,6 +3070,16 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#ie_request-example-0" data-toggle="tab">Example</a></li>
@@ -3031,6 +3247,16 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                         </tbody>
                                     </table>
 
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">object</span>
+                                        &nbsp;
+                                        xhr response object
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
 
                                     <ul class="nav nav-tabs">
                                         <li class="active"><a href="#XHR_request-example-0" data-toggle="tab">Example</a></li>
