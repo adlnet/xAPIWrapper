@@ -180,7 +180,7 @@
 
                                 <div class="block">
 
-                                    <p>@function XAPIStatement</p>
+                                    <p>A convenient JSON-compatible xAPI statement wrapper<br />All args are optional, but the statement may not be complete or valid<br />Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -194,7 +194,7 @@
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     The Agent or Group committing the action described by the statement
-                                                    
+                                                    <span class="label label-default">optional</span>
                                                     
 
                                                 </td>
@@ -204,7 +204,7 @@
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     The Verb for the action described by the statement
-                                                    
+                                                    <span class="label label-default">optional</span>
                                                     
 
                                                 </td>
@@ -214,7 +214,7 @@
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
-                                                    
+                                                    <span class="label label-default">optional</span>
                                                     
 
                                                 </td>
@@ -238,119 +238,119 @@
    &#x27;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&#x27;
 );
 &gt;&gt; {
-    &quot;actor&quot;: {
-        &quot;objectType&quot;: &quot;Agent&quot;,
-        &quot;mbox&quot;: &quot;mailto:steve.vergenz.ctr@adlnet.gov&quot; },
-    &quot;verb&quot;: {
-        &quot;id&quot;: &quot;http://adlnet.gov/expapi/verbs/launched&quot; },
-    &quot;object&quot;: {
-        &quot;objectType&quot;: &quot;Activity&quot;,
-        &quot;id&quot;: &quot;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&quot; }}</code></pre>
+&quot;actor&quot;: {
+    &quot;objectType&quot;: &quot;Agent&quot;,
+    &quot;mbox&quot;: &quot;mailto:steve.vergenz.ctr@adlnet.gov&quot; },
+&quot;verb&quot;: {
+    &quot;id&quot;: &quot;http://adlnet.gov/expapi/verbs/launched&quot; },
+&quot;object&quot;: {
+    &quot;objectType&quot;: &quot;Activity&quot;,
+    &quot;id&quot;: &quot;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&quot; }}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="XAPIStatement-source">
                                             <pre><code class="language-javascript">var XAPIStatement = function(actor,verb,object)
-	{
+  {
 
-		// initialize
+    // initialize
 
-		// if first arg is an xapi statement, parse
-		if( actor &amp;&amp; actor.actor &amp;&amp; actor.verb &amp;&amp; actor.object ){
-			var stmt = actor;
-			for(var i in stmt){
-				if(i != &#x27;actor&#x27; &amp;&amp; i != &#x27;verb&#x27; &amp;&amp; i != &#x27;object&#x27;)
-					this[i] = stmt[i];
-			}
-			actor = stmt.actor;
-			verb = stmt.verb;
-			object = stmt.object;
-		}
-		
-		if(actor){
-			if( actor instanceof Agent )
-				this.actor = actor;
-			else if(actor.objectType === &#x27;Agent&#x27; || !actor.objectType)
-				this.actor = new Agent(actor);
-			else if(actor.objectType === &#x27;Group&#x27;)
-				this.actor = new Group(actor);
-		}
-		else this.actor = null;
-		
-		if(verb){
-			if( verb instanceof Verb )
-				this.verb = verb;
-			else
-				this.verb = new Verb(verb);
-		}
-		else this.verb = null;
+    // if first arg is an xapi statement, parse
+    if( actor &amp;&amp; actor.actor &amp;&amp; actor.verb &amp;&amp; actor.object ){
+      var stmt = actor;
+      for(var i in stmt){
+        if(i != &#x27;actor&#x27; &amp;&amp; i != &#x27;verb&#x27; &amp;&amp; i != &#x27;object&#x27;)
+          this[i] = stmt[i];
+      }
+      actor = stmt.actor;
+      verb = stmt.verb;
+      object = stmt.object;
+    }
+    
+    if(actor){
+      if( actor instanceof Agent )
+        this.actor = actor;
+      else if(actor.objectType === &#x27;Agent&#x27; || !actor.objectType)
+        this.actor = new Agent(actor);
+      else if(actor.objectType === &#x27;Group&#x27;)
+        this.actor = new Group(actor);
+    }
+    else this.actor = null;
+    
+    if(verb){
+      if( verb instanceof Verb )
+        this.verb = verb;
+      else
+        this.verb = new Verb(verb);
+    }
+    else this.verb = null;
 
-		// decide what kind of object was passed
-		if(object)
-		{
-			if( object.objectType === &#x27;Activity&#x27; || !object.objectType ){
-				if( object instanceof Activity )
-					this.object = object;
-				else
-					this.object = new Activity(object);
-			}
-			else if( object.objectType === &#x27;Agent&#x27; ){
-				if( object instanceof Agent )
-					this.object = object;
-				else
-					this.object = new Agent(object);
-			}
-			else if( object.objectType === &#x27;Group&#x27; ){
-				if( object instanceof Group )
-					this.object = object;
-				else
-					this.object = new Group(object);
-			}
-			else if( object.objectType === &#x27;StatementRef&#x27; ){
-				if( object instanceof StatementRef )
-					this.object = object;
-				else
-					this.object = new StatementRef(object);
-			}
-			else if( object.objectType === &#x27;SubStatement&#x27; ){
-				if( object instanceof SubStatement )
-					this.object = object;
-				else
-					this.object = new SubStatement(object);
-			}
-			else this.object = null;
-		}
-		else this.object = null;
+    // decide what kind of object was passed
+    if(object)
+    {
+      if( object.objectType === &#x27;Activity&#x27; || !object.objectType ){
+        if( object instanceof Activity )
+          this.object = object;
+        else
+          this.object = new Activity(object);
+      }
+      else if( object.objectType === &#x27;Agent&#x27; ){
+        if( object instanceof Agent )
+          this.object = object;
+        else
+          this.object = new Agent(object);
+      }
+      else if( object.objectType === &#x27;Group&#x27; ){
+        if( object instanceof Group )
+          this.object = object;
+        else
+          this.object = new Group(object);
+      }
+      else if( object.objectType === &#x27;StatementRef&#x27; ){
+        if( object instanceof StatementRef )
+          this.object = object;
+        else
+          this.object = new StatementRef(object);
+      }
+      else if( object.objectType === &#x27;SubStatement&#x27; ){
+        if( object instanceof SubStatement )
+          this.object = object;
+        else
+          this.object = new SubStatement(object);
+      }
+      else this.object = null;
+    }
+    else this.object = null;
 
 
-		this.generateId = function(){
-			this.id = ADL.ruuid();
-		};
-	};
+    this.generateId = function(){
+      this.id = ADL.ruuid();
+    };
+  };
 
-	XAPIStatement.prototype.toString = function(){
-		return this.actor.toString() + &quot; &quot; + this.verb.toString() + &quot; &quot; + this.object.toString();
-	};
+  XAPIStatement.prototype.toString = function(){
+    return this.actor.toString() + &quot; &quot; + this.verb.toString() + &quot; &quot; + this.object.toString();
+  };
 
-	XAPIStatement.prototype.isValid = function(){
-		return this.actor &amp;&amp; this.actor.isValid() 
-			&amp;&amp; this.verb &amp;&amp; this.verb.isValid() 
-			&amp;&amp; this.object &amp;&amp; this.object.isValid();
-	};
+  XAPIStatement.prototype.isValid = function(){
+    return this.actor &amp;&amp; this.actor.isValid() 
+      &amp;&amp; this.verb &amp;&amp; this.verb.isValid() 
+      &amp;&amp; this.object &amp;&amp; this.object.isValid();
+  };
 
-	XAPIStatement.prototype.generateRegistration = function(){
-		_getobj(this,&#x27;context&#x27;).registration = ADL.ruuid();
-	};
+  XAPIStatement.prototype.generateRegistration = function(){
+    _getobj(this,&#x27;context&#x27;).registration = ADL.ruuid();
+  };
 
-	XAPIStatement.prototype.addParentActivity = function(activity){
-		_getobj(this,&#x27;context.contextActivities.parent[]&#x27;).push(new Activity(activity));
-	};
+  XAPIStatement.prototype.addParentActivity = function(activity){
+    _getobj(this,&#x27;context.contextActivities.parent[]&#x27;).push(new Activity(activity));
+  };
 
-	XAPIStatement.prototype.addGroupingActivity = function(activity){
-		_getobj(this,&#x27;context.contextActivities.grouping[]&#x27;).push(new Activity(activity));
-	};
+  XAPIStatement.prototype.addGroupingActivity = function(activity){
+    _getobj(this,&#x27;context.contextActivities.grouping[]&#x27;).push(new Activity(activity));
+  };
 
-	XAPIStatement.prototype.addOtherContextActivity = function(activity){
-		_getobj(this,&#x27;context.contextActivities.other[]&#x27;).push(new Activity(activity));
-	};</code></pre>
+  XAPIStatement.prototype.addOtherContextActivity = function(activity){
+    _getobj(this,&#x27;context.contextActivities.other[]&#x27;).push(new Activity(activity));
+  };</code></pre>
                                         </div>
                                     </div>
 
@@ -367,7 +367,7 @@
 
                                 <div class="block">
 
-                                    <p>@function Agent</p>
+                                    <p>Provides an easy constructor for xAPI agent objects</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -414,38 +414,38 @@
                                         </div>
                                         <div class="tab-pane" id="Agent-source">
                                             <pre><code class="language-javascript">var Agent = function(identifier, name)
-	{
-		this.objectType = &#x27;Agent&#x27;;
-		this.name = name;
+  {
+    this.objectType = &#x27;Agent&#x27;;
+    this.name = name;
 
-		// figure out what type of identifier was given
-		if( identifier &amp;&amp; (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
-			for(var i in identifier){
-				this[i] = identifier[i];
-			}
-		}
-		else if( /^mailto:/.test(identifier) ){
-			this.mbox = identifier;
-		}
-		else if( /^[0-9a-f]{40}$/i.test(identifier) ){
-			this.mbox_sha1sum = identifier;
-		}
-		else if( /^http[s]?:/.test(identifier) ){
-			this.openid = identifier;
-		}
-		else if( identifier &amp;&amp; identifier.homePage &amp;&amp; identifier.name ){
-			this.account = identifier;
-		}
-	};
-	Agent.prototype.toString = function(){
-		return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
-	};
-	Agent.prototype.isValid = function()
-	{
-		return this.mbox || this.mbox_sha1sum || this.openid
-	    || (this.account.homePage &amp;&amp; this.account.name)
-	    || (this.objectType === &#x27;Group&#x27; &amp;&amp; this.member);
-	};</code></pre>
+    // figure out what type of identifier was given
+    if( identifier &amp;&amp; (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
+      for(var i in identifier){
+        this[i] = identifier[i];
+      }
+    }
+    else if( /^mailto:/.test(identifier) ){
+      this.mbox = identifier;
+    }
+    else if( /^[0-9a-f]{40}$/i.test(identifier) ){
+      this.mbox_sha1sum = identifier;
+    }
+    else if( /^http[s]?:/.test(identifier) ){
+      this.openid = identifier;
+    }
+    else if( identifier &amp;&amp; identifier.homePage &amp;&amp; identifier.name ){
+      this.account = identifier;
+    }
+  };
+  Agent.prototype.toString = function(){
+    return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
+  };
+  Agent.prototype.isValid = function()
+  {
+    return this.mbox || this.mbox_sha1sum || this.openid
+      || (this.account.homePage &amp;&amp; this.account.name)
+      || (this.objectType === &#x27;Group&#x27; &amp;&amp; this.member);
+  };</code></pre>
                                         </div>
                                     </div>
 
@@ -462,7 +462,7 @@
 
                                 <div class="block">
 
-                                    <p>@founction Group</p>
+                                    <p>A type of agent, can contain multiple agents</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -518,12 +518,12 @@
                                         </div>
                                         <div class="tab-pane" id="Group-source">
                                             <pre><code class="language-javascript">var Group = function(identifier, members, name)
-	{
-		Agent.call(this, identifier, name);
-		this.member = members;
-		this.objectType = &#x27;Group&#x27;;
-	};
-	Group.prototype = new Agent;</code></pre>
+  {
+    Agent.call(this, identifier, name);
+    this.member = members;
+    this.objectType = &#x27;Group&#x27;;
+  };
+  Group.prototype = new Agent;</code></pre>
                                         </div>
                                     </div>
 
@@ -540,7 +540,7 @@
 
                                 <div class="block">
 
-                                    <p>@function Verb</p>
+                                    <p>Really only provides a convenient language map</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -586,36 +586,36 @@
                                         </div>
                                         <div class="tab-pane" id="Verb-source">
                                             <pre><code class="language-javascript">var Verb = function(id, description)
-	{
-		// if passed a verb object then copy and return
-		if( id &amp;&amp; id.id ){
-			for(var i in id){
-				this[i] = id[i];
-			}
-			return;
-		}
+  {
+    // if passed a verb object then copy and return
+    if( id &amp;&amp; id.id ){
+      for(var i in id){
+        this[i] = id[i];
+      }
+      return;
+    }
 
-		// save id and build language map
-		this.id = id;
-		if(description)
-		{
-			if( typeof(description) === &#x27;string&#x27; || description instanceof String ){
-				this.display = {&#x27;en-US&#x27;: description};
-			}
-			else {
-				this.display = description;
-			}
-		}
-	};
-	Verb.prototype.toString = function(){
-		if(this.display &amp;&amp; (this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;]))
-			return this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;];
-		else
-			return this.id;
-	};
-	Verb.prototype.isValid = function(){
-		return this.id;
-	};</code></pre>
+    // save id and build language map
+    this.id = id;
+    if(description)
+    {
+      if( typeof(description) === &#x27;string&#x27; || description instanceof String ){
+        this.display = {&#x27;en-US&#x27;: description};
+      }
+      else {
+        this.display = description;
+      }
+    }
+  };
+  Verb.prototype.toString = function(){
+    if(this.display &amp;&amp; (this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;]))
+      return this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;];
+    else
+      return this.id;
+  };
+  Verb.prototype.isValid = function(){
+    return this.id;
+  };</code></pre>
                                         </div>
                                     </div>
 
@@ -632,7 +632,7 @@
 
                                 <div class="block">
 
-                                    <p>@function Activity</p>
+                                    <p>Describes an object that an agent interacts with</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -688,42 +688,42 @@
                                         </div>
                                         <div class="tab-pane" id="Activity-source">
                                             <pre><code class="language-javascript">var Activity = function(id, name, description)
-	{
-		// if first arg is activity, copy everything over
-		if(id &amp;&amp; id.id){
-			var act = id;
-			for(var i in act){
-				this[i] = act[i];
-			}
-			return;
-		}
-		
-		this.objectType = &#x27;Activity&#x27;;
-		this.id = id;
-		if( name || description )
-		{
-			this.definition = {};
-			
-			if( typeof(name) === &#x27;string&#x27; || name instanceof String )
-				this.definition.name = {&#x27;en-US&#x27;: name};
-			else if(name)
-				this.definition.name = name;
-			
-			if( typeof(description) === &#x27;string&#x27; || description instanceof String )
-				this.definition.description = {&#x27;en-US&#x27;: description};
-			else if(description)
-				this.definition.description = description;
-		}
-	};
-	Activity.prototype.toString = function(){
-		if(this.definition &amp;&amp; this.definition.name &amp;&amp; (this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;]))
-			return this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;];
-		else
-			return this.id;
-	};
-	Activity.prototype.isValid = function(){
-		return this.id &amp;&amp; (!this.objectType || this.objectType === &#x27;Activity&#x27;);
-	};</code></pre>
+  {
+    // if first arg is activity, copy everything over
+    if(id &amp;&amp; id.id){
+      var act = id;
+      for(var i in act){
+        this[i] = act[i];
+      }
+      return;
+    }
+    
+    this.objectType = &#x27;Activity&#x27;;
+    this.id = id;
+    if( name || description )
+    {
+      this.definition = {};
+      
+      if( typeof(name) === &#x27;string&#x27; || name instanceof String )
+        this.definition.name = {&#x27;en-US&#x27;: name};
+      else if(name)
+        this.definition.name = name;
+      
+      if( typeof(description) === &#x27;string&#x27; || description instanceof String )
+        this.definition.description = {&#x27;en-US&#x27;: description};
+      else if(description)
+        this.definition.description = description;
+    }
+  };
+  Activity.prototype.toString = function(){
+    if(this.definition &amp;&amp; this.definition.name &amp;&amp; (this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;]))
+      return this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;];
+    else
+      return this.id;
+  };
+  Activity.prototype.isValid = function(){
+    return this.id &amp;&amp; (!this.objectType || this.objectType === &#x27;Activity&#x27;);
+  };</code></pre>
                                         </div>
                                     </div>
 
@@ -740,7 +740,7 @@
 
                                 <div class="block">
 
-                                    <p>@function StatementRef</p>
+                                    <p>An object that refers to a separate statement</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -776,22 +776,22 @@
                                         </div>
                                         <div class="tab-pane" id="StatementRef-source">
                                             <pre><code class="language-javascript">var StatementRef = function(id){
-		if(id &amp;&amp; id.id){
-			for(var i in id){
-				this[i] = id[i];
-			}
-		}
-		else {
-			this.objectType = &#x27;StatementRef&#x27;;
-			this.id = id;
-		}
-	};
-	StatementRef.prototype.toString = function(){
-		return &#x27;statement(&#x27;+this.id+&#x27;)&#x27;;
-	};
-	StatementRef.prototype.isValid = function(){
-		return this.id &amp;&amp; this.objectType &amp;&amp; this.objectType === &#x27;StatementRef&#x27;;
-	};</code></pre>
+    if(id &amp;&amp; id.id){
+      for(var i in id){
+        this[i] = id[i];
+      }
+    }
+    else {
+      this.objectType = &#x27;StatementRef&#x27;;
+      this.id = id;
+    }
+  };
+  StatementRef.prototype.toString = function(){
+    return &#x27;statement(&#x27;+this.id+&#x27;)&#x27;;
+  };
+  StatementRef.prototype.isValid = function(){
+    return this.id &amp;&amp; this.objectType &amp;&amp; this.objectType === &#x27;StatementRef&#x27;;
+  };</code></pre>
                                         </div>
                                     </div>
 
@@ -808,7 +808,7 @@
 
                                 <div class="block">
 
-                                    <p>@function SubStatement</p>
+                                    <p>A self-contained statement as the object of another statement<br />See XAPIStatement for constructor details</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -864,26 +864,26 @@
                                         </div>
                                         <div class="tab-pane" id="SubStatement-source">
                                             <pre><code class="language-javascript">var SubStatement = function(actor, verb, object){
-		XAPIStatement.call(this,actor,verb,object);
-		this.objectType = &#x27;SubStatement&#x27;;
+    XAPIStatement.call(this,actor,verb,object);
+    this.objectType = &#x27;SubStatement&#x27;;
 
-		delete this.id;
-		delete this.stored;
-		delete this.version;
-		delete this.authority;
-	};
-	SubStatement.prototype = new XAPIStatement;
-	SubStatement.prototype.toString = function(){
-		return &#x27;&quot;&#x27; + SubStatement.prototype.prototype.toString.call(this) + &#x27;&quot;&#x27;;
-	};
-	
-	XAPIStatement.Agent = Agent;
-	XAPIStatement.Group = Group;
-	XAPIStatement.Verb = Verb;
-	XAPIStatement.Activity = Activity;
-	XAPIStatement.StatementRef = StatementRef;
-	XAPIStatement.SubStatement = SubStatement;
-	ADL.XAPIStatement = XAPIStatement;
+    delete this.id;
+    delete this.stored;
+    delete this.version;
+    delete this.authority;
+  };
+  SubStatement.prototype = new XAPIStatement;
+  SubStatement.prototype.toString = function(){
+    return &#x27;&quot;&#x27; + SubStatement.prototype.prototype.toString.call(this) + &#x27;&quot;&#x27;;
+  };
+  
+  XAPIStatement.Agent = Agent;
+  XAPIStatement.Group = Group;
+  XAPIStatement.Verb = Verb;
+  XAPIStatement.Activity = Activity;
+  XAPIStatement.StatementRef = StatementRef;
+  XAPIStatement.SubStatement = SubStatement;
+  ADL.XAPIStatement = XAPIStatement;
 
 }(window.ADL = window.ADL || {}));</code></pre>
                                         </div>
@@ -908,7 +908,7 @@
 
                                 <div class="block">
 
-                                    <p>@function prepareStatement</p>
+                                    <p>Adds info from the lrs object to the statement, if available.<br />These values could be initialized from the Config object or from the url query string.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -994,7 +994,7 @@
 
                                 <div class="block">
 
-                                    <p>@function sendStatement</p>
+                                    <p>Send a single statement to the LRS. Makes a Javascript object<br />with the statement id as &#39;id&#39; available to the callback function. </p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1096,7 +1096,7 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
 
                                 <div class="block">
 
-                                    <p>@function sendStatements</p>
+                                    <p>Send a list of statements to the LRS.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1188,7 +1188,7 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
 
                                 <div class="block">
 
-                                    <p>@function getStatements</p>
+                                    <p>Get statement(s) based on the searchparams or more url.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1306,7 +1306,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function getActivities</p>
+                                    <p>Gets the Activity object from the LRS.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1392,7 +1392,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function sendState</p>
+                                    <p>Store activity state in the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1574,7 +1574,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function getState</p>
+                                    <p>Get activity state from the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1717,7 +1717,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function deleteState</p>
+                                    <p>Delete activity state in the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -1875,7 +1875,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function sendActivityProfile</p>
+                                    <p>Store activity profile in the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2031,7 +2031,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function getActivityProfile</p>
+                                    <p>Get activity profile from the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2148,7 +2148,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function deleteActivityProfile</p>
+                                    <p>Delete activity profile in the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2280,7 +2280,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function getAgents</p>
+                                    <p>Gets the Person object from the LRS based on an agent object.<br />The Person object may contain more information about an agent.<br />See the xAPI Spec for details.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2366,7 +2366,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function sendAgentProfile</p>
+                                    <p>Store agent profile in the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2522,7 +2522,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function getAgentProfile</p>
+                                    <p>Get agnet profile from the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2639,7 +2639,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function deleteAgentProfile</p>
+                                    <p>Delete agent profile in the LRS</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2772,7 +2772,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function ie_request</p>
+                                    <p>formats a request in a way that IE will allow</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2889,7 +2889,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function XHR_request</p>
+                                    <p>makes a request to a server (if possible, use functions provided in XAPIWrapper)</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -3140,7 +3140,7 @@ if (ret)
 
                                 <div class="block">
 
-                                    <p>@function xhrRequestOnError</p>
+                                    <p>Holder for custom global error callback</p>
 
                                     <table class="table table-condensed">
                                         <thead>
