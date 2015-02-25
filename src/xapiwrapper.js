@@ -27,24 +27,32 @@ if ( !Date.prototype.toISOString ) {
 
 // shim for old-style Base64 lib
 function toBase64(text){
-	if(CryptoJS && CryptoJS.enc.Base64) 
-		return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
-	else
-		return Base64.encode(text);
+  if(CryptoJS && CryptoJS.enc.Base64) 
+    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
+  else
+    return Base64.encode(text);
 }
 
 // shim for old-style crypto lib
 function toSHA1(text){
-	if(CryptoJS && CryptoJS.SHA1)
-		return CryptoJS.SHA1(text).toString();
-	else
-		return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
+  if(CryptoJS && CryptoJS.SHA1)
+    return CryptoJS.SHA1(text).toString();
+  else
+    return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
 }
 
 (function(ADL){
     log.debug = true;
-    // config object used w/ url params to configure the lrs object
-    // change these to match your lrs
+    /* 
+     * Config object used w/ url params to configure the lrs object
+     * change these to match your lrs
+     * @example
+     * var conf = {
+     *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
+     *    "auth" : "Basic " + toBase64('tom:1234'),
+     * };
+     * ADL.XAPIWrapper.changeConfig(conf);
+     */ 
     var Config = function()
     {
         var conf = {};
@@ -66,12 +74,10 @@ function toSHA1(text){
         return conf
     }();
 
-    /*
+    /* 
      * XAPIWrapper Constructor
-     * config - object with a minimum of an endoint property
-     * verifyxapiversion - boolean indicating whether to verify the 
-     *                     version of the LRS is compatible with this
-     *                     wrapper
+     * @param {object} config   with a minimum of an endoint property
+     * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
     XAPIWrapper = function(config, verifyxapiversion)
     {
@@ -170,11 +176,9 @@ function toSHA1(text){
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
     /*
-     * prepareStatement
      * Adds info from the lrs object to the statement, if available.
-     * These values could be initialized from the Config object or from 
-     * the url query string.
-     * stmt - the statement object
+     * These values could be initialized from the Config object or from the url query string.
+     * @param {object} stmt   the statement object
      */
     XAPIWrapper.prototype.prepareStatement = function(stmt)
     {
@@ -213,15 +217,33 @@ function toSHA1(text){
     XAPIWrapper.prototype.log = log;
 
     /*
-     * sendStatement
      * Send a single statement to the LRS. Makes a Javascript object 
      * with the statement id as 'id' available to the callback function. 
-     * stmt - statement object to send
-     * callback - function to be called after the LRS responds 
+     * @param {object} stmt   statement object to send
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
-     *            * and an object with an id property assigned the id 
-     *            * of the statement
+     *            the function will be passed the XMLHttpRequest object
+     *            and an object with an id property assigned the id 
+     *            of the statement
+     * @example
+     * // Send Statement
+     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+     *                       "display" : {"en-US" : "answered"}},
+     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+     * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
+     * 
+     * // Send Statement with Callback
+     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+     *                       "display" : {"en-US" : "answered"}},
+     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+     * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
+     *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
+     * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
+     * 
      */
     XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
     {
@@ -247,12 +269,27 @@ function toSHA1(text){
     };
 
     /*
-     * sendStatements
      * Send a list of statements to the LRS.
-     * stmtArray - the list of statement objects to send
-     * callback - function to be called after the LRS responds 
+     * @param {array} stmtArray   the list of statement objects to send
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+     *                       "display" : {"en-US" : "answered"}},
+     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+     * ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
+     * >> {"version": "1.0.0", 
+     *     "timestamp": "2013-09-09 21:36:40.185841+00:00", 
+     *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
+     *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"}, 
+     *     "stored": "2013-09-09 21:36:40.186124+00:00", 
+     *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
+     *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
+     *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"}, 
+     *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
      */
     XAPIWrapper.prototype.sendStatements = function(stmtArray, callback) 
     {
@@ -272,20 +309,25 @@ function toSHA1(text){
     };
 
     /*
-     * getStatements
      * Get statement(s) based on the searchparams or more url.
-     * searchparams - an ADL.XAPIWrapper.searchParams object of 
+     * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of 
      *                key(search parameter)-value(parameter value) pairs. 
      *                Example:
      *                  var myparams = ADL.XAPIWrapper.searchParams();
      *                  myparams['verb'] = ADL.verbs.completed.id;
      *                  var completedStmts = ADL.XAPIWrapper.getStatements(myparams);
-     * more - the more url found in the StatementResults object, if there are more 
+     * @param {string} more   the more url found in the StatementResults object, if there are more 
      *        statements available based on your get statements request. Pass the 
      *        more url as this parameter to retrieve those statements.
-     * callback - function to be called after the LRS responds 
+     * @param {function} [callback] - function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            * the function will be passed the XMLHttpRequest object
+     * @example
+     * var ret = ADL.XAPIWrapper.getStatements();
+     * if (ret)
+     *     ADL.XAPIWrapper.log(ret.statements);
+     *
+     * >> <Array of statements>
      */
     XAPIWrapper.prototype.getStatements = function(searchparams, more, callback) 
     {
@@ -326,12 +368,15 @@ function toSHA1(text){
     };
 
     /*
-     * getActivities
      * Gets the Activity object from the LRS.
-     * activityid - the id of the Activity to get
-     * callback - function to be called after the LRS responds 
+     * @param {string} activityid   the id of the Activity to get
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var res = ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
+     * ADL.XAPIWrapper.log(res);
+     * >> <Activity object>
      */
     XAPIWrapper.prototype.getActivities = function(activityid, callback)
     {
@@ -359,18 +404,22 @@ function toSHA1(text){
     };
 
     /*
-     * sendState
      * Store activity state in the LRS
-     * activityid - the id of the Activity this state is about
-     * agent - the agent this Activity state is related to 
-     * stateid - the id you want associated with this state
-     * registration - (optional) the registraton id associated with this state
-     * stateval - the state
-     * matchHash - the hash of the state to replace or * to replace any
-     * noneMatchHash - the hash of the current state or * to indicate no previous state
-     * callback - function to be called after the LRS responds 
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to 
+     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} stateval   the state
+     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var stateval = {"info":"the state info"};
+     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
+     *                    {"mbox":"mailto:tom@example.com"}, 
+     *                    "questionstate", null, stateval);
      */
     XAPIWrapper.prototype.sendState = function(activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)
     {
@@ -434,18 +483,20 @@ function toSHA1(text){
     };
 
     /*
-     * getState
      * Get activity state from the LRS
-     * activityid - the id of the Activity this state is about
-     * agent - the agent this Activity state is related to 
-     * stateid - (optional - if not included, the response will be a list of stateids 
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to 
+     * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids 
      *            associated with the activity and agent)
-     *            the id of the state
-     * registration - (optional) the registraton id associated with this state
-     * since - date object telling the LRS to return objects newer than the date supplied
-     * callback - function to be called after the LRS responds 
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+     *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
+     * >> {info: "the state info"}
      */
     XAPIWrapper.prototype.getState = function(activityid, agent, stateid, registration, since, callback)
     {
@@ -490,17 +541,32 @@ function toSHA1(text){
     };
 
     /*
-     * deleteState
      * Delete activity state in the LRS
-     * activityid - the id of the Activity this state is about
-     * agent - the agent this Activity state is related to 
-     * stateid - the id you want associated with this state
-     * registration - (optional) the registraton id associated with this state
-     * matchHash - the hash of the state to replace or * to replace any
-     * noneMatchHash - the hash of the current state or * to indicate no previous state
-     * callback - function to be called after the LRS responds 
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to 
+     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var stateval = {"info":"the state info"};
+     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
+     *                           {"mbox":"mailto:tom@example.com"}, 
+     *                           "questionstate", null, stateval);
+     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+     *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
+     * >> {info: "the state info"}
+     * 
+     * ADL.XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question", 
+     *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
+     * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+     * 
+     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+     *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
+     * >> 404
      */
     XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)
     {
@@ -550,16 +616,19 @@ function toSHA1(text){
     };
 
     /*
-     * sendActivityProfile
      * Store activity profile in the LRS
-     * activityid - the id of the Activity this profile is about
-     * profileid - the id you want associated with this profile
-     * profileval - the profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} profileval   the profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var profile = {"info":"the profile"};
+     * ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
+     *                                     "actprofile", profile, null, "*");
      */
     XAPIWrapper.prototype.sendActivityProfile = function(activityid, profileid, profileval, matchHash, noneMatchHash, callback) 
     {
@@ -617,16 +686,19 @@ function toSHA1(text){
     };
 
     /*
-     * getActivityProfile
      * Get activity profile from the LRS
-     * activityid - the id of the Activity this profile is about
-     * profileid - (optional - if not included, the response will be a list of profileids 
-     *              associated with the activity)
-     *              the id of the profile
-     * since - date object telling the LRS to return objects newer than the date supplied
-     * callback - function to be called after the LRS responds 
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
+     *              associated with the activity
+     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+     *                                    "actprofile", null,
+     *                                    function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+     * >> {info: "the profile"} 
      */
     XAPIWrapper.prototype.getActivityProfile = function(activityid, profileid, since, callback) 
     {
@@ -665,15 +737,18 @@ function toSHA1(text){
     };
 
     /*
-     * deleteActivityProfile
      * Delete activity profile in the LRS
-     * activityid - the id of the Activity this profile is about
-     * profileid - the id you want associated with this profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question", 
+     *                                       "actprofile");
+     * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
     XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback) 
     {
@@ -717,14 +792,17 @@ function toSHA1(text){
     };
 
     /*
-     * getAgents
      * Gets the Person object from the LRS based on an agent object.
      * The Person object may contain more information about an agent. 
      * See the xAPI Spec for details.
-     * agent - the agent object to get a Person
-     * callback - function to be called after the LRS responds 
+     * @param {object} agent   the agent object to get a Person
+     * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var res = ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
+     * ADL.XAPIWrapper.log(res);
+     * >> <Person object>
      */
     XAPIWrapper.prototype.getAgents = function(agent, callback)
     {
@@ -752,16 +830,19 @@ function toSHA1(text){
     };
 
     /*
-     * sendAgentProfile
      * Store agent profile in the LRS
-     * agent - the agent this profile is related to
-     * profileid - the id you want associated with this profile
-     * profileval - the profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @param {object} agent   the agent this profile is related to
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} profileval   the profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * var profile = {"info":"the agent profile"};
+     * ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
+     *                                   "agentprofile", profile, null, "*");
      */
     XAPIWrapper.prototype.sendAgentProfile = function(agent, profileid, profileval, matchHash, noneMatchHash, callback) 
     {
@@ -819,16 +900,19 @@ function toSHA1(text){
     };
 
     /*
-     * getAgentProfile
      * Get agnet profile from the LRS
-     * agent - the agent associated with this profile
-     * profileid - (optional - if not included, the response will be a list of profileids 
-     *              associated with the agent)
-     *              the id of the profile
-     * since - date object telling the LRS to return objects newer than the date supplied
-     * callback - function to be called after the LRS responds 
+     * @param {object} agent   the agent associated with this profile
+     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
+     *              associated with the agent
+     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+     *                                  "agentprofile", null,
+     *                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+     * >> {info: "the agent profile"} 
      */
     XAPIWrapper.prototype.getAgentProfile = function(agent, profileid, since, callback) 
     {
@@ -867,15 +951,18 @@ function toSHA1(text){
     };
 
     /*
-     * deleteAgentProfile
      * Delete agent profile in the LRS
-     * agent - the id of the Agent this profile is about
-     * profileid - the id you want associated with this profile
-     * matchHash - the hash of the profile to replace or * to replace any
-     * noneMatchHash - the hash of the current profile or * to indicate no previous profile
-     * callback - function to be called after the LRS responds 
+     * @param {oject} agent   the id of the Agent this profile is about
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
+     * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @example
+     * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"}, 
+     *                                     "agentprofile");
+     * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
     XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback) 
     {
@@ -918,7 +1005,9 @@ function toSHA1(text){
         }
     };
 
-    // tests the configuration of the lrs object
+    /*
+     * Tests the configuration of the lrs object
+     */
     function testConfig()
     {
         try
@@ -1042,12 +1131,11 @@ function toSHA1(text){
     }
 
     /* 
-     * ie_request
      * formats a request in a way that IE will allow
-     * method - the http request method (ex: "PUT", "GET")
-     * url - the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
-     * headers - (optional) headers to include in the request
-     * data - (optional) the body of the request, if there is one
+     * @param {string} method   the http request method (ex: "PUT", "GET")
+     * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
+     * @param {array} [headers]   headers to include in the request
+     * @param {string} [data]   the body of the request, if there is one
      */
     function ie_request(method, url, headers, data)
     {
@@ -1135,18 +1223,17 @@ function toSHA1(text){
 
     // Synchronous if callback is not provided (not recommended)
     /*
-     * XHR_request
      * makes a request to a server (if possible, use functions provided in XAPIWrapper)
-     * lrs - the lrs connection info, such as endpoint, auth, etc
-     * url - the url of this request
-     * method - the http request method
-     * data - the payload
-     * auth - the value for the Authorization header
-     * callback - function to be called after the LRS responds 
+     * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
+     * @param {string} url   the url of this request
+     * @param {string} method   the http request method
+     * @param {string} data   the payload
+     * @param {string} auth   the value for the Authorization header
+     * @param {function} callback   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     * callbackargs - (optional) additional javascript object to be passed to the callback function
-     * ignore 404 - allow page not found errors to pass
-     * extraHeaders - other header key-values to be added to this request
+     * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+     * @param {boolean} ignore404    allow page not found errors to pass
+     * @param {object} extraHeaders   other header key-values to be added to this request
      */
     ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
     {
@@ -1271,9 +1358,14 @@ function toSHA1(text){
 
     /*
      * Holder for custom global error callback
-     * xhr - xhr object or null
-     * method - XMLHttpRequest request method
-     * url - full endpoint url
+     * @param {object} xhr   xhr object or null
+     * @param {string} method   XMLHttpRequest request method
+     * @param {string} url   full endpoint url
+     * @example
+     * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
+     *   console.log(xhr);
+     *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
+     * };
      */
     ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){};
 

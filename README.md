@@ -3,6 +3,8 @@ xAPIWrapper
 
 Wrapper to simplify communication to an LRS. [Read more about the Experience API Spec here.](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md)
 
+Check out the [Reference Documentation Here](http://ty-.github.io/xAPIWrapper)
+
 ## Contributing to the project
 We welcome contributions to this project. Fork this repository, 
 make changes, re-minify, and submit pull requests. If you're not comfortable 
@@ -56,7 +58,7 @@ dependencies.
 ### Dependencies
 The wrapper relies on external dependencies to perform some actions. Make sure you include
 our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
-in your pages.
+in your pages if you're not using `xapiwrapper.min.js`
 
 ``` html
 <script type="text/javascript" src="./cryptojs_v3.1.2.min.js"></script>
