@@ -46,6 +46,7 @@ function toSHA1(text){
     /* 
      * Config object used w/ url params to configure the lrs object
      * change these to match your lrs
+     * @return {object} config object
      * @example
      * var conf = {
      *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
@@ -225,6 +226,7 @@ function toSHA1(text){
      *            the function will be passed the XMLHttpRequest object
      *            and an object with an id property assigned the id 
      *            of the statement
+     * @return {object} object containing xhr object and id of statement
      * @example
      * // Send Statement
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
@@ -243,7 +245,6 @@ function toSHA1(text){
      * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
      *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
      * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
-     * 
      */
     XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
     {
@@ -274,6 +275,7 @@ function toSHA1(text){
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object
      * @example
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
@@ -321,7 +323,8 @@ function toSHA1(text){
      *        more url as this parameter to retrieve those statements.
      * @param {function} [callback] - function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
-     *            * the function will be passed the XMLHttpRequest object
+     *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * var ret = ADL.XAPIWrapper.getStatements();
      * if (ret)
@@ -373,6 +376,7 @@ function toSHA1(text){
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * var res = ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
      * ADL.XAPIWrapper.log(res);
@@ -415,6 +419,7 @@ function toSHA1(text){
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {boolean} false if no activity state is included
      * @example
      * var stateval = {"info":"the state info"};
      * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
@@ -493,6 +498,7 @@ function toSHA1(text){
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
      *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
@@ -551,6 +557,7 @@ function toSHA1(text){
      * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * var stateval = {"info":"the state info"};
      * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
@@ -625,6 +632,7 @@ function toSHA1(text){
      * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {bolean} false if no activity profile is included
      * @example
      * var profile = {"info":"the profile"};
      * ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
@@ -694,6 +702,7 @@ function toSHA1(text){
      * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
      *                                    "actprofile", null,
@@ -745,6 +754,7 @@ function toSHA1(text){
      * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question", 
      *                                       "actprofile");
@@ -799,6 +809,7 @@ function toSHA1(text){
      * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * var res = ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
      * ADL.XAPIWrapper.log(res);
@@ -839,6 +850,7 @@ function toSHA1(text){
      * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} false if no agent profile is included
      * @example
      * var profile = {"info":"the agent profile"};
      * ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
@@ -908,6 +920,7 @@ function toSHA1(text){
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
      *                                  "agentprofile", null,
@@ -959,6 +972,7 @@ function toSHA1(text){
      * @param {string} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
      * @example
      * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"}, 
      *                                     "agentprofile");
@@ -1136,6 +1150,7 @@ function toSHA1(text){
      * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
      * @param {array} [headers]   headers to include in the request
      * @param {string} [data]   the body of the request, if there is one
+     * @return {object} xhr response object 
      */
     function ie_request(method, url, headers, data)
     {
@@ -1234,6 +1249,7 @@ function toSHA1(text){
      * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
      * @param {boolean} ignore404    allow page not found errors to pass
      * @param {object} extraHeaders   other header key-values to be added to this request
+     * @return {object} xhr response object 
      */
     ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
     {
