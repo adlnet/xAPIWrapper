@@ -26,14 +26,6 @@ module.exports = function(grunt) {
     },
     'exec': {
       docs: './node_modules/doxstrap/bin/doxstrap.js --title "xAPIWrapper <%= pkg.version %> Reference" --output doc'
-    },
-    'gh-pages': {
-      options: {
-        base: 'doc'
-      },
-      all: {
-        src: ['**/*']
-      }
     }
   });
 
@@ -45,9 +37,6 @@ module.exports = function(grunt) {
 
   // Default task(s).
   grunt.registerTask('default', ['uglify','exec']);
-
-  // Push docs to gh-pages branch
-  grunt.registerTask('gh-pages', ['gh-pages']);
 
   // those with adl repo access can use this to publish a tag and release
   // $> grunt release:minor
