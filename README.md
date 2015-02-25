@@ -3,7 +3,7 @@ xAPIWrapper
 
 Wrapper to simplify communication to an LRS. [Read more about the Experience API Spec here.](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md)
 
-Check out the [Reference Documentation Here](http://ty-.github.io/xAPIWrapper)
+Check out the [Reference Documentation Here](http://adlnet.github.io/xAPIWrapper/)
 
 ## Contributing to the project
 We welcome contributions to this project. Fork this repository, 
