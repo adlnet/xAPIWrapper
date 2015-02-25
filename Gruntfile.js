@@ -16,7 +16,7 @@ module.exports = function(grunt) {
       'build': {
         files: {
           'dist/xapiwrapper.min.js': [
-            'src/cryptojs_v3.1.2.js',
+            'lib/cryptojs_v3.1.2.js',
             'src/verbs.js',
             'src/xapiwrapper.js',
             'src/xapistatement.js'
@@ -33,10 +33,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-exec');
-  grunt.loadNpmTasks('grunt-gh-pages');
 
   // Default task(s).
   grunt.registerTask('default', ['uglify','exec']);
+  
+  // Build only
+  grunt.registerTask('build', ['uglify']);
 
   // those with adl repo access can use this to publish a tag and release
   // $> grunt release:minor
