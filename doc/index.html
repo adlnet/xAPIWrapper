@@ -58,6 +58,9 @@
                 /*padding-top: 0;*/
             }
 
+            nav > ul {
+                position:fixed;
+            }
             nav ul {
                 padding-left: 1em;
                 list-style: none;
@@ -1330,7 +1333,7 @@ if (ret)
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1349,7 +1352,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="getActivities-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var res = ADL.XAPIWrapper.getActivities(&quot;http://adlnet.gov/expapi/activities/question&quot;);
+ADL.XAPIWrapper.log(res);
+&gt;&gt; &lt;Activity object&gt;</code></pre>
                                         </div>
                                         <div class="tab-pane" id="getActivities-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.getActivities = function(activityid, callback)
@@ -1476,7 +1481,7 @@ if (ret)
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1495,7 +1500,10 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="sendState-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var stateval = {&quot;info&quot;:&quot;the state info&quot;};
+ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                   {&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, 
+                   &quot;questionstate&quot;, null, stateval);</code></pre>
                                         </div>
                                         <div class="tab-pane" id="sendState-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.sendState = function(activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)
@@ -1638,7 +1646,7 @@ if (ret)
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1657,7 +1665,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="getState-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                 {&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, &quot;questionstate&quot;);
+&gt;&gt; {info: &quot;the state info&quot;}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="getState-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.getState = function(activityid, agent, stateid, registration, since, callback)
@@ -1791,7 +1801,7 @@ if (ret)
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1810,7 +1820,21 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="deleteState-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var stateval = {&quot;info&quot;:&quot;the state info&quot;};
+ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                          {&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, 
+                          &quot;questionstate&quot;, null, stateval);
+ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                        {&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, &quot;questionstate&quot;);
+&gt;&gt; {info: &quot;the state info&quot;}
+
+ADL.XAPIWrapper.deleteState(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                        {&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, &quot;questionstate&quot;);
+&gt;&gt; XMLHttpRequest {statusText: &quot;NO CONTENT&quot;, status: 204, response: &quot;&quot;, responseType: &quot;&quot;, responseXML: null…}
+
+ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                        {&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, &quot;questionstate&quot;);
+&gt;&gt; 404</code></pre>
                                         </div>
                                         <div class="tab-pane" id="deleteState-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)
@@ -1939,7 +1963,7 @@ if (ret)
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1958,7 +1982,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="sendActivityProfile-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var profile = {&quot;info&quot;:&quot;the profile&quot;};
+ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                                    &quot;actprofile&quot;, profile, null, &quot;*&quot;);</code></pre>
                                         </div>
                                         <div class="tab-pane" id="sendActivityProfile-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.sendActivityProfile = function(activityid, profileid, profileval, matchHash, noneMatchHash, callback) 
@@ -2075,7 +2101,7 @@ if (ret)
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2094,7 +2120,10 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="getActivityProfile-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">ADL.XAPIWrapper.getActivityProfile(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                                   &quot;actprofile&quot;, null,
+                                   function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+&gt;&gt; {info: &quot;the profile&quot;}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="getActivityProfile-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.getActivityProfile = function(activityid, profileid, since, callback) 
@@ -2202,7 +2231,7 @@ if (ret)
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2221,7 +2250,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="deleteActivityProfile-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">ADL.XAPIWrapper.deleteActivityProfile(&quot;http://adlnet.gov/expapi/activities/question&quot;, 
+                                      &quot;actprofile&quot;);
+&gt;&gt; XMLHttpRequest {statusText: &quot;NO CONTENT&quot;, status: 204, response: &quot;&quot;, responseType: &quot;&quot;, responseXML: null…}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="deleteActivityProfile-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback) 
@@ -2304,7 +2335,7 @@ if (ret)
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2323,7 +2354,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="getAgents-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var res = ADL.XAPIWrapper.getAgents({&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;});
+ADL.XAPIWrapper.log(res);
+&gt;&gt; &lt;Person object&gt;</code></pre>
                                         </div>
                                         <div class="tab-pane" id="getAgents-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.getAgents = function(agent, callback)
@@ -2430,7 +2463,7 @@ if (ret)
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2449,7 +2482,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="sendAgentProfile-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">var profile = {&quot;info&quot;:&quot;the agent profile&quot;};
+ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, 
+                                  &quot;agentprofile&quot;, profile, null, &quot;*&quot;);</code></pre>
                                         </div>
                                         <div class="tab-pane" id="sendAgentProfile-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.sendAgentProfile = function(agent, profileid, profileval, matchHash, noneMatchHash, callback) 
@@ -2566,7 +2601,7 @@ if (ret)
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2585,7 +2620,10 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="getAgentProfile-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">ADL.XAPIWrapper.getAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, 
+                                 &quot;agentprofile&quot;, null,
+                                 function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+&gt;&gt; {info: &quot;the agent profile&quot;}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="getAgentProfile-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.getAgentProfile = function(agent, profileid, since, callback) 
@@ -2693,7 +2731,7 @@ if (ret)
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
                                                     function to be called after the LRS responds             to this request (makes the call asynchronous)
-           * the function will be passed the XMLHttpRequest object
+           the function will be passed the XMLHttpRequest object
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2712,7 +2750,9 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="deleteAgentProfile-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">ADL.XAPIWrapper.deleteAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&quot;}, 
+                                    &quot;agentprofile&quot;);
+&gt;&gt; XMLHttpRequest {statusText: &quot;NO CONTENT&quot;, status: 204, response: &quot;&quot;, responseType: &quot;&quot;, responseXML: null…}</code></pre>
                                         </div>
                                         <div class="tab-pane" id="deleteAgentProfile-source">
                                             <pre><code class="language-javascript">XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback) 
@@ -3192,7 +3232,10 @@ if (ret)
 
                                     <div class="tab-content">
                                         <div class="active tab-pane" id="xhrRequestOnError-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                            <pre><code class="language-javascript">ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
+  console.log(xhr);
+  alert(xhr.status + &quot; &quot; + xhr.statusText + &quot;: &quot; + xhr.response);
+};</code></pre>
                                         </div>
                                         <div class="tab-pane" id="xhrRequestOnError-source">
                                             <pre><code class="language-javascript">ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){};
