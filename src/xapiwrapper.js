@@ -347,7 +347,12 @@ function toSHA1(text){
 
                 for (s in searchparams)
                 {
-                    urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                    if (s == "until" || s == "since") {
+                        var d = new Date(searchparams[s]);
+                        urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                    } else {
+                        urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                    }
                 }
                 if (urlparams.length > 0)
                     url = url + "?" + urlparams.join("&");
@@ -494,7 +499,7 @@ function toSHA1(text){
      * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids 
      *            associated with the activity and agent)
      * @param {string} [registration]   the registraton id associated with this state
-     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {object} [since]    date object telling the LRS to return objects newer than the date supplied
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -698,7 +703,7 @@ function toSHA1(text){
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the activity
-     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {object} [since]    date object telling the LRS to return objects newer than the date supplied
      * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -916,7 +921,7 @@ function toSHA1(text){
      * @param {object} agent   the agent associated with this profile
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the agent
-     * @param {string} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {object} [since]    date object telling the LRS to return objects newer than the date supplied
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
