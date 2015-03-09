@@ -41,6 +41,32 @@ function toSHA1(text){
     return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
 }
 
+// check if string or object is date, if it is, return date object
+// feburary 31st == march 3rd in this solution
+function isDate(date) {
+    // check if object is being passed
+    if ( Object.prototype.toString.call(date) === "[object Date]" )
+        var d = date;
+    else
+        var d = new Date(date);
+    // deep check on date object
+    if ( Object.prototype.toString.call(d) === "[object Date]" )
+    {
+        // it is a date
+        if ( isNaN( d.valueOf() ) )
+        {
+            ADL.XAPIWrapper.log("Invalid date String passed");
+            return null;
+        } else {
+            return d;
+        }
+    } else {
+        // not a date
+        ADL.XAPIWrapper.log("Invalid date object");
+        return null;
+    }
+}
+
 (function(ADL){
     log.debug = true;
     /* 
@@ -499,7 +525,7 @@ function toSHA1(text){
      * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids 
      *            associated with the activity and agent)
      * @param {string} [registration]   the registraton id associated with this state
-     * @param {object} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -530,7 +556,10 @@ function toSHA1(text){
 
             if(since)
             {
-                url += '&since=' + encodeURIComponent(since.toISOString());
+                since = isDate(since);
+                if (since != null) {
+                    url += '&since=' + encodeURIComponent(since.toISOString());
+                }
             }
             
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
@@ -703,7 +732,7 @@ function toSHA1(text){
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the activity
-     * @param {object} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
      * @param {function [callback]    function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -729,7 +758,10 @@ function toSHA1(text){
 
             if(since)
             {
-                url += '&since=' + encodeURIComponent(since.toISOString());
+                since = isDate(since);
+                if (since != null) {
+                    url += '&since=' + encodeURIComponent(since.toISOString());
+                }
             }
             
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);
@@ -921,7 +953,7 @@ function toSHA1(text){
      * @param {object} agent   the agent associated with this profile
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
      *              associated with the agent
-     * @param {object} [since]    date object telling the LRS to return objects newer than the date supplied
+     * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
      * @param {function} [callback]   function to be called after the LRS responds 
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -947,7 +979,10 @@ function toSHA1(text){
 
             if(since)
             {
-                url += '&since=' + encodeURIComponent(since.toISOString());
+                since = isDate(since);
+                if (since != null) {
+                    url += '&since=' + encodeURIComponent(since.toISOString());
+                }
             }
             
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true);

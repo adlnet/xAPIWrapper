@@ -1066,7 +1066,7 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                                                 <td><em>since</em></td>
                                                 <td><span class="label label-primary">object</span></td>
                                                 <td>
-                                                    date object telling the LRS to return objects newer than the date supplied
+                                                    date object or date string telling the LRS to return objects newer than the date supplied
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1132,7 +1132,10 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
 
             if(since)
             {
-                url += &#x27;&amp;since=&#x27; + encodeURIComponent(since.toISOString());
+                since = isDate(since);
+                if (since != null) {
+                    url += &#x27;&amp;since=&#x27; + encodeURIComponent(since.toISOString());
+                }
             }
             
             var result = ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth, callback, null, true);
@@ -1542,7 +1545,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                                 <td><em>since</em></td>
                                                 <td><span class="label label-primary">object</span></td>
                                                 <td>
-                                                    date object telling the LRS to return objects newer than the date supplied
+                                                    date object or date string telling the LRS to return objects newer than the date supplied
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1603,7 +1606,10 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
 
             if(since)
             {
-                url += &#x27;&amp;since=&#x27; + encodeURIComponent(since.toISOString());
+                since = isDate(since);
+                if (since != null) {
+                    url += &#x27;&amp;since=&#x27; + encodeURIComponent(since.toISOString());
+                }
             }
             
             var result = ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth, callback, null, true);
@@ -2070,7 +2076,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                                 <td><em>since</em></td>
                                                 <td><span class="label label-primary">object</span></td>
                                                 <td>
-                                                    date object telling the LRS to return objects newer than the date supplied
+                                                    date object or date string telling the LRS to return objects newer than the date supplied
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2131,7 +2137,10 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
 
             if(since)
             {
-                url += &#x27;&amp;since=&#x27; + encodeURIComponent(since.toISOString());
+                since = isDate(since);
+                if (since != null) {
+                    url += &#x27;&amp;since=&#x27; + encodeURIComponent(since.toISOString());
+                }
             }
             
             var result = ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth, callback, null, true);
