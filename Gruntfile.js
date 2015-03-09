@@ -25,7 +25,7 @@ module.exports = function(grunt) {
       }
     },
     'exec': {
-      docs: './node_modules/doxstrap/bin/doxstrap.js --title "xAPIWrapper <%= pkg.version %> Reference" --output doc'
+      docs: './node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js:src/xapistatement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
     }
   });
 
@@ -39,6 +39,9 @@ module.exports = function(grunt) {
   
   // Build only
   grunt.registerTask('build', ['uglify']);
+
+  // Docs only
+  grunt.registerTask('docs', ['exec']);
 
   // those with adl repo access can use this to publish a tag and release
   // $> grunt release:minor

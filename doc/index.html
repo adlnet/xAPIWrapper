@@ -5,17 +5,27 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>xAPIWrapper 1.3.3 Reference</title>
 
-        <link rel="stylesheet" href="static/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
         <link rel="stylesheet" href="static/prism.css">
 
         <style type="text/css">
+            body {
+                position: relative;
+            }
 
             .wrap {
                 display: -webkit-flex;
                 display: flex;
+                padding-top: 20px;
             }
 
             h1 {
+                position: fixed;
+                width: 100%;
+                z-index: 1000; 
                 color: #FFF;
                 background-color: #333;
                 margin: 0 0 0.3em 0;
@@ -58,13 +68,64 @@
                 /*padding-top: 0;*/
             }
 
-            nav ul {
-                padding-left: 1em;
-                list-style: none;
+            #navlist {
+                position: fixed;
+                top: 40px;
             }
 
-            .nav ul ul a {
-                padding: 0 10px;
+            /* sidebar */
+            .bs-docs-sidebar {
+                padding-left: 20px;
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+
+            /* all links */
+            .bs-docs-sidebar .nav>li>a {
+                color: #999;
+                border-left: 2px solid transparent;
+                padding: 4px 20px;
+                font-size: 14px;
+                font-weight: 400;
+            }
+
+            /* nested links */
+            .bs-docs-sidebar .nav .nav>li>a {
+                padding-top: 1px;
+                padding-bottom: 1px;
+                padding-left: 30px;
+                font-size: 13px;
+            }
+
+            /* active & hover links */
+            .bs-docs-sidebar .nav>.active>a, 
+            .bs-docs-sidebar .nav>li>a:hover, 
+            .bs-docs-sidebar .nav>li>a:focus {
+                color: #337AB7;                 
+                text-decoration: none;          
+                background-color: transparent;  
+                border-left-color: #337AB7; 
+            }
+            /* all active links */
+            .bs-docs-sidebar .nav>.active>a, 
+            .bs-docs-sidebar .nav>.active:hover>a,
+            .bs-docs-sidebar .nav>.active:focus>a {
+                font-weight: 700;
+            }
+            /* nested active links */
+            .bs-docs-sidebar .nav .nav>.active>a, 
+            .bs-docs-sidebar .nav .nav>.active:hover>a,
+            .bs-docs-sidebar .nav .nav>.active:focus>a {
+                font-weight: 500;
+            }
+
+            /* hide inactive nested list */
+            .bs-docs-sidebar .nav ul.nav {
+                display: none;           
+            }
+            /* show active nested list */
+            .bs-docs-sidebar .nav>.active>ul.nav {
+                display: block;           
             }
 
             .nav-tabs {
@@ -107,791 +168,68 @@
                 padding: 3px 10px 3px 0;
             }
             section {
-                margin: 0;
+                padding-top: 40px;
+                margin-top: -45px;
+                margin-bottom: 30px;
             }
         </style>
 
     </head>
 
-    <body>
+    <body data-spy="scroll" data-target="#navlist">
 
         <h1>xAPIWrapper 1.3.3 Reference</h1>
 
         <div class="wrap">
 
-            <nav>
-                <ul>
-                    <li>
-                        <a href="#xapistatement"><strong>XAPIstatement</strong></a>
-                        <ul class="">
-                                <li><a href="#xapistatement-XAPIStatement">XAPIStatement</a></li>
-                                <li><a href="#xapistatement-Agent">Agent</a></li>
-                                <li><a href="#xapistatement-Group">Group</a></li>
-                                <li><a href="#xapistatement-Verb">Verb</a></li>
-                                <li><a href="#xapistatement-Activity">Activity</a></li>
-                                <li><a href="#xapistatement-StatementRef">StatementRef</a></li>
-                                <li><a href="#xapistatement-SubStatement">SubStatement</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="#xapiwrapper"><strong>XAPIwrapper</strong></a>
-                        <ul class="">
-                                <li><a href="#xapiwrapper-Config">Config</a></li>
-                                <li><a href="#xapiwrapper-prepareStatement">prepareStatement</a></li>
-                                <li><a href="#xapiwrapper-sendStatement">sendStatement</a></li>
-                                <li><a href="#xapiwrapper-sendStatements">sendStatements</a></li>
-                                <li><a href="#xapiwrapper-getStatements">getStatements</a></li>
-                                <li><a href="#xapiwrapper-getActivities">getActivities</a></li>
-                                <li><a href="#xapiwrapper-sendState">sendState</a></li>
-                                <li><a href="#xapiwrapper-getState">getState</a></li>
-                                <li><a href="#xapiwrapper-deleteState">deleteState</a></li>
-                                <li><a href="#xapiwrapper-sendActivityProfile">sendActivityProfile</a></li>
-                                <li><a href="#xapiwrapper-getActivityProfile">getActivityProfile</a></li>
-                                <li><a href="#xapiwrapper-deleteActivityProfile">deleteActivityProfile</a></li>
-                                <li><a href="#xapiwrapper-getAgents">getAgents</a></li>
-                                <li><a href="#xapiwrapper-sendAgentProfile">sendAgentProfile</a></li>
-                                <li><a href="#xapiwrapper-getAgentProfile">getAgentProfile</a></li>
-                                <li><a href="#xapiwrapper-deleteAgentProfile">deleteAgentProfile</a></li>
-                                <li><a href="#xapiwrapper-testConfig">testConfig</a></li>
-                                <li><a href="#xapiwrapper-ie_request">ie_request</a></li>
-                                <li><a href="#xapiwrapper-ruuid">ruuid</a></li>
-                                <li><a href="#xapiwrapper-dateFromISOString">dateFromISOString</a></li>
-                                <li><a href="#xapiwrapper-XHR_request">XHR_request</a></li>
-                                <li><a href="#xapiwrapper-xhrRequestOnError">xhrRequestOnError</a></li>
-                        </ul>
-                    </li>
-                </ul>
+            <nav class="bs-docs-sidebar">
+                <div id="navlist">
+                    <ul class="nav nav-stacked">
+                        <li>
+                            <a href="#xapiwrapper"><strong>XAPIwrapper</strong></a>
+                            <ul class="nav nav-stacked">
+                                    <li><a href="#xapiwrapper-Config">Config</a></li>
+                                    <li><a href="#xapiwrapper-prepareStatement">prepareStatement</a></li>
+                                    <li><a href="#xapiwrapper-sendStatement">sendStatement</a></li>
+                                    <li><a href="#xapiwrapper-sendStatements">sendStatements</a></li>
+                                    <li><a href="#xapiwrapper-getStatements">getStatements</a></li>
+                                    <li><a href="#xapiwrapper-getActivities">getActivities</a></li>
+                                    <li><a href="#xapiwrapper-sendState">sendState</a></li>
+                                    <li><a href="#xapiwrapper-getState">getState</a></li>
+                                    <li><a href="#xapiwrapper-deleteState">deleteState</a></li>
+                                    <li><a href="#xapiwrapper-sendActivityProfile">sendActivityProfile</a></li>
+                                    <li><a href="#xapiwrapper-getActivityProfile">getActivityProfile</a></li>
+                                    <li><a href="#xapiwrapper-deleteActivityProfile">deleteActivityProfile</a></li>
+                                    <li><a href="#xapiwrapper-getAgents">getAgents</a></li>
+                                    <li><a href="#xapiwrapper-sendAgentProfile">sendAgentProfile</a></li>
+                                    <li><a href="#xapiwrapper-getAgentProfile">getAgentProfile</a></li>
+                                    <li><a href="#xapiwrapper-deleteAgentProfile">deleteAgentProfile</a></li>
+                                    <li><a href="#xapiwrapper-testConfig">testConfig</a></li>
+                                    <li><a href="#xapiwrapper-ie_request">ie_request</a></li>
+                                    <li><a href="#xapiwrapper-ruuid">ruuid</a></li>
+                                    <li><a href="#xapiwrapper-dateFromISOString">dateFromISOString</a></li>
+                                    <li><a href="#xapiwrapper-XHR_request">XHR_request</a></li>
+                                    <li><a href="#xapiwrapper-xhrRequestOnError">xhrRequestOnError</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#xapistatement"><strong>XAPIstatement</strong></a>
+                            <ul class="nav nav-stacked">
+                                    <li><a href="#xapistatement-XAPIStatement">XAPIStatement</a></li>
+                                    <li><a href="#xapistatement-Agent">Agent</a></li>
+                                    <li><a href="#xapistatement-Group">Group</a></li>
+                                    <li><a href="#xapistatement-Verb">Verb</a></li>
+                                    <li><a href="#xapistatement-Activity">Activity</a></li>
+                                    <li><a href="#xapistatement-StatementRef">StatementRef</a></li>
+                                    <li><a href="#xapistatement-SubStatement">SubStatement</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
             </nav>
 
             <div class="content">
 
-                    <section id="xapistatement">
-
-                        <h2>XAPIstatement</h2>
-
-
-                            <section id="xapistatement-XAPIStatement">
-
-
-                                <h3>
-                                    XAPIStatement
-                                    <em> (actor, verb, object)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>A convenient JSON-compatible xAPI statement wrapper<br />All args are optional, but the statement may not be complete or valid<br />Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>actor</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The Agent or Group committing the action described by the statement
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>verb</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The Verb for the action described by the statement
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>object</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#XAPIStatement-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#XAPIStatement-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="XAPIStatement-example-0">
-                                            <pre><code class="language-javascript">var stmt = new ADL.XAPIStatement(
-    &#x27;mailto:steve.vergenz.ctr@adlnet.gov&#x27;,
-   &#x27;http://adlnet.gov/expapi/verbs/launched&#x27;,
-   &#x27;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&#x27;
-);
-&gt;&gt; {
-&quot;actor&quot;: {
-    &quot;objectType&quot;: &quot;Agent&quot;,
-    &quot;mbox&quot;: &quot;mailto:steve.vergenz.ctr@adlnet.gov&quot; },
-&quot;verb&quot;: {
-    &quot;id&quot;: &quot;http://adlnet.gov/expapi/verbs/launched&quot; },
-&quot;object&quot;: {
-    &quot;objectType&quot;: &quot;Activity&quot;,
-    &quot;id&quot;: &quot;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&quot; }}</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="XAPIStatement-source">
-                                            <pre><code class="language-javascript">var XAPIStatement = function(actor,verb,object)
-  {
-
-    // initialize
-
-    // if first arg is an xapi statement, parse
-    if( actor &amp;&amp; actor.actor &amp;&amp; actor.verb &amp;&amp; actor.object ){
-      var stmt = actor;
-      for(var i in stmt){
-        if(i != &#x27;actor&#x27; &amp;&amp; i != &#x27;verb&#x27; &amp;&amp; i != &#x27;object&#x27;)
-          this[i] = stmt[i];
-      }
-      actor = stmt.actor;
-      verb = stmt.verb;
-      object = stmt.object;
-    }
-    
-    if(actor){
-      if( actor instanceof Agent )
-        this.actor = actor;
-      else if(actor.objectType === &#x27;Agent&#x27; || !actor.objectType)
-        this.actor = new Agent(actor);
-      else if(actor.objectType === &#x27;Group&#x27;)
-        this.actor = new Group(actor);
-    }
-    else this.actor = null;
-    
-    if(verb){
-      if( verb instanceof Verb )
-        this.verb = verb;
-      else
-        this.verb = new Verb(verb);
-    }
-    else this.verb = null;
-
-    // decide what kind of object was passed
-    if(object)
-    {
-      if( object.objectType === &#x27;Activity&#x27; || !object.objectType ){
-        if( object instanceof Activity )
-          this.object = object;
-        else
-          this.object = new Activity(object);
-      }
-      else if( object.objectType === &#x27;Agent&#x27; ){
-        if( object instanceof Agent )
-          this.object = object;
-        else
-          this.object = new Agent(object);
-      }
-      else if( object.objectType === &#x27;Group&#x27; ){
-        if( object instanceof Group )
-          this.object = object;
-        else
-          this.object = new Group(object);
-      }
-      else if( object.objectType === &#x27;StatementRef&#x27; ){
-        if( object instanceof StatementRef )
-          this.object = object;
-        else
-          this.object = new StatementRef(object);
-      }
-      else if( object.objectType === &#x27;SubStatement&#x27; ){
-        if( object instanceof SubStatement )
-          this.object = object;
-        else
-          this.object = new SubStatement(object);
-      }
-      else this.object = null;
-    }
-    else this.object = null;
-
-
-    this.generateId = function(){
-      this.id = ADL.ruuid();
-    };
-  };
-
-  XAPIStatement.prototype.toString = function(){
-    return this.actor.toString() + &quot; &quot; + this.verb.toString() + &quot; &quot; + this.object.toString();
-  };
-
-  XAPIStatement.prototype.isValid = function(){
-    return this.actor &amp;&amp; this.actor.isValid() 
-      &amp;&amp; this.verb &amp;&amp; this.verb.isValid() 
-      &amp;&amp; this.object &amp;&amp; this.object.isValid();
-  };
-
-  XAPIStatement.prototype.generateRegistration = function(){
-    _getobj(this,&#x27;context&#x27;).registration = ADL.ruuid();
-  };
-
-  XAPIStatement.prototype.addParentActivity = function(activity){
-    _getobj(this,&#x27;context.contextActivities.parent[]&#x27;).push(new Activity(activity));
-  };
-
-  XAPIStatement.prototype.addGroupingActivity = function(activity){
-    _getobj(this,&#x27;context.contextActivities.grouping[]&#x27;).push(new Activity(activity));
-  };
-
-  XAPIStatement.prototype.addOtherContextActivity = function(activity){
-    _getobj(this,&#x27;context.contextActivities.other[]&#x27;).push(new Activity(activity));
-  };</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-                            <section id="xapistatement-Agent">
-
-
-                                <h3>
-                                    Agent
-                                    <em> (identifier, name)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>Provides an easy constructor for xAPI agent objects</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>identifier</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    One of the Inverse Functional Identifiers specified in the spec.     That is, an email, a hashed email, an OpenID, or an account object.
-    See (https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional)
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>name</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The natural-language name of the agent
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#Agent-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#Agent-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="Agent-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="Agent-source">
-                                            <pre><code class="language-javascript">var Agent = function(identifier, name)
-  {
-    this.objectType = &#x27;Agent&#x27;;
-    this.name = name;
-
-    // figure out what type of identifier was given
-    if( identifier &amp;&amp; (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
-      for(var i in identifier){
-        this[i] = identifier[i];
-      }
-    }
-    else if( /^mailto:/.test(identifier) ){
-      this.mbox = identifier;
-    }
-    else if( /^[0-9a-f]{40}$/i.test(identifier) ){
-      this.mbox_sha1sum = identifier;
-    }
-    else if( /^http[s]?:/.test(identifier) ){
-      this.openid = identifier;
-    }
-    else if( identifier &amp;&amp; identifier.homePage &amp;&amp; identifier.name ){
-      this.account = identifier;
-    }
-  };
-  Agent.prototype.toString = function(){
-    return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
-  };
-  Agent.prototype.isValid = function()
-  {
-    return this.mbox || this.mbox_sha1sum || this.openid
-      || (this.account.homePage &amp;&amp; this.account.name)
-      || (this.objectType === &#x27;Group&#x27; &amp;&amp; this.member);
-  };</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-                            <section id="xapistatement-Group">
-
-
-                                <h3>
-                                    Group
-                                    <em> (identifier, members, name)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>A type of agent, can contain multiple agents</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>identifier</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    (optional if `members` specified) See Agent.
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>members</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    An array of Agents describing the membership of the group
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>name</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The natural-language name of the agent
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#Group-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#Group-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="Group-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="Group-source">
-                                            <pre><code class="language-javascript">var Group = function(identifier, members, name)
-  {
-    Agent.call(this, identifier, name);
-    this.member = members;
-    this.objectType = &#x27;Group&#x27;;
-  };
-  Group.prototype = new Agent;</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-                            <section id="xapistatement-Verb">
-
-
-                                <h3>
-                                    Verb
-                                    <em> (id, description)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>Really only provides a convenient language map</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>id</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The IRI of the action taken
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>description</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    An English-language description, or a Language Map
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#Verb-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#Verb-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="Verb-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="Verb-source">
-                                            <pre><code class="language-javascript">var Verb = function(id, description)
-  {
-    // if passed a verb object then copy and return
-    if( id &amp;&amp; id.id ){
-      for(var i in id){
-        this[i] = id[i];
-      }
-      return;
-    }
-
-    // save id and build language map
-    this.id = id;
-    if(description)
-    {
-      if( typeof(description) === &#x27;string&#x27; || description instanceof String ){
-        this.display = {&#x27;en-US&#x27;: description};
-      }
-      else {
-        this.display = description;
-      }
-    }
-  };
-  Verb.prototype.toString = function(){
-    if(this.display &amp;&amp; (this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;]))
-      return this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;];
-    else
-      return this.id;
-  };
-  Verb.prototype.isValid = function(){
-    return this.id;
-  };</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-                            <section id="xapistatement-Activity">
-
-
-                                <h3>
-                                    Activity
-                                    <em> (id, name, description)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>Describes an object that an agent interacts with</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>id</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The unique activity IRI
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>name</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    An English-language identifier for the activity, or a Language Map
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>description</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    An English-language description of the activity, or a Language Map
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#Activity-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#Activity-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="Activity-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="Activity-source">
-                                            <pre><code class="language-javascript">var Activity = function(id, name, description)
-  {
-    // if first arg is activity, copy everything over
-    if(id &amp;&amp; id.id){
-      var act = id;
-      for(var i in act){
-        this[i] = act[i];
-      }
-      return;
-    }
-    
-    this.objectType = &#x27;Activity&#x27;;
-    this.id = id;
-    if( name || description )
-    {
-      this.definition = {};
-      
-      if( typeof(name) === &#x27;string&#x27; || name instanceof String )
-        this.definition.name = {&#x27;en-US&#x27;: name};
-      else if(name)
-        this.definition.name = name;
-      
-      if( typeof(description) === &#x27;string&#x27; || description instanceof String )
-        this.definition.description = {&#x27;en-US&#x27;: description};
-      else if(description)
-        this.definition.description = description;
-    }
-  };
-  Activity.prototype.toString = function(){
-    if(this.definition &amp;&amp; this.definition.name &amp;&amp; (this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;]))
-      return this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;];
-    else
-      return this.id;
-  };
-  Activity.prototype.isValid = function(){
-    return this.id &amp;&amp; (!this.objectType || this.objectType === &#x27;Activity&#x27;);
-  };</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-                            <section id="xapistatement-StatementRef">
-
-
-                                <h3>
-                                    StatementRef
-                                    <em> (id)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>An object that refers to a separate statement</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>id</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The UUID of another xAPI statement
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#StatementRef-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#StatementRef-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="StatementRef-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="StatementRef-source">
-                                            <pre><code class="language-javascript">var StatementRef = function(id){
-    if(id &amp;&amp; id.id){
-      for(var i in id){
-        this[i] = id[i];
-      }
-    }
-    else {
-      this.objectType = &#x27;StatementRef&#x27;;
-      this.id = id;
-    }
-  };
-  StatementRef.prototype.toString = function(){
-    return &#x27;statement(&#x27;+this.id+&#x27;)&#x27;;
-  };
-  StatementRef.prototype.isValid = function(){
-    return this.id &amp;&amp; this.objectType &amp;&amp; this.objectType === &#x27;StatementRef&#x27;;
-  };</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-
-                            <section id="xapistatement-SubStatement">
-
-
-                                <h3>
-                                    SubStatement
-                                    <em> (actor, verb, object)</em>
-                                </h3>
-
-                                <div class="block">
-
-                                    <p>A self-contained statement as the object of another statement<br />See XAPIStatement for constructor details</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>actor</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The Agent or Group committing the action described by the statement
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>verb</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The Verb for the action described by the statement
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>object</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    The receiver of the action. An Agent, Group, Activity, or StatementRef
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#SubStatement-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#SubStatement-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="SubStatement-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="SubStatement-source">
-                                            <pre><code class="language-javascript">var SubStatement = function(actor, verb, object){
-    XAPIStatement.call(this,actor,verb,object);
-    this.objectType = &#x27;SubStatement&#x27;;
-
-    delete this.id;
-    delete this.stored;
-    delete this.version;
-    delete this.authority;
-  };
-  SubStatement.prototype = new XAPIStatement;
-  SubStatement.prototype.toString = function(){
-    return &#x27;&quot;&#x27; + SubStatement.prototype.prototype.toString.call(this) + &#x27;&quot;&#x27;;
-  };
-  
-  XAPIStatement.Agent = Agent;
-  XAPIStatement.Group = Group;
-  XAPIStatement.Verb = Verb;
-  XAPIStatement.Activity = Activity;
-  XAPIStatement.StatementRef = StatementRef;
-  XAPIStatement.SubStatement = SubStatement;
-  ADL.XAPIStatement = XAPIStatement;
-
-}(window.ADL = window.ADL || {}));</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
-                    </section>
                     <section id="xapiwrapper">
 
                         <h2>XAPIwrapper</h2>
@@ -900,10 +238,7 @@
                             <section id="xapiwrapper-Config">
 
 
-                                <h3>
-                                    Config
-                                    <em> ()</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-Config">Config</a> <small> ()</small></h4>
 
                                 <div class="block">
 
@@ -966,10 +301,7 @@ ADL.XAPIWrapper.changeConfig(conf);</code></pre>
                             <section id="xapiwrapper-prepareStatement">
 
 
-                                <h3>
-                                    prepareStatement
-                                    <em> (stmt)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-prepareStatement">prepareStatement</a> <small> (stmt)</small></h4>
 
                                 <div class="block">
 
@@ -1052,10 +384,7 @@ ADL.XAPIWrapper.changeConfig(conf);</code></pre>
                             <section id="xapiwrapper-sendStatement">
 
 
-                                <h3>
-                                    sendStatement
-                                    <em> (stmt, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-sendStatement">sendStatement</a> <small> (stmt, callback)</small></h4>
 
                                 <div class="block">
 
@@ -1164,10 +493,7 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
                             <section id="xapiwrapper-sendStatements">
 
 
-                                <h3>
-                                    sendStatements
-                                    <em> (stmtArray, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-sendStatements">sendStatements</a> <small> (stmtArray, callback)</small></h4>
 
                                 <div class="block">
 
@@ -1266,10 +592,7 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
                             <section id="xapiwrapper-getStatements">
 
 
-                                <h3>
-                                    getStatements
-                                    <em> (searchparams, more, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-getStatements">getStatements</a> <small> (searchparams, more, callback)</small></h4>
 
                                 <div class="block">
 
@@ -1394,10 +717,7 @@ if (ret)
                             <section id="xapiwrapper-getActivities">
 
 
-                                <h3>
-                                    getActivities
-                                    <em> (activityid, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-getActivities">getActivities</a> <small> (activityid, callback)</small></h4>
 
                                 <div class="block">
 
@@ -1492,10 +812,7 @@ ADL.XAPIWrapper.log(res);
                             <section id="xapiwrapper-sendState">
 
 
-                                <h3>
-                                    sendState
-                                    <em> (activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-sendState">sendState</a> <small> (activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)</small></h4>
 
                                 <div class="block">
 
@@ -1687,10 +1004,7 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                             <section id="xapiwrapper-getState">
 
 
-                                <h3>
-                                    getState
-                                    <em> (activityid, agent, stateid, registration, since, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-getState">getState</a> <small> (activityid, agent, stateid, registration, since, callback)</small></h4>
 
                                 <div class="block">
 
@@ -1842,10 +1156,7 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                             <section id="xapiwrapper-deleteState">
 
 
-                                <h3>
-                                    deleteState
-                                    <em> (activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-deleteState">deleteState</a> <small> (activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2024,10 +1335,7 @@ ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot
                             <section id="xapiwrapper-sendActivityProfile">
 
 
-                                <h3>
-                                    sendActivityProfile
-                                    <em> (activityid, profileid, profileval, matchHash, noneMatchHash, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-sendActivityProfile">sendActivityProfile</a> <small> (activityid, profileid, profileval, matchHash, noneMatchHash, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2192,10 +1500,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                             <section id="xapiwrapper-getActivityProfile">
 
 
-                                <h3>
-                                    getActivityProfile
-                                    <em> (activityid, profileid, since, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-getActivityProfile">getActivityProfile</a> <small> (activityid, profileid, since, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2322,10 +1627,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                             <section id="xapiwrapper-deleteActivityProfile">
 
 
-                                <h3>
-                                    deleteActivityProfile
-                                    <em> (activityid, profileid, matchHash, noneMatchHash, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-deleteActivityProfile">deleteActivityProfile</a> <small> (activityid, profileid, matchHash, noneMatchHash, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2466,10 +1768,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                             <section id="xapiwrapper-getAgents">
 
 
-                                <h3>
-                                    getAgents
-                                    <em> (agent, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-getAgents">getAgents</a> <small> (agent, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2564,10 +1863,7 @@ ADL.XAPIWrapper.log(res);
                             <section id="xapiwrapper-sendAgentProfile">
 
 
-                                <h3>
-                                    sendAgentProfile
-                                    <em> (agent, profileid, profileval, matchHash, noneMatchHash, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-sendAgentProfile">sendAgentProfile</a> <small> (agent, profileid, profileval, matchHash, noneMatchHash, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2732,10 +2028,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                             <section id="xapiwrapper-getAgentProfile">
 
 
-                                <h3>
-                                    getAgentProfile
-                                    <em> (agent, profileid, since, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-getAgentProfile">getAgentProfile</a> <small> (agent, profileid, since, callback)</small></h4>
 
                                 <div class="block">
 
@@ -2862,10 +2155,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                             <section id="xapiwrapper-deleteAgentProfile">
 
 
-                                <h3>
-                                    deleteAgentProfile
-                                    <em> (agent, profileid, matchHash, noneMatchHash, callback)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-deleteAgentProfile">deleteAgentProfile</a> <small> (agent, profileid, matchHash, noneMatchHash, callback)</small></h4>
 
                                 <div class="block">
 
@@ -3007,10 +2297,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                             <section id="xapiwrapper-ie_request">
 
 
-                                <h3>
-                                    ie_request
-                                    <em> (method, url, headers, data)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-ie_request">ie_request</a> <small> (method, url, headers, data)</small></h4>
 
                                 <div class="block">
 
@@ -3134,10 +2421,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                             <section id="xapiwrapper-XHR_request">
 
 
-                                <h3>
-                                    XHR_request
-                                    <em> (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-XHR_request">XHR_request</a> <small> (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)</small></h4>
 
                                 <div class="block">
 
@@ -3395,10 +2679,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                             <section id="xapiwrapper-xhrRequestOnError">
 
 
-                                <h3>
-                                    xhrRequestOnError
-                                    <em> (xhr, method, url)</em>
-                                </h3>
+                                <h4><a href="#xapiwrapper-xhrRequestOnError">xhrRequestOnError</a> <small> (xhr, method, url)</small></h4>
 
                                 <div class="block">
 
@@ -3471,9 +2752,714 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                 </div>
                             </section>
                     </section>
+                    <section id="xapistatement">
+
+                        <h2>XAPIstatement</h2>
+
+
+                            <section id="xapistatement-XAPIStatement">
+
+
+                                <h4><a href="#xapistatement-XAPIStatement">XAPIStatement</a> <small> (actor, verb, object)</small></h4>
+
+                                <div class="block">
+
+                                    <p>A convenient JSON-compatible xAPI statement wrapper<br />All args are optional, but the statement may not be complete or valid<br />Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>actor</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The Agent or Group committing the action described by the statement
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>verb</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The Verb for the action described by the statement
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#XAPIStatement-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#XAPIStatement-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="XAPIStatement-example-0">
+                                            <pre><code class="language-javascript">var stmt = new ADL.XAPIStatement(
+    &#x27;mailto:steve.vergenz.ctr@adlnet.gov&#x27;,
+   &#x27;http://adlnet.gov/expapi/verbs/launched&#x27;,
+   &#x27;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&#x27;
+);
+&gt;&gt; {
+&quot;actor&quot;: {
+    &quot;objectType&quot;: &quot;Agent&quot;,
+    &quot;mbox&quot;: &quot;mailto:steve.vergenz.ctr@adlnet.gov&quot; },
+&quot;verb&quot;: {
+    &quot;id&quot;: &quot;http://adlnet.gov/expapi/verbs/launched&quot; },
+&quot;object&quot;: {
+    &quot;objectType&quot;: &quot;Activity&quot;,
+    &quot;id&quot;: &quot;http://vwf.adlnet.gov/xapi/virtual_world_sandbox&quot; }}</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="XAPIStatement-source">
+                                            <pre><code class="language-javascript">var XAPIStatement = function(actor,verb,object)
+  {
+
+    // initialize
+
+    // if first arg is an xapi statement, parse
+    if( actor &amp;&amp; actor.actor &amp;&amp; actor.verb &amp;&amp; actor.object ){
+      var stmt = actor;
+      for(var i in stmt){
+        if(i != &#x27;actor&#x27; &amp;&amp; i != &#x27;verb&#x27; &amp;&amp; i != &#x27;object&#x27;)
+          this[i] = stmt[i];
+      }
+      actor = stmt.actor;
+      verb = stmt.verb;
+      object = stmt.object;
+    }
+    
+    if(actor){
+      if( actor instanceof Agent )
+        this.actor = actor;
+      else if(actor.objectType === &#x27;Agent&#x27; || !actor.objectType)
+        this.actor = new Agent(actor);
+      else if(actor.objectType === &#x27;Group&#x27;)
+        this.actor = new Group(actor);
+    }
+    else this.actor = null;
+    
+    if(verb){
+      if( verb instanceof Verb )
+        this.verb = verb;
+      else
+        this.verb = new Verb(verb);
+    }
+    else this.verb = null;
+
+    // decide what kind of object was passed
+    if(object)
+    {
+      if( object.objectType === &#x27;Activity&#x27; || !object.objectType ){
+        if( object instanceof Activity )
+          this.object = object;
+        else
+          this.object = new Activity(object);
+      }
+      else if( object.objectType === &#x27;Agent&#x27; ){
+        if( object instanceof Agent )
+          this.object = object;
+        else
+          this.object = new Agent(object);
+      }
+      else if( object.objectType === &#x27;Group&#x27; ){
+        if( object instanceof Group )
+          this.object = object;
+        else
+          this.object = new Group(object);
+      }
+      else if( object.objectType === &#x27;StatementRef&#x27; ){
+        if( object instanceof StatementRef )
+          this.object = object;
+        else
+          this.object = new StatementRef(object);
+      }
+      else if( object.objectType === &#x27;SubStatement&#x27; ){
+        if( object instanceof SubStatement )
+          this.object = object;
+        else
+          this.object = new SubStatement(object);
+      }
+      else this.object = null;
+    }
+    else this.object = null;
+
+
+    this.generateId = function(){
+      this.id = ADL.ruuid();
+    };
+  };
+
+  XAPIStatement.prototype.toString = function(){
+    return this.actor.toString() + &quot; &quot; + this.verb.toString() + &quot; &quot; + this.object.toString();
+  };
+
+  XAPIStatement.prototype.isValid = function(){
+    return this.actor &amp;&amp; this.actor.isValid() 
+      &amp;&amp; this.verb &amp;&amp; this.verb.isValid() 
+      &amp;&amp; this.object &amp;&amp; this.object.isValid();
+  };
+
+  XAPIStatement.prototype.generateRegistration = function(){
+    _getobj(this,&#x27;context&#x27;).registration = ADL.ruuid();
+  };
+
+  XAPIStatement.prototype.addParentActivity = function(activity){
+    _getobj(this,&#x27;context.contextActivities.parent[]&#x27;).push(new Activity(activity));
+  };
+
+  XAPIStatement.prototype.addGroupingActivity = function(activity){
+    _getobj(this,&#x27;context.contextActivities.grouping[]&#x27;).push(new Activity(activity));
+  };
+
+  XAPIStatement.prototype.addOtherContextActivity = function(activity){
+    _getobj(this,&#x27;context.contextActivities.other[]&#x27;).push(new Activity(activity));
+  };</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-Agent">
+
+
+                                <h4><a href="#xapistatement-Agent">Agent</a> <small> (identifier, name)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Provides an easy constructor for xAPI agent objects</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>identifier</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    One of the Inverse Functional Identifiers specified in the spec.     That is, an email, a hashed email, an OpenID, or an account object.
+    See (https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional)
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The natural-language name of the agent
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#Agent-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#Agent-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="Agent-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="Agent-source">
+                                            <pre><code class="language-javascript">var Agent = function(identifier, name)
+  {
+    this.objectType = &#x27;Agent&#x27;;
+    this.name = name;
+
+    // figure out what type of identifier was given
+    if( identifier &amp;&amp; (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
+      for(var i in identifier){
+        this[i] = identifier[i];
+      }
+    }
+    else if( /^mailto:/.test(identifier) ){
+      this.mbox = identifier;
+    }
+    else if( /^[0-9a-f]{40}$/i.test(identifier) ){
+      this.mbox_sha1sum = identifier;
+    }
+    else if( /^http[s]?:/.test(identifier) ){
+      this.openid = identifier;
+    }
+    else if( identifier &amp;&amp; identifier.homePage &amp;&amp; identifier.name ){
+      this.account = identifier;
+    }
+  };
+  Agent.prototype.toString = function(){
+    return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
+  };
+  Agent.prototype.isValid = function()
+  {
+    return this.mbox || this.mbox_sha1sum || this.openid
+      || (this.account.homePage &amp;&amp; this.account.name)
+      || (this.objectType === &#x27;Group&#x27; &amp;&amp; this.member);
+  };</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-Group">
+
+
+                                <h4><a href="#xapistatement-Group">Group</a> <small> (identifier, members, name)</small></h4>
+
+                                <div class="block">
+
+                                    <p>A type of agent, can contain multiple agents</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>identifier</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    (optional if `members` specified) See Agent.
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>members</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    An array of Agents describing the membership of the group
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The natural-language name of the agent
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#Group-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#Group-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="Group-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="Group-source">
+                                            <pre><code class="language-javascript">var Group = function(identifier, members, name)
+  {
+    Agent.call(this, identifier, name);
+    this.member = members;
+    this.objectType = &#x27;Group&#x27;;
+  };
+  Group.prototype = new Agent;</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-Verb">
+
+
+                                <h4><a href="#xapistatement-Verb">Verb</a> <small> (id, description)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Really only provides a convenient language map</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The IRI of the action taken
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>description</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    An English-language description, or a Language Map
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#Verb-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#Verb-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="Verb-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="Verb-source">
+                                            <pre><code class="language-javascript">var Verb = function(id, description)
+  {
+    // if passed a verb object then copy and return
+    if( id &amp;&amp; id.id ){
+      for(var i in id){
+        this[i] = id[i];
+      }
+      return;
+    }
+
+    // save id and build language map
+    this.id = id;
+    if(description)
+    {
+      if( typeof(description) === &#x27;string&#x27; || description instanceof String ){
+        this.display = {&#x27;en-US&#x27;: description};
+      }
+      else {
+        this.display = description;
+      }
+    }
+  };
+  Verb.prototype.toString = function(){
+    if(this.display &amp;&amp; (this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;]))
+      return this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;];
+    else
+      return this.id;
+  };
+  Verb.prototype.isValid = function(){
+    return this.id;
+  };</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-Activity">
+
+
+                                <h4><a href="#xapistatement-Activity">Activity</a> <small> (id, name, description)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Describes an object that an agent interacts with</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The unique activity IRI
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    An English-language identifier for the activity, or a Language Map
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>description</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    An English-language description of the activity, or a Language Map
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#Activity-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#Activity-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="Activity-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="Activity-source">
+                                            <pre><code class="language-javascript">var Activity = function(id, name, description)
+  {
+    // if first arg is activity, copy everything over
+    if(id &amp;&amp; id.id){
+      var act = id;
+      for(var i in act){
+        this[i] = act[i];
+      }
+      return;
+    }
+    
+    this.objectType = &#x27;Activity&#x27;;
+    this.id = id;
+    if( name || description )
+    {
+      this.definition = {};
+      
+      if( typeof(name) === &#x27;string&#x27; || name instanceof String )
+        this.definition.name = {&#x27;en-US&#x27;: name};
+      else if(name)
+        this.definition.name = name;
+      
+      if( typeof(description) === &#x27;string&#x27; || description instanceof String )
+        this.definition.description = {&#x27;en-US&#x27;: description};
+      else if(description)
+        this.definition.description = description;
+    }
+  };
+  Activity.prototype.toString = function(){
+    if(this.definition &amp;&amp; this.definition.name &amp;&amp; (this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;]))
+      return this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;];
+    else
+      return this.id;
+  };
+  Activity.prototype.isValid = function(){
+    return this.id &amp;&amp; (!this.objectType || this.objectType === &#x27;Activity&#x27;);
+  };</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-StatementRef">
+
+
+                                <h4><a href="#xapistatement-StatementRef">StatementRef</a> <small> (id)</small></h4>
+
+                                <div class="block">
+
+                                    <p>An object that refers to a separate statement</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The UUID of another xAPI statement
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#StatementRef-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#StatementRef-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="StatementRef-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="StatementRef-source">
+                                            <pre><code class="language-javascript">var StatementRef = function(id){
+    if(id &amp;&amp; id.id){
+      for(var i in id){
+        this[i] = id[i];
+      }
+    }
+    else {
+      this.objectType = &#x27;StatementRef&#x27;;
+      this.id = id;
+    }
+  };
+  StatementRef.prototype.toString = function(){
+    return &#x27;statement(&#x27;+this.id+&#x27;)&#x27;;
+  };
+  StatementRef.prototype.isValid = function(){
+    return this.id &amp;&amp; this.objectType &amp;&amp; this.objectType === &#x27;StatementRef&#x27;;
+  };</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-SubStatement">
+
+
+                                <h4><a href="#xapistatement-SubStatement">SubStatement</a> <small> (actor, verb, object)</small></h4>
+
+                                <div class="block">
+
+                                    <p>A self-contained statement as the object of another statement<br />See XAPIStatement for constructor details</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>actor</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The Agent or Group committing the action described by the statement
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>verb</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The Verb for the action described by the statement
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    The receiver of the action. An Agent, Group, Activity, or StatementRef
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#SubStatement-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#SubStatement-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="SubStatement-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="SubStatement-source">
+                                            <pre><code class="language-javascript">var SubStatement = function(actor, verb, object){
+    XAPIStatement.call(this,actor,verb,object);
+    this.objectType = &#x27;SubStatement&#x27;;
+
+    delete this.id;
+    delete this.stored;
+    delete this.version;
+    delete this.authority;
+  };
+  SubStatement.prototype = new XAPIStatement;
+  SubStatement.prototype.toString = function(){
+    return &#x27;&quot;&#x27; + SubStatement.prototype.prototype.toString.call(this) + &#x27;&quot;&#x27;;
+  };
+  
+  XAPIStatement.Agent = Agent;
+  XAPIStatement.Group = Group;
+  XAPIStatement.Verb = Verb;
+  XAPIStatement.Activity = Activity;
+  XAPIStatement.StatementRef = StatementRef;
+  XAPIStatement.SubStatement = SubStatement;
+  ADL.XAPIStatement = XAPIStatement;
+
+}(window.ADL = window.ADL || {}));</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+                    </section>
             </div>
         </div>
-        <script src="static/domtastic.min.js"></script>
         <script>
             $('.content').on('click', '.nav-tabs a', function(event) {
 
