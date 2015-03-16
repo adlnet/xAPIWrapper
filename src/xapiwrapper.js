@@ -505,7 +505,7 @@ function isDate(date) {
                 else
                 {
                     headers = headers || {};
-                    headers["Content-Type"] ="application/octect-stream";
+                    headers["Content-Type"] ="application/octet-stream";
                 }
             }
             else
