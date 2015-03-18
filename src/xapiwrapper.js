@@ -68,7 +68,7 @@ function isDate(date) {
 }
 
 (function(ADL){
-    log.debug = true;
+    log.debug = false;
     /* 
      * Config object used w/ url params to configure the lrs object
      * change these to match your lrs
@@ -1092,7 +1092,7 @@ function isDate(date) {
         for (var p in obj2) 
         {
             prop = obj2[p];
-            console.log(p + " : " + prop);
+            ADL.XAPIWrapper.log(p + " : " + prop);
             try 
             {
                 // Property in destination object set; update its value.
@@ -1376,9 +1376,8 @@ function isDate(date) {
                     } catch (ex) {
                         warning = ex.toString();
                     }
-                    console.warn(warning);
+                    ADL.XAPIWrapper.log(warning);
                     ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs);
-                    //throw new Error("debugger");
                     result = xhr;
                     return xhr;
                 }
