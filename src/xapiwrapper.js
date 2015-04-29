@@ -1092,7 +1092,7 @@ function isDate(date) {
         for (var p in obj2) 
         {
             prop = obj2[p];
-            ADL.XAPIWrapper.log(p + " : " + prop);
+			log(p + " : " + prop);
             try 
             {
                 // Property in destination object set; update its value.
