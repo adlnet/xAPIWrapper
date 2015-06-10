@@ -511,6 +511,16 @@ search['verb'] = ADL.verbs.answered.id;
 var res = ADL.XAPIWrapper.getStatements(search);
 ADL.XAPIWrapper.log(res.statements);
 >> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/answered">
+```  
+  
+```JavaScript
+var search = ADL.XAPIWrapper.searchParams();
+search['verb'] = ADL.verbs.terminated.id;
+search['activity'] = "http://adlnet.gov/courses/roses/posttest";
+search['related_activities'] = "true";
+var res = ADL.XAPIWrapper.getStatements(search);
+ADL.XAPIWrapper.log(res.statements);
+>> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/terminated" and an activity id of "http://adlnet.gov/courses/roses/posttest" in the statement>
 ```
 
 #### Activities
