@@ -502,7 +502,7 @@ ADL.XAPIWrapper.getStatements(null, null,
 
 ###### Get Statements based on search parameters
 The Experience API provides search parameters to narrow down 
-the result of a Statement request. See the [Experience API Spec](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#getstatements) 
+the result of a Statement request. See the [Experience API Spec](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#723-getstatements) 
 for more information.
 
 ```JavaScript
