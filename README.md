@@ -116,8 +116,8 @@ configuration object:
 ```JavaScript
 var conf = {
   "endpoint" : "https://lrs.adlnet.gov/xapi/",
-  "user" : "lou",
-  "password" : "5678",
+  "user" : "tom",
+  "password" : "1234",
 };
 ADL.XAPIWrapper.changeConfig(conf);
 ```  
@@ -125,8 +125,8 @@ or
 
 ```JavaScript
 var creds = {
-  "user" : "lou",
-  "password" : "5678",
+  "user" : "tom",
+  "password" : "1234",
 };
 ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
 ```  
