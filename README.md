@@ -322,7 +322,7 @@ var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
 var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
 ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
->> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
+>> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 200 - OK
 ```
 ###### Send Statement with Callback
 
@@ -333,7 +333,7 @@ var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
 ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
->> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
+>> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
 ```
 
 ###### Send Statement with URL query string values
