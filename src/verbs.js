@@ -1,5 +1,9 @@
 (function(ADL){
    ADL.verbs = {
+      "abandoned" : {
+         "id" : "http://purl.org/xapi/adl/verbs/abandoned",
+         "display" : {"en-US" : "abandoned"}
+      },
       "answered" : {
          "id" : "http://adlnet.gov/expapi/verbs/answered",
          "display" : {"de-DE" : "beantwortete",
@@ -140,6 +144,10 @@
                       "fr-FR" : "a repris",
                       "es-ES" : "continuó"}
       },
+      "satisfied" : {
+         "id" : "http://purl.org/xapi/adl/verbs/satisfied",
+         "display" : {"en-US" : "satisfied"}
+      },
       "scored" : {
          "id" : "http://adlnet.gov/expapi/verbs/scored",
          "display" : {"de-DE" : "erreichte",
@@ -174,6 +182,10 @@
                       "en-US" : "voided",
                       "fr-FR" : "a annulé",
                       "es-ES" : "anuló"}
+      },
+      "waived" : {
+         "id" : "http://purl.org/xapi/adl/verbs/waived",
+         "display" : {"en-US" : "waived"}
       }
    };
 }(window.ADL = window.ADL || {}));
