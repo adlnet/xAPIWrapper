@@ -2,17 +2,16 @@
     function Offline(obj) {
         var conf = getConf(obj);
         
-        this._offlineCheckId;
         this._isoffline = true;
-        this.lrs = conf.lrs || {endpoint: "http://localhost:8000/xapi/", auth: "Basic dG9tOjEyMzQ="};
+        this.endpoint = conf.endpoint || "http://localhost:8000/xapi/";
         this.offlineCB = (typeof conf.onOffline) ? conf.onOffline : null;
         this.onlineCB = (typeof conf.onOnline === "function") ? conf.onOnline : null;
         this.startCheckingCB = (typeof conf.onStartChecking === "function") ? conf.onStartChecking : null;
         this.stopCheckingCB = (typeof conf.onStopChecking === "function") ? conf.onStopChecking : null;
         this._interval = (typeof conf.checkInterval === "number" && conf.checkInterval >= 0) ? conf.checkInterval : 10000;
         
-        offlineCheck(this);
-        offlineCheckId = setInterval(offlineCheck, this._interval, this);
+        offlineCheck(this); 
+        this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
         // when constructed see if there's anything in storage
     }
     
@@ -21,26 +20,26 @@
             this._interval = interval;
             this.stopChecking();
             this.startChecking();
-            return true;
         } 
-        return false;
+        return this;
     };
     
     Offline.prototype.startChecking = function() {
-        if (this.offlineCheckId) return true;
+        if (this._offlineCheckId) return this;
         
-        this.offlineCheckId = setInterval(offlineCheck, this._interval, this);
+        offlineCheck(this);
+        this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
         if (this.startCheckingCB) this.startCheckingCB();
-        return true;
+        return this;
     };
     
     Offline.prototype.stopChecking = function() {
-        if (!this.offlineCheckId) return true;
+        if (!this._offlineCheckId) return this;
         
-        clearInterval(this.offlineCheckId);
-        this.offlineCheckId = null;
+        clearInterval(this._offlineCheckId);
+        this._offlineCheckId = null;
         if (this.stopCheckingCB) this.stopCheckingCB();
-        return true;
+        return this;
     };
     
     Offline.prototype.forceOfflineCheck = function () {
@@ -56,22 +55,18 @@
         if (typeof cb === "function") {
             if (event === "offline") {
                 this.offlineCB = cb;
-                return true;
             }
             else if (event === "online") {
                 this.onlineCB = cb;
-                return true;
             }
             else if (event === "startChecking") {
                 this.startCheckingCB = cb;
-                return true;
             }
             else if (event === "stopChecking") {
                 this.stopCheckingCB = cb;
-                return true;
             }
         }
-        return false;
+        return this;
     }
     
     var getConf = function (obj) {
@@ -91,7 +86,7 @@
             check = true;
         } else {
             var xhr = new (window.ActiveXObject || XMLHttpRequest)("Microsoft.XMLHTTP");
-            xhr.open("HEAD", obj.lrs.endpoint + 'about?rand=' + Math.floor((1 + Math.random()) * 0x10000), false);
+            xhr.open("HEAD", obj.endpoint + 'about?rand=' + Math.floor((1 + Math.random()) * 0x10000), false);
             try {
                 xhr.send();
                 check = !(xhr.status >= 200 && xhr.status < 400);
