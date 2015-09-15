@@ -44,11 +44,11 @@
     
     Offline.prototype.forceOfflineCheck = function () {
         offlineCheck(this);
-        return this.isoffline;
+        return this._isoffline;
     }
     
     Offline.prototype.isOffline = function () {
-        return this.isoffline;
+        return this._isoffline;
     };
     
     Offline.prototype.on = function (event, cb) {
@@ -94,13 +94,13 @@
                 check = true;
             }
         }
-        report.call(obj, check);
+        update.call(obj, check);
     };
     
-    var report = function (offline) {
-        if (this.isoffline == offline) return;
-        this.isoffline = offline;
-        if (this.isoffline) {
+    var update = function (offline) {
+        if (this._isoffline == offline) return;
+        this._isoffline = offline;
+        if (this._isoffline) {
             this.offlineCB();
         } else {
             this.onlineCB();
