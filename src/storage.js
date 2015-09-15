@@ -1,24 +1,35 @@
 (function (ADL) {
-    function StorageNotDefined
+    //shim: https://github.com/wojodesign/local-storage-js/blob/master/storage.js
+    function StorageNotDefined (message) {
+        this.message = message;
+        this.stack = (new Error()).stack;
+    }
+    StorageNotDefined.prototype = Object.create(Error.prototype);
+    StorageNotDefined.prototype.name = "StorageNotDefined";
+    
+    function StorageAtLimit (message) {
+        this.message = message;
+        this.stack = (new Error()).stack;
+    }
+    StorageAtLimit.prototype = Object.create(Error.prototype);
+    StorageAtLimit.prototype.name = "StorageAtLimit";
+    
+    var sizekey = 'size',
+        maxsize = 5000000;
+            
     function Storage () {
-        if (! isAvailable()) throw "local storage is not available";
+        if (! storageExists()) throw new StorageNotDefined("local storage is not available");
         
-        var sizekey = 'size',
-            maxsize = 5000000,
-            size = localStorage.getItem(sizekey) || 0;
-        // tom: fix this stuff... i don't know what i want
-        // need to test for localStorage and size
-        if (! storageAvailable()) throw StorageNot
+        var size = localStorage.getItem(sizekey) || 
+                    (JSON.stringify(localStorage).length * 2);
+        
+        if (! hasSpace(size)) throw new StorageAtLimit("local storage is full");
     }
     
     Storage.prototype.set = function (stmts) {
         var item = JSON.stringify(stmts);
-        try {
-            localStorage.setItem(key, item);
-            localStorage.setItem('size', localStorage.getItem('size') +
-        } catch (e) {
-            
-        }
+        localStorage.setItem(key, item);
+        localStorage.setItem('size', localStorage.getItem('size') + item.length);
     };
     
     Storage.prototype.get = function () {
@@ -26,12 +37,17 @@
         return value && JSON.parse(value);
     };
     
-    Storage.prototype.remove = function () {
-        localStorage.removeItem(key)
+    Storage.prototype.remove = function (key) {
+        var item = localStorage.getItem(key);
+        if (item) {
+            localStorage.setItem('size', localStorage.getItem('size') - item.length);
+            localStorage.removeItem(key);
+        }
     };
     
     Storage.prototype.clear = function () {
         localStorage.clear();
+        localStorage.setItem('size', remainingSpace());
     };
     
     Storage.prototype.storageAvailable = function () {
@@ -50,13 +66,15 @@
             return false;
         }
     };
-            
-    
-    
+
     var remainingSpace = function () {
         if (localStorage.remainingSpace) return localStorage.remainingSpace;
-        return (JSON.stringify(localStorage).length * 2) - 5000000;
-    }
+        return maxsize - (JSON.stringify(localStorage).length * 2);
+    };
+        
+    var hasSpace = function (size) {
+        return size > maxsize;
+    };
     
     ADL.Storage = Storage;
 }(window.ADL = window.ADL || {}));
