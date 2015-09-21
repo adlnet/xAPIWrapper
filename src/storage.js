@@ -1,11 +1,29 @@
 (function (ADL) {
     'use strict';
-
-    //shim: https://github.com/wojodesign/local-storage-js/blob/master/storage.js
-    if (!Date.now) {
-        Date.now = function () { return new Date().getTime(); };
+    
+    // http://codepen.io/gabrieleromanato/pen/Jgoab/
+    function IDGenerator () {
+        this.length = 8;
+        this.timestamp = +new Date;
     }
     
+    IDGenerator.prototype._getRandomInt = function( min, max ) {
+        return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
+    };
+
+    IDGenerator.prototype.generate = function() {
+        var ts = this.timestamp.toString();
+        var parts = ts.split( "" ).reverse();
+        var id = "";
+
+        for( var i = 0; i < this.length; ++i ) {
+            var index = this._getRandomInt( 0, parts.length - 1 );
+            id += parts[index];	 
+        }
+
+        return id;
+    };
+
     // Production steps of ECMA-262, Edition 5, 15.4.4.14
     // Reference: http://es5.github.io/#x15.4.4.14
     if (!Array.prototype.indexOf) {
@@ -51,18 +69,18 @@
 
             // 9. Repeat, while k < len
             while (k < len) {
-            // a. Let Pk be ToString(k).
-            //   This is implicit for LHS operands of the in operator
-            // b. Let kPresent be the result of calling the
-            //    HasProperty internal method of O with argument Pk.
-            //   This step can be combined with c
-            // c. If kPresent is true, then
-            //    i.  Let elementK be the result of calling the Get
-            //        internal method of O with the argument ToString(k).
-            //   ii.  Let same be the result of applying the
-            //        Strict Equality Comparison Algorithm to
-            //        searchElement and elementK.
-            //  iii.  If same is true, return k.
+                // a. Let Pk be ToString(k).
+                //   This is implicit for LHS operands of the in operator
+                // b. Let kPresent be the result of calling the
+                //    HasProperty internal method of O with argument Pk.
+                //   This step can be combined with c
+                // c. If kPresent is true, then
+                //    i.  Let elementK be the result of calling the Get
+                //        internal method of O with the argument ToString(k).
+                //   ii.  Let same be the result of applying the
+                //        Strict Equality Comparison Algorithm to
+                //        searchElement and elementK.
+                //  iii.  If same is true, return k.
                 if (k in O && O[k] === searchElement) {
                     return k;
                 }
@@ -71,54 +89,46 @@
             return -1;
         };
     }
-    
-    function StorageNotDefined (message) {
+
+    function StorageNotDefined(message) {
         this.message = message;
         this.stack = (new Error()).stack;
     }
     StorageNotDefined.prototype = Object.create(Error.prototype);
     StorageNotDefined.prototype.name = "StorageNotDefined";
-    
-    function StorageAtLimit (message) {
+
+    function StorageAtLimit(message) {
         this.message = message;
         this.stack = (new Error()).stack;
     }
     StorageAtLimit.prototype = Object.create(Error.prototype);
     StorageAtLimit.prototype.name = "StorageAtLimit";
-    
+
     var sizekey = 'size',
-        maxsize = 4750000, 
+        maxsize = 4750000,
         keyprefix = 'ADL.Storage.',
         queuekey = 'keys';
-            
-    function Storage () {
-        if (! storageExists()) throw new StorageNotDefined("local storage is not available");
-        
+
+    function Storage() {
+        if (!storageExists()) throw new StorageNotDefined("local storage is not available");
+
         localStorage.setItem(sizekey, (JSON.stringify(localStorage).length * 2));
         localStorage.setItem(queuekey, localStorage.getItem(queuekey) || JSON.stringify([]));
     }
-    
-    //update to use queue for keys
-    //, add keys queueu to local storage
-    //, save statements - generate key, add to keys, put in localstorage, update size
-    //, get statements - look for key [ remove from keys ], update size, serialize and save back to localstor, return val
-    //, has statements - check the length of keys
-    //, clear - create new keys ququeueur
-    //, change Q to load and serialize the internal array
-    
 
     Storage.prototype.saveStatements = function (stmts) {
-        if (! hasSpace(localStorage.getItem(sizekey))) throw new StorageAtLimit("local storage is full");
+        if (!hasSpace(localStorage.getItem(sizekey))) throw new StorageAtLimit("local storage is full");
         if (!stmts) return;
-        var key = keyprefix + Date.now();
+        var key = keyprefix + (new IDGenerator()).generate();
         var val = JSON.stringify(stmts);
         localStorage.setItem(key, val);
         addKey(key);
         updateSize(val.length);
         return key;
     };
-    
+
     Storage.prototype.getStatements = function (reqkey) {
+        console.log(JSON.stringify(localStorage,null,4));
         var key = reqkey || getKey();
         if (!key) return;
         var val = localStorage.getItem(key);
@@ -127,39 +137,39 @@
         updateSize(-1 * val.length);
         return JSON.parse(val);
     };
-    
+
     Storage.prototype.hasStatements = function () {
         return (JSON.parse(localStorage.getItem(queuekey))).length > 0;
     };
-    
+
     Storage.prototype.clear = function () {
         localStorage.clear();
-        localStorage.setItem('size', remainingSpace());
+        localStorage.setItem('size', (JSON.stringify(localStorage).length * 2));
         localStorage.setItem(queuekey, JSON.stringify([]));
     };
-    
+
     Storage.prototype.isStorageAvailable = function () {
         return storageExists() && hasSpace(localStorage.getItem(sizekey));
     };
-    
+
     Storage.prototype.getStorageSize = function () {
         return maxsize;
     };
-    
+
     Storage.prototype.getStorageUsed = function () {
         return parseInt(localStorage.getItem(sizekey));
     };
-    
+
     Storage.prototype.getStorageAvailable = function () {
         return maxsize - this.getStorageUsed();
     };
-    
+
     var addKey = function (key) {
         var q = new Queue(JSON.parse(localStorage.getItem(queuekey)));
         q.enqueue(key);
         localStorage.setItem(queuekey, q.serialize());
     };
-    
+
     var removeKey = function (key, splice) {
         var q = new Queue(JSON.parse(localStorage.getItem(queuekey)));
         if (splice) {
@@ -169,15 +179,15 @@
         }
         localStorage.setItem(queuekey, q.serialize());
     };
-    
+
     var getKey = function () {
-        return (new Queue(JSON.parse(localStorage.getItem(queuekey)))).dequeue();
+        return (new Queue(JSON.parse(localStorage.getItem(queuekey)))).peek();
     };
-    
+
     var updateSize = function (change) {
-        localStorage.setItem(sizekey, localStorage.getItem(sizekey) + (change * 2));    
+        localStorage.setItem(sizekey, localStorage.getItem(sizekey) + (change * 2));
     };
-                
+
     var storageExists = function () {
         try {
             var storage = window.localStorage,
@@ -186,8 +196,7 @@
             storage.key(1);
             storage.removeItem(x);
             return true;
-        }
-        catch(e) {
+        } catch (e) {
             return false;
         }
     };
@@ -196,11 +205,11 @@
         if (localStorage.remainingSpace) return localStorage.remainingSpace;
         return maxsize - parseInt(localStorage.getItem(sizekey));
     };
-        
+
     var hasSpace = function (size) {
         return parseInt(size) < maxsize;
     };
-    
+
     /*
 
     Queue.js
@@ -217,69 +226,68 @@
     /* Creates a new queue. A queue is a first-in-first-out (FIFO) data structure -
      * items are added to the end of the queue and removed from the front.
      */
-    function Queue(q){
+    function Queue(q) {
 
-      // initialise the queue and offset
-      var queue  = q || [];
-      var offset = 0;
+        // initialise the queue and offset
+        this.queue = q || [];
+        this.offset = 0;
+    }
 
-      // Returns the length of the queue.
-      this.getLength = function(){
-        return (queue.length - offset);
-      }
+    // Returns the length of the queue.
+    Queue.prototype.getLength = function () {
+        return (this.queue.length - this.offset);
+    };
 
-      // Returns true if the queue is empty, and false otherwise.
-      this.isEmpty = function(){
-        return (queue.length == 0);
-      }
-      
-      this.removeItem = function(item){
-        return !! queue.splice(queue.indexOf(item), 1);
-      }
+    // Returns true if the queue is empty, and false otherwise.
+    Queue.prototype.isEmpty = function () {
+        return (this.queue.length == 0);
+    };
 
-      /* Enqueues the specified item. The parameter is:
-       *
-       * item - the item to enqueue
-       */
-      this.enqueue = function(item){
-        queue.push(item);
-      }
+    Queue.prototype.removeItem = function (item) {
+        return !!this.queue.splice(this.queue.indexOf(item), 1);
+    };
 
-      /* Dequeues an item and returns it. If the queue is empty, the value
-       * 'undefined' is returned.
-       */
-      this.dequeue = function(){
+    /* Enqueues the specified item. The parameter is:
+     *
+     * item - the item to enqueue
+     */
+    Queue.prototype.enqueue = function (item) {
+        this.queue.push(item);
+    };
+
+    /* Dequeues an item and returns it. If the queue is empty, the value
+     * 'undefined' is returned.
+     */
+    Queue.prototype.dequeue = function () {
 
         // if the queue is empty, return immediately
-        if (queue.length == 0) return undefined;
+        if (this.queue.length == 0) return undefined;
 
         // store the item at the front of the queue
-        var item = queue[offset];
+        var item = this.queue[this.offset];
 
         // increment the offset and remove the free space if necessary
-        if (++ offset * 2 >= queue.length){
-          queue  = queue.slice(offset);
-          offset = 0;
+        if (++this.offset * 2 >= this.queue.length) {
+            this.queue = this.queue.slice(this.offset);
+            this.offset = 0;
         }
 
         // return the dequeued item
         return item;
 
-      }
+    };
 
-      /* Returns the item at the front of the queue (without dequeuing it). If the
-       * queue is empty then undefined is returned.
-       */
-      this.peek = function(){
-        return (queue.length > 0 ? queue[offset] : undefined);
-      }
-      
-      this.serialize = function() {
-          return JSON.stringify(queue);
-      }
+    /* Returns the item at the front of the queue (without dequeuing it). If the
+     * queue is empty then undefined is returned.
+     */
+    Queue.prototype.peek = function () {
+        return (this.queue.length > 0 ? this.queue[this.offset] : undefined);
+    };
 
-    }
-    
+    Queue.prototype.serialize = function () {
+        return JSON.stringify(this.queue);
+    };
+
     ADL.Storage = Storage;
     ADL.Storage.StorageNotDefined = StorageNotDefined;
     ADL.Storage.StorageAtLimit = StorageAtLimit;
