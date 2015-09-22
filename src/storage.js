@@ -106,50 +106,60 @@
 
     var sizekey = 'size',
         maxsize = 4750000,
-        keyprefix = 'ADL.Storage.',
-        queuekey = 'keys';
+        storagens = 'ADL.Storage',
+        queuekey = 'keys',
+        offsetkey = 'offset',
+        stmtkey = 'stmts',
+        metakey = 'meta';
 
     function Storage() {
         if (!storageExists()) throw new StorageNotDefined("local storage is not available");
-
-        localStorage.setItem(sizekey, (JSON.stringify(localStorage).length * 2));
-        localStorage.setItem(queuekey, localStorage.getItem(queuekey) || JSON.stringify([]));
+        
+        if (!getADLStorage()) {
+            initStorage();
+        }
     }
 
     Storage.prototype.saveStatements = function (stmts) {
-        if (!hasSpace(localStorage.getItem(sizekey))) throw new StorageAtLimit("local storage is full");
+        if (!hasSpace()) throw new StorageAtLimit("local storage is full");
         if (!stmts) return;
-        var key = keyprefix + (new IDGenerator()).generate();
+        var key = (new IDGenerator()).generate();
         var val = JSON.stringify(stmts);
-        localStorage.setItem(key, val);
-        addKey(key);
-        updateSize(val.length);
+        var ls = getADLStorage();
+        setItem(ls, key, val);
+        addKey(ls, key);
+        updateSize(ls, val.length);
+        setADLStorage(ls);
         return key;
     };
 
     Storage.prototype.getStatements = function (reqkey) {
-        console.log(JSON.stringify(localStorage,null,4));
+        console.log("start getStatements \nlocal storage: ", "\n", JSON.stringify(localStorage,null,4));
         var key = reqkey || getKey();
         if (!key) return;
-        var val = localStorage.getItem(key);
-        localStorage.removeItem(key);
-        removeKey(key, reqkey);
-        updateSize(-1 * val.length);
+        var ls = getADLStorage();
+        var val = getItem(ls, key);
+        console.log("key: ", key, "\nval: ", val);
+        removeItem(ls, key);
+        removeKey(ls, reqkey);
+        updateSize(ls, -1 * val.length);
+        setADLStorage(ls);
+        console.log("end getStatements\nlocal storage: ", "\n", JSON.stringify(localStorage, null, 4));
         return JSON.parse(val);
     };
 
     Storage.prototype.hasStatements = function () {
-        return (JSON.parse(localStorage.getItem(queuekey))).length > 0;
+        var ls = getADLStorage();
+        return (new Queue(JSON.parse(ls[metakey][queuekey]),
+                         JSON.parse(ls[metakey][offsetkey]))).getLength() > 0;
     };
 
     Storage.prototype.clear = function () {
-        localStorage.clear();
-        localStorage.setItem('size', (JSON.stringify(localStorage).length * 2));
-        localStorage.setItem(queuekey, JSON.stringify([]));
+        initStorage();
     };
 
     Storage.prototype.isStorageAvailable = function () {
-        return storageExists() && hasSpace(localStorage.getItem(sizekey));
+        return storageExists() && hasSpace();
     };
 
     Storage.prototype.getStorageSize = function () {
@@ -157,35 +167,77 @@
     };
 
     Storage.prototype.getStorageUsed = function () {
-        return parseInt(localStorage.getItem(sizekey));
+        return parseInt(getADLStorage()[metakey][sizekey]);
     };
 
     Storage.prototype.getStorageAvailable = function () {
         return maxsize - this.getStorageUsed();
     };
-
-    var addKey = function (key) {
-        var q = new Queue(JSON.parse(localStorage.getItem(queuekey)));
-        q.enqueue(key);
-        localStorage.setItem(queuekey, q.serialize());
+    
+    var initStorage = function () {
+        var sto = {};
+        sto[stmtkey] = {};
+        sto[metakey] = {};
+        sto[metakey][queuekey] = JSON.stringify([]);
+        sto[metakey][offsetkey] = 0;
+        sto[metakey][sizekey] = JSON.stringify(localStorage).length * 2;
+        setADLStorage(sto);
+    };
+    
+    var getADLStorage = function () {
+        var ls = localStorage.getItem(storagens);
+        return ls && JSON.parse(ls);
+    };
+    
+    var setADLStorage = function (ls) {
+        localStorage.setItem(storagens, JSON.stringify(ls));
+    };
+    
+    var setItem = function (ls, key, obj) {
+        ls[stmtkey][key] = obj;
+        return ls;
+    };
+    
+    var getItem = function (ls, key) {
+        return ls[stmtkey][key];
+    };
+    
+    var removeItem = function (ls, key) {
+        delete ls[stmtkey][key];
+        return ls;
     };
 
-    var removeKey = function (key, splice) {
-        var q = new Queue(JSON.parse(localStorage.getItem(queuekey)));
+    var addKey = function (ls, key) {
+        var q = new Queue(JSON.parse(ls[metakey][queuekey]),
+                         JSON.parse(ls[metakey][offsetkey]));
+        q.enqueue(key);
+        ls[metakey][queuekey] = q.serialize();
+        return ls;
+    };
+
+    var removeKey = function (ls, splice) {
+        var q = new Queue(JSON.parse(ls[metakey][queuekey]),
+                         JSON.parse(ls[metakey][offsetkey]));
+        
         if (splice) {
-            q.removeItem(key);
+            q.removeItem(splice);
         } else {
-            q.dequeue(key);
+            q.dequeue();
         }
-        localStorage.setItem(queuekey, q.serialize());
+        ls[metakey][queuekey] = q.serialize();
+        ls[metakey][offsetkey] = q.offset;
+        return ls;
     };
 
     var getKey = function () {
-        return (new Queue(JSON.parse(localStorage.getItem(queuekey)))).peek();
+        var ls = getADLStorage();
+        return (new Queue(JSON.parse(ls[metakey][queuekey]),
+                         JSON.parse(ls[metakey][offsetkey]))).peek();
     };
 
-    var updateSize = function (change) {
-        localStorage.setItem(sizekey, localStorage.getItem(sizekey) + (change * 2));
+    var updateSize = function (ls, change) {
+        ls[metakey][sizekey] = parseInt(ls[metakey][sizekey]) + (change * 2);
+        return ls;
     };
 
     var storageExists = function () {
@@ -203,11 +255,11 @@
 
     var remainingSpace = function () {
         if (localStorage.remainingSpace) return localStorage.remainingSpace;
-        return maxsize - parseInt(localStorage.getItem(sizekey));
+        return maxsize - parseInt(getADLStorage()[metakey][sizekey]);
     };
 
     var hasSpace = function (size) {
-        return parseInt(size) < maxsize;
+        return parseInt(getADLStorage()[metakey][sizekey]) < maxsize;
     };
 
     /*
@@ -220,17 +272,18 @@
     the terms of the CC0 1.0 Universal legal code:
 
     http://creativecommons.org/publicdomain/zero/1.0/legalcode
-
+    
+    modified by ADL for use in the xAPIWrapper project
     */
 
     /* Creates a new queue. A queue is a first-in-first-out (FIFO) data structure -
      * items are added to the end of the queue and removed from the front.
      */
-    function Queue(q) {
+    function Queue(q, offset) {
 
         // initialise the queue and offset
         this.queue = q || [];
-        this.offset = 0;
+        this.offset = offset || 0;
     }
 
     // Returns the length of the queue.
