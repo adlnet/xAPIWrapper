@@ -2,7 +2,7 @@
     function Offline(obj) {
         var conf = getConf(obj);
         
-        this._isoffline = true;
+        this._isoffline;
         this.endpoint = conf.endpoint || "http://localhost:8000/xapi/";
         this.offlineCB = (typeof conf.onOffline) ? conf.onOffline : null;
         this.onlineCB = (typeof conf.onOnline === "function") ? conf.onOnline : null;
@@ -26,19 +26,20 @@
     
     Offline.prototype.startChecking = function() {
         if (this._offlineCheckId) return this;
+        if (this.startCheckingCB) this.startCheckingCB();
         
         offlineCheck(this);
         this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
-        if (this.startCheckingCB) this.startCheckingCB();
         return this;
     };
     
     Offline.prototype.stopChecking = function() {
         if (!this._offlineCheckId) return this;
+        if (this.stopCheckingCB) this.stopCheckingCB();
         
         clearInterval(this._offlineCheckId);
         this._offlineCheckId = null;
-        if (this.stopCheckingCB) this.stopCheckingCB();
+        this._isoffline = null;
         return this;
     };
     
