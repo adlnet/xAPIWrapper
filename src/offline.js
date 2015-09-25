@@ -1,6 +1,7 @@
 (function(ADL) {
     function Offline(obj) {
-        var conf = getConf(obj);
+        var conf = getConf(obj),
+            interval = parseInt(conf.checkInterval);
         
         this._isoffline;
         this.endpoint = conf.endpoint || "http://localhost:8000/xapi/";
@@ -8,7 +9,7 @@
         this.onlineCB = (typeof conf.onOnline === "function") ? conf.onOnline : null;
         this.startCheckingCB = (typeof conf.onStartChecking === "function") ? conf.onStartChecking : null;
         this.stopCheckingCB = (typeof conf.onStopChecking === "function") ? conf.onStopChecking : null;
-        this._interval = (typeof conf.checkInterval === "number" && conf.checkInterval >= 0) ? conf.checkInterval : 10000;
+        this._interval = (! isNaN(interval) && interval >= 0) ? interval : 10000;
         
         offlineCheck(this); 
         this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
