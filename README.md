@@ -837,6 +837,7 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 ##### Usage
 
 The core functionality is exposed via 
+    
     ```
     var validator = new ADL.Validator();
     validator.validateStatement(statement);
@@ -844,9 +845,9 @@ The core functionality is exposed via
 
 ##### Input
 
-The input `statement` may either be JSON string of an xAPI statement or a Javascript object that aligns with the deserialization of a JSON xAPI statement.
+The input `statement` may either be a JSON string of an xAPI statement or a JSON object that aligns with the deserialization of a JSON xAPI statement.
 
-###### Using an object
+###### JSON
     var report = validator.validateStatement({
                     "id": "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
                     "actor": {
@@ -862,13 +863,13 @@ The input `statement` may either be JSON string of an xAPI statement or a Javasc
                     }
                 });
 
-###### Direct JSON
+###### JSON String
     var report = validator.validateStatement("{\"id\":\"fd41c918-b88b-4b20-a0a5-a4c32391aaa0\",\"actor\":{\"mbox\":\"mailto:bob@example.com\"},\"verb\":{\"id\":\"http:\/\/adlnet.gov\/expapi\/verbs\/created\",\"display\":{\"en-US\":\"created\"}},\"object\":{\"id\":\"http:\/\/example.com\/activities\/someUniqueId\",\"objectType\":\"Activity\"}}");
 
 
 ##### Output
 
-The produced report object two objects: a total count of all of the errors in each statement, and a results array for each given statements. Each object in the array contains three key properties: a collection of any `errors` found in the statement, the `version` of xAPI validated against, and reference to the statement object `instance` that was evaluated (after JSON parsing, if necessary).
+The produced report object contains two properties: a total count of all of the errors in each statement, and a results array for each given statements. Each object in the array contains three key properties: a collection of any `errors` found in the statement, the `version` of xAPI validated against, and reference to the statement object `instance` that was evaluated (after JSON parsing, if necessary).
 
     var report = {
                     totalErrors: 2,
@@ -907,9 +908,10 @@ Each object in the `errors` Array provides a `trace` property, to help track dow
 
     {
         trace: "statement.context.contextActivities.group[2].id",
-        message: "id property, if present, must be a URI string.",
-        level: "VIOLATION"
+        message: "id property, if present, must be a URI string."
     }
 The trace is formatted akin to Javascript object and Array access notation.  It should be possible to copy a trace into a Javascript console or debugger watch field, substitute the initial "statement" with the actual name of the evaluated statement variable, and thus directly see the erroneous value.
 
 The `message` property gives a human-readable explanation of the error.
+
+The validator is based off of the great work from [ZackPierce](https://github.com/ZackPierce/xAPI-Validator-JS)
