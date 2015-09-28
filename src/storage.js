@@ -134,17 +134,14 @@
     };
 
     Storage.prototype.getStatements = function (reqkey) {
-        console.log("start getStatements \nlocal storage: ", "\n", JSON.stringify(localStorage,null,4));
         var key = reqkey || getKey();
         if (!key) return;
         var ls = getADLStorage();
         var val = getItem(ls, key);
-        console.log("key: ", key, "\nval: ", val);
         removeItem(ls, key);
         removeKey(ls, reqkey);
         updateSize(ls, -1 * val.length);
         setADLStorage(ls);
-        console.log("end getStatements\nlocal storage: ", "\n", JSON.stringify(localStorage, null, 4));
         return JSON.parse(val);
     };
 
