@@ -47,7 +47,7 @@
     Offline.prototype.forceOfflineCheck = function () {
         offlineCheck(this);
         return this._isoffline;
-    }
+    };
     
     Offline.prototype.isOffline = function () {
         return this._isoffline;
@@ -57,9 +57,11 @@
         if (typeof cb === "function") {
             if (event === "offline") {
                 this.offlineCB = cb;
+                if (this.isOffline()) this.offlineCB();
             }
             else if (event === "online") {
                 this.onlineCB = cb;
+                if (!this.isOffline()) this.onlineCB();
             }
             else if (event === "startChecking") {
                 this.startCheckingCB = cb;
@@ -69,7 +71,7 @@
             }
         }
         return this;
-    }
+    };
     
     var getConf = function (obj) {
         var conf = {};
