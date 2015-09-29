@@ -1,14 +1,15 @@
 (function(ADL) {
     function Offline(obj) {
-        var conf = getConf(obj);
+        var conf = getConf(obj),
+            interval = parseInt(conf.checkInterval);
         
-        this._isoffline = true;
+        this._isoffline;
         this.endpoint = conf.endpoint || "http://localhost:8000/xapi/";
         this.offlineCB = (typeof conf.onOffline) ? conf.onOffline : null;
         this.onlineCB = (typeof conf.onOnline === "function") ? conf.onOnline : null;
         this.startCheckingCB = (typeof conf.onStartChecking === "function") ? conf.onStartChecking : null;
         this.stopCheckingCB = (typeof conf.onStopChecking === "function") ? conf.onStopChecking : null;
-        this._interval = (typeof conf.checkInterval === "number" && conf.checkInterval >= 0) ? conf.checkInterval : 10000;
+        this._interval = (! isNaN(interval) && interval >= 0) ? interval : 10000;
         
         offlineCheck(this); 
         this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
@@ -26,26 +27,27 @@
     
     Offline.prototype.startChecking = function() {
         if (this._offlineCheckId) return this;
+        if (this.startCheckingCB) this.startCheckingCB();
         
         offlineCheck(this);
         this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
-        if (this.startCheckingCB) this.startCheckingCB();
         return this;
     };
     
     Offline.prototype.stopChecking = function() {
         if (!this._offlineCheckId) return this;
+        if (this.stopCheckingCB) this.stopCheckingCB();
         
         clearInterval(this._offlineCheckId);
         this._offlineCheckId = null;
-        if (this.stopCheckingCB) this.stopCheckingCB();
+        this._isoffline = null;
         return this;
     };
     
     Offline.prototype.forceOfflineCheck = function () {
         offlineCheck(this);
         return this._isoffline;
-    }
+    };
     
     Offline.prototype.isOffline = function () {
         return this._isoffline;
@@ -55,9 +57,11 @@
         if (typeof cb === "function") {
             if (event === "offline") {
                 this.offlineCB = cb;
+                if (this.isOffline()) this.offlineCB();
             }
             else if (event === "online") {
                 this.onlineCB = cb;
+                if (!this.isOffline()) this.onlineCB();
             }
             else if (event === "startChecking") {
                 this.startCheckingCB = cb;
@@ -67,7 +71,7 @@
             }
         }
         return this;
-    }
+    };
     
     var getConf = function (obj) {
         var conf = {};
