@@ -1,6 +1,37 @@
 (function (ADL) {
     'use strict';
     
+    if ( !Date.prototype.toISOString ) {
+      ( function() {
+
+        function pad(number) {
+          var r = String(number);
+          if ( r.length === 1 ) {
+            r = '0' + r;
+          }
+          return r;
+        }
+
+        Date.prototype.toISOString = function() {
+          return this.getUTCFullYear()
+            + '-' + pad( this.getUTCMonth() + 1 )
+            + '-' + pad( this.getUTCDate() )
+            + 'T' + pad( this.getUTCHours() )
+            + ':' + pad( this.getUTCMinutes() )
+            + ':' + pad( this.getUTCSeconds() )
+            + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+            + 'Z';
+        };
+
+      }() );
+    }
+    
+    if (typeof Array.isArray === 'undefined') {
+        Array.isArray = function(obj) {
+            return Object.prototype.toString.call(obj) === '[object Array]';
+        }
+    };
+    
     // http://codepen.io/gabrieleromanato/pen/Jgoab/
     function IDGenerator () {
         this.length = 8;
@@ -124,6 +155,9 @@
         if (!hasSpace()) throw new StorageAtLimit("local storage is full");
         if (!stmts) return;
         var key = (new IDGenerator()).generate();
+        
+        stmts = addTimestamp(stmts);
+        
         var val = JSON.stringify(stmts);
         var ls = getADLStorage();
         setItem(ls, key, val);
@@ -169,6 +203,32 @@
 
     Storage.prototype.getStorageAvailable = function () {
         return maxsize - this.getStorageUsed();
+    };
+    
+    var addTimestamp = function(stmts) {
+        var wasstring = (typeof stmts === "string");
+        if (wasstring) {
+            // make obj
+            stmts = JSON.parse(stmts);
+        }
+        
+        if (Array.isArray(stmts)) {
+            for (var idx in stmts) {
+                if (! stmts[idx].hasOwnProperty('timestamp')){
+                    stmts[idx].timestamp = (new Date()).toISOString();
+                }
+            }
+        } else if (typeof stmts === "object") {
+            if (! stmts.hasOwnProperty('timestamp')) {
+                stmts.timestamp = (new Date()).toISOString();
+            }
+        }
+        
+        if (wasstring) {
+            stmts = JSON.stringify(stmts);
+        }
+            
+        return stmts;
     };
     
     var initStorage = function () {
