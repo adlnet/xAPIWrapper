@@ -300,7 +300,7 @@ function isDate(date) {
             if (this.validator) {
                 var report = this.validator.validateStatement(stmt);
                 if (report.totalErrors > 0){
-                    log("LRS is offline - can't store statements because of statement errors");
+                    log("Statement errors found");
                     return report;
                 }
             }
@@ -361,7 +361,7 @@ function isDate(date) {
             if (this.validator) {
                 var report = this.validator.validateStatement(stmt);
                 if (report.totalErrors > 0){
-                    log("LRS is offline - can't store statements because of statement errors");
+                    log("Statement errors found");
                     return report;
                 }
             }
