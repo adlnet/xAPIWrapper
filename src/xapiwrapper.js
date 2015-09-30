@@ -182,6 +182,26 @@ function isDate(date) {
         };
 
         this.changeConfig = function(config){
+            this.offline = config.offline;
+            this.storage = config.storage;
+            this.validator = config.validator;
+            var that = this;
+
+            if (this.offline && this.storage) {
+                var oldcb = this.offline.onlineCB||function () {};
+                this.offline.on('online', function () {
+                    oldcb();
+                    var id = setInterval(function () {
+                        console.log("storage dump interval");
+                        if (!that.offline.isOffline() && that.storage.hasStatements()) {
+                            ADL.XAPIWrapper.sendStatement(that.storage.getStatements());
+                        }
+                        else {
+                            clearInterval(id);
+                        }
+                    }, this._interval, this);
+                });
+            }
             try
             {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
@@ -277,21 +297,32 @@ function isDate(date) {
         if (this.testConfig())
         {
             this.prepareStatement(stmt);
-            var id;
-            if (stmt['id'])
-            {
-                id = stmt['id'];
+            if (this.validator) {
+                var report = this.validator.validateStatement(stmt);
+                if (report.totalErrors > 0){
+                    log("LRS is offline - can't store statements because of statement errors");
+                    return report;
+                }
             }
-            else
-            {
-                id = ADL.ruuid();
-                stmt['id'] = id;
+            if (this.offline && this.offline.isOffline() && this.storage){
+                    this.storage.saveStatements(stmt);
+            } else {
+                var id;
+                if (stmt['id'])
+                {
+                    id = stmt['id'];
+                }
+                else
+                {
+                    id = ADL.ruuid();
+                    stmt['id'] = id;
+                }
+                var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
+                    "POST", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id});
+                if (!callback)
+                    return {"xhr":resp,
+                            "id" :id};
             }
-            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
-                "POST", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id});
-            if (!callback)
-                return {"xhr":resp,
-                        "id" :id};
         }
     };
 
@@ -327,11 +358,22 @@ function isDate(date) {
             {
                 this.prepareStatement(stmtArray[i]);
             }
-            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements", 
-                "POST", JSON.stringify(stmtArray), this.lrs.auth, callback);
-            if (!callback)
-            {
-                return resp;
+            if (this.validator) {
+                var report = this.validator.validateStatement(stmt);
+                if (report.totalErrors > 0){
+                    log("LRS is offline - can't store statements because of statement errors");
+                    return report;
+                }
+            }
+            if (this.offline && this.offline.isOffline() && this.storage){
+                    this.storage.saveStatements(stmt);
+            } else {
+                var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements", 
+                    "POST", JSON.stringify(stmtArray), this.lrs.auth, callback);
+                if (!callback)
+                {
+                    return resp;
+                }                
             }
         }
     };
