@@ -1,23 +1,48 @@
+/*
+ * ADL.Offline is a Javascript object that checks the client has an 
+ * internet connection and is able to reach a specified endpoint. It 
+ * enables access through online/offline, and start/stop checking events.
+ */
 (function(ADL) {
-    function Offline(obj) {
-        var conf = getConf(obj),
+    
+    /*
+     * Constructor Offline
+     * @param {object} config  configuration object
+     *  {
+     *     endpoint: {string} url to target endpoint
+     *     checkInterval: {number} # of ms between offline checks
+     *     timeout: {number} # of ms to wait for http response
+     *     onOffline: {function} called when client goes online
+     *     onOffline: {function} called when client goes offline
+     *     onStartChecking: {function} called when this starts checking connectivity
+     *     onStopChecking: {function} called when this stops checking connectivity
+     *  }
+     */
+    function Offline(config) {
+        var conf = getConf(config),
             interval = parseInt(conf.checkInterval),
             timeout = parseInt(conf.requestTimeout);
         
         this._isoffline;
         this.endpoint = conf.endpoint || "http://localhost:8000/xapi/";
-        this.offlineCB = (typeof conf.onOffline) ? conf.onOffline : null;
+        
+        this.offlineCB = (typeof conf.onOffline === "function") ? conf.onOffline : null;
         this.onlineCB = (typeof conf.onOnline === "function") ? conf.onOnline : null;
+        
         this.startCheckingCB = (typeof conf.onStartChecking === "function") ? conf.onStartChecking : null;
         this.stopCheckingCB = (typeof conf.onStopChecking === "function") ? conf.onStopChecking : null;
+        
         this._interval = (! isNaN(interval) && interval >= 0) ? interval : 10000;
         this._reqtimeout = (! isNaN(timeout) && timeout >= 0) ? timeout : 2000;
         
         offlineCheck(this); 
         this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
-        // when constructed see if there's anything in storage
     }
     
+    /*
+     * Sets the offline check interval.
+     * @param {number} # of ms between offline checks
+     */
     Offline.prototype.setCheckInterval = function (interval) {
         if (interval >= 0) {
             this._interval = interval;
@@ -27,6 +52,9 @@
         return this;
     };
     
+    /*
+     * Triggers Offline to start checking for connectivity
+     */
     Offline.prototype.startChecking = function() {
         if (this._offlineCheckId) return this;
         if (this.startCheckingCB) this.startCheckingCB();
@@ -36,6 +64,9 @@
         return this;
     };
     
+    /*
+     * Triggers Offline to stop checking for connectivity
+     */
     Offline.prototype.stopChecking = function() {
         if (!this._offlineCheckId) return this;
         if (this.stopCheckingCB) this.stopCheckingCB();
@@ -46,15 +77,26 @@
         return this;
     };
     
+    /*
+     * Forces Offline to check for connectivity despite the check interval
+     */
     Offline.prototype.forceOfflineCheck = function () {
         offlineCheck(this);
         return this;
     };
     
+    /*
+     * Returns true if connectivity is currently offline
+     */
     Offline.prototype.isOffline = function () {
         return this._isoffline;
     };
     
+    /*
+     * Access to set event functions
+     * @param {string} 'offline', 'online', 'startChecking', 'stopChecking'
+     * @param {function} called when specified event fires
+     */
     Offline.prototype.on = function (event, cb) {
         if (typeof cb === "function") {
             if (event === "offline") {
