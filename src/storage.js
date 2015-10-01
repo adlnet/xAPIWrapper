@@ -1,3 +1,15 @@
+/*
+ * ADL.Storage is a Javascript object that enables a client 
+ * to save xAPI statements to localStorage and get those 
+ * statements back at a later time. 
+ *
+ * As stated this implementation relies on the browser's 
+ * localStorage. Also this implementation does not organize 
+ * by user, and groups all statements under an ADL.Storage key.
+ *
+ * One final note about this implementation, it adds timestamps 
+ * to statements, if not already present, during the save process. 
+ */
 (function (ADL) {
     'use strict';
     
@@ -143,6 +155,10 @@
         stmtkey = 'stmts',
         metakey = 'meta';
 
+    /*
+     * Constructor Storage
+     * @throws {ADL.StorageNotDefined} if localstorage cannot be accessed
+     */
     function Storage() {
         if (!storageExists()) throw new StorageNotDefined("local storage is not available");
         
@@ -151,6 +167,10 @@
         }
     }
 
+    /*
+     * Stores the statements.
+     * @
+     */
     Storage.prototype.saveStatements = function (stmts) {
         if (!hasSpace()) throw new StorageAtLimit("local storage is full");
         if (!stmts) return;

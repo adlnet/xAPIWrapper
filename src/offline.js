@@ -8,15 +8,13 @@
     /*
      * Constructor Offline
      * @param {object} config  configuration object
-     *  {
-     *     endpoint: {string} url to target endpoint
-     *     checkInterval: {number} # of ms between offline checks
-     *     timeout: {number} # of ms to wait for http response
-     *     onOffline: {function} called when client goes online
-     *     onOffline: {function} called when client goes offline
-     *     onStartChecking: {function} called when this starts checking connectivity
-     *     onStopChecking: {function} called when this stops checking connectivity
-     *  }
+     * @param {string} [config.endpoint="http://localhost:8000/xapi/"] - url to target endpoint
+     * @param {number} [config.checkInterval=10000] - # of ms between offline checks
+     * @param {number} [config.timeout=2000] = # of ms to wait for http response
+     * @param {function} [config.onOffline] - called when client goes online
+     * @param {function} [config.onOffline] - called when client goes offline
+     * @param {function} [config.onStartChecking] - called when this starts checking connectivity
+     * @param {function} [config.onStopChecking] - called when this stops checking connectivity
      */
     function Offline(config) {
         var conf = getConf(config),
@@ -41,7 +39,7 @@
     
     /*
      * Sets the offline check interval.
-     * @param {number} # of ms between offline checks
+     * @param {number} interval - # of ms between offline checks
      */
     Offline.prototype.setCheckInterval = function (interval) {
         if (interval >= 0) {
@@ -94,8 +92,8 @@
     
     /*
      * Access to set event functions
-     * @param {string} 'offline', 'online', 'startChecking', 'stopChecking'
-     * @param {function} called when specified event fires
+     * @param {string} event - 'offline', 'online', 'startChecking', 'stopChecking'
+     * @param {function} cb - called when specified event fires
      */
     Offline.prototype.on = function (event, cb) {
         if (typeof cb === "function") {
