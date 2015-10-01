@@ -1,7 +1,8 @@
 (function(ADL) {
     function Offline(obj) {
         var conf = getConf(obj),
-            interval = parseInt(conf.checkInterval);
+            interval = parseInt(conf.checkInterval),
+            timeout = parseInt(conf.requestTimeout);
         
         this._isoffline;
         this.endpoint = conf.endpoint || "http://localhost:8000/xapi/";
@@ -10,6 +11,7 @@
         this.startCheckingCB = (typeof conf.onStartChecking === "function") ? conf.onStartChecking : null;
         this.stopCheckingCB = (typeof conf.onStopChecking === "function") ? conf.onStopChecking : null;
         this._interval = (! isNaN(interval) && interval >= 0) ? interval : 10000;
+        this._reqtimeout = (! isNaN(timeout) && timeout >= 0) ? timeout : 2000;
         
         offlineCheck(this); 
         this._offlineCheckId = setInterval(offlineCheck, this._interval, this);
@@ -46,7 +48,7 @@
     
     Offline.prototype.forceOfflineCheck = function () {
         offlineCheck(this);
-        return this._isoffline;
+        return this;
     };
     
     Offline.prototype.isOffline = function () {
@@ -75,35 +77,54 @@
     
     var getConf = function (obj) {
         var conf = {};
-        // get from configuration param
+        
         for (var fld in obj) {
             if (obj.hasOwnProperty(fld)) {
                 conf[fld] = obj[fld];
             }
         }
+        
         return conf;
     };
     
     var offlineCheck = function (obj) {
-        var check;
+        var isoffline = true;
+        
         if (navigator && !navigator.onLine) {
-            check = true;
+            update.call(obj, isoffline);
         } else {
             var xhr = new (window.ActiveXObject || XMLHttpRequest)("Microsoft.XMLHTTP");
-            xhr.open("HEAD", obj.endpoint + 'about?rand=' + Math.floor((1 + Math.random()) * 0x10000), false);
-            try {
-                xhr.send();
-                check = !(xhr.status >= 200 && xhr.status < 400);
-            } catch (err) {
-                check = true;
-            }
+            
+            xhr.open("HEAD", obj.endpoint + 'about?rand=' + Math.floor((1 + Math.random()) * 0x10000), true);
+            
+            xhr.onload = function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status >= 200 && xhr.status < 400) {
+                        update.call(obj, !isoffline);
+                    } else {
+                        update.call(obj, isoffline);
+                    }
+                }
+            };
+            
+            xhr.onerror = function () {
+                update.call(obj, isoffline);
+            };
+            
+            xhr.ontimeout = function () {
+                update.call(obj, isoffline);
+            };
+            
+            xhr.timeout = obj._reqtimeout;
+            xhr.send();
         }
-        update.call(obj, check);
     };
     
     var update = function (offline) {
         if (this._isoffline == offline) return;
+        
         this._isoffline = offline;
+        
         if (this._isoffline) {
             this.offlineCB();
         } else {
