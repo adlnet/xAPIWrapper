@@ -169,7 +169,8 @@
 
     /*
      * Stores the statements.
-     * @
+     * @param {object|object[]} stmts - statement(s) to be saved
+     * @returns {string} key to the saved set of statements
      */
     Storage.prototype.saveStatements = function (stmts) {
         if (!hasSpace()) throw new StorageAtLimit("local storage is full");
@@ -187,6 +188,11 @@
         return key;
     };
 
+    /*
+     * Returns the first set of statements in the storage, or the requested set
+     * @param {string} [reqkey] - key to a specific set of statements
+     * @returns {object|object[]} - statement(s) requested
+     */
     Storage.prototype.getStatements = function (reqkey) {
         var key = reqkey || getKey();
         if (!key) return;
@@ -198,29 +204,53 @@
         setADLStorage(ls);
         return JSON.parse(val);
     };
-
+    
+    /*
+     * Indicates whether there are more stored statements or not.
+     * @returns {boolean} - if there are more stored statements
+     */
     Storage.prototype.hasStatements = function () {
         var ls = getADLStorage();
         return (new Queue(JSON.parse(ls[metakey][queuekey]),
                          JSON.parse(ls[metakey][offsetkey]))).getLength() > 0;
     };
-
+    
+    /*
+     * Resets the ADL.Storage removing all statements currently stored.
+     * note: only clears ADL.Storage, not all of localStorage
+     */
     Storage.prototype.clear = function () {
         initStorage();
     };
-
+    
+    /*
+     * Inidcates if there is still space available to store statements
+     * @returns {boolean} - if storage is available
+     */
     Storage.prototype.isStorageAvailable = function () {
         return storageExists() && hasSpace();
     };
 
+    /*
+     * Returns the amount of storage ADL.Storage is configured to use
+     * @returns {number} - the size in bytes
+     */
     Storage.prototype.getStorageSize = function () {
         return maxsize;
     };
 
+    /*
+     * Returns an estimated amount of storage currently being used
+     * @returns {number} - the amount in bytes being used
+     */
     Storage.prototype.getStorageUsed = function () {
         return parseInt(getADLStorage()[metakey][sizekey]);
     };
 
+    /*
+     * Returns an estimated amount of storage currently available
+     * @returns {number} - the amount in bytes available
+     */
     Storage.prototype.getStorageAvailable = function () {
         return maxsize - this.getStorageUsed();
     };
