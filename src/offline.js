@@ -7,7 +7,7 @@
     
     /*
      * Constructor Offline
-     * @param {object} config  configuration object
+     * @param {object} [config]  configuration object
      * @param {string} [config.endpoint="http://localhost:8000/xapi/"] - url to target endpoint
      * @param {number} [config.checkInterval=10000] - # of ms between offline checks
      * @param {number} [config.timeout=2000] = # of ms to wait for http response
