@@ -165,9 +165,9 @@
         
         this._isoffline = offline;
         
-        if (this._isoffline) {
+        if (this._isoffline && this.offlineCB) {
             this.offlineCB();
-        } else {
+        } else if (this.onlineCB) {
             this.onlineCB();
         }
     };

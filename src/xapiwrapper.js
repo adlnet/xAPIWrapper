@@ -25,6 +25,12 @@ if ( !Date.prototype.toISOString ) {
   }() );
 }
 
+if (typeof Array.isArray === 'undefined') {
+    Array.isArray = function(obj) {
+        return Object.prototype.toString.call(obj) === '[object Array]';
+    }
+}
+
 // shim for old-style Base64 lib
 function toBase64(text){
   if(CryptoJS && CryptoJS.enc.Base64) 
@@ -109,9 +115,33 @@ function isDate(date) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.lrs = getLRSObject(config || {});
+        
         if (this.lrs.user && this.lrs.password)
             updateAuth(this.lrs, this.lrs.user, this.lrs.password);
         this.base = getbase(this.lrs.endpoint);
+        
+        this.validator = config.validator;
+        this.storage = config.storage;
+        this.offline = config.offline;
+        var wrapper = this;
+        if (this.offline && this.storage) {
+            var oldcb = this.offline.onlineCB||function(){};
+            this.offline.on('online', function () {
+                oldcb();
+                var id = setInterval(function () {
+                    if(! this.offline.isOffline() && this.storage.hasStatements()) {
+                        var stored = this.storage.getStatements();
+                        if (Array.isArray(stored)) {
+                            this.sendStatements(stored);
+                        } else {
+                            this.sendStatement(stored);
+                        }
+                    } else {
+                        clearInterval(id);
+                    }
+                }, this.offline._interval, wrapper);
+            });
+        }
 
         function getbase(url)
         {
@@ -186,9 +216,36 @@ function isDate(date) {
             {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
                 this.lrs = mergeRecursive(this.lrs, config);
+                this.offline = config.offline;
+                this.validator = config.validator;
+                this.storage = config.storage;
+                
                 if (config.user && config.password)
                     this.updateAuth(this.lrs, config.user, config.password);
                 this.base = getbase(this.lrs.endpoint);
+                
+                this.validator = config.validator;
+                this.storage = config.storage;
+                this.offline = config.offline;
+                var wrapper = this;
+                if (this.offline && this.storage) {
+                    var oldcb = this.offline.onlineCB||function(){};
+                    offline.on('online', function () {
+                        oldcb();
+                        var id = setInterval(function () {
+                            if(! wrapper.offline.isOffline() && wrapper.storage.hasStatements()) {
+                                var stored = wrapper.storage.getStatements();
+                                if (Array.isArray(stored)) {
+                                    wrapper.sendStatements(stored);
+                                } else {
+                                    wrapper.sendStatement(stored);
+                                }
+                            } else {
+                                clearInterval(id);
+                            }
+                        }, offline._interval, wrapper);
+                    });
+                }
             }
             catch(e)
             {
@@ -276,7 +333,6 @@ function isDate(date) {
     {
         if (this.testConfig())
         {
-            this.prepareStatement(stmt);
             var id;
             if (stmt['id'])
             {
@@ -286,6 +342,50 @@ function isDate(date) {
             {
                 id = ADL.ruuid();
                 stmt['id'] = id;
+            }
+            
+            this.prepareStatement(stmt);
+            
+            if (this.validator) {
+                var report = this.validator.validateStatement(stmt);
+                if (report.totalErrors > 0) {
+                    if ( callback ) {
+                        callback(
+                            {
+                                status: 500, 
+                                responseText: "validation errors",
+                                response: report
+                            },
+                            report
+                        );   
+                    }
+                    else 
+                    {
+                        return {
+                            xhr: {
+                                status: 500, 
+                                responseText: "validation errors", 
+                                response: report
+                            }
+                        };
+                    }
+                }
+            }
+            if (this.offline && this.storage && this.offline.isOffline())
+            {
+                this.storage.saveStatements(stmt);
+                var response = {
+                    xhr: {
+                        status: 200,
+                        responseText: "Statement Saved"
+                    },
+                    id: id
+                };
+                if (callback) 
+                {
+                    callback(response.xhr, response.id);
+                }
+                else return response;
             }
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
                 "POST", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id});
@@ -326,6 +426,43 @@ function isDate(date) {
             for(var i in stmtArray)
             {
                 this.prepareStatement(stmtArray[i]);
+            }
+            
+            if (this.validator) {
+                var report = this.validator.validateStatement(stmtArray);
+                if (report.totalErrors > 0) {
+                    if ( callback ) {
+                        callback(
+                            {
+                                status: 500, 
+                                responseText: "validation errors",
+                                response: report
+                            },
+                            report
+                        );   
+                    }
+                    else 
+                    {
+                        return {
+                            status: 500, 
+                            responseText: "validation errors", 
+                            response: report
+                        };
+                    }
+                }
+            }
+            if (this.offline && this.storage && this.offline.isOffline())
+            {
+                this.storage.saveStatements(stmtArray);
+                var response = {
+                    status: 200,
+                    responseText: "Statements Saved"
+                };
+                if (callback) 
+                {
+                    callback(response.xhr);
+                }
+                else return response;
             }
             var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements", 
                 "POST", JSON.stringify(stmtArray), this.lrs.auth, callback);
