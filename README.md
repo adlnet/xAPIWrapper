@@ -831,3 +831,85 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  "agentprofile");
 >> 404
 ```
+
+#### Validator
+
+##### Usage
+
+The core functionality is exposed via 
+    ```
+    var validator = new ADL.Validator();
+    validator.validateStatement(statement);
+    ```
+
+##### Input
+
+The input `statement` may either be JSON string of an xAPI statement or a Javascript object that aligns with the deserialization of a JSON xAPI statement.
+
+###### Using an object
+    var report = validator.validateStatement({
+                    "id": "fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
+                    "actor": {
+                        "mbox": "mailto:bob@example.com"
+                    },
+                    "verb": { 
+                        "id": "http://adlnet.gov/expapi/verbs/created",
+                        "display" :{"en-US": "created"}
+                    },
+                    "object": {
+                        "id": "http://example.com/activities/someUniqueId",
+                        "objectType": "Activity"
+                    }
+                });
+
+###### Direct JSON
+    var report = validator.validateStatement("{\"id\":\"fd41c918-b88b-4b20-a0a5-a4c32391aaa0\",\"actor\":{\"mbox\":\"mailto:bob@example.com\"},\"verb\":{\"id\":\"http:\/\/adlnet.gov\/expapi\/verbs\/created\",\"display\":{\"en-US\":\"created\"}},\"object\":{\"id\":\"http:\/\/example.com\/activities\/someUniqueId\",\"objectType\":\"Activity\"}}");
+
+
+##### Output
+
+The produced report object two objects: a total count of all of the errors in each statement, and a results array for each given statements. Each object in the array contains three key properties: a collection of any `errors` found in the statement, the `version` of xAPI validated against, and reference to the statement object `instance` that was evaluated (after JSON parsing, if necessary).
+
+    var report = {
+                    totalErrors: 2,
+                    results:[ 
+                        {
+                            version: "1.0.0",
+                            errors: [
+                                {
+                                    trace : "statement.id",
+                                    message : "Id was not a valid UUID"
+                                },
+                                {
+                                    trace : "statement.object.objectType",
+                                    message : "objectType property was required to be a string but was absent."
+                                }
+                            ],
+                            instance : {
+                                "id": "abc123",
+                                "actor": {
+                                    "mbox": "mailto:charles@example.com"
+                                },
+                                "verb": { 
+                                    "id": "http://adlnet.gov/expapi/verbs/created",
+                                    "display" :{"en-US": "created"}
+                                },
+                                "object": {
+                                    "id": "http://example.com/activities/someUniqueId",
+                                }
+                            }
+                        }
+                    ]
+                }
+
+###### Validation Error objects
+Each object in the `errors` Array provides a `trace` property, to help track down the precise location of the error in the supplied schema.
+
+    {
+        trace: "statement.context.contextActivities.group[2].id",
+        message: "id property, if present, must be a URI string.",
+        level: "VIOLATION"
+    }
+The trace is formatted akin to Javascript object and Array access notation.  It should be possible to copy a trace into a Javascript console or debugger watch field, substitute the initial "statement" with the actual name of the evaluated statement variable, and thus directly see the erroneous value.
+
+The `message` property gives a human-readable explanation of the error.
