@@ -216,10 +216,6 @@ function isDate(date) {
             {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
                 this.lrs = mergeRecursive(this.lrs, config);
-                this.offline = config.offline;
-                this.validator = config.validator;
-                this.storage = config.storage;
-                
                 if (config.user && config.password)
                     this.updateAuth(this.lrs, config.user, config.password);
                 this.base = getbase(this.lrs.endpoint);
