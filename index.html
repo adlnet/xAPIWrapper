@@ -47,7 +47,7 @@
             }
 
             var stmts = ADL.XAPIWrapper.getStatements({'statementId': stmt.id});
-            var mnyStmts = ADL.XAPIWrapper.getStatements();
+            var mnyStmts = ADL.XAPIWrapper.getStatements({'verb': 'http://adlnet.gov/expapi/verbs/lunched'});
             print1(stmts);
             printMany(mnyStmts.statements);
         </script>
