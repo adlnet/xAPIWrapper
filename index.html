@@ -4,6 +4,19 @@
         <meta charset="utf-8">
         <title>Andy's LRS and xAPI Fun</title>
         <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+    </head>
+    <body>
+        <div class="one">
+            <p>
+                This is a paragraph.
+            </p>
+            <p id="two">
+                Wait for it ...
+            </p>
+            <p id="three">
+                Thank you. Please drive though.
+            </p>
+        </div>
         <script type="text/javascript">
             var conf = {};
             conf['endpoint'] = "https://lrs.adlnet.gov/xapi/";
@@ -18,27 +31,25 @@
 
             var stmt = new ADL.XAPIStatement(
                 'mailto:andrew.creighton.ctr@adlnet.gov',
-                'http://adlnet.gov/expapi/verbs/launched',
-                'http://sandbox.adlnet.gov');
+                'http://adlnet.gov/expapi/verbs/lunched',
+                'http://lunchbox.adlnet.gov');
             stmt.generateId();
             ADL.XAPIWrapper.sendStatement(stmt);
 
+            var print1 = function (stmt)
+            {
+                document.getElementById('two').innerHTML = JSON.stringify(stmt);
+            }
+
+            var printMany = function (stmtArr)
+            {
+                document.getElementById('three').innerHTML = JSON.stringify(stmtArr).replace(/},{/g, '}<br><br>{');
+            }
+
             var stmts = ADL.XAPIWrapper.getStatements({'statementId': stmt.id});
-            ADL.XAPIWrapper.getStatements(null, null,
-                    function(r){ADL.XAPIWrapper.log(JSON.parse(r.response).statements);});
+            var mnyStmts = ADL.XAPIWrapper.getStatements();
+            print1(stmts);
+            printMany(mnyStmts.statements);
         </script>
-    </head>
-    <body>
-        <div class="one">
-            <p>
-                This is a paragraph.
-            </p>
-            <p id="two">
-                Wait for it.
-            </p>
-            <script type="text/javascript">
-                document.getElementById('two').innerHTML = JSON.stringify(stmts);
-            </script>
-        </div>
     </body>
 </html>
