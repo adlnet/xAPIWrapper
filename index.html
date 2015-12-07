@@ -18,17 +18,18 @@
             </p>
         </div>
         <script type="text/javascript">
+
+            //configure
             var conf = {};
             conf['endpoint'] = "https://lrs.adlnet.gov/xapi/";
             try {
                 conf['auth'] = 'Basic ' + toBase64('iitsecDemo:1234');
             } catch (e) {
                 log('Exception in Config trying to encode auth: ' + e);
-            } finally {
-
             }
             ADL.XAPIWrapper.changeConfig(conf);
 
+            //create statement
             var stmt = new ADL.XAPIStatement(
                 'mailto:andrew.creighton.ctr@adlnet.gov',
                 'http://adlnet.gov/expapi/verbs/lunched',
@@ -36,20 +37,24 @@
             stmt.generateId();
             ADL.XAPIWrapper.sendStatement(stmt);
 
+            //prints statement just sent
             var print1 = function (stmt)
             {
                 document.getElementById('two').innerHTML = JSON.stringify(stmt);
             }
 
+            //prints a group of statements
             var printMany = function (stmtArr)
             {
                 document.getElementById('three').innerHTML = JSON.stringify(stmtArr).replace(/},{/g, '}<br><br>{');
             }
 
-            var stmts = ADL.XAPIWrapper.getStatements({'statementId': stmt.id});
-            var mnyStmts = ADL.XAPIWrapper.getStatements({'verb': 'http://adlnet.gov/expapi/verbs/lunched'});
-            print1(stmts);
-            printMany(mnyStmts.statements);
+            //retrieve statement with this id
+            ADL.XAPIWrapper.getStatements({'statementId': stmt.id}, null, function (r) {var stmt = JSON.parse(r.response); print1(stmt)});
+
+            // //retieves statements with this verb
+            ADL.XAPIWrapper.getStatements({'verb': 'http://adlnet.gov/expapi/verbs/lunched'}, null, function (r) { var statements = JSON.parse(r.response).statements;               printMany(statements);});
+
         </script>
     </body>
 </html>
