@@ -4,6 +4,10 @@
         <meta charset="utf-8">
         <title>Andy's LRS and xAPI Fun</title>
         <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+        <script type="text/javascript" src="./src/xapi-util.js"></script>
+
+        <script type="text/javascript" src="./src/mymodule.js"></script>
+
     </head>
     <body>
         <div class="one">
@@ -55,6 +59,8 @@
             // //retieves statements with this verb
             ADL.XAPIWrapper.getStatements({'verb': 'http://adlnet.gov/expapi/verbs/lunched'}, null, function (r) { var statements = JSON.parse(r.response).statements;               printMany(statements);});
 
+            //the following line is for testing along with line 9
+            alert(mymodule.test());
         </script>
     </body>
 </html>
