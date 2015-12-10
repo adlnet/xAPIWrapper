@@ -6,8 +6,8 @@
         return undefined;
     };
     
-    var getObjType = function (o) {
-        return o.objectType || "Activity";
+    var getSubStatementDisplay = function (o) {
+        
     };
     
     ADL.xapiutil = {};
@@ -41,7 +41,13 @@
     };
     
     ADL.xapiutil.getActorIdString = function (a) {
-        return a.mbox || a.openid || a.mbox_sha1sum || a.account.homePage + ":" + a.account.name;
+        var id = a.mbox || a.openid || a.mbox_sha1sum;
+        if (! id) {
+            if (a.account) id = a.account.homePage + ":" + a.account.name;
+            else if (a.member) id = "Anon Group " + a.member;
+            else id = 'unknown';
+        }
+        return id;
     };
     
     ADL.xapiutil.getActorDisplay = function (a) {
@@ -54,16 +60,34 @@
         return v.id;
     };
     
+    ADL.xapiutil.getObjectType = function (o) {
+        return o.objectType || ((o.id) ? "Activity" : "Agent");
+    };
+    
     ADL.xapiutil.getObjectId = function (o) {
-        
+        if (o.id) return o.id;
+        var type = ADL.xapiutil.getObjectType(o);
+        if (type === "Agent" || type == "Group") return ADL.xapiutil.getActorId(o);
+        return undefined;
     };
     
     ADL.xapiutil.getObjectIdString = function (o) {
-        
+        if (o.id) return o.id;
+        var type = ADL.xapiutil.getObjectType(o);
+        if (type === "Agent" || type == "Group") return ADL.xapiutil.getActorIdString(o);
+        else if (type == "SubStatement") return ADL.xapiutil.getActorId(o.actor) + ":" + o.verb.id + ":" + ADL.xapiutil.getObjectId(o.object);
+        return undefined;
     };
     
     ADL.xapiutil.getObjectDisplay = function (o) {
-        return getObjDefName(o) || o.name || o.id || getActorId(o);
+        var disp = getObjDefName(o) || o.name || o.id;
+        if (! disp) {
+            var type = ADL.xapiutil.getObjectType(o);
+            if (type === "Agent" || type == "Group") disp = ADL.xapiutil.getActorDisplay(o);
+            else if (type == "SubStatement") disp = ADL.xapiutil.getActorId(o.actor) + ":" + o.verb.id + ":" + ADL.xapiutil.getObjectId(o.object);
+        }
+        
+        return disp;
     };
         
 })(window.ADL = window.ADL || {});
