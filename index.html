@@ -18,7 +18,7 @@
                 Wait for it ...
             </p>
             <p id="three">
-                Thank you. Please drive though.
+                Thank you. Please drive through.
             </p>
         </div>
         <script type="text/javascript">
@@ -36,8 +36,8 @@
             //create statement
             var stmt = new ADL.XAPIStatement(
                 'mailto:andrew.creighton.ctr@adlnet.gov',
-                'http://adlnet.gov/expapi/verbs/lunched',
-                'http://lunchbox.adlnet.gov');
+                'http://adlnet.gov/expapi/verbs/listened',
+                'http://classical.music.adlnet.gov');
             stmt.generateId();
             ADL.XAPIWrapper.sendStatement(stmt);
 
@@ -57,7 +57,7 @@
             ADL.XAPIWrapper.getStatements({'statementId': stmt.id}, null, function (r) {var stmt = JSON.parse(r.response); print1(stmt)});
 
             // //retieves statements with this verb
-            ADL.XAPIWrapper.getStatements({'verb': 'http://adlnet.gov/expapi/verbs/lunched'}, null, function (r) { var statements = JSON.parse(r.response).statements;               printMany(statements);});
+            ADL.XAPIWrapper.getStatements({'verb': 'http://adlnet.gov/expapi/verbs/listened'}, null, function (r) { var statements = JSON.parse(r.response).statements;               printMany(statements);});
 
             //the following line is for testing along with line 9
             alert(mymodule.test());
