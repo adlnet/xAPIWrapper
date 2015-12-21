@@ -227,14 +227,27 @@ describe('testing storage', function () {
             }
             
         });
+        
+        it("should do storage fns fine", function () {
+            sto.clear();
+            var stmtloc1 = {actor:{mbox:"mailto:tom@tom.com"}, verb:{id:"http://verb.com/test-timestamp"}, object:{id:"http://from.tom/act/test-timestamp"}, timestamp: (new Date()).toISOString()};
+
+            var stmtloc2 = {actor:{mbox:"mailto:tom@tom.com"}, verb:{id:"http://verb.com/test-timestamp2"}, object:{id:"http://from.tom/act/test-timestamp2"}};
+
+            var stmtloc3 = {actor:{mbox:"mailto:tom@tom.com"}, verb:{id:"http://verb.com/test-timestamp3"}, object:{id:"http://from.tom/act/test-timestamp3"}};
+
+            var ins = [stmtloc1, stmtloc2, stmtloc3];
+
+            sto.saveStatements(ins);
+
+            var siz = sto.getStorageSize();
+            var uzd = sto.getStorageUsed();
+            var calcdsiz = siz - uzd;
+            (sto.isStorageAvailable()).should.equal(uzd < siz);
+            (sto.getStorageAvailable()).should.equal(calcdsiz);
+        });
     
     });
 
     
-    
-    describe('test isStorageAvailable', function () {});
-    
-    
-    describe('test getStorageSize', function () {});
-
 });
