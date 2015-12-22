@@ -2,9 +2,9 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Testing xAPI Wrapper Utils</title>
-    <link href="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.css" rel="stylesheet" />
-    <script src="https://cdn.rawgit.com/jquery/jquery/2.1.4/dist/jquery.min.js"></script>
+    <title>Mocha Tests</title>
+    <link href="./libs/mocha/2.2.5/mocha.css" rel="stylesheet" />
+    <script src="./libs/jquery/2.1.4/jquery.min.js"></script>
     <script>
         localStorage.clear();
     </script>
@@ -14,13 +14,18 @@
     <div id="console"></div>
     <div id="mocha"></div>
 
-    <script src="https://cdn.rawgit.com/Automattic/expect.js/0.3.1/index.js"></script>
-    <script src="https://cdn.rawgit.com/mochajs/mocha/2.2.5/mocha.js"></script>
+    <script src="./libs/expect/0.3.1/index.js"></script>
+    <script src="./libs/mocha/2.2.5/mocha.js"></script>
     <script src="./libs/should.min.js"></script>
     <script src="./libs/blanket_mocha.min.js" data-cover-adapter="./libs/mocha-blanket-adapter.js"></script>
 
     <!-- these paths will be different when this test folder is moved into xapiwrapper project -->
-    <script src="./libs/xapiwrapper.min.js"></script>
+<!--    <script src="../dist/xapiwrapper.min.js"></script>-->
+    <script type="text/javascript" src="../lib/cryptojs_v3.1.2.js"></script>
+    <script type="text/javascript" src="../src/verbs.js"></script>
+    <script type="text/javascript" src="../src/xapistatement.js"></script>
+    <script type="text/javascript" src="../src/xapiwrapper.js"></script>
+
     <script src="../src/xapi-util.js" data-cover></script>
 
     <script>

@@ -18,9 +18,13 @@
     ADL.xapiutil = {};
 
     ADL.xapiutil.getLang = function () {
-        return "en-US";
-        return navigator.language || navigator.browserLanguage
-            || navigator.systemLanguage || navigator.userLanguage || "en-US";
+        var lang;
+        if (navigator)
+            lang =  navigator.language || navigator.browserLanguage ||
+            navigator.systemLanguage || navigator.userLanguage;
+        else if (process && process.env)
+            lang =  process.env.LANG;
+        return lang || "en-US";
     };
 
     ADL.xapiutil.getMoreStatements = function (iterations, callback) {
@@ -73,14 +77,14 @@
     ADL.xapiutil.getObjectId = function (o) {
         if (o.id) return o.id;
         var type = ADL.xapiutil.getObjectType(o);
-        if (type === "Agent" || type == "Group") return ADL.xapiutil.getActorId(o);
+        if (type === "Agent" || type === "Group") return ADL.xapiutil.getActorId(o);
         return undefined;
     };
 
     ADL.xapiutil.getObjectIdString = function (o) {
         if (o.id) return o.id;
         var type = ADL.xapiutil.getObjectType(o);
-        if (type === "Agent" || type == "Group") return ADL.xapiutil.getActorIdString(o);
+        if (type === "Agent" || type === "Group") return ADL.xapiutil.getActorIdString(o);
         else if (type == "SubStatement") return ADL.xapiutil.getActorId(o.actor) + ":" + o.verb.id + ":" + ADL.xapiutil.getObjectId(o.object);
         return undefined;
     };
