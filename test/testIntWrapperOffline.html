@@ -168,7 +168,6 @@
                         </label>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-info">Custom Stmt</button>
             </form>
         </div>
         <div class="col-xs-9">
@@ -259,7 +258,13 @@
             offline.endpoint = ENDPOINT;
             updateWrapperConfig(wrapper);
             
-            offline.startChecking();
+            
+            if ($('#checkonlinetoggle').prop('checked')) {
+                offline.startChecking();
+            } else {
+                // stinking offline flag switches
+                offline.stopChecking();
+            }
         });
     </script>
     <script>
@@ -304,11 +309,13 @@
             };
             
             var ret = {};
-            var base = (editor.getValue() && JSON.parse(editor.getValue())) || {
-                actor: parts.actor.mbox,
-                verb: parts.verb,
-                object: parts.object.Activity
-            };
+            var base = (editor.getValue() && JSON.parse(editor.getValue())) 
+                        || {
+                              actor: parts.actor.mbox,
+                              verb: parts.verb,
+                              object: parts.object.Activity,
+                              timestamp: (new Date()).toISOString()
+                           };
             
             if (! opts) 
                 return base;
@@ -317,6 +324,7 @@
                 base.actor : parts.actor[opts.actor];
             ret.verb = base.verb || parts.verb;
             ret.object = (((base.object.objectType) ? base.object.objectType : "Activity") === opts.object) ? base.object : parts.object[opts.object];
+            ret.timestamp = base.timestamp;
 
             for (var a in opts.result) {
                 ret.result = ret.result || {};
@@ -394,24 +402,33 @@
     
     <script>
         var outputResults = function (resp, thing) {
-            var txt = "";
-            if (resp.status >= 200 && resp.status < 400) {
-                txt ; 
+            var spanclass = "text-info";
+            var text = "";
+            if (resp.status >= 400) {
+                spanclass = "text-danger"; 
+                text = (thing.totalErrors > 1) ? "Errors: " : "Error: ";
+                for ( var res in thing.results ) {
+                    text += "<br>" + ((thing.results[res].instance.id) ? thing.results[res].instance.id : "Statement " + res);
+                    for ( var err in thing.results[res].errors ) {
+                        text += "<br>&nbsp;&nbsp;" + thing.results[res].errors[err].trace;
+                        text += "<br>&nbsp;&nbsp;&nbsp;&nbsp;" + thing.results[res].errors[err].message;
+                    }
+                }
+            } else {
+                text = "Successfully sent " + thing.id;
             }
-            // do stuff with the class... danger for errors
-            // set html to responseText
-            $('#results').class('');//?
+
+            var p = $('<p>').addClass(spanclass).html(text);
+            $('#results').append(p);
         };
         
         $('#sendbtn').on('click', function (ev) {
             var instmt = JSON.parse(editor.getValue());
             if (Array.isArray(instmt)) {
                 console.log('sending array - multi stmt... ');
-//                console.log(wrapper.sendStatements(instmt));
                 wrapper.sendStatements(instmt, outputResults);
             } else {
                 console.log('sending object - single stmt... ');
-//                console.log(wrapper.sendStatement(instmt));
                 wrapper.sendStatement(instmt, outputResults);
             }
 
