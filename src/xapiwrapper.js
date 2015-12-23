@@ -353,7 +353,8 @@ function isDate(date) {
                                 response: report
                             },
                             report
-                        );   
+                        );  
+                        return;
                     }
                     else 
                     {
@@ -435,7 +436,8 @@ function isDate(date) {
                                 response: report
                             },
                             report
-                        );   
+                        ); 
+                        return;
                     }
                     else 
                     {
