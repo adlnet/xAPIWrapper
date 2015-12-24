@@ -192,8 +192,6 @@
         </div>
     </div>
     
-    
-    
     <script>
         var ENDPOINT = "https://lrs.adlnet.gov/xapi/";
         
@@ -249,7 +247,6 @@
         
         $('#endpoint').text(ENDPOINT);
         $('#endpoint').on('blur', function (thing) {
-            console.log(thing);
             var newendpoint = thing.target.innerText;
             if (newendpoint === ENDPOINT) return;
             ENDPOINT = newendpoint;
@@ -258,10 +255,9 @@
             offline.endpoint = ENDPOINT;
             updateWrapperConfig(wrapper);
             
+            offline.startChecking();
             
-            if ($('#checkonlinetoggle').prop('checked')) {
-                offline.startChecking();
-            } else {
+            if ( ! $('#checkonlinetoggle').prop('checked')) {
                 // stinking offline flag switches
                 offline.stopChecking();
             }
