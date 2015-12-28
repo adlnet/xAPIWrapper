@@ -9,8 +9,13 @@ describe('testing xAPI utilities', function () {
     //is it worth having a before to set up statements to be used throughout
     before(function () {
 
-        util = ADL.xapiutil;
-
+        if (typeof ADL !== 'undefined')
+            util = ADL.xapiutil;
+        else {
+            util = require('../../src/xapi-util').xapiutil;
+            should = require('should');
+        }
+// console.log(util);
         s1 = {actor:{mbox:"mailto:tom@tom.com", openid:"openid", mbox_sha1sum:"mbox_sha1sum", account:"wrapperTesting"}, verb:{id:"http://verb.com/do1"}, object:{id:"http://from.tom/act1", objectType:"StatementRef", definition:{name:{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
 
         s2 = {actor:{openid:"openid", mbox_sha1sum:"mbox_sha1sum", account:"wrapperTesting", name:"joe"}, verb:{id:"http://verb.com/do2"}, object:{objectType:"Agent", mbox:"mailto:joe@mail.com"}};

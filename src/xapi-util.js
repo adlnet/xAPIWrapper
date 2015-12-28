@@ -19,11 +19,14 @@
 
     ADL.xapiutil.getLang = function () {
         var lang;
-        if (navigator)
+        if (typeof navigator !== 'undefined')
             lang =  navigator.language || navigator.browserLanguage ||
             navigator.systemLanguage || navigator.userLanguage;
-        else if (process && process.env)
-            lang =  process.env.LANG;
+        else if (process && process.env) {
+            var str = process.env.LANG;
+            lang =  str.slice(0, str.indexOf('.'));
+            lang = lang.replace(/_/, '-')
+        }
         return lang || "en-US";
     };
 
