@@ -4,30 +4,37 @@ after(function () {
 
 describe('testing xAPI utilities', function () {
 
-    var util, s1, s2, s3, s4, s5, s6;
+    var util, s1, s2, s3, s4, s5, s6, onBrowser, stmts;
 
     //is it worth having a before to set up statements to be used throughout
     before(function () {
 
-        if (typeof ADL !== 'undefined')
+        onBrowser = false;
+        if (typeof window !== 'undefined') {
             util = ADL.xapiutil;
+            onBrowser = true;
+            // <script src="./test.statements.json">
+        }
         else {
             util = require('../../src/xapi-util').xapiutil;
             should = require('should');
+            // stmts = require('./../../examples/stmtBank').stmts;
         }
-// console.log(util);
-        s1 = {actor:{mbox:"mailto:tom@tom.com", openid:"openid", mbox_sha1sum:"mbox_sha1sum", account:"wrapperTesting"}, verb:{id:"http://verb.com/do1"}, object:{id:"http://from.tom/act1", objectType:"StatementRef", definition:{name:{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
 
-        s2 = {actor:{openid:"openid", mbox_sha1sum:"mbox_sha1sum", account:"wrapperTesting", name:"joe"}, verb:{id:"http://verb.com/do2"}, object:{objectType:"Agent", mbox:"mailto:joe@mail.com"}};
+        // s1 = stmts.stmt7 || {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
+        s1 =  {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
 
-        s3 = {actor:{mbox_sha1sum:"randomstringthatmakesnosensembox_sha1sum", account:"wrapperTesting"}, verb:{id:"http://verb.com/do3"}, object:{objectType:"Group", notid:"http://from.tom/act3", member:["joe"], name:"obiwan", mbox_sha1sum:"randomstringthatmakesnosensembox_sha1sum"}};
+        s2 = {"actor":{"openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting", "name":"joe"}, "verb":{id:"http://verb.com/do2"}, "object":{"objectType":"Agent", "mbox":"mailto:joe@mail.com"}};
 
-        s4 = {actor:{ account:{homePage:'http://adlnet.gov/test', name:"wrapperTesting"}}, verb:{ id:"http://verb.com/do4", "display":{ "en-US":"initialized" }}, object:{ notid:"http://from.tom/act4", objectType:"SubStatement", actor:{ mbox_sha1sum:"randomstringthatmakesnosensembox_sha1sum", account:"wrapperTesting"}, verb:{ id:"http://verb.com/do3"}, object:{ objectType:"Group", notid:"http://from.tom/act3", member:["joe"], mbox_sha1sum:"randomstringthatmakesnosensembox_sha1sum"}}};
+        s3 = {"actor":{"mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do3"}, "object":{"objectType":"Group", notid:"http://from.tom/act3", "member":["joe"], "name":"obiwan", "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}};
 
-        s5 = {actor:{member:["joe"]}, verb:{id:"http://verb.com/do5"}, object:{id:"http://from.tom/act5"}};
+        s4 = {"actor":{ "account":{"homePage":'http://adlnet.gov/test', "name":"wrapperTesting"}}, "verb":{ "id":"http://verb.com/do4", "display":{ "en-US":"initialized" }}, "object":{ "notid":"http://from.tom/act4", "objectType":"SubStatement", "actor":{ "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{ "id":"http://verb.com/do3"}, "object":{ "objectType":"Group", "notid":"http://from.tom/act3", "member":["joe"], "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}}};
 
-        s6 = {actor:{some:"thing else"}, verb:{id:"http://verb.com/do6"}, object:{some:'thing else'}};
+        s5 = {"actor":{"member":["joe"]}, "verb":{"id":"http://verb.com/do5"}, "object":{"id":"http://from.tom/act5"}};
+
+        s6 = {"actor":{"some":"thing else"}, "verb":{"id":"http://verb.com/do6"}, "object":{"some":'thing else'}};
     });
+
 
     describe('test getLang', function () {
         it('should get the language from the browser or node', function () {
@@ -35,11 +42,17 @@ describe('testing xAPI utilities', function () {
         });
     });
 
-    describe('test getMoreStatements', function () {
-        it('should get someone to come back and do this right', function () {
-            (util.getLang()).should.eql("en-US");
-        });
-    });
+    // describe('test getMoreStatements', function () {
+    //     if (typeof window !== 'undefined') {
+    //         it('should get more statements and a better description', function () {
+    //             (util.getMoreStatements(3, console.log)).should.eql("en-US");
+    //         });
+    //     } else {
+    //         it('should throw error', function () {
+    //             (util.getMoreStatements(3, console.log)).should.eql("Node not supported.");
+    //         });
+    //     }
+    // });
 
     describe('test getActorId', function () {
         it('should get the mailbox of the actor', function () {
@@ -90,8 +103,8 @@ describe('testing xAPI utilities', function () {
     });
 
     describe('test getVerbDisplay', function () {
-        it.skip('should return null with no verb', function () {
-            (util.getVerbDisplay(null)).should.eql("undefined");
+        it('should return null with no verb', function () {
+            ("undefined").should.equal(typeof util.getVerbDisplay());
         });
         it('should get the verb in the proper language', function () {
             (util.getVerbDisplay(s4.verb)).should.eql(s4.verb.display['en-US']);
@@ -123,8 +136,8 @@ describe('testing xAPI utilities', function () {
         it('should get the actor id, if no id and objectType is Group', function () {
             (util.getObjectId(s3.object)).should.eql(util.getActorId(s3.object));
         });
-        it.skip('should return undefined, if malformed', function () {
-            (util.getObjectId(s6.object)).should.eql('undefined');
+        it('should return undefined, if malformed', function () {
+            ('undefined').should.eql(typeof util.getObjectId(s6.object));
         });
     });
 
@@ -141,8 +154,8 @@ describe('testing xAPI utilities', function () {
             (util.getObjectIdString(s4.object)).should.be.String();
             (util.getObjectIdString(s4.object)).should.eql(s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
         });
-        it.skip('should return undefined, if those do not work', function () {
-            (util.getObjectIdString(s6.object).should.eql(undefined));
+        it('should return unknown, if those do not work', function () {
+            ('unknown').should.eql(util.getObjectIdString(s6.object));
         });
     });
 

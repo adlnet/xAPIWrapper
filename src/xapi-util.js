@@ -1,7 +1,9 @@
 (function (obj) {
     var ADL = obj;
+    var onBrowser = false;
     if (typeof window !== 'undefined') {
         ADL = window.ADL = obj.ADL || {};
+        onBrowser = true;
     }
 
     var getObjDefName = function (o) {
@@ -11,8 +13,23 @@
         return undefined;
     };
 
-    var getSubStatementDisplay = function (o) {
+    /*
+    A Sub-Statement is a new Statement included as part of a parent Statement.
+    https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#sub-statements
 
+    Requirements
+        A Sub-Statement MUST specify an "objectType" property with the value "SubStatement".
+        A Sub-Statement MUST be validated as a Statement in addition to other Sub-Statement requirements.
+        A Sub-Statement MUST NOT have the "id", "stored", "version" or "authority" properties.
+        A Sub-Statement MUST NOT contain a Sub-Statement of their own, i.e., cannot be nested.
+    */
+
+    var getSubStatementDisplay = function (o) {
+        if(o.objectType !== "SubStatement") return;
+        if(o.object.objectType === "SubStatement") return;
+        if(o.id || o.stored || o.version || o.authority) return;
+        var disp =  ADL.xapiutil.getActorId(o.actor) + ":" + ADL.xapiutil.getVerbDisplay(o.verb) + ":" + ADL.xapiutil.getObjectId(o.object);
+        return disp;
     };
 
     ADL.xapiutil = {};
@@ -30,9 +47,19 @@
         return lang || "en-US";
     };
 
-    ADL.xapiutil.getMoreStatements = function (iterations, callback) {
+    ADL.xapiutil.getMoreStatements = function (iterations, callback, searchParams) {
+        if (!onBrowser) throw new Error("Node not supported.");
         var stmts = [];
-        ADL.XAPIWrapper.getStatements(null,null, function getMore(r) {
+
+        var conf = {
+         "endpoint" : "https://lrs.adlnet.gov/xapi/",
+         "user" : "iitsecDemo",
+         "password" : "1234",
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
+
+        console.log(onBrowser, ADL.XAPIWrapper);
+        ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
             if (! (r && r.response) ) return;
             var res = JSON.parse(r.response);
             if (! res.statements) return;
@@ -43,7 +70,7 @@
             }
             else {
                 if (res.more && res.more !== "") {
-                    ADL.XAPIWrapper.getStatements(null, res.more, getMore);
+                    ADL.XAPIWrapper.getStatements(searchParams, res.more, getMore);
                 }
             }
         });
@@ -88,8 +115,10 @@
         if (o.id) return o.id;
         var type = ADL.xapiutil.getObjectType(o);
         if (type === "Agent" || type === "Group") return ADL.xapiutil.getActorIdString(o);
-        else if (type == "SubStatement") return ADL.xapiutil.getActorId(o.actor) + ":" + o.verb.id + ":" + ADL.xapiutil.getObjectId(o.object);
-        return undefined;
+        else if (type == "SubStatement") {
+            return getSubStatementDisplay(o);
+        }
+        return 'unknown';
     };
 
     ADL.xapiutil.getObjectDisplay = function (o) {
@@ -97,7 +126,9 @@
         if (! disp) {
             var type = ADL.xapiutil.getObjectType(o);
             if (type === "Agent" || type == "Group") disp = ADL.xapiutil.getActorDisplay(o);
-            else if (type == "SubStatement") disp = ADL.xapiutil.getActorId(o.actor) + ":" + o.verb.id + ":" + ADL.xapiutil.getObjectId(o.object);
+            else if (type == "SubStatement") {
+                disp = getSubStatementDisplay(o);
+            }
         }
 
         return disp;
