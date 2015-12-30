@@ -196,7 +196,7 @@
         var ENDPOINT = "https://lrs.adlnet.gov/xapi/";
         
         var offline = new ADL.Offline({
-            endpoint: ENDPOINT,
+//            endpoint: ENDPOINT,  let the wrapper set it
 //            checkInterval: 10,  works
             onOffline: function () {
                 console.log('onoffline');
@@ -411,7 +411,10 @@
                     }
                 }
             } else {
-                text = "Successfully sent " + thing.id;
+                if ( resp.id )
+                    text = "Successfully sent " + resp.id;
+                else
+                    text = thing;
             }
 
             var p = $('<p>').addClass(spanclass).html(text);

@@ -115,32 +115,38 @@ function isDate(date) {
     XAPIWrapper = function(config, verifyxapiversion)
     {
         this.lrs = getLRSObject(config || {});
+        configure.call(this, config);
         
-        if (this.lrs.user && this.lrs.password)
-            updateAuth(this.lrs, this.lrs.user, this.lrs.password);
-        this.base = getbase(this.lrs.endpoint);
         
-        this.validator = config.validator;
-        this.storage = config.storage;
-        this.offline = config.offline;
-        var wrapper = this;
-        if (this.offline && this.storage) {
-            var oldcb = this.offline.onlineCB||function(){};
-            this.offline.on('online', function () {
-                oldcb();
-                var id = setInterval(function () {
-                    if(! this.offline.isOffline() && this.storage.hasStatements()) {
-                        var stored = this.storage.getStatements();
-                        if (Array.isArray(stored)) {
-                            this.sendStatements(stored);
+        function configure(config) {
+            if (this.lrs.user && this.lrs.password)
+                updateAuth(this.lrs, this.lrs.user, this.lrs.password);
+            this.base = getbase(this.lrs.endpoint);
+
+            this.validator = config.validator;
+            this.storage = config.storage;
+            this.offline = config.offline;
+            if (this.offline)
+                this.offline.endpoint = this.lrs.endpoint;
+            var wrapper = this;
+            if (this.offline && this.storage) {
+                var oldcb = this.offline.onlineCB||function(){};
+                this.offline.on('online', function () {
+                    oldcb();
+                    var id = setInterval(function () {
+                        if(! wrapper.offline.isOffline() && wrapper.storage.hasStatements()) {
+                            var stored = wrapper.storage.getStatements();
+                            if (Array.isArray(stored)) {
+                                wrapper.sendStatements(stored, function () {});
+                            } else {
+                                wrapper.sendStatement(stored, function () {});
+                            }
                         } else {
-                            this.sendStatement(stored);
+                            clearInterval(id);
                         }
-                    } else {
-                        clearInterval(id);
-                    }
-                }, this.offline._interval, wrapper);
-            });
+                    }, wrapper.offline._interval, wrapper);
+                });
+            }
         }
 
         function getbase(url)
@@ -216,32 +222,7 @@ function isDate(date) {
             {
                 ADL.XAPIWrapper.log("updating lrs object with new configuration");
                 this.lrs = mergeRecursive(this.lrs, config);
-                if (config.user && config.password)
-                    this.updateAuth(this.lrs, config.user, config.password);
-                this.base = getbase(this.lrs.endpoint);
-                
-                this.validator = config.validator;
-                this.storage = config.storage;
-                this.offline = config.offline;
-                var wrapper = this;
-                if (this.offline && this.storage) {
-                    var oldcb = this.offline.onlineCB||function(){};
-                    offline.on('online', function () {
-                        oldcb();
-                        var id = setInterval(function () {
-                            if(! wrapper.offline.isOffline() && wrapper.storage.hasStatements()) {
-                                var stored = wrapper.storage.getStatements();
-                                if (Array.isArray(stored)) {
-                                    wrapper.sendStatements(stored);
-                                } else {
-                                    wrapper.sendStatement(stored);
-                                }
-                            } else {
-                                clearInterval(id);
-                            }
-                        }, offline._interval, wrapper);
-                    });
-                }
+                configure.call(this, config);
             }
             catch(e)
             {
@@ -381,6 +362,7 @@ function isDate(date) {
                 if (callback) 
                 {
                     callback(response.xhr, response.id);
+                    return;
                 }
                 else return response;
             }
@@ -453,12 +435,15 @@ function isDate(date) {
             {
                 this.storage.saveStatements(stmtArray);
                 var response = {
-                    status: 200,
-                    responseText: "Statements Saved"
+                    xhr: {
+                        status: 200,
+                        responseText: "Statements Saved"
+                    }
                 };
                 if (callback) 
                 {
-                    callback(response.xhr);
+                    callback(response.xhr, response.xhr.responseText);
+                    return;
                 }
                 else return response;
             }
