@@ -360,11 +360,6 @@
         }
     };
 
-    var remainingSpace = function () {
-        if (localStorage.remainingSpace) return localStorage.remainingSpace;
-        return maxsize - parseInt(getADLStorage()[metakey][sizekey]);
-    };
-
     var hasSpace = function (size) {
         return parseInt(getADLStorage()[metakey][sizekey]) < maxsize;
     };
