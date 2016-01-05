@@ -13,17 +13,6 @@
         return undefined;
     };
 
-    /*
-    A Sub-Statement is a new Statement included as part of a parent Statement.
-    https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#sub-statements
-
-    Requirements
-        A Sub-Statement MUST specify an "objectType" property with the value "SubStatement".
-        A Sub-Statement MUST be validated as a Statement in addition to other Sub-Statement requirements.
-        A Sub-Statement MUST NOT have the "id", "stored", "version" or "authority" properties.
-        A Sub-Statement MUST NOT contain a Sub-Statement of their own, i.e., cannot be nested.
-    */
-
     var getSubStatementDisplay = function (o) {
         if(o.objectType !== "SubStatement") return;
         if(o.object.objectType === "SubStatement") return;
@@ -51,14 +40,6 @@
         if (!onBrowser) throw new Error("Node not supported.");
         var stmts = [];
 
-        var conf = {
-         "endpoint" : "https://lrs.adlnet.gov/xapi/",
-         "user" : "iitsecDemo",
-         "password" : "1234",
-        };
-        ADL.XAPIWrapper.changeConfig(conf);
-
-        console.log(onBrowser, ADL.XAPIWrapper);
         ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
             if (! (r && r.response) ) return;
             var res = JSON.parse(r.response);
