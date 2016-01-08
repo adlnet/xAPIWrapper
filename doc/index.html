@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>xAPIWrapper 1.6.0 Reference</title>
+
+        <link rel="stylesheet" href="static/bootstrap.min.css">
+        <link rel="stylesheet" href="static/prism.css">
+
+        <style type="text/css">
+
+            .wrap {
+                display: -webkit-flex;
+                display: flex;
+            }
+
+            h1 {
+                color: #FFF;
+                background-color: #333;
+                margin: 0 0 0.3em 0;
+                padding: 5px;
+                font-size: 20px;
+            }
+
+            nav {
+                width: 200px;
+            }
+
+            .content {
+                -webkit-flex: 1;
+                flex: 1;
+                max-width: 1000px;
+            }
+
+            section > .block {
+                padding-left: 3em;
+            }
+
+            h3 {
+                font-size: 28px;
+                letter-spacing: 2px;
+            }
+
+            h3 em {
+                letter-spacing: 0;
+                color: #DDD;
+            }
+
+            pre code {
+                font-family: Courier, monospace !important;
+                font-weight: normal;
+                color: #222222 !important;
+            }
+
+            pre[class*="language-"] {
+                margin-top: 0;
+                /*padding-top: 0;*/
+            }
+
+            nav ul {
+                padding-left: 1em;
+                list-style: none;
+            }
+
+            .nav ul ul a {
+                padding: 0 10px;
+            }
+
+            .nav-tabs {
+                margin-top: 1em;
+            }
+
+            .nav-tabs li a {
+                padding: 4px 15px;
+                font-weight: 700;
+            }
+
+            .nav-tabs li.active a {
+                border-color: #ccc;
+                border-bottom-color: transparent;
+                background-color: #f5f2f0;
+                color: #333;
+            }
+            .nav-tabs>li.active>a, .nav-tabs>li.active>a:hover, .nav-tabs>li.active>a:focus {
+                background-color: #f5f2f0;
+            }
+
+            /*code,*/
+            pre {
+                /*background-color: #FFF !important;*/
+                border-top: none;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+
+            .table {
+                border: none;
+                width: auto;
+            }
+            .table>tbody>tr>td,
+            .table>thead>tr>th {
+                border: none;
+            }
+            .table-condensed>thead>tr>th,
+            .table-condensed>tbody>tr>td {
+                padding: 3px 10px 3px 0;
+            }
+            section {
+                margin: 0;
+            }
+        </style>
+
+    </head>
+
+    <body>
+
+        <h1>xAPIWrapper 1.6.0 Reference</h1>
+
+        <div class="wrap">
+
+            <nav>
+                <ul>
+                </ul>
+            </nav>
+
+            <div class="content">
+
+            </div>
+        </div>
+        <script src="static/domtastic.min.js"></script>
+        <script>
+            $('.content').on('click', '.nav-tabs a', function(event) {
+
+                event.preventDefault();
+
+                var tabContainer = $(event.target).closest('.nav-tabs'),
+                        tabs = tabContainer.find('li'),
+                        tabsContent = tabContainer.parent().find('.tab-pane'),
+                        index = tabContainer.find('a').indexOf(event.target);
+
+                tabs.removeClass('active').eq(index).addClass('active');
+                tabsContent.removeClass('active').eq(index).addClass('active');
+
+            });
+        </script>
+        <script src="static/prism.js"></script>
+    </body>
+</html>
