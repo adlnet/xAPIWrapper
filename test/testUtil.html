@@ -24,7 +24,9 @@
     <script type="text/javascript" src="../lib/cryptojs_v3.1.2.js"></script>
     <script type="text/javascript" src="../src/verbs.js"></script>
     <script type="text/javascript" src="../src/xapistatement.js"></script>
-    <script type="text/javascript" src="../src/xapiwrapper.js"></script>
+<!--    <script type="text/javascript" src="../src/xapiwrapper.js"></script> -->
+    <script type="text/javascript" src="./my.mock.wrapper.js"></script>
+    <script type="text/javascript" src="../examples/stmtBank.js"></script>
 
     <script src="../src/xapi-util.js" data-cover></script>
 
@@ -33,6 +35,12 @@
     </script>
     <script src="./tests/test.util.js"></script>
     <script>
+        var conf = {
+         "endpoint" : "https://lrs.adlnet.gov/xapi/",
+         "user" : "iitsecDemo",
+         "password" : "1234",
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
 
         mocha.checkLeaks();
         mocha.globals(['jQuery','grandTotalTemplate','blanket_toggleSource']);

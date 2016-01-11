@@ -20,13 +20,13 @@ describe('testing xAPI utilities', function () {
             should = require('should');
             // stmts = require('./../../examples/stmtBank').stmts;
         }
-
+console.log("station one", util);
         // s1 = stmts.stmt7 || {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
         s1 =  {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
 
-        s2 = {"actor":{"openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting", "name":"joe"}, "verb":{id:"http://verb.com/do2"}, "object":{"objectType":"Agent", "mbox":"mailto:joe@mail.com"}};
+        s2 = {"actor":{"openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting", "name":"joe"}, "verb":{"id":"http://verb.com/do2"}, "object":{"objectType":"Agent", "mbox":"mailto:joe@mail.com"}};
 
-        s3 = {"actor":{"mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do3"}, "object":{"objectType":"Group", notid:"http://from.tom/act3", "member":["joe"], "name":"obiwan", "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}};
+        s3 = {"actor":{"mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do3"}, "object":{"objectType":"Group", 'notid':"http://from.tom/act3", "member":["joe"], "name":"obiwan", "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}};
 
         s4 = {"actor":{ "account":{"homePage":'http://adlnet.gov/test', "name":"wrapperTesting"}}, "verb":{ "id":"http://verb.com/do4", "display":{ "en-US":"initialized" }}, "object":{ "notid":"http://from.tom/act4", "objectType":"SubStatement", "actor":{ "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{ "id":"http://verb.com/do3"}, "object":{ "objectType":"Group", "notid":"http://from.tom/act3", "member":["joe"], "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}}};
 
@@ -42,17 +42,29 @@ describe('testing xAPI utilities', function () {
         });
     });
 
-    // describe('test getMoreStatements', function () {
-    //     if (typeof window !== 'undefined') {
-    //         it('should get more statements and a better description', function () {
-    //             (util.getMoreStatements(3, console.log)).should.eql("en-US");
-    //         });
-    //     } else {
-    //         it('should throw error', function () {
-    //             (util.getMoreStatements(3, console.log)).should.eql("Node not supported.");
-    //         });
-    //     }
-    // });
+    describe('test getMoreStatements', function () {
+        console.log("station two", util);
+        if (typeof window !== 'undefined') {
+            it('should test getMoreStatements in the browser', function () {
+                (util.getMoreStatements(1, function (stmts) {
+                    stmts.length.should.eql(16);//8);
+                    Array.isArray(stmts).should.eql(true);
+                    stmts.should.be.type('object');
+                    util.getLang().should.eql("en-US");
+                    util.getActorId(stmts[0].actor).should.eql(stmts[0].actor.mbox);
+                    util.getVerbDisplay(stmts[7].verb).should.eql("attended");
+                    util.getObjectType(stmts[5].object).should.eql("Group");
+                })
+            )});
+        } else {
+            console.log(util.getMoreStatements(3, function(r) {console.log(r);}));
+
+            it('should throw error', function () {
+                // (util.getMoreStatements.should.match("Error: Node not supported.");
+                (util.getMoreStatements(3, function (r) {console.log(r)})).should.match("Error: Node not supported.");
+            });
+        }
+    });
 
     describe('test getActorId', function () {
         it('should get the mailbox of the actor', function () {
@@ -176,6 +188,5 @@ describe('testing xAPI utilities', function () {
             (util.getObjectDisplay(s4.object)).should.eql(s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
         });
     });
-
 
 })
