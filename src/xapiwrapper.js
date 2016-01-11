@@ -1327,7 +1327,8 @@ function isDate(date) {
         }
         
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        if (!xDomainRequest || typeof(XDomainRequest) === 'undefined') {
+        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+        if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
             xhr = new XMLHttpRequest();
             xhr.open(method, url, callback != null);
             for(var headerName in headers){
