@@ -6,7 +6,6 @@ describe('testing xAPI utilities', function () {
 
     var util, s1, s2, s3, s4, s5, s6, onBrowser, stmts;
 
-    //is it worth having a before to set up statements to be used throughout
     before(function () {
 
         onBrowser = false;
@@ -18,10 +17,8 @@ describe('testing xAPI utilities', function () {
         else {
             util = require('../../src/xapi-util').xapiutil;
             should = require('should');
-            // stmts = require('./../../examples/stmtBank').stmts;
         }
-console.log("station one", util);
-        // s1 = stmts.stmt7 || {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
+
         s1 =  {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
 
         s2 = {"actor":{"openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting", "name":"joe"}, "verb":{"id":"http://verb.com/do2"}, "object":{"objectType":"Agent", "mbox":"mailto:joe@mail.com"}};
@@ -43,11 +40,11 @@ console.log("station one", util);
     });
 
     describe('test getMoreStatements', function () {
-        console.log("station two", util);
-        if (typeof window !== 'undefined') {
+        if (typeof window !== 'undefined')
+        {
             it('should test getMoreStatements in the browser', function () {
-                (util.getMoreStatements(1, function (stmts) {
-                    stmts.length.should.eql(16);//8);
+                (util.getMoreStatements(3, function (stmts) {
+                    stmts.length.should.eql(8);
                     Array.isArray(stmts).should.eql(true);
                     stmts.should.be.type('object');
                     util.getLang().should.eql("en-US");
@@ -56,12 +53,14 @@ console.log("station one", util);
                     util.getObjectType(stmts[5].object).should.eql("Group");
                 })
             )});
-        } else {
-            console.log(util.getMoreStatements(3, function(r) {console.log(r);}));
-
+        }
+        else
+        {
+            //this doesn't work, I think it should but it doesn't, if you can fix it go ahead, and then please let me know what was wrong, i'm out to see if I can find any remnants of my sanity
             it('should throw error', function () {
                 // (util.getMoreStatements.should.match("Error: Node not supported.");
-                (util.getMoreStatements(3, function (r) {console.log(r)})).should.match("Error: Node not supported.");
+                (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
+                // (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
             });
         }
     });

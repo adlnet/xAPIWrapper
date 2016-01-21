@@ -38,6 +38,7 @@
 
     ADL.xapiutil.getMoreStatements = function (iterations, callback, searchParams) {
         if (!onBrowser) throw new Error("Node not supported.");
+
         var stmts = [];
 
         ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {

@@ -845,22 +845,42 @@ function isDate(date) {
      */
     ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
     {
-        console.log("You have reached the XHR_request function.", ADL.stmts);
+
         var arrstmts = [];
-        // console.log(arrstmts, "empty begin filling");
-        for (var s in ADL.stmts) {
-            // console.log(ADL.stmts[s]);
-            // console.log("What;s up", ADL.stmts.hasOwnProperty(s));
-            if (ADL.stmts.hasOwnProperty(s)) {
-                arrstmts.push(ADL.stmts[s]);
-            }
+
+        var urlparts = url.split('/');
+
+        var index = urlparts[urlparts.length - 1];
+
+        var numstmts = Object.keys(ADL.stmts).length;
+        var cutoff = 3; //only send 4 statements at a time
+        if (index == "statements")
+        {
+            index = 0;
         }
-        // console.log('full:', arrstmts);
+        else
+        {
+            index = parseInt(index);
+        }
+        if (cutoff > (numstmts - index))
+        {
+            cutoff = numstmts - index;
+        }
+        for (var i = 0; i < cutoff; i++)
+        {
+            arrstmts.push(ADL.stmts["stmt" + (i + index)])
+        }
+        var morestmts = "";
+        if ((index + cutoff) < numstmts)
+        {
+            morestmts = "/" + (index + cutoff);
+        }
+
         var response = {
             statements: arrstmts,
-            more: "Hi"};
+            more: morestmts};
         response = JSON.stringify(response);
-        // console.log(response);
+
         callback({response});
         // "use strict";
         //
@@ -994,5 +1014,4 @@ function isDate(date) {
     ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){};
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
-console.log("Hi Tommy, you've reached the mock wrapper");
 }(window.ADL = window.ADL || {}));

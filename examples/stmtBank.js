@@ -9,19 +9,29 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
         ADL = window.ADL = obj.ADL || {};
     }
     ADL.stmts = {
-        /* 0 Simplest possible statement - Actor-Verb-Object */
+        /* Requirements:
+            A Statement MUST use each property no more than one time.
+            A Statement MUST use “actor”, “verb”, and “object”.
+            A Statement MAY use its properties in any order.
+        */
+        /* 0 An example of the simplest possible Statement using all properties that MUST or SHOULD be used: Actor-Verb-Object and Statement Id
+        */
         stmt0: {
-        	"actor": {
-        		"mbox": "mailto:tom@tom.com"
-        	},
-        	"verb": {
-        		"id": "http://verb.com/do0"
-        	},
-        	"object": {
-        		"id": "http://from.tom/act0"
-        	}
+            "id": "12345678-1234-5678-1234-567812345678",
+            "actor":{
+                "mbox":"mailto:xapi@adlnet.gov"
+            },
+            "verb":{
+                "id":"http://adlnet.gov/expapi/verbs/created",
+                "display":{
+                    "en-US":"created"
+                }
+            },
+            "object":{
+                "id":"http://example.adlnet.gov/xapi/example/activity"
+            }
         },
-        /* 1 Simple statement featured at the xapi specify https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#AppendixA
+        /* 1 Actor Agent - Simple statement featured at the xapi spec https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#AppendixA
         features Actor-Verb-Object with UUID */
         stmt1: {
             "id":"fd41c918-b88b-4b20-a0a5-a4c32391aaa0",
@@ -48,6 +58,75 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                 }
             }
         },
+        /* 2 Actor Group - Simple Statment with the Actor of type Group */
+        stmt2: {
+            "actor": {
+                "mbox": "mailto:teamxapi@example.com",
+                "account": {
+                    "homePage": "http://example.com/homePage",
+                    "name": "GroupAccount"
+                },
+                "name": "Example Group",
+                "member": [
+                    {
+                        "name": "Andrew Downes",
+                        "mbox": "mailto:andrew@example.com",
+                        "objectType": "Agent"
+                    },
+                    {
+                        "name": "Aaron Silvers",
+                        "openid": "http://aaron.openid.example.org",
+                        "objectType": "Agent"
+                    }
+                ],
+                "objectType": "Group"
+            },
+            "verb": {
+                "id": "http://adlnet.gov/expapi/verbs/created",
+                "display": {
+                    "en-US": "created"
+                }
+            },
+            "object": {
+                "id": "http://example.adlnet.gov/xapi/example/activity",
+                "definition": {
+                    "name": {
+                        "en-US": "Example Activity"
+                    },
+                    "description": {
+                        "en-US": "Example activity description"
+                    }
+                },
+                "objectType": "Activity"
+            }
+        }
+        /* 3 Actor Inverse Functional Identifier (IFI) mbox - Simple Statment with the Actor IFI mbox_sha1sum. */
+        stmt3: {
+            "actor": {
+                "mbox_sha1sum": "6a113390c5a05e6e345e0f559e03a1b294c2c3a3",
+                "objectType": "Agent"
+            },
+            "verb": {
+                "id": "http://adlnet.gov/expapi/verbs/created",
+                "display": {
+                    "en-US": "created"
+                }
+            },
+            "object": {
+                "id": "http://example.adlnet.gov/xapi/example/activity",
+                "definition": {
+                    "name": {
+                        "en-US": "Example Activity"
+                    },
+                    "description": {
+                        "en-US": "Example activity description"
+                    }
+                },
+                "objectType": "Activity"
+            }
+        },
+        /* 4 Actor IFI Openid - Simple Statement with the Actor IFI openid */
+        stmt4:
         /* 2 Verb = attempted, and a Result section */
         stmt2: {
             "actor":{
