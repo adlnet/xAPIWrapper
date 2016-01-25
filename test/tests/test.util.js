@@ -44,13 +44,14 @@ describe('testing xAPI utilities', function () {
         {
             it('should test getMoreStatements in the browser', function () {
                 (util.getMoreStatements(3, function (stmts) {
-                    stmts.length.should.eql(8);
+                    stmts.length.should.eql(12);
                     Array.isArray(stmts).should.eql(true);
                     stmts.should.be.type('object');
                     util.getLang().should.eql("en-US");
                     util.getActorId(stmts[0].actor).should.eql(stmts[0].actor.mbox);
-                    util.getVerbDisplay(stmts[7].verb).should.eql("attended");
-                    util.getObjectType(stmts[5].object).should.eql("Group");
+                    util.getVerbDisplay(stmts[7].verb).should.eql("preferred");
+                    // util.getVerbDisplay("stmts[7].verb").should.eql("preferred");
+                    util.getObjectType(stmts[10].object).should.eql("Group");
                 })
             )});
         }
