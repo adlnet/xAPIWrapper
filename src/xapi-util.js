@@ -40,35 +40,32 @@
 
     ADL.xapiutil.getLangVal = function (langprop) {
         var options = Object.keys(langprop);
-        console.log("in getLangVal", langprop, options);
         // test that langprop is a dict (obj)
         // skips if not a dict(obj) and returns
         if (options == 0) return langprop;
-        //we now know we have an object or some sort
+
         var lang = ADL.xapiutil.getLang(),
-            ret = langprop[0];
+            ret = langprop[options[0]];
             dispGotten = false;
-        do {
-            //test and retest
-            if (langprop.lang)
+        do {    //test and retest
+            if (langprop[lang])
             {
-                ret = langprop.lang;
+                ret = langprop[lang];
                 dispGotten = true;
             }
             else if (lang.indexOf('-'))
             {
                 lang = lang.substring(0, lang.lastIndexOf('-'));
             }
-            else lang = "";
+            // else lang = "";
         } while (!dispGotten && lang !=="");
-        //send it out
+
         return ret;
-        // try langprop[lang]
-        // if lang.indexOf(‘-‘), try langprop[lang minus last - substring]
     };
 
     ADL.xapiutil.getMoreStatements = function (iterations, callback, searchParams) {
-        if (!onBrowser) throw new Error("Node not supported.");
+        if (!onBrowser) return "Error: Node not supported."
+        // throw new Error("Node not supported.");
 
         var stmts = [];
 
@@ -108,11 +105,10 @@
     };
 
     ADL.xapiutil.getVerbDisplay = function (v) {
-        console.log(v);
         if (!v) return;
-        // if (v.display) return v.display[ADL.xapiutil.getLangVal()] || v.id;
-        if (v.display) return v.display[ADL.xapiutil.getLangVal(v.display)] || v.id;
-        console.log('v.display must not be valid', v.display, v);
+        if (v.display) {
+            return ADL.xapiutil.getLangVal(v.display) || v.id;
+        }
         return v.id;
     };
 

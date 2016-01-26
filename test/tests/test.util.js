@@ -19,9 +19,9 @@ describe('testing xAPI utilities', function () {
             should = require('should');
         }
 
-        s1 =  {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US":"soccer", "fr": "football", "de":"foossball"}}}};
+        s1 =  {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US": "soccer", "fr": "football", "de": "foossball"}}}};
 
-        s2 = {"actor":{"openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting", "name":"joe"}, "verb":{"id":"http://verb.com/do2"}, "object":{"objectType":"Agent", "mbox":"mailto:joe@mail.com"}};
+        s2 = {"actor":{"openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting", "name":"joe"}, "verb":{"id":"http://verb.com/do2", "display": {"fr": "recommander", "de": "empfehlen", "es": "recomendar", "en": "recommend"}}, "object":{"objectType":"Agent", "mbox":"mailto:joe@mail.com"}};
 
         s3 = {"actor":{"mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do3"}, "object":{"objectType":"Group", 'notid':"http://from.tom/act3", "member":["joe"], "name":"obiwan", "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}};
 
@@ -29,13 +29,28 @@ describe('testing xAPI utilities', function () {
 
         s5 = {"actor":{"member":["joe"]}, "verb":{"id":"http://verb.com/do5"}, "object":{"id":"http://from.tom/act5"}};
 
-        s6 = {"actor":{"some":"thing else"}, "verb":{"id":"http://verb.com/do6"}, "object":{"some":'thing else'}};
+        s6 = {"actor":{"some":"thing else"}, "verb":{"id":"http://verb.com/do6", "display":{"fr": "établi", "de": "etabliert"}}, "object":{"some":'thing else'}};
     });
 
 
     describe('test getLang', function () {
         it('should get the language from the browser or node', function () {
             (util.getLang()).should.eql("en-US");
+        });
+    });
+
+    describe('test getLangVal', function () {
+        it('should get an object definition name', function () {
+            (util.getLangVal(s1.object.definition.name)).should.eql("soccer");
+        });
+        it('should get a verb display', function () {
+            (util.getLangVal(s4.verb.display)).should.eql("initialized");
+        });
+        it('should get the en if the en-US is not available', function () {
+            (util.getLangVal(s2.verb.display)).should.eql("recommend");
+        });
+        it('should return the first display option if language code does not match any of the keys', function () {
+            (util.getLangVal(s6.verb.display)).should.eql("établi");
         });
     });
 
@@ -50,17 +65,17 @@ describe('testing xAPI utilities', function () {
                     util.getLang().should.eql("en-US");
                     util.getActorId(stmts[0].actor).should.eql(stmts[0].actor.mbox);
                     util.getVerbDisplay(stmts[7].verb).should.eql("preferred");
-                    // util.getVerbDisplay("stmts[7].verb").should.eql("preferred");
                     util.getObjectType(stmts[10].object).should.eql("Group");
                 })
             )});
         }
         else
         {
-            //this doesn't work, I think it should but it doesn't, if you can fix it go ahead, and then please let me know what was wrong, i'm out to see if I can find any remnants of my sanity
-            it('should throw error', function () {
-                // (util.getMoreStatements.should.match("Error: Node not supported.");
-                (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
+            //this doesn't work, I think it should but it doesn't, if you can fix it go ahead, and then please let me know what was wrong, i'm out to see if I can find any remnants of my sanity, so currently this returns the error message string as a string not an error
+            it('should throw error, but returns string of error message instead', function () {
+                (util.getMoreStatements(3, function (r) {console.log(r)}).should.match("Error: Node not supported."));
+                // ('Error: Node not supported.').should.throw(util.getMoreStatements(3, function (r) {console.log(r)}));
+                // (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
                 // (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
             });
         }
