@@ -8,7 +8,6 @@
 
     var getObjDefName = function (o) {
         if (o.definition && o.definition.name) {
-            // return o.definition.name[ADL.xapiutil.getLangVal()];
             return ADL.xapiutil.getLangVal(o.definition.name);
         }
         return undefined;
@@ -39,13 +38,14 @@
     };
 
     ADL.xapiutil.getLangVal = function (langprop) {
+//test for undefined first
         var options = Object.keys(langprop);
         // test that langprop is a dict (obj)
         // skips if not a dict(obj) and returns
-        if (options == 0) return langprop;
+        if (options.length == 0) return undefined;
 
         var lang = ADL.xapiutil.getLang(),
-            ret = langprop[options[0]];
+            ret = langprop[options[0]];//make undefined
             dispGotten = false;
         do {    //test and retest
             if (langprop[lang])
@@ -57,18 +57,16 @@
             {
                 lang = lang.substring(0, lang.lastIndexOf('-'));
             }
-            // else lang = "";
         } while (!dispGotten && lang !=="");
 
         return ret;
     };
 
     ADL.xapiutil.getMoreStatements = function (iterations, callback, searchParams) {
-        if (!onBrowser) return "Error: Node not supported."
-        // throw new Error("Node not supported.");
+        if (!onBrowser) throw new Error("Node not supported.");
 
         var stmts = [];
-
+// debugger;
         ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
             if (! (r && r.response) ) return;
             var res = JSON.parse(r.response);
@@ -79,8 +77,13 @@
                 callback(stmts);
             }
             else {
-                if (res.more && res.more !== "") {
+                if (res.more && res.more !== "")
+                {
                     ADL.XAPIWrapper.getStatements(searchParams, res.more, getMore);
+                }
+                else if (res.more === "")
+                {
+                    callback(stmts);
                 }
             }
         });

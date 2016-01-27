@@ -15,9 +15,9 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             A Statement MAY use its properties in any order.
         */
 
-        /* 0 An example of the simplest possible Statement using all properties that MUST or SHOULD be used: Actor-Verb-Object and Statement Id
+        /* An example of the simplest possible Statement using all properties that MUST or SHOULD be used: Actor-Verb-Object and Statement Id
         */
-        stmt0: {
+        "Base-Statement": {
             "actor": {
                 "mbox": "mailto:xapi@adlnet.gov",
                 "objectType": "Agent"
@@ -43,9 +43,9 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "12345678-1234-5678-1234-567812345678"
         },
 
-        /* 1 Actor Agent - Simple statement featured at the xapi spec https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#AppendixA
+        /* Actor Agent - Simple statement featured at the xapi spec https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#AppendixA
         features Actor-Verb-Object with UUID */
-        stmt1: {
+        "Actor-Agent": {
             "actor": {
                 "mbox": "mailto:user@example.com",
                 "name": "Project Tin Can API",
@@ -80,28 +80,8 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "fd41c918-b88b-4b20-a0a5-a4c32391aaa0"
         },
 
-        /* 2 Actor Group - Simple Statment with the Actor of type Group */
-        stmt2: {
-            "verb": {
-                "id": "http://adlnet.gov/expapi/verbs/created",
-                "display": {
-                    "en-US": "created"
-                }
-            },
-            "version": "1.0.1",
-            "timestamp": "2016-01-25T20:15:46.622339+00:00",
-            "object": {
-                "definition": {
-                    "name": {
-                        "en-US": "Example Activity"
-                    },
-                    "description": {
-                        "en-US": "Example activity description"
-                    }
-                },
-                "id": "http://example.adlnet.gov/xapi/example/activity",
-                "objectType": "Activity"
-            },
+        /* Actor Group - Simple Statment with the Actor of type Identified Group */
+        "Actor-Id-Group": {
             "actor": {
                 "member": [
                     {
@@ -122,6 +102,26 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                 "name": "Example Group",
                 "objectType": "Group"
             },
+            "verb": {
+                "id": "http://adlnet.gov/expapi/verbs/created",
+                "display": {
+                    "en-US": "created"
+                }
+            },
+            "version": "1.0.1",
+            "timestamp": "2016-01-25T20:15:46.622339+00:00",
+            "object": {
+                "definition": {
+                    "name": {
+                        "en-US": "Example Activity"
+                    },
+                    "description": {
+                        "en-US": "Example activity description"
+                    }
+                },
+                "id": "http://example.adlnet.gov/xapi/example/activity",
+                "objectType": "Activity"
+            },
             "stored": "2016-01-25T20:15:46.622339+00:00",
             "authority": {
               "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
@@ -131,8 +131,54 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "65135a9a-b656-4445-9ffc-206ff22431c3"
         },
 
-        /* 3 Actor Inverse Functional Identifier (IFI) mbox - Simple Statment with the Actor IFI mbox_sha1sum. */
-        stmt3: {
+        /* Anonymous Group - the Actor is of type Anonymous Group */
+        "Actor-Anon-Group": {
+            "actor": {
+                "member": [
+                    {
+                        "mbox": "mailto:andrew@example.com",
+                        "name": "Andrew Downes",
+                        "objectType": "Agent"
+                    },
+                    {
+                        "openid": "http://aaron.openid.example.org",
+                        "name": "Aaron Silvers",
+                        "objectType": "Agent"
+                    }
+                ],
+                "objectType": "Group"
+            },
+            "verb": {
+                "id": "http://adlnet.gov/expapi/verbs/completed",
+                "display": {
+                    "en-US": "completed"
+                }
+            },
+            "version": "1.0.1",
+            "timestamp": "2016-01-27T19:12:45.427205+00:00",
+            "object": {
+                "definition": {
+                    "name": {
+                        "en-US": "Example Activity"
+                    },
+                    "description": {
+                        "en-US": "Example activity description"
+                    }
+                },
+                "id": "http://example.adlnet.gov/xapi/example/activity",
+                "objectType": "Activity"
+            },
+            "stored": "2016-01-27T19:12:45.427205+00:00",
+            "authority": {
+                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
+                "name": "xapi-tools",
+                "objectType": "Agent"
+            },
+            "id": "8484d8a3-cd78-4883-bbb7-04bb12409fa9"
+        },
+
+        /* Actor Inverse Functional Identifier (IFI) mbox - Simple Statment with the Actor IFI mbox_sha1sum. */
+        "Actor-Mbox": {
             "actor": {
                 "mbox_sha1sum": "6a113390c5a05e6e345e0f559e03a1b294c2c3a3",
                 "objectType": "Agent"
@@ -166,8 +212,8 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "e179532e-ae03-4b86-a84f-aea691f1fd13"
         },
 
-        /* 4 Actor IFI Openid - Simple Statement with the Actor IFI openid */
-        stmt4: {
+        /* Actor IFI Openid - Simple Statement with the Actor IFI openid */
+        "Actor-Openid": {
             "actor": {
                 "openid": "http://user.openid.example.com",
                 "objectType": "Agent"
@@ -201,19 +247,10 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "e038d689-2d58-4068-a8c9-2cd51c8aa4c8"
         },
 
-        /* 5 Actor IFI Account - simple statement with the Actor as an account.
+        /* Actor IFI Account - simple statement with the Actor as an account.
         A user account on an existing system, such as a private system (LMS or
-        intranet) or a public system (social networking site).
-
-        Details:
-            If the system that provides the account Object uses OpenID, the
-        Activity Provider SHOULD use the openid property instead of an account
-        Object.
-            If the Activity Provider is concerned about revealing personally
-        identifiable information about an Agent or Group, it SHOULD use an
-        opaque account name (for example an account number) to identify all
-        Statements about a person while maintaining anonymity.*/
-        stmt5: {
+        intranet) or a public system (social networking site). https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#4124-account-object */
+        "Actor-Account": {
             "actor": {
                 "account": {
                     "homePage": "http://www.example.com",
@@ -250,9 +287,9 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "7a886f8b-e1c6-4470-8f33-54810b5a99e5"
         },
 
-        /* 6 Verb - Simple Statement with user defined verb
+        /* Verb - Simple Statement with user defined verb
         https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#413-verb */
-        stmt6: {
+        "Verb-User-Defined": {
             "verb": {
                 "display": {
                     "en-US": "perused"
@@ -286,30 +323,30 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             }
         },
 
-        /* 7 Verb - Simple Statement with predefined verb */
-        stmt7: {
+        /* Verb - Simple Statement with predefined verb */
+        "Verb-Predefined": {
             "verb": {
-              "id": "http://adlnet.gov/expapi/verbs/preferred",
+                "id": "http://adlnet.gov/expapi/verbs/preferred",
                 "display": {
-                "en-US": "preferred"
+                    "en-US": "preferred"
                 }
             },
             "version": "1.0.1",
             "timestamp": "2016-01-21T16:30:02.244116+00:00",
             "object": {
-            "definition": {
-                "name": {
-                  "en-US": "Example Activity"
-                },
-                "description": {
-                  "en-US": "Example activity description"
-                }
+                "definition": {
+                    "name": {
+                        "en-US": "Example Activity"
+                    },
+                    "description": {
+                        "en-US": "Example activity description"
+                    }
                 },
                 "id": "http://example.adlnet.gov/xapi/example/activity",
                 "objectType": "Activity"
             },
             "actor": {
-              "openid": "http://user.openid.example.com",
+                "openid": "http://user.openid.example.com",
                 "objectType": "Agent"
             },
             "stored": "2016-01-21T16:30:02.244116+00:00",
@@ -321,9 +358,9 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "12d33361-b5fe-48dd-ab8c-8777cc9c45a5"
         },
 
-        /* 8 Object - Simple Statment with Object as an Activity
+        /* Object - Simple Statment with Object as an Activity
         https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#414-object */
-        stmt8: {
+        "Object-Activity": {
             "object": {
                 "definition": {
                     "description": {
@@ -357,8 +394,8 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "8d5a014c-0d8d-4bca-be53-d6dba346519b"
         },
 
-        /* 9 Object - Simple Statment with Object as an Agent */
-        stmt9: {
+        /* Object - Simple Statment with Object as an Agent */
+        "Object-Agent": {
             "object": {
                 "mbox": "mailto:instructor@example.com",
                 "name": "Instructor",
@@ -367,7 +404,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "verb": {
                 "display": {
                     "en-US": "asked"
-            },
+                },
                 "id": "http://adlnet.gov/expapi/verbs/asked"
             },
             "version": "1.0.1",
@@ -385,8 +422,8 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "f3d9ed54-c057-11e5-b464-005056a25e99"
         },
 
-        /* 10 Object - Simple Statement with object as a Group */
-        stmt10: {
+        /* Object - Simple Statement with Object as a Group */
+        "Object-Group": {
             "object": {
                 "member": [
                     {
@@ -437,8 +474,8 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "f3d68632-c057-11e5-b464-005056a25e99"
         },
 
-        /* 11 Object - Simple Statement with Object as a Statement Reference*/
-        stmt11: {
+        /* Object - Simple Statement with Object as a Statement Reference*/
+        "Object-StatementRef": {
             "object": {
                 "id": "12345678-1234-5678-1234-567812345678",
                 "objectType": "StatementRef"
@@ -464,8 +501,90 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "id": "f3d4e214-c057-11e5-b464-005056a25e99"
         },
 
-        /* 6 Verb = attempted, and a Result section */
-        stmtA: {
+        /* Object - Simple Statement with Object as a Sub-Statement */
+        "Object-Sub-Statement": {
+            "verb": {
+                "id": "http://example.com/planned",
+                "display": {
+                    "en-US": "planned"
+                }
+            },
+            "version": "1.0.1",
+            "timestamp": "2016-01-26T19:28:25.096469+00:00",
+            "object": {
+                "verb": {
+                    "id": "http://example.com/visited",
+                    "display": {
+                        "en-US": "will visit"
+                    }
+                },
+                "actor": {
+                    "mbox": "mailto:test@example.com",
+                    "objectType": "Agent"
+                },
+                "object": {
+                    "definition": {
+                        "name": {
+                            "en-US": "Some Awesome Website"
+                        }
+                    },
+                    "id": "http://example.com/website",
+                    "objectType": "Activity"
+                },
+                "objectType": "SubStatement"
+            },
+            "actor": {
+                "mbox": "mailto:test@example.com",
+                "objectType": "Agent"
+            },
+            "stored": "2016-01-26T19:28:25.096469+00:00",
+            "authority": {
+                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
+                "name": "xapi-tools",
+                "objectType": "Agent"
+            },
+            "id": "29cf2f86-3f41-4efc-8f64-866c3ce8899c"
+        },
+
+        /* Simple statement with Object as a Sub-Statement whose Object is a Statement Reference*/
+        "Object-Sub-Statement-with-StatementRef": {
+            "verb": {
+                "id": "http://verb.com/do0"
+            },
+            "version": "1.0.1",
+            "timestamp": "2016-01-25T20:28:19.597807+00:00",
+            "object": {
+                "verb": {
+                    "id": "http://example.com/confirmed",
+                    "display": {
+                        "en": "confirmed"
+                    }
+                },
+                "actor": {
+                    "mbox": "mailto:agent@example.com",
+                    "objectType": "Agent"
+                },
+                "object": {
+                    "id": "9e13cefd-53d3-4eac-b5ed-2cf6693903bb",
+                    "objectType": "StatementRef"
+                },
+                "objectType": "SubStatement"
+            },
+            "actor": {
+                "mbox": "mailto:tom@tom.com",
+                "objectType": "Agent"
+            },
+            "stored": "2016-01-25T20:28:19.597807+00:00",
+            "authority": {
+                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
+                "name": "xapi-tools",
+                "objectType": "Agent"
+            },
+            "id": "b5f9eb2c-588f-48b0-b845-71ed17cd074e"
+        },
+
+        /* Result section */
+        "Result": {
             "verb": {
                 "id": "http://adlnet.gov/expapi/verbs/attempted",
                 "display": {
@@ -506,141 +625,9 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                 "objectType": "Agent"
             }
         },
-        /* 3 Simple statement with Object as an Activity */
-        stmtB: {
-            "verb": {
-                "id": "http://verb.com/do0"
-            },
-            "version": "1.0.1",
-            "timestamp": "2016-01-25T20:37:36.706944+00:00",
-            "object": {
-                "definition": {
-                    "type": "http://www.example.co.uk/types/exampleactivitytype",
-                    "name": {
-                        "en-GB": "example activity",
-                        "en-US": "example activity"
-                    },
-                    "description": {
-                        "en-GB": "An example of an activity",
-                        "en-US": "An example of an activity"
-                    }
-                },
-                "id": "http://www.example.co.uk/exampleactivity",
-                "objectType": "Activity"
-            },
-                "actor": {
-                "mbox": "mailto:tom@tom.com",
-                "objectType": "Agent"
-            },
-            "stored": "2016-01-25T20:37:36.706944+00:00",
-            "authority": {
-                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
-                "name": "xapi-tools",
-                "objectType": "Agent"
-            },
-            "id": "45f58f16-a6bc-401f-b324-b841a77a6d6f"
-        },
-        /* 4 Simple statement with Object as an Agent*/
-        stmtC: {
-            "verb": {
-                "id": "http://verb.com/do0"
-            },
-            "version": "1.0.1",
-            "timestamp": "2016-01-25T20:35:39.683720+00:00",
-            "object": {
-                "mbox": "mailto:andrew@example.co.uk",
-                "name": "Andrew Downes",
-                "objectType": "Agent"
-            },
-            "actor": {
-                "mbox": "mailto:tom@tom.com",
-                "objectType": "Agent"
-            },
-            "stored": "2016-01-25T20:35:39.683720+00:00",
-            "authority": {
-                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
-                "name": "xapi-tools",
-                "objectType": "Agent"
-            },
-            "id": "2bf2f7c9-58bb-459e-a50f-42951913b29c"
-        },
-        /* 5 Simple statement with Object as an identified Group with members */
-        stmtD: {
-            "object": {
-                "member": [
-                    {
-                        "mbox": "mailto:andrew@example.com",
-                        "name": "Andrew Downes",
-                        "objectType": "Agent"
-                    },
-                    {
-                        "openid": "http://aaron.openid.example.org",
-                        "name": "Aaron Silvers",
-                        "objectType": "Agent"
-                    }
-                ],
-                "account": {
-                    "homePage": "http://example.com/homePage",
-                    "name": "GroupAccount"
-                },
-                "name": "Example Group",
-                "objectType": "Group"
-            },
-            "verb": {
-                "id": "http://verb.com/do0"
-            },
-            "version": "1.0.1",
-            "timestamp": "2016-01-25T20:31:57.460856+00:00",
-            "actor": {
-                "mbox": "mailto:tom@tom.com",
-                "objectType": "Agent"
-            },
-            "stored": "2016-01-25T20:31:57.460856+00:00",
-            "authority": {
-                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
-                "name": "xapi-tools",
-                "objectType": "Agent"
-            },
-            "id": "537e8b66-0598-4067-bb2d-de8c4e072049"
-        },
-        /* 6 Simple statement with Object as a Sub-Statement whose Object is a Statement Reference*/
-        stmtE: {
-            "verb": {
-                "id": "http://verb.com/do0"
-            },
-            "version": "1.0.1",
-            "timestamp": "2016-01-25T20:28:19.597807+00:00",
-            "object": {
-                "verb": {
-                    "id": "http://example.com/confirmed",
-                    "display": {
-                        "en": "confirmed"
-                    }
-                },
-                "actor": {
-                    "mbox": "mailto:agent@example.com",
-                    "objectType": "Agent"
-                },
-                "object": {
-                    "id": "9e13cefd-53d3-4eac-b5ed-2cf6693903bb",
-                    "objectType": "StatementRef"
-                },
-                "objectType": "SubStatement"
-            },
-            "actor": {
-                "mbox": "mailto:tom@tom.com",
-                "objectType": "Agent"
-            },
-            "stored": "2016-01-25T20:28:19.597807+00:00",
-            "authority": {
-                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
-                "name": "xapi-tools",
-                "objectType": "Agent"
-            },
-            "id": "b5f9eb2c-588f-48b0-b845-71ed17cd074e"
-        },
-        /* 7 A long example statement showcasing most of the properties available. This example shows a statement returned by an LRS including the authority and stored properties set by the LRS */
-        stmtF: {
+
+        /* A long example statement showcasing most of the properties available. This example shows a statement returned by an LRS including the authority and stored properties set by the LRS */
+        "Long-Example": {
             "id": "6690e6c9-3ef0-4ed3-8b37-7f3964730bee",
             "actor": {
                 "name": "Team PB",

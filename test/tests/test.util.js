@@ -4,7 +4,7 @@ after(function () {
 
 describe('testing xAPI utilities', function () {
 
-    var util, s1, s2, s3, s4, s5, s6, onBrowser, stmts;
+    var util, s1, s2, s3, s4, s5, s6, onBrowser, should, stmts;
 
     before(function () {
 
@@ -12,11 +12,12 @@ describe('testing xAPI utilities', function () {
         if (typeof window !== 'undefined') {
             util = ADL.xapiutil;
             onBrowser = true;
-            // <script src="./test.statements.json">
+            stmts = ADL.stmts;
         }
         else {
             util = require('../../src/xapi-util').xapiutil;
             should = require('should');
+            stmts = require('../../examples/stmtBank.js').stmts;
         }
 
         s1 =  {"actor":{"mbox":"mailto:tom@tom.com", "openid":"openid", "mbox_sha1sum":"mbox_sha1sum", "account":"wrapperTesting"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"StatementRef", "definition":{"name":{"en-US": "soccer", "fr": "football", "de": "foossball"}}}};
@@ -27,13 +28,15 @@ describe('testing xAPI utilities', function () {
 
         s4 = {"actor":{ "account":{"homePage":'http://adlnet.gov/test', "name":"wrapperTesting"}}, "verb":{ "id":"http://verb.com/do4", "display":{ "en-US":"initialized" }}, "object":{ "notid":"http://from.tom/act4", "objectType":"SubStatement", "actor":{ "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum", "account":"wrapperTesting"}, "verb":{ "id":"http://verb.com/do3"}, "object":{ "objectType":"Group", "notid":"http://from.tom/act3", "member":["joe"], "mbox_sha1sum":"randomstringthatmakesnosensembox_sha1sum"}}};
 
-        s5 = {"actor":{"member":["joe"]}, "verb":{"id":"http://verb.com/do5"}, "object":{"id":"http://from.tom/act5"}};
+        s5 = {"actor":{"member":["joe"], "objectType": "Group"}, "verb":{"id":"http://verb.com/do5"}, "object":{"id":"http://from.tom/act5"}};
 
         s6 = {"actor":{"some":"thing else"}, "verb":{"id":"http://verb.com/do6", "display":{"fr": "établi", "de": "etabliert"}}, "object":{"some":'thing else'}};
     });
 
 
     describe('test getLang', function () {
+        //tests relies on environment settings being 'en-US'
+        //failing this test does not necessarily mean that the code is bad, change "en-US" to match your proper environment setting
         it('should get the language from the browser or node', function () {
             (util.getLang()).should.eql("en-US");
         });
@@ -59,24 +62,41 @@ describe('testing xAPI utilities', function () {
         {
             it('should test getMoreStatements in the browser', function () {
                 (util.getMoreStatements(3, function (stmts) {
-                    stmts.length.should.eql(12);
+                    stmts.length.should.eql(16);
                     Array.isArray(stmts).should.eql(true);
                     stmts.should.be.type('object');
                     util.getLang().should.eql("en-US");
-                    util.getActorId(stmts[0].actor).should.eql(stmts[0].actor.mbox);
-                    util.getVerbDisplay(stmts[7].verb).should.eql("preferred");
-                    util.getObjectType(stmts[10].object).should.eql("Group");
-                })
-            )});
-        }
-        else
-        {
-            //this doesn't work, I think it should but it doesn't, if you can fix it go ahead, and then please let me know what was wrong, i'm out to see if I can find any remnants of my sanity, so currently this returns the error message string as a string not an error
-            it('should throw error, but returns string of error message instead', function () {
-                (util.getMoreStatements(3, function (r) {console.log(r)}).should.match("Error: Node not supported."));
-                // ('Error: Node not supported.').should.throw(util.getMoreStatements(3, function (r) {console.log(r)}));
-                // (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
-                // (util.getMoreStatements(3, function (r) {console.log(r)})).should.throw("Node not supported.");
+                    util.getActorId(stmts[0].actor).should.eql(ADL.stmts["Base-Statement"].actor.mbox);
+                    util.getVerbDisplay(stmts[7].verb).should.eql(ADL.stmts["Verb-User-Defined"].verb.display['en-US']);
+                    util.getObjectType(stmts[10].object).should.eql(ADL.stmts["Object-Agent"].object.objectType);
+                }))
+            });
+            it('should handle only a single request with no additional calls', function () {
+                (util.getMoreStatements(0, function (stmts) {
+                    stmts.length.should.eql(4);
+                    Array.isArray(stmts).should.eql(true);
+                    util.getActorIdString(stmts[0].actor).should.eql(ADL.stmts['Base-Statement'].actor.mbox);
+                    util.getVerbDisplay(stmts[3].verb).should.eql(ADL.stmts["Actor-Anon-Group"].verb.display['en-US']);
+                    util.getObjectIdString(stmts[2].object).should.eql(ADL.stmts["Actor-Id-Group"].object.id);
+                }));
+            });
+            it('should handle only a single additional call', function () {
+                (util.getMoreStatements(1, function (stmts) {
+                    stmts.length.should.eql(8);
+                    Array.isArray(stmts).should.eql(true);
+                    util.getActorIdString(stmts[0].actor).should.eql(ADL.stmts['Base-Statement'].actor.mbox);
+                    util.getVerbDisplay(stmts[7].verb).should.eql(ADL.stmts["Verb-User-Defined"].verb.display['en-US']);
+                    util.getObjectIdString(stmts[4].object).should.eql(ADL.stmts["Actor-Mbox"].object.id);
+                }));
+            });
+            it('should handle a request which overreaches the available statements', function () {
+                (util.getMoreStatements(100, function (stmts) {
+                    stmts.length.should.eql(Object.keys(ADL.stmts).length);
+                    Array.isArray(stmts).should.eql(true);
+                    util.getActorIdString(stmts[0].actor).should.eql(ADL.stmts['Base-Statement'].actor.mbox);
+                    util.getVerbDisplay(stmts[15].verb).should.eql(ADL.stmts["Result"].verb.display['en-US']);
+                    util.getObjectType(stmts[12].object).should.eql(ADL.stmts["Object-StatementRef"].object.objectType);
+                }));
             });
         }
     });
@@ -93,6 +113,13 @@ describe('testing xAPI utilities', function () {
         });
         it('should get the account of the actor', function () {
             (util.getActorId(s4.actor)).should.eql(s4.actor.account);
+        });
+        it('should get the account of an identified group', function () {
+            (util.getActorId(stmts["Actor-Id-Group"].actor)).should.eql(stmts["Actor-Id-Group"].actor.account);
+        });
+        it('should be undefined for an anonymous group', function () {
+            ("undefined").should.eql(typeof util.getActorId(stmts["Actor-Anon-Group"].actor));
+            ("undefined").should.eql(typeof util.getActorId(s5.actor));
         });
     });
 
@@ -130,7 +157,7 @@ describe('testing xAPI utilities', function () {
     });
 
     describe('test getVerbDisplay', function () {
-        it('should return null with no verb', function () {
+        it('should return undefined with no verb', function () {
             ("undefined").should.equal(typeof util.getVerbDisplay());
         });
         it('should get the verb in the proper language', function () {
@@ -162,6 +189,12 @@ describe('testing xAPI utilities', function () {
         });
         it('should get the actor id, if no id and objectType is Group', function () {
             (util.getObjectId(s3.object)).should.eql(util.getActorId(s3.object));
+        });
+        it('should get the actor id, if Statement Ref', function () {
+            (util.getObjectId(stmts["Object-StatementRef"].object)).should.eql(stmts["Object-StatementRef"].object.id);
+        });
+        it('should get the actor id, if Sub-Statement', function () {
+            ("undefined").should.eql(typeof util.getObjectId(stmts["Object-Sub-Statement"].object));
         });
         it('should return undefined, if malformed', function () {
             ('undefined').should.eql(typeof util.getObjectId(s6.object));

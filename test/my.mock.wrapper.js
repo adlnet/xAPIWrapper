@@ -852,8 +852,10 @@ function isDate(date) {
 
         var index = urlparts[urlparts.length - 1];
 
-        var numstmts = Object.keys(ADL.stmts).length;
-        var cutoff = 3; //only send 4 statements at a time
+        var keys = Object.keys(ADL.stmts);
+        var numstmts = keys.length;
+        var cutoff = 4; //only send 4 statements at a time
+//index will either be zero or where to start with more statements
         if (index == "statements")
         {
             index = 0;
@@ -862,25 +864,31 @@ function isDate(date) {
         {
             index = parseInt(index);
         }
+//if doling out our ususal size block of statments would exceed the amount
+//of statements that we have, then adjust the cutoff and send out what's left
         if (cutoff > (numstmts - index))
         {
             cutoff = numstmts - index;
         }
-        for (var i = 0; i < cutoff; i++)
+//make a mini array of the keys we want to return
+        var thesekeys = keys.slice(index, index + cutoff);
+//use the mini array of keys to get the statments we want to return - hooray!!
+        for (var k in thesekeys)
         {
-            arrstmts.push(ADL.stmts["stmt" + (i + index)])
+            arrstmts.push(ADL.stmts[thesekeys[k]]);
         }
+//assume there's no more statements, if this is more, then return the next index number - it's magic
         var morestmts = "";
         if ((index + cutoff) < numstmts)
         {
             morestmts = "/" + (index + cutoff);
         }
-
+//mkae a response object, and make that a string
         var response = {
             statements: arrstmts,
             more: morestmts};
         response = JSON.stringify(response);
-
+//a good days work, we're outta here
         callback({response});
         // "use strict";
         //
