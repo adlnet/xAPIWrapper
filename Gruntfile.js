@@ -19,7 +19,8 @@ module.exports = function(grunt) {
             'lib/cryptojs_v3.1.2.js',
             'src/verbs.js',
             'src/xapiwrapper.js',
-            'src/xapistatement.js'
+            'src/xapistatement.js',
+            'src/xapi-util.js'
           ]
         }
       }
