@@ -32,9 +32,11 @@ From a browser:
 ## Node
 
 * In the terminal navigate to the xAPIWrapper folder
-* Use the command
+* Use the commands
     ```
     .../xAPIWrapper
+    $npm install should
+    ...and...
     $ mocha test/tests/test.util.js
 
     ```
