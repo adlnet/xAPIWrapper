@@ -38,45 +38,30 @@
     };
 
     ADL.xapiutil.getLangVal = function (langprop) {
-//test for undefined first
+
         if (!langprop) return;
-//let's get wordy for a bit and think things out
-//is this really the best way to do this?  don't know but let's do it
-//and then look at how to make it better
-    //so we've tested and there is something passed in at this point
-    //next we grab the keys in an array so we can easily get to what we want
+
         var options = Object.keys(langprop);
         // test that langprop is a dict (obj)
         // skips if not a dict(obj) and returns
-    //is undefined what we want to return -
-    //so maybe the calling function will have to test and then get id or something
         if (options.length == 0) return undefined;
 
-    //at this point something was passed in and that something has some kind of properties that we have the keys for in an array
-    //so let's get the language and see if we can find a match
-    //note we only go from what we are given and whittle down until we find a match or had back the first option if we find nothing
-    //should we have looked harder to make sure this is a dictionary, or worked to find a more complex match, i'm kind of hoping not because i'm happy to not do work that won't really make it better, but on the other hand if this really would make this better at what it it doing, then I want to do it
         var lang = ADL.xapiutil.getLang(),
-            ret,    //make undefined
+            ret,
             dispGotten = false;
+
         do {    //test and retest
-    //if the key works, unlock the door
             if (langprop[lang])
             {
                 ret = langprop[lang];
                 dispGotten = true;
             }
-    //if not, adjust the key and set up to try again
             else if (lang.indexOf('-'))
             {
                 lang = lang.substring(0, lang.lastIndexOf('-'));
-//    console.log('lang is now', lang);
             }
-    //there was another else option, but the while test takes care of stopping if there is nothing left of our string
         } while (!dispGotten && lang !=="");
 
-    //and here we return what we've found or haven't
-    //let's go see if this will all run, and let's make some tests to try it out
         return ret;
     };
 
@@ -84,7 +69,7 @@
         if (!onBrowser) throw new Error("Node not supported.");
 
         var stmts = [];
-// debugger;
+
         ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
             if (! (r && r.response) ) return;
             var res = JSON.parse(r.response);
@@ -145,6 +130,7 @@
     };
 
     ADL.xapiutil.getObjectIdString = function (o) {
+        if (!o) return 'unknown'
         if (o.id) return o.id;
         var type = ADL.xapiutil.getObjectType(o);
         if (type === "Agent" || type === "Group") return ADL.xapiutil.getActorIdString(o);
@@ -155,6 +141,7 @@
     };
 
     ADL.xapiutil.getObjectDisplay = function (o) {
+        if (!o) return "unknown"
         var disp = getObjDefName(o) || o.name || o.id;
         if (! disp) {
             var type = ADL.xapiutil.getObjectType(o);

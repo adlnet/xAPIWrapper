@@ -1,5 +1,5 @@
 after(function () {
-    //i've got nothing to go in here
+    //nothing in here
 });
 
 describe('testing xAPI utilities', function () {
@@ -54,9 +54,7 @@ describe('testing xAPI utilities', function () {
         });
         it('should return the first display option if language code does not match any of the keys', function () {
             ("undefined").should.eql(typeof util.getLangVal(s6.verb.display));
-            // (util.getLangVal(s6.verb.display)).should.eql("établi");
         });
-//what else do we want to test
         it('should throw out junk', function () {
             ("undefined").should.eql(typeof util.getLangVal(s5.actor));
             ("undefined").should.eql(typeof util.getLangVal(s5.verb));
@@ -199,7 +197,7 @@ describe('testing xAPI utilities', function () {
             (util.getObjectId(s1.object)).should.eql(s1.object.id);
         });
         it('should get the actor id, if no id and objectType is Agent', function () {
-            (util.getObjectId(s2.object)).should.eql(util.getActorId(s2.object));
+            (util.getObjectId(s2.object)).should.eql(s2.object.mbox);
         });
         it('should get the actor id, if no id and objectType is Group', function () {
             (util.getObjectId(s3.object)).should.eql(util.getActorId(s3.object));
@@ -222,7 +220,7 @@ describe('testing xAPI utilities', function () {
         });
         it('should get the Actor Id String, if no id and type is Agent or Group', function () {
             (util.getObjectIdString(s2.object)).should.be.String();
-            (util.getObjectIdString(s2.object)).should.eql(util.getActorIdString(s2.object));
+            (util.getObjectIdString(s2.object)).should.eql(s2.object.mbox);
         });
         it('should get the Actor-Verb-Object String, if no id and type is SubStatement', function () {
             (util.getObjectIdString(s4.object)).should.be.String();
@@ -231,9 +229,10 @@ describe('testing xAPI utilities', function () {
         it('should return unknown, if those do not work', function () {
             ('unknown').should.eql(util.getObjectIdString(s6.object));
         });
-//what if we pass this something bogus
         it('should return unknown, if you pass it junk', function () {
             ("unknown").should.eql(util.getObjectIdString(stmts));
+            ("unknown").should.eql(util.getObjectIdString('stmts'));
+            ("unknown").should.eql(util.getObjectIdString());
         });
     });
 
@@ -252,6 +251,11 @@ describe('testing xAPI utilities', function () {
         });
         it('or should get the Actor-Verb-Object String', function () {
             (util.getObjectDisplay(s4.object)).should.eql(s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
+        });
+        it('should handle junk', function () {
+            ('unknown').should.eql(util.getObjectDisplay(s3));
+            ('unknown').should.eql(util.getObjectDisplay());
+            ('unknown').should.eql(util.getObjectDisplay('s3'));
         });
     });
 

@@ -845,17 +845,15 @@ function isDate(date) {
      */
     ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
     {
-
         var arrstmts = [];
 
         var urlparts = url.split('/');
-
         var index = urlparts[urlparts.length - 1];
 
         var keys = Object.keys(ADL.stmts);
         var numstmts = keys.length;
         var cutoff = 4; //only send 4 statements at a time
-//index will either be zero or where to start with more statements
+        //index will either be zero or where to start with more statements
         if (index == "statements")
         {
             index = 0;
@@ -864,148 +862,33 @@ function isDate(date) {
         {
             index = parseInt(index);
         }
-//if doling out our ususal size block of statments would exceed the amount
-//of statements that we have, then adjust the cutoff and send out what's left
+        //if doling out our ususal size block of statments would exceed the //amount of statements that we have, then adjust the cutoff
+        //and send out what's left
         if (cutoff > (numstmts - index))
         {
             cutoff = numstmts - index;
         }
-//make a mini array of the keys we want to return
+        //make a mini array of the keys we want to return
         var thesekeys = keys.slice(index, index + cutoff);
-//use the mini array of keys to get the statments we want to return - hooray!!
+
         for (var k in thesekeys)
         {
             arrstmts.push(ADL.stmts[thesekeys[k]]);
         }
-//assume there's no more statements, if this is more, then return the next index number - it's magic
+        //assume there's no more statements, if there are more,
+        //then return the next index number
         var morestmts = "";
         if ((index + cutoff) < numstmts)
         {
             morestmts = "/" + (index + cutoff);
         }
-//mkae a response object, and make that a string
+        //make a response object, and make that a string
         var response = {
             statements: arrstmts,
             more: morestmts};
         response = JSON.stringify(response);
-//a good days work, we're outta here
+
         callback({response});
-        // "use strict";
-        //
-        // var xhr,
-        //     finished = false,
-        //     xDomainRequest = false,
-        //     ieXDomain = false,
-        //     ieModeRequest,
-        //     urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-        //     location = window.location,
-        //     urlPort,
-        //     result,
-        //     extended,
-        //     prop,
-        //     until;
-        //
-        // //Consolidate headers
-        // var headers = {};
-        // headers["Content-Type"] = "application/json";
-        // headers["Authorization"] = auth;
-        // headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
-        // if(extraHeaders !== null){
-        //     for(var headerName in extraHeaders){
-        //         headers[headerName] = extraHeaders[headerName];
-        //     }
-        // }
-        //
-        // //See if this really is a cross domain
-        // xDomainRequest = (location.protocol.toLowerCase() !== urlparts[1] || location.hostname.toLowerCase() !== urlparts[2]);
-        // if (!xDomainRequest) {
-        //     urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
-        //     xDomainRequest = (urlPort === location.port);
-        // }
-        //
-        // //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        // if (!xDomainRequest || typeof(XDomainRequest) === 'undefined') {
-        //     xhr = new XMLHttpRequest();
-        //     xhr.open(method, url, callback != null);
-        //     for(var headerName in headers){
-        //         xhr.setRequestHeader(headerName, headers[headerName]);
-        //     }
-        // }
-        // //Otherwise, use IE's XDomainRequest object
-        // else {
-        //     ieXDomain = true;
-        //     ieModeRequest = ie_request(method, url, headers, data);
-        //     xhr = new XDomainRequest();
-        //     xhr.open(ieModeRequest.method, ieModeRequest.url);
-        // }
-        //
-        //Setup request callback
-        // function requestComplete() {
-        //     if(!finished){
-        //         // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
-        //         // onload or both might fire depending upon browser, just covering all bases with event hooks and
-        //         // using 'finished' flag to avoid triggering events multiple times
-        //         finished = true;
-        //         var notFoundOk = (ignore404 && xhr.status === 404);
-        //         if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
-        //             if (callback) {
-        //                 if(callbackargs){
-        //                     callback(xhr, callbackargs);
-        //                 }
-        //                 else {
-        //                     try {
-        //                         var body = JSON.parse(xhr.responseText);
-        //                         callback(xhr,body);
-        //                     }
-        //                     catch(e){
-        //                         callback(xhr,xhr.responseText);
-        //                     }
-        //                 }
-        //             } else {
-        //                 result = xhr;
-        //                 return xhr;
-        //             }
-        //         } else {
-        //             var warning;
-        //             try {
-        //                 warning = "There was a problem communicating with the Learning Record Store. ( "
-        //                     + xhr.status + " | " + xhr.response+ " )" + url
-        //             } catch (ex) {
-        //                 warning = ex.toString();
-        //             }
-        //             ADL.XAPIWrapper.log(warning);
-        //             ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs);
-        //             result = xhr;
-        //             return xhr;
-        //         }
-        //     } else {
-        //         return result;
-        //     }
-        // };
-        //
-        // xhr.onreadystatechange = function () {
-        //     if (xhr.readyState === 4) {
-        //        return requestComplete();
-        //     }
-        // };
-        //
-        // xhr.onload = requestComplete;
-        // xhr.onerror = requestComplete;
-        // //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
-        //
-        // xhr.send(ieXDomain ? ieModeRequest.data : data);
-        //
-        // if (!callback) {
-        //     // synchronous
-        //     if (ieXDomain) {
-        //         // synchronous call in IE, with no asynchronous mode available.
-        //         until = 1000 + new Date();
-        //         while (new Date() < until && xhr.readyState !== 4 && !finished) {
-        //             delay();
-        //         }
-        //     }
-        //     return requestComplete();
-        // }
     };
 
     /*
