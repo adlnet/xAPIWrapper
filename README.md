@@ -58,7 +58,7 @@ dependencies.
 ### Dependencies
 The wrapper relies on external dependencies to perform some actions. Make sure you include
 our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
-in your pages if you're not using `xapiwrapper.js`
+in your pages if you're not using `xapiwrapper.min.js`
 
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
