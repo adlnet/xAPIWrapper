@@ -1,7 +1,7 @@
 (function(ADL){
    ADL.verbs = {
       "abandoned" : {
-         "id" : "http://purl.org/xapi/adl/verbs/abandoned",
+         "id" : "https://w3id.org/xapi/adl/verbs/abandoned",
          "display" : {"en-US" : "abandoned"}
       },
       "answered" : {
@@ -145,7 +145,7 @@
                       "es-ES" : "continuó"}
       },
       "satisfied" : {
-         "id" : "http://purl.org/xapi/adl/verbs/satisfied",
+         "id" : "https://w3id.org/xapi/adl/verbs/satisfied",
          "display" : {"en-US" : "satisfied"}
       },
       "scored" : {
@@ -184,7 +184,7 @@
                       "es-ES" : "anuló"}
       },
       "waived" : {
-         "id" : "http://purl.org/xapi/adl/verbs/waived",
+         "id" : "https://w3id.org/xapi/adl/verbs/waived",
          "display" : {"en-US" : "waived"}
       }
    };
