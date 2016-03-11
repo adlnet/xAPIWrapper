@@ -1330,6 +1330,7 @@ function isDate(date) {
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
             xhr = new XMLHttpRequest();
+            xhr.withCredentials = true; //allow cross domain cookie based auth
             xhr.open(method, url, callback != null);
             for(var headerName in headers){
                 xhr.setRequestHeader(headerName, headers[headerName]);
