@@ -20,7 +20,8 @@ module.exports = function(grunt) {
             'src/verbs.js',
             'src/xapiwrapper.js',
             'src/xapistatement.js',
-            'src/xapi-util.js'
+            'src/xapi-util.js',
+            'src/xapi-launch.js'
           ]
         }
       }
