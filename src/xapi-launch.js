@@ -1,4 +1,4 @@
-(function(ADL){
+(function(obj){
 var ADL = obj;
 function getQueryVariable(variable)
 {
