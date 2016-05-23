@@ -5,12 +5,6 @@ Wrapper to simplify communication to an LRS. [Read more about the Experience API
 
 Check out the [Reference Documentation Here](http://adlnet.github.io/xAPIWrapper/)
 
-## Contributing to the project
-We welcome contributions to this project. Fork this repository,
-make changes, re-minify, and submit pull requests. If you're not comfortable
-with editing the code, please submit an issue and we'll be happy
-to address it.  
-
 ## xapiwrapper.js
 
 Javascript Experience API wrapper.  
@@ -831,3 +825,12 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  "agentprofile");
 >> 404
 ```
+
+## Contributing to the project
+We welcome contributions to this project. Fork this repository,
+make changes, re-minify, and submit pull requests. If you're not comfortable
+with editing the code, please submit an issue and we'll be happy
+to address it. 
+
+## License
+[Apache 2.0](https://github.com/adlnet/xAPIWrapper/blob/master/LICENSE)
