@@ -5,7 +5,7 @@ Wrapper to simplify communication to an LRS. [Read more about the Experience API
 
 Check out the [Reference Documentation Here](http://adlnet.github.io/xAPIWrapper/)
 
-## xapiwrapper.js
+### xapiwrapper.js
 
 Javascript Experience API wrapper.  
 This javascript file can be included to web based xAPI clients to
@@ -19,6 +19,22 @@ is the version of the Experience API Specification for which it was built,
 and can be used to determine if the wrapper is compatible with an LRS implementing a specific
 xAPI Specification version. The second is the build date in the header of the minified file,
 which can be used to tell if you're using the latest version.
+
+### Dependencies
+The wrapper relies on external dependencies to perform some actions. Make sure you include
+our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
+in your pages if you're not using `xapiwrapper.min.js`
+
+``` html
+<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+```
+
+In the past we used the below libraries for the same purpose. You may continue to use them
+for current systems, but the CryptoJS compilation is recommended.
+
+* base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
+* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
+
 
 ### Minified version
 
@@ -48,23 +64,6 @@ $ grunt
 
 This will overwrite `xapiwrapper.min.js` with the minifed versions of the wrapper and all its
 dependencies.
-
-### Dependencies
-The wrapper relies on external dependencies to perform some actions. Make sure you include
-our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
-in your pages if you're not using `xapiwrapper.min.js`
-
-``` html
-<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-```
-
-In the past we used the below libraries for the same purpose. You may continue to use them
-for current systems, but the CryptoJS compilation is recommended.
-
-* base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
-* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
-
-
 
 ### Configuration
 The wrapper at a minimum needs to know the url of the LRS, though
