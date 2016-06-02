@@ -35,12 +35,28 @@ for current systems, but the CryptoJS compilation is recommended.
 * base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
 * 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
 
+## Installing
 
-### Minified version
+Using this wrapper could either be done by downloading the latest release or cloning the project.
+
+### Downloading the latest release version
 
 The minified wrapper is self-contained. It includes all required dependencies
 in addition to the ADL Verbs and the XAPIStatement module. For production sites,
 this version of the wrapper is recommended.
+
+Download the latest [release](https://github.com/adlnet/xAPIWrapper/releases)
+
+
+### Cloning and building the project
+
+You can optionally clone and use the `dist/xapiwrapper.min.js`:
+
+```bash
+git clone https://github.com/adlnet/xAPIWrapper/
+```
+
+#### Building the project
 
 Compiling the minified version is easy. Install Node.js and NPM if you don't already have them
 (download them [here](http://nodejs.org/download/)). Then install the build system, Grunt. This
@@ -62,7 +78,7 @@ Then execute the build script:
 $ grunt
 ```
 
-This will overwrite `xapiwrapper.min.js` with the minifed versions of the wrapper and all its
+This will overwrite `dist/xapiwrapper.min.js` with the minifed versions of the wrapper and all its
 dependencies.
 
 ### Configuration
