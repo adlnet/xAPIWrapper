@@ -93,7 +93,7 @@ Include the wrapper file, and optionally the dependencies.
 <script type="text/javascript" src="./src/xapiwrapper.js"></script>
 ```
 
-Alternatively:
+Alternatively, use the minified version:
 
 ``` html
 <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
@@ -848,8 +848,8 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 
 ## Contributing to the project
 We welcome contributions to this project. Fork this repository,
-make changes, re-minify, and submit pull requests. If you're not comfortable
-with editing the code, please submit an issue and we'll be happy
+make changes, [re-minify](https://github.com/adlnet/xAPIWrapper#building-the-project), and submit pull requests. If you're not comfortable
+with editing the code, please [submit an issue](https://github.com/adlnet/xAPIWrapper/issues) and we'll be happy
 to address it. 
 
 ## License
