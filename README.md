@@ -37,7 +37,7 @@ for current systems, but the CryptoJS compilation is recommended.
 
 ## Installing
 
-Using this wrapper could either be done by downloading the latest release or cloning the project.
+Using this wrapper could either be done by downloading the [latest release](https://github.com/adlnet/xAPIWrapper#downloading-the-latest-release-version) or [cloning the project](https://github.com/adlnet/xAPIWrapper#cloning-and-building-the-project).
 
 ### Downloading the latest release version
 
@@ -47,6 +47,7 @@ this version of the wrapper is recommended.
 
 Download the latest [release](https://github.com/adlnet/xAPIWrapper/releases)
 
+Follow the [instructions](https://github.com/adlnet/xAPIWrapper#including-in-your-software) for including the wrapper in your source files.
 
 ### Cloning and building the project
 
@@ -77,9 +78,27 @@ Then execute the build script:
 ```bash
 $ grunt
 ```
-
+ 
 This will overwrite `dist/xapiwrapper.min.js` with the minifed versions of the wrapper and all its
 dependencies.
+
+#### Including in your Software.
+
+Include the wrapper file, and optionally the dependencies.
+
+``` html
+<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./src/verbs.js"></script>
+<script type="text/javascript" src="./src/xapistatement.js"></script>
+<script type="text/javascript" src="./src/xapiwrapper.js"></script>
+```
+
+Alternatively:
+
+``` html
+<script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+```
+
 
 ### Configuration
 The wrapper at a minimum needs to know the url of the LRS, though
@@ -139,6 +158,16 @@ var creds = {
 };
 ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
 ```  
+  
+The script automatically runs, creating or adding to an ADL object an
+instantiated xAPI Wrapper object. The object is created using the
+configuration object inside the xapiwrapper.js file. If you modified this
+object with your configuration, then xAPI Wrapper object is ready to use.
+
+``` shell
+ADL.XAPIWrapper.testConfig();
+>> true
+```
 
 #### Launch Parameters
 The configuration will also look for url query parameters and use those
@@ -156,30 +185,6 @@ which attempts to write a message to console.log. This can be configured
 to not write messages by setting `log.debug = false;`.
 
 ### Use
-Include the wrapper file, and optionally the dependencies.
-
-``` html
-<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-<script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/xapistatement.js"></script>
-<script type="text/javascript" src="./src/xapiwrapper.js"></script>
-```
-
-Alternatively:
-
-``` html
-<script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
-```
-
-The script automatically runs, creating or adding to an ADL object an
-instantiated xAPI Wrapper object. The object is created using the
-configuration object inside the xapiwrapper.js file. If you modified this
-object with your configuration, then xAPI Wrapper object is ready to use.
-
-``` shell
-ADL.XAPIWrapper.testConfig();
->> true
-```
 
 #### Statements
 
