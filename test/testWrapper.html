@@ -33,16 +33,17 @@
     </style>
 </head>
 <body class='container'>
-    <span id="onlineflag" class="label label-default pull-right">Checking..</span>
+    <!-- <span id="onlineflag" class="label label-default pull-right">Checking..</span>
     <input id="checkonlinetoggle" type="checkbox" data-toggle="toggle" data-on="Checking" data-off="Not Checking" data-onstyle="success" data-offstyle="warning" data-size="mini" checked>
     <span id="endpoint" contentEditable="true"></span>
     <div class="row">
         <div class="col-xs-12">
             <br>
         </div>
-    </div>
+    </div> -->
     <div class="row">
-
+        <h2> xAPI Test Page </h2>
+        <p>endpoint: <span id="endpoint"></span></p>
     </div>
     <div class="row">
         <div class="col-xs-3">
@@ -200,17 +201,14 @@
         ADL.launch(function(err, launchdata, xAPIWrapper) {
         if (!err) {
             wrapper = xAPIWrapper;
-            console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs + "\n", launchdata);
+            console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
         } else {
             wrapper = ADL.XAPIWrapper;
-            var updateWrapperConfig = function (wrapper) {
-                wrapper.changeConfig({
-                    endpoint: "https://lrs.adlnet.gov/xapi/",
-                    user: 'tom',
-                    password: '1234'
-                });
-            };
-            updateWrapperConfig(wrapper);
+            wrapper.changeConfig({
+                endpoint: "https://lrs.adlnet.gov/xapi/",
+                user: 'tom',
+                password: '1234'
+            });
             console.log("--- content statically configured ---\n", wrapper.lrs);
         }
         $('#endpoint').text(wrapper.lrs.endpoint);
@@ -235,7 +233,7 @@
                     mbox: {mbox:"mailto:placeholder@fixme.com"},
                     account: {account:{name:"accountname", homePage:"http://account.com/homepage"}}
                 },
-                verb: {id:"http://verb.com/id"},
+                verb: {id:"http://verb.com/id", display: {"en": "verbed"}},
                 object: {
                     Activity: {id:"http://activity.com/id"},
                     Agent: {objectType: "Agent", mbox:"mailto:placeholder@fixme.com"},
@@ -401,8 +399,7 @@
             editor.setValue( JSON.stringify(mkstmt(opts), null, 4) );
         });
 
-        function clearForm () {
-            console.log('clear');
+        function clearForm () 
             $('input[id=actormbox]').prop('checked', true);
             $('input[id=actoraccount]').prop('checked', false);
             $('input[id=objectactivity]').prop('checked', true);
