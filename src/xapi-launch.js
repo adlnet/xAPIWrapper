@@ -31,7 +31,7 @@ function cb_wrap(cb)
         }, 0)
     }
 }
-//The library will append the necessary launch info to each new A that is linked to the page. 
+//The library will append the necessary launch info to each new A that is linked to the page.
 //NOTE: This cannot work if you programmatically change the window location. If you do, you must
 //execute the logic in setupCourseLinks to send the initialization data to the new location (if
 //you wish that new location to track as part of this session)
@@ -143,13 +143,14 @@ function xAPILaunch(cb, terminate_on_unload)
                 var xhr2 = new XMLHttpRequest();
                 xhr2.withCredentials = true;
                 xhr2.crossDomain = true;
-               
+
                 xhr2.open('POST', launch.toString(), false);
                 xhr2.setRequestHeader("Content-type" , "application/json");
                 xhr2.send('{"code":0,"description":"User closed content"}');
             }
-            var wrapper = new ADL.XAPIWrapper.constructor(conf);
+            var wrapper = new ADL.XAPIWrapper.constructor();
             wrapper.changeConfig(conf);
+            console.log("in xapi launch", wrapper.lrs);
             //Links that include "courseLink='true'"
             setupCourseLinks(document.body.querySelectorAll('a'));
             //Also, if links are added dynamically, we will do the same logic for those links.

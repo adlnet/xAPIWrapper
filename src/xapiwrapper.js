@@ -2,7 +2,7 @@
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 if ( !Date.prototype.toISOString ) {
   ( function() {
-    
+
     function pad(number) {
       var r = String(number);
       if ( r.length === 1 ) {
@@ -10,7 +10,7 @@ if ( !Date.prototype.toISOString ) {
       }
       return r;
     }
- 
+
     Date.prototype.toISOString = function() {
       return this.getUTCFullYear()
         + '-' + pad( this.getUTCMonth() + 1 )
@@ -21,13 +21,13 @@ if ( !Date.prototype.toISOString ) {
         + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
         + 'Z';
     };
-  
+
   }() );
 }
 
 // shim for old-style Base64 lib
 function toBase64(text){
-  if(CryptoJS && CryptoJS.enc.Base64) 
+  if(CryptoJS && CryptoJS.enc.Base64)
     return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
   else
     return Base64.encode(text);
@@ -69,7 +69,7 @@ function isDate(date) {
 
 (function(ADL){
     log.debug = false;
-    /* 
+    /*
      * Config object used w/ url params to configure the lrs object
      * change these to match your lrs
      * @return {object} config object
@@ -79,14 +79,14 @@ function isDate(date) {
      *    "auth" : "Basic " + toBase64('tom:1234'),
      * };
      * ADL.XAPIWrapper.changeConfig(conf);
-     */ 
+     */
     var Config = function()
     {
         var conf = {};
         conf['endpoint'] = "http://localhost:8000/xapi/";
         try
         {
-            conf['auth'] = "Basic " + toBase64('tom:1234'); 
+            conf['auth'] = "Basic " + toBase64('tom:1234');
         }
         catch (e)
         {
@@ -101,7 +101,7 @@ function isDate(date) {
         return conf
     }();
 
-    /* 
+    /*
      * XAPIWrapper Constructor
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
@@ -114,8 +114,8 @@ function isDate(date) {
         this.base = getbase(this.lrs.endpoint);
 
         this.withCredentials = false;
-        
-        this.withCredentials = config.withCredentials;
+
+        this.withCredentials = config && config.withCredentials;
         function getbase(url)
         {
             var l = document.createElement("a");
@@ -165,7 +165,7 @@ function isDate(date) {
                     }
                 },null,false,null,this.withCredentials);
 
-        
+
         }
 
         this.searchParams = function(){
@@ -221,14 +221,14 @@ function isDate(date) {
         else if(typeof stmt.actor === "string") {
             stmt.actor = JSON.parse(stmt.actor);
         }
-        if (this.lrs.grouping || 
-            this.lrs.registration || 
+        if (this.lrs.grouping ||
+            this.lrs.registration ||
             this.lrs.activity_platform) {
             if (!stmt.context) {
                 stmt.context = {};
             }
         }
-        
+
         if (this.lrs.grouping) {
             if (!stmt.context.contextActivities) {
                 stmt.context.contextActivities = {};
@@ -250,13 +250,13 @@ function isDate(date) {
     XAPIWrapper.prototype.log = log;
 
     /*
-     * Send a single statement to the LRS. Makes a Javascript object 
-     * with the statement id as 'id' available to the callback function. 
+     * Send a single statement to the LRS. Makes a Javascript object
+     * with the statement id as 'id' available to the callback function.
      * @param {object} stmt   statement object to send
-     * @param {function} [callback]   function to be called after the LRS responds 
+     * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id 
+     *            and an object with an id property assigned the id
      *            of the statement
      * @return {object} object containing xhr object and id of statement
      * @example
@@ -268,17 +268,17 @@ function isDate(date) {
      * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
      * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
      * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
-     * 
+     *
      * // Send Statement with Callback
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
      *                       "display" : {"en-US" : "answered"}},
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
+     * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
      *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
      * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
      */
-    XAPIWrapper.prototype.sendStatement = function(stmt, callback) 
+    XAPIWrapper.prototype.sendStatement = function(stmt, callback)
     {
         if (this.testConfig())
         {
@@ -293,7 +293,7 @@ function isDate(date) {
                 id = ADL.ruuid();
                 stmt['id'] = id;
             }
-            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements", 
+            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
                 "POST", JSON.stringify(stmt), this.lrs.auth, callback, {"id":id},null,false,this.withCredentials);
             if (!callback)
                 return {"xhr":resp,
@@ -304,7 +304,7 @@ function isDate(date) {
     /*
      * Send a list of statements to the LRS.
      * @param {array} stmtArray   the list of statement objects to send
-     * @param {function} [callback]   function to be called after the LRS responds 
+     * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object
@@ -315,17 +315,17 @@ function isDate(date) {
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
      * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
      * ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
-     * >> {"version": "1.0.0", 
-     *     "timestamp": "2013-09-09 21:36:40.185841+00:00", 
-     *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"}, 
-     *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"}, 
-     *     "stored": "2013-09-09 21:36:40.186124+00:00", 
-     *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}}, 
-     *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"}, 
-     *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"}, 
+     * >> {"version": "1.0.0",
+     *     "timestamp": "2013-09-09 21:36:40.185841+00:00",
+     *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
+     *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"},
+     *     "stored": "2013-09-09 21:36:40.186124+00:00",
+     *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
+     *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
+     *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},
      *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
      */
-    XAPIWrapper.prototype.sendStatements = function(stmtArray, callback) 
+    XAPIWrapper.prototype.sendStatements = function(stmtArray, callback)
     {
         if (this.testConfig())
         {
@@ -333,10 +333,10 @@ function isDate(date) {
             {
                 this.prepareStatement(stmtArray[i]);
             }
-            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements", 
+            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
                 "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials);
 
-            
+
             if (!callback)
             {
                 return resp;
@@ -346,16 +346,16 @@ function isDate(date) {
 
     /*
      * Get statement(s) based on the searchparams or more url.
-     * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of 
-     *                key(search parameter)-value(parameter value) pairs. 
+     * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of
+     *                key(search parameter)-value(parameter value) pairs.
      *                Example:
      *                  var myparams = ADL.XAPIWrapper.searchParams();
      *                  myparams['verb'] = ADL.verbs.completed.id;
      *                  var completedStmts = ADL.XAPIWrapper.getStatements(myparams);
-     * @param {string} more   the more url found in the StatementResults object, if there are more 
-     *        statements available based on your get statements request. Pass the 
+     * @param {string} more   the more url found in the StatementResults object, if there are more
+     *        statements available based on your get statements request. Pass the
      *        more url as this parameter to retrieve those statements.
-     * @param {function} [callback] - function to be called after the LRS responds 
+     * @param {function} [callback] - function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
@@ -366,10 +366,10 @@ function isDate(date) {
      *
      * >> <Array of statements>
      */
-    XAPIWrapper.prototype.getStatements = function(searchparams, more, callback) 
+    XAPIWrapper.prototype.getStatements = function(searchparams, more, callback)
     {
         if (this.testConfig())
-        {    
+        {
             var url = this.lrs.endpoint + "statements";
             if (more)
             {
@@ -398,7 +398,7 @@ function isDate(date) {
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(res.response);
@@ -413,7 +413,7 @@ function isDate(date) {
     /*
      * Gets the Activity object from the LRS.
      * @param {string} activityid   the id of the Activity to get
-     * @param {function} [callback]   function to be called after the LRS responds 
+     * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
@@ -430,12 +430,12 @@ function isDate(date) {
             url = url.replace('<activityid>', encodeURIComponent(activityid));
 
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true,null,this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -450,20 +450,20 @@ function isDate(date) {
     /*
      * Store activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to 
+     * @param {object} agent   the agent this Activity state is related to
      * @param {string} stateid   the id you want associated with this state
      * @param {string} [registration]   the registraton id associated with this state
      * @param {string} stateval   the state
      * @param {string} [matchHash]    the hash of the state to replace or * to replace any
      * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
-     * @param {function} [callback]   function to be called after the LRS responds 
+     * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {boolean} false if no activity state is included
      * @example
      * var stateval = {"info":"the state info"};
-     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
-     *                    {"mbox":"mailto:tom@example.com"}, 
+     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+     *                    {"mbox":"mailto:tom@example.com"},
      *                    "questionstate", null, stateval);
      */
     XAPIWrapper.prototype.sendState = function(activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)
@@ -471,12 +471,12 @@ function isDate(date) {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
-        
+
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
             url = url.replace('<stateid>',encodeURIComponent(stateid));
 
-            if (registration) 
+            if (registration)
             {
                 url += "&registration=" + encodeURIComponent(registration);
             }
@@ -522,7 +522,7 @@ function isDate(date) {
                 this.log("No activity state was included.");
                 return false;
             }
-            //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders) 
+            //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
 
             ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials);
         }
@@ -531,17 +531,17 @@ function isDate(date) {
     /*
      * Get activity state from the LRS
      * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to 
-     * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids 
+     * @param {object} agent   the agent this Activity state is related to
+     * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids
      *            associated with the activity and agent)
      * @param {string} [registration]   the registraton id associated with this state
      * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
-     * @param {function} [callback]   function to be called after the LRS responds 
+     * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> {info: "the state info"}
      */
@@ -550,16 +550,16 @@ function isDate(date) {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>";
-        
+
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            
+
             if (stateid)
             {
                 url += "&stateId=" + encodeURIComponent(stateid);
             }
-            
-            if (registration) 
+
+            if (registration)
             {
                 url += "&registration=" + encodeURIComponent(registration);
             }
@@ -571,14 +571,14 @@ function isDate(date) {
                     url += '&since=' + encodeURIComponent(since.toISOString());
                 }
             }
-            
+
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -593,29 +593,29 @@ function isDate(date) {
     /*
      * Delete activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to 
+     * @param {object} agent   the agent this Activity state is related to
      * @param {string} stateid   the id you want associated with this state
      * @param {string} [registration]   the registraton id associated with this state
      * @param {string} [matchHash]    the hash of the state to replace or * to replace any
      * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
-     * @param {string} [callback]   function to be called after the LRS responds 
+     * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
      * var stateval = {"info":"the state info"};
-     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question", 
-     *                           {"mbox":"mailto:tom@example.com"}, 
+     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+     *                           {"mbox":"mailto:tom@example.com"},
      *                           "questionstate", null, stateval);
-     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> {info: "the state info"}
-     * 
-     * ADL.XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question", 
+     *
+     * ADL.XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
-     * 
-     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question", 
+     *
+     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> 404
      */
@@ -624,12 +624,12 @@ function isDate(date) {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
-        
+
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
             url = url.replace('<stateid>',encodeURIComponent(stateid));
 
-            if (registration) 
+            if (registration)
             {
                 url += "&registration=" + encodeURIComponent(registration);
             }
@@ -649,12 +649,12 @@ function isDate(date) {
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers, this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -673,24 +673,24 @@ function isDate(date) {
      * @param {string} profileval   the profile
      * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
      * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds 
+     * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {bolean} false if no activity profile is included
      * @example
      * var profile = {"info":"the profile"};
-     * ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question", 
+     * ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                     "actprofile", profile, null, "*");
      */
-    XAPIWrapper.prototype.sendActivityProfile = function(activityid, profileid, profileval, matchHash, noneMatchHash, callback) 
+    XAPIWrapper.prototype.sendActivityProfile = function(activityid, profileid, profileval, matchHash, noneMatchHash, callback)
     {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
-            
+
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
-            
+
             var headers = null;
             if(matchHash && noneMatchHash)
             {
@@ -740,27 +740,27 @@ function isDate(date) {
     /*
      * Get activity profile from the LRS
      * @param {string} activityid   the id of the Activity this profile is about
-     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
+     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
      *              associated with the activity
      * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
-     * @param {function [callback]    function to be called after the LRS responds 
+     * @param {function [callback]    function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question", 
+     * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                    "actprofile", null,
      *                                    function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
-     * >> {info: "the profile"} 
+     * >> {info: "the profile"}
      */
-    XAPIWrapper.prototype.getActivityProfile = function(activityid, profileid, since, callback) 
+    XAPIWrapper.prototype.getActivityProfile = function(activityid, profileid, since, callback)
     {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>";
-            
+
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            
+
             if (profileid)
             {
                 url += "&profileId=" + encodeURIComponent(profileid);
@@ -773,14 +773,14 @@ function isDate(date) {
                     url += '&since=' + encodeURIComponent(since.toISOString());
                 }
             }
-            
+
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -798,24 +798,24 @@ function isDate(date) {
      * @param {string} profileid   the id you want associated with this profile
      * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
      * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds 
+     * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question", 
+     * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                       "actprofile");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
-    XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback) 
+    XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback)
     {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
-            
+
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
-            
+
             var headers = null;
             if(matchHash && noneMatchHash)
             {
@@ -831,12 +831,12 @@ function isDate(date) {
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -850,10 +850,10 @@ function isDate(date) {
 
     /*
      * Gets the Person object from the LRS based on an agent object.
-     * The Person object may contain more information about an agent. 
+     * The Person object may contain more information about an agent.
      * See the xAPI Spec for details.
      * @param {object} agent   the agent object to get a Person
-     * @param {function [callback]    function to be called after the LRS responds 
+     * @param {function [callback]    function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
@@ -870,12 +870,12 @@ function isDate(date) {
             url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
 
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -894,24 +894,24 @@ function isDate(date) {
      * @param {string} profileval   the profile
      * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
      * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds 
+     * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} false if no agent profile is included
      * @example
      * var profile = {"info":"the agent profile"};
-     * ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"}, 
+     * ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                   "agentprofile", profile, null, "*");
      */
-    XAPIWrapper.prototype.sendAgentProfile = function(agent, profileid, profileval, matchHash, noneMatchHash, callback) 
+    XAPIWrapper.prototype.sendAgentProfile = function(agent, profileid, profileval, matchHash, noneMatchHash, callback)
     {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
-            
+
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
-            
+
             var headers = null;
             if(matchHash && noneMatchHash)
             {
@@ -961,24 +961,24 @@ function isDate(date) {
     /*
      * Get agnet profile from the LRS
      * @param {object} agent   the agent associated with this profile
-     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids 
+     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
      *              associated with the agent
      * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
-     * @param {function} [callback]   function to be called after the LRS responds 
+     * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"}, 
+     * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                  "agentprofile", null,
      *                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
-     * >> {info: "the agent profile"} 
+     * >> {info: "the agent profile"}
      */
-    XAPIWrapper.prototype.getAgentProfile = function(agent, profileid, since, callback) 
+    XAPIWrapper.prototype.getAgentProfile = function(agent, profileid, since, callback)
     {
         if (this.testConfig()){
             var url = this.lrs.endpoint + "agents/profile?agent=<agent>";
-            
+
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
 
@@ -994,14 +994,14 @@ function isDate(date) {
                     url += '&since=' + encodeURIComponent(since.toISOString());
                 }
             }
-            
+
             var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null,this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -1019,24 +1019,24 @@ function isDate(date) {
      * @param {string} profileid   the id you want associated with this profile
      * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
      * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds 
+     * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"}, 
+     * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                     "agentprofile");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
-    XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback) 
+    XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback)
     {
         if (this.testConfig())
         {
             var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
-            
+
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
-            
+
             var headers = null;
             if(matchHash && noneMatchHash)
             {
@@ -1052,12 +1052,12 @@ function isDate(date) {
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials);
-            
+
             if(result === undefined || result.status == 404)
             {
                 return null
             }
-            
+
             try
             {
                 return JSON.parse(result.response);
@@ -1085,7 +1085,7 @@ function isDate(date) {
     }
 
     // outputs the message to the console if available
-    function log(message) 
+    function log(message)
     {
         if (!log.debug) return false;
         try
@@ -1097,35 +1097,35 @@ function isDate(date) {
     }
 
     // merges two object
-    function mergeRecursive(obj1, obj2) 
+    function mergeRecursive(obj1, obj2)
     {
-        for (var p in obj2) 
+        for (var p in obj2)
         {
             prop = obj2[p];
 			log(p + " : " + prop);
-            try 
+            try
             {
                 // Property in destination object set; update its value.
-                if ( obj2[p].constructor==Object ) 
+                if ( obj2[p].constructor==Object )
                 {
                     obj1[p] = mergeRecursive(obj1[p], obj2[p]);
 
-                } 
-                else 
+                }
+                else
                 {
                   if (obj1 == undefined)
                   {
                     obj1 = new Object();
                   }
                     obj1[p] = obj2[p];
-                } 
-            } 
-            catch(e) 
+                }
+            }
+            catch(e)
             {
               if (obj1 == undefined)
               {
                 obj1 = new Object();
-              }              
+              }
               // Property in destination object not set; create it and set its value.
               obj1[p] = obj2[p];
             }
@@ -1134,14 +1134,14 @@ function isDate(date) {
         return obj1;
     }
 
-    // iniitializes an lrs object with settings from 
+    // iniitializes an lrs object with settings from
     // a config file and from the url query string
     function getLRSObject(config)
     {
         var lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
         var lrs = new Object();
         var qsVars, prop;
-        
+
         qsVars = parseQueryString();
         if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
             for (var i = 0; i<lrsProps.length; i++){
@@ -1160,15 +1160,15 @@ function isDate(date) {
         else {
             lrs = config;
         }
-        
+
         return lrs;
     }
 
     // parses the params in the url query string
-    function parseQueryString() 
+    function parseQueryString()
     {
         var loc, qs, pairs, pair, ii, parsed;
-        
+
         loc = window.location.href.split('?');
         if (loc.length === 2) {
             qs = loc[1];
@@ -1181,12 +1181,12 @@ function isDate(date) {
                 }
             }
         }
-        
+
         return parsed;
     }
 
 
-    function delay() 
+    function delay()
     {
         var xhr = new XMLHttpRequest();
         var url = window.location + '?forcenocache='+ADL.ruuid();
@@ -1194,18 +1194,18 @@ function isDate(date) {
         xhr.send(null);
     }
 
-    /* 
+    /*
      * formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
      * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
      * @param {array} [headers]   headers to include in the request
      * @param {string} [data]   the body of the request, if there is one
-     * @return {object} xhr response object 
+     * @return {object} xhr response object
      */
     function ie_request(method, url, headers, data)
     {
         var newUrl = url;
-        
+
         //Everything that was on query string goes into form vars
         var formData = new Array();
         var qsIndex = newUrl.indexOf('?');
@@ -1216,7 +1216,7 @@ function isDate(date) {
 
         //Method has to go on querystring, and nothing else
         newUrl = newUrl + '?method=' + method;
-        
+
         //Headers
         if(headers !== null){
             for(var headerName in headers){
@@ -1228,7 +1228,7 @@ function isDate(date) {
         if(data !== null){
             formData.push('content=' + encodeURIComponent(data));
         }
-        
+
         return {
             "method":"POST",
             "url":newUrl,
@@ -1236,7 +1236,7 @@ function isDate(date) {
             "data":formData.join("&")
         };
     }
-    
+
     /*!
     Excerpt from: Math.uuid.js (v1.4)
     http://www.broofa.com
@@ -1244,7 +1244,7 @@ function isDate(date) {
     Copyright (c) 2010 Robert Kieffer
     Dual licensed under the MIT and GPL licenses.
     */
-    ADL.ruuid = function() 
+    ADL.ruuid = function()
     {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -1257,7 +1257,7 @@ function isDate(date) {
      * parses an ISO string into a date object
      * isostr - the ISO string
      */
-    ADL.dateFromISOString = function(isostr) 
+    ADL.dateFromISOString = function(isostr)
     {
         var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
             "([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
@@ -1294,17 +1294,17 @@ function isDate(date) {
      * @param {string} method   the http request method
      * @param {string} data   the payload
      * @param {string} auth   the value for the Authorization header
-     * @param {function} callback   function to be called after the LRS responds 
+     * @param {function} callback   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
      * @param {boolean} ignore404    allow page not found errors to pass
      * @param {object} extraHeaders   other header key-values to be added to this request
-     * @return {object} xhr response object 
+     * @return {object} xhr response object
      */
-    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials) 
+    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials)
     {
         "use strict";
-        
+
         var xhr,
             finished = false,
             xDomainRequest = false,
@@ -1317,7 +1317,7 @@ function isDate(date) {
             extended,
             prop,
             until;
- 
+
         //Consolidate headers
         var headers = {};
         headers["Content-Type"] = "application/json";
@@ -1328,14 +1328,14 @@ function isDate(date) {
                 headers[headerName] = extraHeaders[headerName];
             }
         }
-        
+
         //See if this really is a cross domain
         xDomainRequest = (location.protocol.toLowerCase() !== urlparts[1] || location.hostname.toLowerCase() !== urlparts[2]);
         if (!xDomainRequest) {
             urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
             xDomainRequest = (urlPort === location.port);
         }
-        
+
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
@@ -1345,7 +1345,7 @@ function isDate(date) {
             for(var headerName in headers){
                 xhr.setRequestHeader(headerName, headers[headerName]);
             }
-        } 
+        }
         //Otherwise, use IE's XDomainRequest object
         else {
             ieXDomain = true;
@@ -1353,7 +1353,7 @@ function isDate(date) {
             xhr = new XDomainRequest();
             xhr.open(ieModeRequest.method, ieModeRequest.url);
         }
-        
+
         //Setup request callback
         function requestComplete() {
             if(!finished){
@@ -1383,7 +1383,7 @@ function isDate(date) {
                 } else {
                     var warning;
                     try {
-                        warning = "There was a problem communicating with the Learning Record Store. ( " 
+                        warning = "There was a problem communicating with the Learning Record Store. ( "
                             + xhr.status + " | " + xhr.response+ " )" + url
                     } catch (ex) {
                         warning = ex.toString();
@@ -1409,7 +1409,7 @@ function isDate(date) {
         //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
 
         xhr.send(ieXDomain ? ieModeRequest.data : data);
-        
+
         if (!callback) {
             // synchronous
             if (ieXDomain) {
