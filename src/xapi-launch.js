@@ -150,7 +150,6 @@ function xAPILaunch(cb, terminate_on_unload)
             }
             var wrapper = new ADL.XAPIWrapper.constructor();
             wrapper.changeConfig(conf);
-            console.log("in xapi launch", wrapper.lrs);
             //Links that include "courseLink='true'"
             setupCourseLinks(document.body.querySelectorAll('a'));
             //Also, if links are added dynamically, we will do the same logic for those links.
