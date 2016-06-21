@@ -190,12 +190,24 @@ This allows configuration - agent info, lrs endpoint info - to be sent to the wr
 instead of using hard-coded configurations. See [Using the xAPI-Launch library](https://github.com/adlnet/xapi-launch#using-the-xapi-launch-library) for
 more details.  
 
+If you are using the src files, include xapi-launch.js.  
+
+``` html
+     <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+     <script type="text/javascript" src="./src/verbs.js"></script>
+     <script type="text/javascript" src="./src/xapistatement.js"></script>
+     <script type="text/javascript" src="./src/xapiwrapper.js"></script>
+```
+
+Alternatively, use the minified xapiwrapper version, which includes xapi-launch:
+
+``` html
+ <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+```  
+
 To use, construct and ADL.launch object passing in a callback.  
 
 ``` javascript
-<!-- xapi-launch is built into xapiwrapper.min.js, but if you're using the src
-     versions, include xapi-launch.js -->
-
 var wrapper;
 ADL.launch(function(err, launchdata, xAPIWrapper) {
     if (!err) {
