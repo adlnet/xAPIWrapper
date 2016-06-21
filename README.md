@@ -185,7 +185,7 @@ which attempts to write a message to console.log. This can be configured
 to not write messages by setting `log.debug = false;`.
 
 #### xAPI Launch support
-The xAPI Wrapper now supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-launch).
+The xAPI Wrapper supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-launch).
 This allows configuration - agent info, lrs endpoint info - to be sent to the wrapper,
 instead of using hard-coded configurations. See [Using the xAPI-Launch library](https://github.com/adlnet/xapi-launch#using-the-xapi-launch-library) for
 more details.  
