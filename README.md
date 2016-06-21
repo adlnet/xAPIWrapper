@@ -193,6 +193,9 @@ more details.
 To use, construct and ADL.launch object passing in a callback.  
 
 ``` javascript
+<!-- xapi-launch is built into xapiwrapper.min.js, but if you're using the src
+     versions, include xapi-launch.js -->
+
 var wrapper;
 ADL.launch(function(err, launchdata, xAPIWrapper) {
     if (!err) {
