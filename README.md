@@ -193,16 +193,16 @@ more details.
 If you are using the src files, include xapi-launch.js.  
 
 ``` html
-     <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-     <script type="text/javascript" src="./src/verbs.js"></script>
-     <script type="text/javascript" src="./src/xapistatement.js"></script>
-     <script type="text/javascript" src="./src/xapiwrapper.js"></script>
+<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./src/verbs.js"></script>
+<script type="text/javascript" src="./src/xapistatement.js"></script>
+<script type="text/javascript" src="./src/xapiwrapper.js"></script>
 ```
 
 Alternatively, use the minified xapiwrapper version, which includes xapi-launch:
 
 ``` html
- <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+<script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
 ```  
 
 To use, construct and ADL.launch object passing in a callback.  
