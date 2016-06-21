@@ -197,22 +197,22 @@
     </div>
 
     <script>
-    var wrapper;
+        var wrapper;
         ADL.launch(function(err, launchdata, xAPIWrapper) {
-        if (!err) {
-            wrapper = xAPIWrapper;
-            console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
-        } else {
-            wrapper = ADL.XAPIWrapper;
-            wrapper.changeConfig({
-                endpoint: "https://lrs.adlnet.gov/xapi/",
-                user: 'tom',
-                password: '1234'
-            });
-            console.log("--- content statically configured ---\n", wrapper.lrs);
-        }
-        $('#endpoint').text(wrapper.lrs.endpoint);
-    }, true);
+            if (!err) {
+                wrapper = xAPIWrapper;
+                console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
+            } else {
+                wrapper = ADL.XAPIWrapper;
+                wrapper.changeConfig({
+                    endpoint: "https://lrs.adlnet.gov/xapi/",
+                    user: 'tom',
+                    password: '1234'
+                });
+                console.log("--- content statically configured ---\n", wrapper.lrs);
+            }
+            $('#endpoint').text(wrapper.lrs.endpoint);
+        }, true);
     </script>
 
     <script>
