@@ -37,8 +37,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-exec');
 
   // Default task(s).
-  grunt.registerTask('default', ['uglify','exec']);
-  
+  grunt.registerTask('default', ['uglify']);//,'exec']);
+
   // Build only
   grunt.registerTask('build', ['uglify']);
 
