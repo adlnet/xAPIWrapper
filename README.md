@@ -78,7 +78,7 @@ Then execute the build script:
 ```bash
 $ grunt
 ```
- 
+
 This will overwrite `dist/xapiwrapper.min.js` with the minifed versions of the wrapper and all its
 dependencies.
 
@@ -158,7 +158,7 @@ var creds = {
 };
 ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
 ```  
-  
+
 The script automatically runs, creating or adding to an ADL object an
 instantiated xAPI Wrapper object. The object is created using the
 configuration object inside the xapiwrapper.js file. If you modified this
@@ -183,6 +183,49 @@ usage examples.
 The wrapper comes with a logging function (`ADL.XAPIWrapper.log(message)`)
 which attempts to write a message to console.log. This can be configured
 to not write messages by setting `log.debug = false;`.
+
+#### xAPI Launch support
+The xAPI Wrapper supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-launch).
+This allows configuration - agent info, lrs endpoint info - to be sent to the wrapper,
+instead of using hard-coded configurations. See [Using the xAPI-Launch library](https://github.com/adlnet/xapi-launch#using-the-xapi-launch-library) for
+more details.  
+
+If you are using the src files, include xapi-launch.js.  
+
+``` html
+<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./src/verbs.js"></script>
+<script type="text/javascript" src="./src/xapi-launch.js"></script>
+<script type="text/javascript" src="./src/xapistatement.js"></script>
+<script type="text/javascript" src="./src/xapiwrapper.js"></script>
+```
+
+Alternatively, use the minified xapiwrapper version, which includes xapi-launch:
+
+``` html
+<script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+```  
+
+To use, construct and ADL.launch object passing in a callback.  
+
+``` javascript
+var wrapper;
+ADL.launch(function(err, launchdata, xAPIWrapper) {
+    if (!err) {
+        wrapper = xAPIWrapper;
+        console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
+    } else {
+        wrapper = ADL.XAPIWrapper;
+        wrapper.changeConfig({
+            endpoint: "https://lrs.adlnet.gov/xapi/",
+            user: 'tom',
+            password: '1234'
+        });
+        console.log("--- content statically configured ---\n", wrapper.lrs);
+    }
+    $('#endpoint').text(wrapper.lrs.endpoint);
+}, true);
+```  
 
 ### Use
 
@@ -850,7 +893,7 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 We welcome contributions to this project. Fork this repository,
 make changes, [re-minify](https://github.com/adlnet/xAPIWrapper#building-the-project), and submit pull requests. If you're not comfortable
 with editing the code, please [submit an issue](https://github.com/adlnet/xAPIWrapper/issues) and we'll be happy
-to address it. 
+to address it.
 
 ## License
    Copyright &copy;2016 Advanced Distributed Learning
