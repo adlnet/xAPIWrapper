@@ -59,9 +59,28 @@ git clone https://github.com/adlnet/xAPIWrapper/
 
 #### Building the project
 
+```bash
+$ sudo apt-get install nodejs
+$ sudo apt-get install npm
+```
+
 Compiling the minified version is easy. Install Node.js and NPM if you don't already have them
-(download them [here](http://nodejs.org/download/)). Then install the build system, Grunt. This
+(download them [here](http://nodejs.org/download/)) or 
+
+```bash
+$ sudo apt-get install nodejs
+$ sudo apt-get install npm
+
+$ sudo ln -s /usr/bin/nodejs /usr/bin/node
+```
+
+Then install the build system, Grunt. This
 may require root/admin privileges on your system.
+
+
+```bash
+$ cd xAPIWrapper
+```
 
 ```bash
 $ sudo npm install -g grunt
@@ -70,7 +89,7 @@ $ sudo npm install -g grunt
 Install the xAPIWrapper dependencies:
 
 ```bash
-$ npm install
+$ sudo npm install
 ```
 
 Then execute the build script:
