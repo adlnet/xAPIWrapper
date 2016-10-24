@@ -59,11 +59,6 @@ git clone https://github.com/adlnet/xAPIWrapper/
 
 #### Building the project
 
-```bash
-$ sudo apt-get install nodejs
-$ sudo apt-get install npm
-```
-
 Compiling the minified version is easy. Install Node.js and NPM if you don't already have them
 (download them [here](http://nodejs.org/download/)) or 
 
