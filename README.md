@@ -5,13 +5,7 @@ Wrapper to simplify communication to an LRS. [Read more about the Experience API
 
 Check out the [Reference Documentation Here](http://adlnet.github.io/xAPIWrapper/)
 
-## Contributing to the project
-We welcome contributions to this project. Fork this repository,
-make changes, re-minify, and submit pull requests. If you're not comfortable
-with editing the code, please submit an issue and we'll be happy
-to address it.  
-
-## xapiwrapper.js
+### xapiwrapper.js
 
 Javascript Experience API wrapper.  
 This javascript file can be included to web based xAPI clients to
@@ -26,11 +20,44 @@ and can be used to determine if the wrapper is compatible with an LRS implementi
 xAPI Specification version. The second is the build date in the header of the minified file,
 which can be used to tell if you're using the latest version.
 
-### Minified version
+### Dependencies
+The wrapper relies on external dependencies to perform some actions. Make sure you include
+our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
+in your pages if you're not using `xapiwrapper.min.js`
+
+``` html
+<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+```
+
+In the past we used the below libraries for the same purpose. You may continue to use them
+for current systems, but the CryptoJS compilation is recommended.
+
+* base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
+* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
+
+## Installing
+
+Using this wrapper could either be done by downloading the [latest release](https://github.com/adlnet/xAPIWrapper#downloading-the-latest-release-version) or [cloning the project](https://github.com/adlnet/xAPIWrapper#cloning-and-building-the-project).
+
+### Downloading the latest release version
 
 The minified wrapper is self-contained. It includes all required dependencies
 in addition to the ADL Verbs and the XAPIStatement module. For production sites,
 this version of the wrapper is recommended.
+
+Download the latest [release](https://github.com/adlnet/xAPIWrapper/releases)
+
+Follow the [instructions](https://github.com/adlnet/xAPIWrapper#including-in-your-software) for including the wrapper in your source files.
+
+### Cloning and building the project
+
+You can optionally clone and use the `dist/xapiwrapper.min.js`:
+
+```bash
+git clone https://github.com/adlnet/xAPIWrapper/
+```
+
+#### Building the project
 
 Compiling the minified version is easy. Install Node.js and NPM if you don't already have them
 (download them [here](http://nodejs.org/download/)). Then install the build system, Grunt. This
@@ -51,25 +78,26 @@ Then execute the build script:
 ```bash
 $ grunt
 ```
-
-This will overwrite `xapiwrapper.min.js` with the minifed versions of the wrapper and all its
+ 
+This will overwrite `dist/xapiwrapper.min.js` with the minifed versions of the wrapper and all its
 dependencies.
 
-### Dependencies
-The wrapper relies on external dependencies to perform some actions. Make sure you include
-our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
-in your pages if you're not using `xapiwrapper.min.js`
+#### Including in your Software.
+
+Include the wrapper file, and optionally the dependencies.
 
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./src/verbs.js"></script>
+<script type="text/javascript" src="./src/xapistatement.js"></script>
+<script type="text/javascript" src="./src/xapiwrapper.js"></script>
 ```
 
-In the past we used the below libraries for the same purpose. You may continue to use them
-for current systems, but the CryptoJS compilation is recommended.
+Alternatively, use the minified version:
 
-* base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
-* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
-
+``` html
+<script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
+```
 
 
 ### Configuration
@@ -130,6 +158,16 @@ var creds = {
 };
 ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
 ```  
+  
+The script automatically runs, creating or adding to an ADL object an
+instantiated xAPI Wrapper object. The object is created using the
+configuration object inside the xapiwrapper.js file. If you modified this
+object with your configuration, then xAPI Wrapper object is ready to use.
+
+``` shell
+ADL.XAPIWrapper.testConfig();
+>> true
+```
 
 #### Launch Parameters
 The configuration will also look for url query parameters and use those
@@ -147,30 +185,6 @@ which attempts to write a message to console.log. This can be configured
 to not write messages by setting `log.debug = false;`.
 
 ### Use
-Include the wrapper file, and optionally the dependencies.
-
-``` html
-<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-<script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/xapistatement.js"></script>
-<script type="text/javascript" src="./src/xapiwrapper.js"></script>
-```
-
-Alternatively:
-
-``` html
-<script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
-```
-
-The script automatically runs, creating or adding to an ADL object an
-instantiated xAPI Wrapper object. The object is created using the
-configuration object inside the xapiwrapper.js file. If you modified this
-object with your configuration, then xAPI Wrapper object is ready to use.
-
-``` shell
-ADL.XAPIWrapper.testConfig();
->> true
-```
 
 #### Statements
 
@@ -831,3 +845,24 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  "agentprofile");
 >> 404
 ```
+
+## Contributing to the project
+We welcome contributions to this project. Fork this repository,
+make changes, [re-minify](https://github.com/adlnet/xAPIWrapper#building-the-project), and submit pull requests. If you're not comfortable
+with editing the code, please [submit an issue](https://github.com/adlnet/xAPIWrapper/issues) and we'll be happy
+to address it. 
+
+## License
+   Copyright &copy;2016 Advanced Distributed Learning
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
