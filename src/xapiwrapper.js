@@ -42,7 +42,7 @@ function toSHA1(text){
 }
 function toSHA256(text){
   if(CryptoJS && CryptoJS.SHA256)
-    return CryptoJS.toSHA256(text).toString();
+    return CryptoJS.SHA256(text).toString();
 
 }
 
@@ -369,7 +369,7 @@ function isDate(date) {
 
             //compute the length and the sha2 of the attachment
             attachments[i].type.length = attachments[i].value.length;
-            attachments[i].type.sha2 = this.toSHA256(attachments[i].value);
+            attachments[i].type.sha2 = toSHA256(attachments[i].value);
 
             //attach the attachment metadata to the statement
             statement.attachments.push(attachments[i].type)
@@ -378,11 +378,11 @@ function isDate(date) {
         var body = "";
         var CRLF = "\r\n";
         
-        extraHeaders["content-type"] = "multipart-mixed; boundary = 5456426168151818";
+        extraHeaders["Content-Type"] = "multipart/mixed; boundary=5456426168151818";
 
         body += CRLF + '--' + "5456426168151818" + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
         body += JSON.stringify(statement);
-        body += body += CRLF + '--' + "5456426168151818" + CRLF;
+    
         for(var i in attachments)
         {
 
@@ -392,7 +392,7 @@ function isDate(date) {
         body += CRLF + "--5456426168151818--" + CRLF
 
 
-        extraHeaders["content-length"] = getByteLen(body); 
+       
 
         return body;
     }
