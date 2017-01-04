@@ -118,7 +118,7 @@ function xAPILaunch(cb, terminate_on_unload)
 
             xhr2.open('POST', launch.toString(), false);
             xhr2.setRequestHeader("Content-type" , "application/json");
-            xhr2.send(JSON.stringify({"code":0,"description": message ||"User closed content"});
+            xhr2.send(JSON.stringify({"code":0,"description": message ||"User closed content"}));
 
         }
 
