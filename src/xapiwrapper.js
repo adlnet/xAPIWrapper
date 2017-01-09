@@ -572,7 +572,7 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
 
             if(result === undefined || result.status == 404)
             {
@@ -648,7 +648,7 @@ function isDate(date) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials);
 
             if(result === undefined || result.status == 404)
             {
