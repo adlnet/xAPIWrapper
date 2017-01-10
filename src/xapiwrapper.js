@@ -667,7 +667,7 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
 
             if(result === undefined || result.status == 404)
             {
@@ -743,7 +743,7 @@ function isDate(date) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, headers, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials);
 
             if(result === undefined || result.status == 404)
             {
@@ -1262,18 +1262,16 @@ function isDate(date) {
     // parses the params in the url query string
     function parseQueryString()
     {
-        var loc, qs, pairs, pair, ii, parsed;
+        var qs, pairs, pair, ii, parsed;
 
-        loc = window.location.href.split('?');
-        if (loc.length === 2) {
-            qs = loc[1];
-            pairs = qs.split('&');
-            parsed = {};
-            for ( ii = 0; ii < pairs.length; ii++) {
-                pair = pairs[ii].split('=');
-                if (pair.length === 2 && pair[0]) {
-                    parsed[pair[0]] = decodeURIComponent(pair[1]);
-                }
+        qs = window.location.search.substr(1);
+
+        pairs = qs.split('&');
+        parsed = {};
+        for ( ii = 0; ii < pairs.length; ii++) {
+            pair = pairs[ii].split('=');
+            if (pair.length === 2 && pair[0]) {
+                parsed[pair[0]] = decodeURIComponent(pair[1]);
             }
         }
 

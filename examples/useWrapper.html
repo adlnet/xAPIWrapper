@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../test/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
+
+    <script src="./libs/ace-editor/ace.js"></script>
+
+    <script src="../dist/xapiwrapper.min.js"></script>
+
+    <!-- <script src="../lib/cryptojs_v3.1.2.js"></script>
+    <script src="../src/verbs.js"></script>
+    <script src="../src/xapi-launch.js"></script>
+    <script src="../src/xapiwrapper.js"></script> -->
+    <!-- <script src="../src/offline.js"></script>
+    <script src="../src/storage.js"></script>
+    <script src="../src/validator.js"></script> -->
+
+    <style>
+        #stmtinput {
+            height: 600px;
+        }
+    </style>
+</head>
+<body class='container'>
+    <!-- <span id="onlineflag" class="label label-default pull-right">Checking..</span>
+    <input id="checkonlinetoggle" type="checkbox" data-toggle="toggle" data-on="Checking" data-off="Not Checking" data-onstyle="success" data-offstyle="warning" data-size="mini" checked>
+    <span id="endpoint" contentEditable="true"></span>
+    <div class="row">
+        <div class="col-xs-12">
+            <br>
+        </div>
+    </div> -->
+    <div class="row">
+        <h2> xAPI Test Page </h2>
+        <p>endpoint: <span id="endpoint"></span></p>
+    </div>
+    <div class="row">
+        <div class="col-xs-3">
+            <hr>
+            <h4>Custom Statement</h4>
+            <form id="makestmtform">
+                <div class="form-group">
+                    <div><strong>Actor</strong></div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="actorradio" id="actormbox" value="mbox" checked>
+                            mbox
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="actorradio" id="actoraccount" value="account">
+                            account
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div><strong>Object</strong></div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="objectradio" id="objectactivity" value="Activity" checked>
+                            activity
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="objectradio" id="objectagent" value="Agent">
+                            agent
+                        </label>
+                    </div>
+                    <div class="radio">
+                        <label>
+                            <input type="radio" name="objectradio" id="objectstmtref" value="StatementRef">
+                            stmt ref
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div><strong>Result</strong></div>
+                    <div class="checkbox" style="margin-bottom: 1.5em">
+                        Score <br>
+                        <label style="margin-right: 10px">
+                            <input name="resultcbx" type="checkbox" value="scaled">
+                            scaled
+                        </label>
+                        <label style="margin-right: 10px">
+                            <input name="resultcbx" type="checkbox" value="raw">
+                            raw
+                        </label>
+                        <label style="margin-right: 10px">
+                            <input name="resultcbx" type="checkbox" value="min">
+                            min
+                        </label>
+                        <label>
+                            <input name="resultcbx" type="checkbox" value="max">
+                            max
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="resultcbx" type="checkbox" value="success">
+                            success
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="resultcbx" type="checkbox" value="completion">
+                            completion
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="resultcbx" type="checkbox" value="response">
+                            response
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="resultcbx" type="checkbox" value="duration">
+                            duration
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="resultcbx" type="checkbox" value="ext">
+                            extensions
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div><strong>Context</strong></div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="contextcbx" type="checkbox" value="registration">
+                            registration
+                        </label>
+                    </div>
+                    <div class="checkbox" style="margin-bottom: 1.5em">
+                        ctx acts <br>
+                        <label style="margin-right: 10px">
+                            <input name="contextcbx" type="checkbox" value="parent">
+                            parent
+                        </label>
+                        <label style="margin-right: 10px">
+                            <input name="contextcbx" type="checkbox" value="grouping">
+                            grouping
+                        </label>
+                        <label style="margin-right: 10px">
+                            <input name="contextcbx" type="checkbox" value="category">
+                            category
+                        </label>
+                        <label>
+                            <input name="contextcbx" type="checkbox" value="other">
+                            other
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            <input name="contextcbx" type="checkbox" value="ext">
+                            extensions
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-xs-9">
+            <div class="row">
+                <div class="col-xs-12">
+                    <button id="createstmtbtn" type="button" class="btn btn-info">Create basic statement</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                    <label for="stmtinput"></label>
+                    <pre id="stmtinput"></pre>
+                </div>
+                <button id="sendbtn" type="button" class="btn btn-success">send</button>
+                <button id="clearbtn" type="button" class="btn btn-default pull-right">Clear</button>
+            </div>
+            <div class="row" style="margin-top: 1em">
+                <div class="col-xs-12">
+                    <div id="results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var wrapper;
+        ADL.launch(function(err, launchdata, xAPIWrapper) {
+            if (!err) {
+                wrapper = ADL.XAPIWrapper = xAPIWrapper;
+                console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
+            } else {
+                wrapper = ADL.XAPIWrapper;
+                wrapper.changeConfig({
+                    endpoint: "https://lrs.adlnet.gov/xapi/",
+                    user: 'tom',
+                    password: '1234'
+                });
+                console.log("--- content statically configured ---\n", wrapper.lrs);
+            }
+            $('#endpoint').text(wrapper.lrs.endpoint);
+        }, true);
+    </script>
+
+    <script>
+        var editor = ace.edit("stmtinput");
+        editor.$blockScrolling = Infinity;
+        editor.setTheme("ace/theme/twilight");
+        editor.getSession().setMode("ace/mode/json");
+
+        editor.getSession().on('change', function (e) {
+            $('#results').empty();
+        });
+    </script>
+
+    <script>
+        var mkstmt = function (opts) {
+            var parts = {
+                actor: {
+                    mbox: {mbox:"mailto:placeholder@fixme.com"},
+                    account: {account:{name:"accountname", homePage:"http://account.com/homepage"}}
+                },
+                verb: {id:"http://verb.com/id", display: {"en": "verbed"}},
+                object: {
+                    Activity: {id:"http://activity.com/id"},
+                    Agent: {objectType: "Agent", mbox:"mailto:placeholder@fixme.com"},
+                    StatementRef: {objectType: "StatementRef", id:"8f87ccde-bb56-4c2e-ab83-44982ef22df0"}
+                }
+            };
+
+            var ret = {};
+            var base = (editor.getValue() && JSON.parse(editor.getValue()))
+                        || {
+                              actor: parts.actor.mbox,
+                              verb: parts.verb,
+                              object: parts.object.Activity,
+                              timestamp: (new Date()).toISOString()
+                           };
+
+            if (! opts)
+                return base;
+
+            ret.actor = (base.actor.hasOwnProperty(opts.actor)) ?
+                base.actor : parts.actor[opts.actor];
+            ret.verb = base.verb || parts.verb;
+            ret.object = (((base.object.objectType) ? base.object.objectType : "Activity") === opts.object) ? base.object : parts.object[opts.object];
+            ret.timestamp = base.timestamp;
+
+            for (var a in opts.result) {
+                ret.result = ret.result || {};
+                var att = opts.result[a];
+                if (att === "scaled") {
+                    if (!ret.result.score) ret.result.score = {};
+                    ret.result.score.scaled =
+                        (base.result && base.result.score && base.result.score.scaled) || .95;
+                }
+                else if (att === "raw") {
+                    if (! ret.result.score) ret.result.score = {};
+                    ret.result.score.raw =
+                        (base.result && base.result.score && base.result.score.raw) || 95;
+                }
+                else if (att === "min") {
+                    if (! ret.result.score) ret.result.score = {};
+                    ret.result.score.min =
+                        (base.result && base.result.score && base.result.score.min) || 0;
+                }
+                else if (att === "max") {
+                    if (! ret.result.score) ret.result.score = {};
+                    ret.result.score.max =
+                        (base.result && base.result.score && base.result.score.max) || 100;
+                }
+                else if (att === "success") {
+                    ret.result.success = (base.result && base.result.success) || true;
+                }
+                else if (att === "completion") {
+                    ret.result.completion = (base.result && base.result.completion) || true;
+                }
+                else if (att === "response") {
+                    ret.result.response = (base.result && base.result.response) || "this is the response";
+                }
+                else if (att === "duration") {
+                    ret.result.duration = (base.result && base.result.duration) || "PT5H4M";
+                 }
+                else if (att === "ext") {
+                    ret.result.extensions = (base.result && base.result.extensions) || {"http://ext.com/key":"value"};
+                }
+            }
+
+            for (var a in opts.ctx) {
+                ret.context = ret.context || {};
+                var att = opts.ctx[a];
+                if (att === "registration") {
+                    ret.context.registration =
+                        (base.context && base.context.registration) ||
+                        "ffbf6a38-00fb-405d-91ec-e455385cdaa8";
+                }
+                else if (att === "parent") {
+                    ret.context.contextActivities = ret.context.contextActivities || {};
+                    ret.context.contextActivities.parent =
+                        (base.context && base.context.contextActivities && base.context.contextActivities.parent) || [{id:"http://cxt.com/parent/0"}];
+                }
+                else if (att === "grouping") {
+                    ret.context.contextActivities = ret.context.contextActivities || {};
+                    ret.context.contextActivities.grouping = (base.context && base.context.contextActivities && base.context.contextActivities.grouping) ||  [{id:"http://cxt.com/grouping/0"}];
+                }
+                else if (att === "category") {
+                    ret.context.contextActivities = ret.context.contextActivities || {};
+                    ret.context.contextActivities.category = (base.context && base.context.contextActivities && base.context.contextActivities.category) ||  [{id:"http://cxt.com/category/0"}];
+                }
+                else if (att === "other") {
+                    ret.context.contextActivities = ret.context.contextActivities || {};
+                    ret.context.contextActivities.other = (base.context && base.context.contextActivities && base.context.contextActivities.other) ||  [{id:"http://cxt.com/other/0"}];
+                }
+                else if (att === "ext") {
+                    ret.context.extensions = (base.context && base.context.extensions) || {"http://ext.com/key":"value"};
+                }
+            }
+
+            return ret;
+        };
+    </script>
+
+    <script>
+        var outputResults = function (resp, thing) {
+            var spanclass = "text-info";
+            var text = "";
+            if (resp.status >= 400) {
+                spanclass = "text-danger";
+                text = (thing.totalErrors > 1) ? "Errors: " : "Error: ";
+                for ( var res in thing.results ) {
+                    text += "<br>" + ((thing.results[res].instance.id) ? thing.results[res].instance.id : "Statement " + res);
+                    for ( var err in thing.results[res].errors ) {
+                        text += "<br>&nbsp;&nbsp;" + thing.results[res].errors[err].trace;
+                        text += "<br>&nbsp;&nbsp;&nbsp;&nbsp;" + thing.results[res].errors[err].message;
+                    }
+                }
+            } else {
+                if ( resp.responseText )
+                    text = "Successfully sent " + resp.responseText;
+                else
+                    text = thing;
+            }
+
+            var p = $('<p>').addClass(spanclass).html(text);
+            $('#results').append(p);
+        };
+
+        $('#sendbtn').on('click', function (ev) {
+            var instmt = JSON.parse(editor.getValue());
+            if (Array.isArray(instmt)) {
+                console.log('sending array - multi stmt... ');
+                wrapper.sendStatements(instmt, outputResults);
+            } else {
+                console.log('sending object - single stmt... ');
+                wrapper.sendStatement(instmt, outputResults);
+            }
+
+        });
+
+        $('#createstmtbtn').on('click', function (e) {
+            editor.setValue( JSON.stringify(mkstmt(), null, 4) );
+            clearForm();
+        });
+
+        $('#clearbtn').on('click', function (e) {
+            editor.setValue('');
+            clearForm();
+        });
+
+        $('#makestmtform').on('change', function (ev) {
+            ev.preventDefault();
+            var actor = $('input[name=actorradio]:checked').val();
+            var object = $('input[name=objectradio]:checked').val();
+            var reschkd = $('input[name=resultcbx]:checked').map(function () {
+                return this.value;
+            }).get();
+            var ctxchkd = $('input[name=contextcbx]:checked').map(function () {
+                return this.value;
+            }).get();
+            var opts = {
+                actor: actor,
+                object: object,
+                result: reschkd,
+                ctx: ctxchkd
+            };
+            editor.setValue( JSON.stringify(mkstmt(opts), null, 4) );
+        });
+
+        function clearForm () {
+            $('input[id=actormbox]').prop('checked', true);
+            $('input[id=actoraccount]').prop('checked', false);
+            $('input[id=objectactivity]').prop('checked', true);
+            $('input[id=objectagent]').prop('checked', false);
+            $('input[id=objectstmtref]').prop('checked', false);
+            $('input[name=resultcbx]').prop('checked', false);
+            $('input[name=contextcbx]').prop('checked', false);
+            $('#results').empty();
+        }
+    </script>
+</body>
+</html>
