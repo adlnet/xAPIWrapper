@@ -409,8 +409,8 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
 
 ###### Send Statement with Attachments
 The wrapper can construct a `multipart/mixed` POST for a single statement that includes attachments. Attachments should be 
-supplied as an array the 3rd parameter to `sendStatement`. Attachments are optional. The attachments array should consist of 
-objects that have a type and a value. Type should be the metadata description of the attachment as described by the spec, value
+supplied as an array in the 3rd parameter to `sendStatement`. Attachments are optional. The attachments array should consist of 
+objects that have a `type` and a `value` field. `Type` should be the metadata description of the attachment as described by the spec, and `value`
 should be a string containing the data to post. The type field does not need to include the SHA2 or the length. These will be computed
 for you. The type may optionally be the string 'signature'. In this case, the wrapper will construct the proper metadata block.
 
@@ -428,16 +428,6 @@ attachment.type = {
 };
 attachment.value = "somehugestring";
 ADL.XAPIWrapper.sendStatement(stmt,callback,[attachment]);
-```
-
-```JavaScript
-var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-            "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-                      "display" : {"en-US" : "answered"}},
-            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
-    ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
->> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
 ```
 
 ###### Send Statement with URL query string values
