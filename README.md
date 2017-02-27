@@ -378,7 +378,7 @@ var stmt = ADL.XAPIStatement(myactor, ADL.verbs.launched, myactivity);
 ```
 
 ##### Send Statement
-`function sendStatement(statement, callback)`  
+`function sendStatement(statement, callback, [attachments])`  
 Sends a single Statement to the LRS using a PUT request. This
 method will automatically create the Statement ID. Providing a
 function to call after the send Statement request will make
@@ -405,6 +405,29 @@ var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
 ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
 >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
+```
+
+###### Send Statement with Attachments
+The wrapper can construct a `multipart/mixed` POST for a single statement that includes attachments. Attachments should be 
+supplied as an array in the 3rd parameter to `sendStatement`. Attachments are optional. The attachments array should consist of 
+objects that have a `type` and a `value` field. `Type` should be the metadata description of the attachment as described by the spec, and `value`
+should be a string containing the data to post. The type field does not need to include the SHA2 or the length. These will be computed
+for you. The type may optionally be the string 'signature'. In this case, the wrapper will construct the proper metadata block.
+
+```JavaScript
+var attachment = {};
+attachment.type = {
+       "usageType": "http://adlnet.gov/expapi/attachments/signature",
+       "display": {
+        "en-US": "A JWT signature"
+       },
+       "description": {
+        "en-US": "A signature proving the statement was not modified"
+       },
+       "contentType": "application/octet-stream"
+};
+attachment.value = "somehugestring";
+ADL.XAPIWrapper.sendStatement(stmt,callback,[attachment]);
 ```
 
 ###### Send Statement with URL query string values

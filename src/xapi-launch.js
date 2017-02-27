@@ -103,10 +103,25 @@ function xAPILaunch(cb, terminate_on_unload)
         var launchToken = getQueryVariable("xAPILaunchKey");
         var launchEndpoint = getQueryVariable("xAPILaunchService");
         var encrypted = getQueryVariable("encrypted");
-        if (!encrypted)
+        if (encrypted)
         {
             //here, we'd have to implement decryption for the data. This makes little sense in a client side only course
         }
+
+        xAPILaunch.terminate = function(message)
+        {
+            var launch = new URL(launchEndpoint);
+            launch.pathname += "launch/" + launchToken + "/terminate";
+            var xhr2 = new XMLHttpRequest();
+            xhr2.withCredentials = true;
+            xhr2.crossDomain = true;
+
+            xhr2.open('POST', launch.toString(), false);
+            xhr2.setRequestHeader("Content-type" , "application/json");
+            xhr2.send(JSON.stringify({"code":0,"description": message ||"User closed content"}));
+
+        }
+
         if (!launchToken || !launchEndpoint)
             return cb("invalid launch parameters");
         var launch = new URL(launchEndpoint);
@@ -138,15 +153,7 @@ function xAPILaunch(cb, terminate_on_unload)
             {
                 if (!terminate_on_unload)
                     return;
-                var launch = new URL(launchEndpoint);
-                launch.pathname += "launch/" + launchToken + "/terminate";
-                var xhr2 = new XMLHttpRequest();
-                xhr2.withCredentials = true;
-                xhr2.crossDomain = true;
-
-                xhr2.open('POST', launch.toString(), false);
-                xhr2.setRequestHeader("Content-type" , "application/json");
-                xhr2.send('{"code":0,"description":"User closed content"}');
+                xAPILaunch.terminate("User closed content")
             }
             var wrapper = new ADL.XAPIWrapper.constructor();
             wrapper.changeConfig(conf);
