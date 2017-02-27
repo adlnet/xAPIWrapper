@@ -377,19 +377,20 @@ function isDate(date) {
 
         var body = "";
         var CRLF = "\r\n";
-        
-        extraHeaders["Content-Type"] = "multipart/mixed; boundary=5456426168151818";
+        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
 
-        body += CRLF + '--' + "5456426168151818" + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
+        extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
+
+        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
         body += JSON.stringify(statement);
     
         for(var i in attachments)
         {
 
-            body += CRLF + '--' + "5456426168151818" + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+            body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
             body += attachments[i].value;
         }
-        body += CRLF + "--5456426168151818--" + CRLF
+        body += CRLF + "--" + boundary + "--" + CRLF
 
 
        
