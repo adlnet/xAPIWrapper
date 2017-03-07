@@ -131,9 +131,6 @@ function isDate(date) {
      */
     XAPIWrapper = function(config, verifyxapiversion)
     {
-
-
-
         this.lrs = getLRSObject(config || {});
         if (this.lrs.user && this.lrs.password)
             updateAuth(this.lrs, this.lrs.user, this.lrs.password);
@@ -232,7 +229,7 @@ function isDate(date) {
     };
 
     // This wrapper is based on the Experience API Spec version:
-    XAPIWrapper.prototype.xapiVersion = "1.0.1";
+    XAPIWrapper.prototype.xapiVersion = "1.0.3";
 
     /*
      * Adds info from the lrs object to the statement, if available.
@@ -276,65 +273,6 @@ function isDate(date) {
     XAPIWrapper.prototype.log = log;
 
     /*
-     * Send a single statement to the LRS. Makes a Javascript object
-     * with the statement id as 'id' available to the callback function.
-     * @param {object} stmt   statement object to send
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id
-     *            of the statement
-     * @return {object} object containing xhr object and id of statement
-     * @example
-     * // Send Statement
-     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-     *                       "display" : {"en-US" : "answered"}},
-     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
-     * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
-     *
-     * // Send Statement with Callback
-     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-     *                       "display" : {"en-US" : "answered"}},
-     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
-     *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
-     * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
-     */
-    XAPIWrapper.prototype.sendStatement = function(stmt, callback, attachments)
-    {
-        if (this.testConfig())
-        {
-            this.prepareStatement(stmt);
-            var id;
-            if (stmt['id'])
-            {
-                id = stmt['id'];
-            }
-            else
-            {
-                id = ADL.ruuid();
-                stmt['id'] = id;
-            }
-
-            var payload = JSON.stringify(stmt);
-            var extraHeaders = null;
-            if(attachments && attachments.length > 0)
-            {
-                extraHeaders = {}
-                payload = this.buildMultipartPost(stmt,attachments,extraHeaders)
-            }
-            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
-                "POST", payload, this.lrs.auth, callback, {"id":id},null,extraHeaders,this.withCredentials);
-            if (!callback)
-                return {"xhr":resp,
-                        "id" :id};
-        }
-    };
-    /*
      * Send a single statement to the LRS using a PUT request.
      * @param {object} stmt   statement object to send
      * @param {string} id   id of the statement object to send
@@ -357,7 +295,7 @@ function isDate(date) {
             if(attachments && attachments.length > 0)
             {
                 extraHeaders = {};
-                payload = this.buildMultipartPost(stmt, attachments, extraHeaders);
+                payload = this.buildMultipart(stmt, attachments, extraHeaders);
             }
 
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
@@ -367,6 +305,7 @@ function isDate(date) {
                         "id" :stmt['id']};
         }
     };
+
     /*
      * Send a single statement to the LRS using a POST request.
      * Makes a Javascript object with the statement id as 'id' available to the callback function.
@@ -399,7 +338,7 @@ function isDate(date) {
             if(attachments && attachments.length > 0)
             {
                 extraHeaders = {}
-                payload = this.buildMultipartPost(stmt,attachments,extraHeaders)
+                payload = this.buildMultipart(stmt,attachments,extraHeaders)
             }
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
                 "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials);
@@ -408,6 +347,7 @@ function isDate(date) {
                         "id" :id};
         }
     };
+
     /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
     * extraHeaders should be an object. It will have the multipart boundary value set
@@ -421,7 +361,7 @@ function isDate(date) {
           value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
        }
     */
-    XAPIWrapper.prototype.buildMultipartPost = function(statement,attachments,extraHeaders)
+    XAPIWrapper.prototype.buildMultipart = function(statement,attachments,extraHeaders)
     {
         statement.attachments = [];
         for(var i =0; i < attachments.length; i++)
@@ -471,6 +411,7 @@ function isDate(date) {
 
         return body;
     }
+
     /*
      * Send a list of statements to the LRS.
      * @param {array} stmtArray   the list of statement objects to send
@@ -483,7 +424,7 @@ function isDate(date) {
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
      *                       "display" : {"en-US" : "answered"}},
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
+     * var resp_obj = ADL.XAPIWrapper.postStatement(stmt);
      * ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
      * >> {"version": "1.0.0",
      *     "timestamp": "2013-09-09 21:36:40.185841+00:00",
@@ -495,7 +436,7 @@ function isDate(date) {
      *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},
      *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
      */
-    XAPIWrapper.prototype.sendStatements = function(stmtArray, callback)
+    XAPIWrapper.prototype.postStatements = function(stmtArray, callback)
     {
         if (this.testConfig())
         {
@@ -614,87 +555,6 @@ function isDate(date) {
             {
                 return result.response;
             }
-        }
-    };
-
-    /*
-     * Store activity state in the LRS
-     * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to
-     * @param {string} stateid   the id you want associated with this state
-     * @param {string} [registration]   the registraton id associated with this state
-     * @param {string} stateval   the state
-     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {boolean} false if no activity state is included
-     * @example
-     * var stateval = {"info":"the state info"};
-     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
-     *                    {"mbox":"mailto:tom@example.com"},
-     *                    "questionstate", null, stateval);
-     */
-    XAPIWrapper.prototype.sendState = function(activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<stateid>',encodeURIComponent(stateid));
-
-            if (registration)
-            {
-                url += "&registration=" + encodeURIComponent(registration);
-            }
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var method = "PUT";
-            if (stateval)
-            {
-                if (stateval instanceof Array)
-                {
-                    stateval = JSON.stringify(stateval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                }
-                else if (stateval instanceof Object)
-                {
-                    stateval = JSON.stringify(stateval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                    method = "POST";
-                }
-                else
-                {
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/octet-stream";
-                }
-            }
-            else
-            {
-                this.log("No activity state was included.");
-                return false;
-            }
-            //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
-
-            ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials);
         }
     };
 
@@ -852,17 +712,15 @@ function isDate(date) {
      * Delete activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to
-     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [stateid]   the id you want associated with this state
      * @param {string} [registration]   the registraton id associated with this state
-     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
      * var stateval = {"info":"the state info"};
-     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+     * ADL.XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
      *                           {"mbox":"mailto:tom@example.com"},
      *                           "questionstate", null, stateval);
      * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
@@ -877,15 +735,19 @@ function isDate(date) {
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> 404
      */
-    XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)
+    XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, callback)
     {
         if (this.testConfig())
         {
-            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
+            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>";
 
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<stateid>',encodeURIComponent(stateid));
+
+            if (stateid)
+            {
+                url += "&stateId=" + encodeURIComponent(stateid);
+            }
 
             if (registration)
             {
@@ -893,19 +755,6 @@ function isDate(date) {
             }
 
             var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials);
 
             if(result === undefined || result.status == 404)
@@ -921,77 +770,6 @@ function isDate(date) {
             {
                 return result;
             }
-        }
-    };
-
-    /*
-     * Store activity profile in the LRS
-     * @param {string} activityid   the id of the Activity this profile is about
-     * @param {string} profileid   the id you want associated with this profile
-     * @param {string} profileval   the profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {bolean} false if no activity profile is included
-     * @example
-     * var profile = {"info":"the profile"};
-     * ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
-     *                                     "actprofile", profile, null, "*");
-     */
-    XAPIWrapper.prototype.sendActivityProfile = function(activityid, profileid, profileval, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var method = "PUT";
-            if (profileval)
-            {
-                if (profileval instanceof Array)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                }
-                else if (profileval instanceof Object)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                    method = "POST";
-                }
-                else
-                {
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/octet-stream";
-                }
-            }
-            else
-            {
-                this.log("No activity profile was included.");
-                return false;
-            }
-
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
         }
     };
 
@@ -1130,8 +908,6 @@ function isDate(date) {
      * Delete activity profile in the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} profileid   the id you want associated with this profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -1141,7 +917,7 @@ function isDate(date) {
      *                                       "actprofile");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
-    XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback)
+    XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, callback)
     {
         if (this.testConfig())
         {
@@ -1151,19 +927,6 @@ function isDate(date) {
             url = url.replace('<profileid>',encodeURIComponent(profileid));
 
             var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials);
 
             if(result === undefined || result.status == 404)
@@ -1218,77 +981,6 @@ function isDate(date) {
             {
                 return result.response;
             }
-        }
-    };
-
-    /*
-     * Store agent profile in the LRS
-     * @param {object} agent   the agent this profile is related to
-     * @param {string} profileid   the id you want associated with this profile
-     * @param {string} profileval   the profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} false if no agent profile is included
-     * @example
-     * var profile = {"info":"the agent profile"};
-     * ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
-     *                                   "agentprofile", profile, null, "*");
-     */
-    XAPIWrapper.prototype.sendAgentProfile = function(agent, profileid, profileval, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
-
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var method = "PUT";
-            if (profileval)
-            {
-                if (profileval instanceof Array)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                }
-                else if (profileval instanceof Object)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                    method = "POST";
-                }
-                else
-                {
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/octet-stream";
-                }
-            }
-            else
-            {
-                this.log("No agent profile was included.");
-                return false;
-            }
-
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
         }
     };
 
@@ -1427,8 +1119,6 @@ function isDate(date) {
      * Delete agent profile in the LRS
      * @param {oject} agent   the id of the Agent this profile is about
      * @param {string} profileid   the id you want associated with this profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -1438,7 +1128,7 @@ function isDate(date) {
      *                                     "agentprofile");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
-    XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback)
+    XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, callback)
     {
         if (this.testConfig())
         {
@@ -1448,19 +1138,6 @@ function isDate(date) {
             url = url.replace('<profileid>',encodeURIComponent(profileid));
 
             var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials);
 
             if(result === undefined || result.status == 404)
