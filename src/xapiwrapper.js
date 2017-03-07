@@ -335,14 +335,147 @@ function isDate(date) {
         }
     };
     /*
+     * Send a single statement to the LRS using a PUT request.
+     * @param {object} stmt   statement object to send
+     * @param {string} id   id of the statement object to send
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     *            and an object with an id property assigned the id
+     *            of the statement
+     * @return {object} object containing xhr object and id of statement
+     */
+    XAPIWrapper.prototype.putStatement = function(stmt, id, callback, attachments)
+    {
+        if (this.testConfig())
+        {
+            this.prepareStatement(stmt);
+            stmt['id'] = (id == null || id == "") ? ADL.ruuid() : id;
+
+            var payload = JSON.stringify(stmt);
+            var extraHeaders = null;
+            if(attachments && attachments.length > 0)
+            {
+                extraHeaders = {};
+                this.buildMultipartPut(stmt, payload, attachments, extraHeaders);
+            }
+
+            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+                "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials);
+            if (!callback)
+                return {"xhr":resp,
+                        "id" :stmt['id']};
+        }
+    };
+    /*
+     * Send a single statement to the LRS using a POST request.
+     * Makes a Javascript object with the statement id as 'id' available to the callback function.
+     * @param {object} stmt   statement object to send
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     *            and an object with an id property assigned the id
+     *            of the statement
+     * @return {object} object containing xhr object and id of statement
+     */
+    XAPIWrapper.prototype.postStatement = function(stmt, callback, attachments)
+    {
+        if (this.testConfig())
+        {
+            this.prepareStatement(stmt);
+            var id;
+            if (stmt['id'])
+            {
+                id = stmt['id'];
+            }
+            else
+            {
+                id = ADL.ruuid();
+                stmt['id'] = id;
+            }
+
+            var payload = JSON.stringify(stmt);
+            var extraHeaders = null;
+            if(attachments && attachments.length > 0)
+            {
+                extraHeaders = {}
+                payload = this.buildMultipartPost(stmt,attachments,extraHeaders)
+            }
+            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+                "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials);
+            if (!callback)
+                return {"xhr":resp,
+                        "id" :id};
+        }
+    };
+    /*
+    * Build the put body to include the multipart boundries, edit the statement to include the attachment types
+    * body should be a string. It will store our new statement with the attachments
+    * extraHeaders should be an object. It will have the multipart boundary value set
+    * attachments should be an array of objects of the type
+    * {
+          type:"signature" || {
+            usageType : URI,
+            display: Language-map
+            description: Language-map
+          },
+          value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
+       }
+    */
+    XAPIWrapper.prototype.buildMultipartPut = function(statement, body, attachments, extraHeaders)
+    {
+        statement.attachments = [];
+        for(var i =0; i < attachments.length; i++)
+        {
+            //replace the term 'signature' with the hard coded definition for a signature attachment
+            if(attachments[i].type == "signature")
+            {
+                attachments[i].type = {
+                   "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                   "display": {
+                    "en-US": "A JWT signature"
+                   },
+                   "description": {
+                    "en-US": "A signature proving the statement was not modified"
+                   },
+                   "contentType": "application/octet-stream"
+                }
+            }
+
+            //compute the length and the sha2 of the attachment
+            attachments[i].type.length = attachments[i].value.length;
+            attachments[i].type.sha2 = toSHA256(attachments[i].value);
+
+            //attach the attachment metadata to the statement
+            statement.attachments.push(attachments[i].type)
+        }
+
+        body = "";
+        var CRLF = "\r\n";
+        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
+
+        extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
+
+        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
+        body += JSON.stringify(statement);
+
+        for(var i in attachments)
+        {
+
+            body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+            body += attachments[i].value;
+        }
+        body += CRLF + "--" + boundary + "--" + CRLF
+    }
+    /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
     * extraHeaders should be an object. It will have the multipart boundary value set
     * attachments should be an array of objects of the type
     * {
-          type:"signature" || { 
+          type:"signature" || {
             usageType : URI,
-            display: Language-map 
-            description: Language-map 
+            display: Language-map
+            description: Language-map
           },
           value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
        }
@@ -351,7 +484,7 @@ function isDate(date) {
     {
         statement.attachments = [];
         for(var i =0; i < attachments.length; i++)
-        {   
+        {
             //replace the term 'signature' with the hard coded definition for a signature attachment
             if(attachments[i].type == "signature")
             {
@@ -383,7 +516,7 @@ function isDate(date) {
 
         body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
         body += JSON.stringify(statement);
-    
+
         for(var i in attachments)
         {
 
@@ -393,7 +526,7 @@ function isDate(date) {
         body += CRLF + "--" + boundary + "--" + CRLF
 
 
-       
+
 
         return body;
     }
@@ -625,6 +758,95 @@ function isDate(date) {
     };
 
     /*
+     * Update activity state in the LRS
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to
+     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} stateval   the state
+     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {boolean} false if no activity state is included
+     */
+    XAPIWrapper.prototype.putState = function(activityid, agent, stateid, registration, stateval, matchHash, callback)
+    {
+        if (this.testConfig())
+        {
+            if (!stateval)
+              return false;
+
+            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
+
+            url = url.replace('<activity ID>',encodeURIComponent(activityid));
+            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            url = url.replace('<stateid>',encodeURIComponent(stateid));
+
+            if (registration)
+                url += "&registration=" + encodeURIComponent(registration);
+
+            var headers = null;
+            if (matchHash)
+                headers = {"If-Match":'"'+matchHash+'"'};
+
+            headers = headers || {};
+            if (stateval instanceof Array || stateval instanceof Object)
+            {
+                stateval = JSON.stringify(stateval);
+                headers["Content-Type"] ="application/json";
+            }
+            else
+                headers["Content-Type"] ="application/octet-stream";
+
+
+            ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials);
+        }
+    };
+
+    /*
+     * Store activity state in the LRS
+     * @param {string} activityid   the id of the Activity this state is about
+     * @param {object} agent   the agent this Activity state is related to
+     * @param {string} stateid   the id you want associated with this state
+     * @param {string} [registration]   the registraton id associated with this state
+     * @param {string} stateval   the state
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {boolean} false if no activity state is included
+     */
+    XAPIWrapper.prototype.postState = function(activityid, agent, stateid, registration, stateval, callback)
+    {
+        if (this.testConfig())
+        {
+            if (!stateval)
+              return false;
+
+            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
+
+            url = url.replace('<activity ID>',encodeURIComponent(activityid));
+            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            url = url.replace('<stateid>',encodeURIComponent(stateid));
+
+            if (registration)
+                url += "&registration=" + encodeURIComponent(registration);
+
+            var headers = {};
+            if (stateval instanceof Array || stateval instanceof Object)
+            {
+                stateval = JSON.stringify(stateval);
+                headers["Content-Type"] ="application/json";
+            }
+            else
+                headers["Content-Type"] ="application/octet-stream";
+
+
+            ADL.XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials);
+        }
+    };
+
+    /*
      * Get activity state from the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to
@@ -830,6 +1052,83 @@ function isDate(date) {
             }
 
             ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+        }
+    };
+
+    /*
+     * Update activity profile in the LRS
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} profileid   the id you want associated with this state
+     * @param {string} profileval   the profile
+     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {boolean} false if no activity state is included
+     */
+    XAPIWrapper.prototype.putActivityProfile = function(activityid, profileid, profileval, matchHash, callback)
+    {
+        if (this.testConfig())
+        {
+            if (!profileval)
+              return false;
+
+            var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
+
+            url = url.replace('<activity ID>',encodeURIComponent(activityid));
+            url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+            var headers = null;
+            if (matchHash)
+                headers = {"If-Match":'"'+matchHash+'"'};
+
+            headers = headers || {};
+            if (profileval instanceof Array || profileval instanceof Object)
+            {
+                profileval = JSON.stringify(profileval);
+                headers["Content-Type"] ="application/json";
+            }
+            else
+                headers["Content-Type"] ="application/octet-stream";
+
+
+            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+        }
+    };
+
+    /*
+     * Store activity profile in the LRS
+     * @param {string} activityid   the id of the Activity this profile is about
+     * @param {string} profileid   the id you want associated with this state
+     * @param {string} profileval   the profile
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {boolean} false if no activity state is included
+     */
+    XAPIWrapper.prototype.postActivityProfile = function(activityid, profileid, profileval, callback)
+    {
+        if (this.testConfig())
+        {
+          if (!profileval)
+            return false;
+
+          var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          var headers = {};
+          if (profileval instanceof Array || profileval instanceof Object)
+          {
+              profileval = JSON.stringify(profileval);
+              headers["Content-Type"] ="application/json";
+          }
+          else
+              headers["Content-Type"] ="application/octet-stream";
+
+
+          ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
         }
     };
 
@@ -1051,6 +1350,83 @@ function isDate(date) {
             }
 
             ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+        }
+    };
+
+    /*
+     * Update agent profile in the LRS
+     * @param {object} agent   the agent this profile is related to
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} profileval   the profile
+     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+     * @param {string} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {object} false if no agent profile is included
+     */
+    XAPIWrapper.prototype.putAgentProfile = function(agent, profileid, profileval, matchHash, callback)
+    {
+        if (this.testConfig())
+        {
+            if (!profileval)
+              return false;
+
+            var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
+
+            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+            var headers = null;
+            if (matchHash)
+                headers = {"If-Match":'"'+matchHash+'"'};
+
+            headers = headers || {};
+            if (profileval instanceof Array || profileval instanceof Object)
+            {
+                profileval = JSON.stringify(profileval);
+                headers["Content-Type"] ="application/json";
+            }
+            else
+                headers["Content-Type"] ="application/octet-stream";
+
+
+            ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+        }
+    };
+
+    /*
+     * Store agent profile in the LRS
+     * @param {object} agent   the agent this profile is related to
+     * @param {string} profileid   the id you want associated with this profile
+     * @param {string} profileval   the profile
+     * @param {string} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {object} false if no agent profile is included
+     */
+    XAPIWrapper.prototype.postAgentProfile = function(agent, profileid, profileval, callback)
+    {
+        if (this.testConfig())
+        {
+          if (!profileval)
+            return false;
+
+          var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
+
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          var headers = {};
+          if (profileval instanceof Array || profileval instanceof Object)
+          {
+              profileval = JSON.stringify(profileval);
+              headers["Content-Type"] ="application/json";
+          }
+          else
+              headers["Content-Type"] ="application/octet-stream";
+
+
+          ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
         }
     };
 
