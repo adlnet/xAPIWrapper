@@ -357,7 +357,7 @@ function isDate(date) {
             if(attachments && attachments.length > 0)
             {
                 extraHeaders = {};
-                this.buildMultipartPut(stmt, payload, attachments, extraHeaders);
+                payload = this.buildMultipartPost(stmt, attachments, extraHeaders);
             }
 
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
@@ -408,65 +408,6 @@ function isDate(date) {
                         "id" :id};
         }
     };
-    /*
-    * Build the put body to include the multipart boundries, edit the statement to include the attachment types
-    * body should be a string. It will store our new statement with the attachments
-    * extraHeaders should be an object. It will have the multipart boundary value set
-    * attachments should be an array of objects of the type
-    * {
-          type:"signature" || {
-            usageType : URI,
-            display: Language-map
-            description: Language-map
-          },
-          value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
-       }
-    */
-    XAPIWrapper.prototype.buildMultipartPut = function(statement, body, attachments, extraHeaders)
-    {
-        statement.attachments = [];
-        for(var i =0; i < attachments.length; i++)
-        {
-            //replace the term 'signature' with the hard coded definition for a signature attachment
-            if(attachments[i].type == "signature")
-            {
-                attachments[i].type = {
-                   "usageType": "http://adlnet.gov/expapi/attachments/signature",
-                   "display": {
-                    "en-US": "A JWT signature"
-                   },
-                   "description": {
-                    "en-US": "A signature proving the statement was not modified"
-                   },
-                   "contentType": "application/octet-stream"
-                }
-            }
-
-            //compute the length and the sha2 of the attachment
-            attachments[i].type.length = attachments[i].value.length;
-            attachments[i].type.sha2 = toSHA256(attachments[i].value);
-
-            //attach the attachment metadata to the statement
-            statement.attachments.push(attachments[i].type)
-        }
-
-        body = "";
-        var CRLF = "\r\n";
-        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
-
-        extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
-
-        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
-        body += JSON.stringify(statement);
-
-        for(var i in attachments)
-        {
-
-            body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
-            body += attachments[i].value;
-        }
-        body += CRLF + "--" + boundary + "--" + CRLF
-    }
     /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
     * extraHeaders should be an object. It will have the multipart boundary value set
@@ -777,6 +718,9 @@ function isDate(date) {
             if (!stateval)
               return false;
 
+            if (!matchHash || matchHash == "")
+              matchHash = '*';
+
             var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
 
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
@@ -786,11 +730,7 @@ function isDate(date) {
             if (registration)
                 url += "&registration=" + encodeURIComponent(registration);
 
-            var headers = null;
-            if (matchHash)
-                headers = {"If-Match":'"'+matchHash+'"'};
-
-            headers = headers || {};
+            var headers = {"If-Match":'"'+matchHash+'"'};
             if (stateval instanceof Array || stateval instanceof Object)
             {
                 stateval = JSON.stringify(stateval);
@@ -1073,16 +1013,15 @@ function isDate(date) {
             if (!profileval)
               return false;
 
+            if (!matchHash || matchHash == "")
+              matchHash = '*';
+
             var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
 
             url = url.replace('<activity ID>',encodeURIComponent(activityid));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
 
-            var headers = null;
-            if (matchHash)
-                headers = {"If-Match":'"'+matchHash+'"'};
-
-            headers = headers || {};
+            var headers = {"If-Match":'"'+matchHash+'"'};
             if (profileval instanceof Array || profileval instanceof Object)
             {
                 profileval = JSON.stringify(profileval);
@@ -1371,16 +1310,15 @@ function isDate(date) {
             if (!profileval)
               return false;
 
+            if (!matchHash || matchHash == "")
+              matchHash = '*';
+
             var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
 
             url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
             url = url.replace('<profileid>',encodeURIComponent(profileid));
 
-            var headers = null;
-            if (matchHash)
-                headers = {"If-Match":'"'+matchHash+'"'};
-
-            headers = headers || {};
+            var headers = {"If-Match":'"'+matchHash+'"'};
             if (profileval instanceof Array || profileval instanceof Object)
             {
                 profileval = JSON.stringify(profileval);
