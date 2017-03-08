@@ -287,8 +287,13 @@ function isDate(date) {
     {
         if (this.testConfig())
         {
+            if(!id){
+                return false;
+            }
+            var url = this.lrs.endpoint + "statements?statementId=<statement ID>";
+            url = url.replace('<statement ID>',encodeURIComponent(id));
+
             this.prepareStatement(stmt);
-            stmt['id'] = (id == null || id == "") ? ADL.ruuid() : id;
 
             var payload = JSON.stringify(stmt);
             var extraHeaders = null;
@@ -298,11 +303,11 @@ function isDate(date) {
                 payload = this.buildMultipart(stmt, attachments, extraHeaders);
             }
 
-            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
-                "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials);
+            var resp = ADL.XHR_request(this.lrs, url,
+                "PUT", payload, this.lrs.auth, callback, id, null, extraHeaders, this.withCredentials);
             if (!callback)
                 return {"xhr":resp,
-                        "id" :stmt['id']};
+                        "id" :id};
         }
     };
 
@@ -322,29 +327,19 @@ function isDate(date) {
         if (this.testConfig())
         {
             this.prepareStatement(stmt);
-            var id;
-            if (stmt['id'])
-            {
-                id = stmt['id'];
-            }
-            else
-            {
-                id = ADL.ruuid();
-                stmt['id'] = id;
-            }
 
             var payload = JSON.stringify(stmt);
             var extraHeaders = null;
             if(attachments && attachments.length > 0)
             {
                 extraHeaders = {}
-                payload = this.buildMultipart(stmt,attachments,extraHeaders)
+                payload = this.buildMultipart(stmt, attachments, extraHeaders)
             }
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
                 "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials);
             if (!callback)
                 return {"xhr":resp,
-                        "id" :id};
+                        "id" :JSON.parse(resp.response)[0]};
         }
     };
 
@@ -361,32 +356,39 @@ function isDate(date) {
           value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
        }
     */
-    XAPIWrapper.prototype.buildMultipart = function(statement,attachments,extraHeaders)
+    XAPIWrapper.prototype.buildMultipart = function(statements,attachments,extraHeaders)
     {
-        statement.attachments = [];
-        for(var i =0; i < attachments.length; i++)
-        {
-            //replace the term 'signature' with the hard coded definition for a signature attachment
-            if(attachments[i].type == "signature")
-            {
-                attachments[i].type = {
-                   "usageType": "http://adlnet.gov/expapi/attachments/signature",
-                   "display": {
-                    "en-US": "A JWT signature"
-                   },
-                   "description": {
-                    "en-US": "A signature proving the statement was not modified"
-                   },
-                   "contentType": "application/octet-stream"
+        var single = false;
+        if (statements instanceof Object){
+            single = true;
+            statements = [statements]
+        }
+
+        for (var i=0; i < statements.length; i++){
+            statements[i].attachments = [];
+            for (var j=0; j < attachments[i].length; j++){
+                //replace the term 'signature' with the hard coded definition for a signature attachment
+                if(attachments[i][j].type == "signature")
+                {
+                    attachments[i][j].type = {
+                       "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                       "display": {
+                        "en-US": "A JWT signature"
+                       },
+                       "description": {
+                        "en-US": "A signature proving the statement was not modified"
+                       },
+                       "contentType": "application/octet-stream"
+                    }
                 }
+
+                //compute the length and the sha2 of the attachment
+                attachments[i][j].type.length = attachments[i][j].value.length;
+                attachments[i][j].type.sha2 = toSHA256(attachments[i][j].value);
+
+                //attach the attachment metadata to the statement
+                statements[i].attachments.push(attachments[i][j].type)
             }
-
-            //compute the length and the sha2 of the attachment
-            attachments[i].type.length = attachments[i].value.length;
-            attachments[i].type.sha2 = toSHA256(attachments[i].value);
-
-            //attach the attachment metadata to the statement
-            statement.attachments.push(attachments[i].type)
         }
 
         var body = "";
@@ -396,19 +398,18 @@ function isDate(date) {
         extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
 
         body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
-        body += JSON.stringify(statement);
+        if (single){
+            statements = statements[0];
+        }
+        body += JSON.stringify(statements);
 
-        for(var i in attachments)
-        {
-
-            body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
-            body += attachments[i].value;
+        for(var i in attachments){
+            for(var j in attachments){
+                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i][j].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+                body += attachments[i][j].value;
+            }
         }
         body += CRLF + "--" + boundary + "--" + CRLF
-
-
-
-
         return body;
     }
 
@@ -436,7 +437,7 @@ function isDate(date) {
      *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},
      *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
      */
-    XAPIWrapper.prototype.postStatements = function(stmtArray, callback)
+    XAPIWrapper.prototype.postStatements = function(stmtArray, callback, attachments)
     {
         if (this.testConfig())
         {
@@ -444,9 +445,16 @@ function isDate(date) {
             {
                 this.prepareStatement(stmtArray[i]);
             }
-            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
-                "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials);
 
+            var payload = JSON.stringify(stmtArray);
+            var extraHeaders = null;
+            if(attachments && attachments.length > 0)
+            {
+                extraHeaders = {}
+                payload = this.buildMultipart(stmtArray, attachments, extraHeaders)
+            }
+            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+                "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials);
 
             if (!callback)
             {
