@@ -347,9 +347,9 @@ function isDate(date) {
     * attachments should be an array of objects of the type
     * {
           type:"signature" || {
-            usageType : URI,
-            display: Language-map
-            description: Language-map
+              usageType : URI,
+              display: Language-map
+              description: Language-map
           },
           value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
        }
@@ -1218,7 +1218,7 @@ function isDate(date) {
         for (var p in obj2)
         {
             prop = obj2[p];
-                        log(p + " : " + prop);
+            log(p + " : " + prop);
             try
             {
                 // Property in destination object set; update its value.
@@ -1481,7 +1481,7 @@ function isDate(date) {
                 if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
                     if (callback) {
                         if(callbackargs){
-                          strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
+                            strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
                         }
                         else {
                             try {
@@ -1559,11 +1559,11 @@ function isDate(date) {
             var status = xhr ? xhr.status : undefined;
             var error;
             if (status) {
-              error = new Error('Request error: ' + xhr.status);
+                error = new Error('Request error: ' + xhr.status);
             } else if (status === 0 || status === null) { // 0 and null = aborted
-              error = new Error('Request error: aborted');
+                error = new Error('Request error: aborted');
             } else {
-              error = new Error('Reqeust error: unknown');
+                error = new Error('Reqeust error: unknown');
             }
 
             if (callbackargs) {
