@@ -1,0 +1,60 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Mocha Tests</title>
+    <link href="./libs/mocha/2.2.5/mocha.css" rel="stylesheet" />
+    <script src="./libs/jquery/2.1.4/jquery.min.js"></script>
+    <script>
+        localStorage.clear();
+    </script>
+</head>
+
+<body>
+  
+
+<!--    <script src="../dist/xapiwrapper.min.js"></script>-->
+    <script type="text/javascript" src="../lib/cryptojs_v3.1.2.js"></script>
+    <script type="text/javascript" src="../src/verbs.js"></script>
+    <script type="text/javascript" src="../src/xapistatement.js"></script>
+    <script type="text/javascript" src="../src/xapiwrapper.js"></script>
+   
+    <script type="text/javascript" src="../examples/stmtBank.js"></script>
+
+    <script src="../src/xapi-util.js" data-cover></script>
+
+    <script>
+        var conf = {
+         "endpoint" : "https://lrs.adlnet.gov/xapi/",
+         "user" : "tom",
+         "password" : "1234",
+        };
+        ADL.XAPIWrapper.changeConfig(conf);
+
+        var statement =  {"actor":{"mbox":"mailto:tom@tom.com"}, "verb":{"id":"http://verb.com/do1"}, "object":{"id":"http://from.tom/act1", "objectType":"Activity", "definition":{"name":{"en-US": "soccer", "fr": "football", "de": "foossball"}}}};
+        
+
+         var attachmentMetadata = {
+                "usageType": "http://adlnet.gov/expapi/attachments/asdf",
+                "display":
+                {
+                    "en-US": "asdfasdf"
+                },
+                "description":
+                {
+                    "en-US": "asdfasdfasd"
+                },
+                "contentType": "application/octet-stream"   
+            }
+            var attachment = {
+                value: "this is a simple string attachment",
+                type:attachmentMetadata
+            }
+
+     
+        ADL.XAPIWrapper.sendStatement(statement,null,[attachment]);
+    
+    </script>
+</body>
+
+</html>
