@@ -95,7 +95,7 @@ function setupCourseLinks(_nodes)
     };
 }
 
-function xAPILaunch(cb, terminate_on_unload)
+function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
 {
     cb = cb_wrap(cb);
     try
@@ -130,10 +130,13 @@ function xAPILaunch(cb, terminate_on_unload)
             }
             var body = JSON.parse(xhr.responseText);
             var launchData = body;
+
             var conf = {};
             conf['endpoint'] = launchData.endpoint;
             conf["actor"] = launchData.actor;
             conf.withCredentials = true;
+            conf.strictCallbacks = strict_callbacks || false;
+
             window.onunload = function()
             {
                 if (!terminate_on_unload)
