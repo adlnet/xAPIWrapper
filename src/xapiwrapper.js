@@ -121,6 +121,9 @@ function isDate(date) {
         // conf["registration"] =  ruuid();
         // conf["grouping"] = {"id":"ctxact:default/grouping"};
         // conf["activity_platform"] = "default platform";
+
+        // Behavior defaults
+        // conf["strictCallbacks"] = false; // Strict error-first callbacks
         return conf
     }();
 

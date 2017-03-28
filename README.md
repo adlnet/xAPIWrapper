@@ -140,6 +140,9 @@ var Config = function()
     // conf["registration"] =  ruuid();
     // conf["grouping"] = {"id":"ctxact:default/grouping"};
     // conf["activity_platform"] = "default platform";
+
+    // Behavior defaults
+    // conf["strictCallbacks"] = false; // Strict error-first callbacks
     return conf
 }();
 ```  
@@ -407,6 +410,25 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
 >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
 ```
 
+###### Send Statement with strict error-first callback
+
+Requires the config option `strictCallbacks` to be `true`.
+
+```JavaScript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+                      "display" : {"en-US" : "answered"}},
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+ADL.XAPIWrapper.sendStatement(stmt, function(err, res, body) {
+    if (err) {
+        // Handle error case
+        return;
+    }
+
+    ADL.XAPIWrapper.log("[" + body.id + "]: " + res.status + " - " + res.statusText);});
+>> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
+```
+
 ###### Send Statement with Attachments
 The wrapper can construct a `multipart/mixed` POST for a single statement that includes attachments. Attachments should be 
 supplied as an array in the 3rd parameter to `sendStatement`. Attachments are optional. The attachments array should consist of 
@@ -538,6 +560,29 @@ ADL.XAPIWrapper.sendStatements(stmts, function(r){ADL.XAPIWrapper.log(JSON.parse
 >> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
 ```
 
+###### Send Statements with strict error-first callback
+
+Requires the config option `strictCallbacks` to be `true`.
+
+```JavaScript
+var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/1"}};
+var stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
+            "verb" : ADL.verbs.answered,
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/2"}};
+var stmts = [stmt, stmt2];
+ADL.XAPIWrapper.sendStatements(stmts, function(err, res, body) {
+    if (err) {
+        // Handle error case
+        return;
+    }
+
+    ADL.XAPIWrapper.log(body);
+});
+>> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
+```
+
 ##### Get Statements
 `function getStatements(searchParams, more, callback)`  
 Get a single or collection of Statements based on
@@ -557,7 +602,6 @@ if (ret)
 ```
 
 ###### Get all Statements with callback
-
 ```JavaScript
 ADL.XAPIWrapper.getStatements(null, null,
         function(r){ADL.XAPIWrapper.log(JSON.parse(r.response).statements);});
@@ -592,6 +636,22 @@ ADL.XAPIWrapper.getStatements(null, null,
 >> <Array of statements>
 >> <Array of statements>
 ...
+```
+
+###### Get all Statements with with strict error-first callback
+
+Requires the config option `strictCallbacks` to be `true`.
+
+```JavaScript
+ADL.XAPIWrapper.getStatements(null, null, function(err, res, body) {
+    if (err) {
+        // Handle error case
+        return;
+    }
+
+    ADL.XAPIWrapper.log(body.statements);
+});
+>> <Array of statements>
 ```
 
 ###### Get Statements based on search parameters
@@ -637,6 +697,23 @@ ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question",
                          function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
 >> <Activity object>
 ```
+
+###### Get Activity with strict error-first callback
+
+Requires the config option `strictCallbacks` to be `true`.
+
+```JavaScript
+ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question", function(err, res, body) {
+    if (err) {
+        // Handle error case
+        return;
+    }
+
+    ADL.XAPIWrapper.log(body);
+});
+>> <Activity object>
+```
+
 
 ##### Activity State
 `function sendState(activityid, agent, stateid, registration, statevalue, matchHash, noneMatchHash, callback)`  
@@ -838,6 +915,22 @@ ADL.XAPIWrapper.log(res);
 ```JavaScript
 ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"},
                          function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
+>> <Person object>
+```
+
+###### Get Agent with strict error-first callbacks
+
+Requires the config option `strictCallbacks` to be `true`.
+
+```JavaScript
+ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"}, function(err, res, body) {
+    if (err) {
+        // Handle error case
+        return;
+    }
+
+    ADL.XAPIWrapper.log(body);
+});
 >> <Person object>
 ```
 
