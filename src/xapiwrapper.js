@@ -121,6 +121,9 @@ function isDate(date) {
         // conf["registration"] =  ruuid();
         // conf["grouping"] = {"id":"ctxact:default/grouping"};
         // conf["activity_platform"] = "default platform";
+
+        // Behavior defaults
+        // conf["strictCallbacks"] = false; // Strict error-first callbacks
         return conf
     }();
 
@@ -140,8 +143,13 @@ function isDate(date) {
         this.base = getbase(this.lrs.endpoint);
 
         this.withCredentials = false;
-
         this.withCredentials = config && config.withCredentials;
+
+        // Ensure that callbacks are always executed, first param is error (null if no error) followed
+        // by the result(s)
+        this.strictCallbacks = false;
+        this.strictCallbacks = config && config.strictCallbacks;
+
         function getbase(url)
         {
             var l = document.createElement("a");
@@ -189,7 +197,7 @@ function isDate(date) {
                     {
                         ADL.XAPIWrapper.log("The request to get information about the LRS failed: " + r);
                     }
-                },null,false,null,this.withCredentials);
+                }, null, false, null, this.withCredentials, false);
 
 
         }
@@ -221,6 +229,7 @@ function isDate(date) {
                     this.updateAuth(this.lrs, config.user, config.password);
                 this.base = getbase(this.lrs.endpoint);
                 this.withCredentials = config.withCredentials;
+                this.strictCallbacks = config.strictCallbacks;
             }
             catch(e)
             {
@@ -328,7 +337,8 @@ function isDate(date) {
                 payload = this.buildMultipartPost(stmt,attachments,extraHeaders)
             }
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
-                "POST", payload, this.lrs.auth, callback, {"id":id},null,extraHeaders,this.withCredentials);
+                "POST", payload, this.lrs.auth, callback, {"id":id}, null, extraHeaders,
+                this.withCredentials, this.strictCallbacks);
             if (!callback)
                 return {"xhr":resp,
                         "id" :id};
@@ -339,10 +349,10 @@ function isDate(date) {
     * extraHeaders should be an object. It will have the multipart boundary value set
     * attachments should be an array of objects of the type
     * {
-          type:"signature" || { 
-            usageType : URI,
-            display: Language-map 
-            description: Language-map 
+          type:"signature" || {
+              usageType : URI,
+              display: Language-map
+              description: Language-map
           },
           value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
        }
@@ -351,7 +361,7 @@ function isDate(date) {
     {
         statement.attachments = [];
         for(var i =0; i < attachments.length; i++)
-        {   
+        {
             //replace the term 'signature' with the hard coded definition for a signature attachment
             if(attachments[i].type == "signature")
             {
@@ -383,7 +393,7 @@ function isDate(date) {
 
         body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
         body += JSON.stringify(statement);
-    
+
         for(var i in attachments)
         {
 
@@ -393,7 +403,7 @@ function isDate(date) {
         body += CRLF + "--" + boundary + "--" + CRLF
 
 
-       
+
 
         return body;
     }
@@ -430,7 +440,8 @@ function isDate(date) {
                 this.prepareStatement(stmtArray[i]);
             }
             var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
-                "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials);
+                "POST", JSON.stringify(stmtArray), this.lrs.auth, callback, null,
+                false, null, this.withCredentials, this.strictCallbacks);
 
 
             if (!callback)
@@ -488,7 +499,8 @@ function isDate(date) {
                     url = url + "?" + urlparams.join("&");
             }
 
-            var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials);
+            var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth,
+                callback, null, false, null, this.withCredentials, this.strictCallbacks);
 
             if(res === undefined || res.status == 404)
             {
@@ -525,7 +537,8 @@ function isDate(date) {
             var url = this.lrs.endpoint + "activities?activityId=<activityid>";
             url = url.replace('<activityid>', encodeURIComponent(activityid));
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true,null,this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+                callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -620,7 +633,8 @@ function isDate(date) {
             }
             //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
 
-            ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials);
+            ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback,
+                null, null, headers, this.withCredentials, this.strictCallbacks);
         }
     };
 
@@ -668,7 +682,8 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+                callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -744,7 +759,8 @@ function isDate(date) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
+                callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -829,7 +845,8 @@ function isDate(date) {
                 return false;
             }
 
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
+                null, false, headers, this.withCredentials, this.strictCallbacks);
         }
     };
 
@@ -870,7 +887,8 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+                callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -926,7 +944,8 @@ function isDate(date) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
+                callback, null, false, headers,this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -965,7 +984,8 @@ function isDate(date) {
             var url = this.lrs.endpoint + "agents?agent=<agent>";
             url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+                callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -1050,7 +1070,8 @@ function isDate(date) {
                 return false;
             }
 
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
+                null, false, headers, this.withCredentials, this.strictCallbacks);
         }
     };
 
@@ -1091,7 +1112,8 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null,this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+                callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -1147,7 +1169,8 @@ function isDate(date) {
                 headers = {"If-None-Match":'"'+noneMatchHash+'"'};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials);
+            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
+                callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
             {
@@ -1198,7 +1221,7 @@ function isDate(date) {
         for (var p in obj2)
         {
             prop = obj2[p];
-			log(p + " : " + prop);
+            log(p + " : " + prop);
             try
             {
                 // Property in destination object set; update its value.
@@ -1393,9 +1416,11 @@ function isDate(date) {
      * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
      * @param {boolean} ignore404    allow page not found errors to pass
      * @param {object} extraHeaders   other header key-values to be added to this request
+     * @param {boolean} withCredentials
+     * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
      * @return {object} xhr response object
      */
-    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials)
+    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
     {
         "use strict";
 
@@ -1459,15 +1484,15 @@ function isDate(date) {
                 if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
                     if (callback) {
                         if(callbackargs){
-                            callback(xhr, callbackargs);
+                            strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
                         }
                         else {
                             try {
                                 var body = JSON.parse(xhr.responseText);
-                                callback(xhr,body);
+                                strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
                             }
                             catch(e){
-                                callback(xhr,xhr.responseText);
+                                strictCallbacks ? callback(null, xhr, body) : callback(xhr,xhr.responseText);
                             }
                         }
                     } else {
@@ -1483,7 +1508,7 @@ function isDate(date) {
                         warning = ex.toString();
                     }
                     ADL.XAPIWrapper.log(warning);
-                    ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs);
+                    ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
                     result = xhr;
                     return xhr;
                 }
@@ -1522,13 +1547,40 @@ function isDate(date) {
      * @param {object} xhr   xhr object or null
      * @param {string} method   XMLHttpRequest request method
      * @param {string} url   full endpoint url
+     * @param {function} callback   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+     * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
      * @example
      * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
      *   console.log(xhr);
      *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
      * };
      */
-    ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){};
+    ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
+        if (callback && strictCallbacks) {
+            var status = xhr ? xhr.status : undefined;
+            var error;
+            if (status) {
+                error = new Error('Request error: ' + xhr.status);
+            } else if (status === 0 || status === null) { // 0 and null = aborted
+                error = new Error('Request error: aborted');
+            } else {
+                error = new Error('Reqeust error: unknown');
+            }
+
+            if (callbackargs) {
+                callback(null, xhr, callbackargs);
+            } else {
+                try {
+                    var body = JSON.parse(xhr.responseText);
+                    callback(null, xhr, body);
+                } catch(e){
+                    callback(null, xhr, xhr.responseText);
+                }
+            }
+        }
+    };
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
