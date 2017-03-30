@@ -1570,13 +1570,13 @@ function isDate(date) {
             }
 
             if (callbackargs) {
-                callback(null, xhr, callbackargs);
+                callback(error, xhr, callbackargs);
             } else {
                 try {
                     var body = JSON.parse(xhr.responseText);
-                    callback(null, xhr, body);
+                    callback(error, xhr, body);
                 } catch(e){
-                    callback(null, xhr, xhr.responseText);
+                    callback(error, xhr, xhr.responseText);
                 }
             }
         }
