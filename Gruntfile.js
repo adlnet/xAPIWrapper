@@ -15,19 +15,23 @@ module.exports = function(grunt) {
       },
       'build': {
         files: {
-          'dist/xapiwrapper.min.js': [
+          'dist/xAPIWrapper.min.js': [
             'lib/cryptojs_v3.1.2.js',
+            'src/xAPIWrapper.js',
+            'src/Utils.js',
+            'src/Agent.js',
+            'src/Verb.js',
             'src/verbs.js',
-            'src/xapiwrapper.js',
-            'src/xapistatement.js',
-            'src/xapi-util.js',
-            'src/xapi-launch.js'
+            'src/Statement.js',
+            'src/Object.js',
+            'src/index.js',
+            'src/xAPILaunch.js'
           ]
         }
       }
     },
     'exec': {
-      docs: './node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js:src/xapistatement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
+      docs: './node_modules/doxstrap/bin/doxstrap.js --source "src/xAPIWrapper.js:src/Statement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
     }
   });
 

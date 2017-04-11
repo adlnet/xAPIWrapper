@@ -1,4 +1,5 @@
 (function(ADL){
+
    ADL.verbs = {
       "abandoned" : {
          "id" : "https://w3id.org/xapi/adl/verbs/abandoned",
@@ -188,4 +189,9 @@
          "display" : {"en-US" : "waived"}
       }
    };
-}(window.ADL = window.ADL || {}));
+
+   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+     module.exports = ADL.verbs;
+   }
+
+})(typeof module === 'undefined' ? window.ADL = window.ADL || {} : this);

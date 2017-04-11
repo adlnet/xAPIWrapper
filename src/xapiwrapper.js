@@ -1,1587 +1,1482 @@
-// adds toISOString to date objects if not there
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-if ( !Date.prototype.toISOString ) {
-  ( function() {
-
-    function pad(number) {
-      var r = String(number);
-      if ( r.length === 1 ) {
-        r = '0' + r;
-      }
-      return r;
-    }
-
-    Date.prototype.toISOString = function() {
-      return this.getUTCFullYear()
-        + '-' + pad( this.getUTCMonth() + 1 )
-        + '-' + pad( this.getUTCDate() )
-        + 'T' + pad( this.getUTCHours() )
-        + ':' + pad( this.getUTCMinutes() )
-        + ':' + pad( this.getUTCSeconds() )
-        + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-        + 'Z';
-    };
-
-  }() );
+// Create namespace depending on environment
+var ADL;
+var onBrowser = false;
+if (typeof module !== 'undefined') {
+  ADL = require('./index.js');
+  module.exports = ADL;
+}
+else {
+  ADL = window.ADL = window.ADL || {};
+  onBrowser = true;
 }
 
-// shim for old-style Base64 lib
-function toBase64(text){
-  if(CryptoJS && CryptoJS.enc.Base64)
-    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
-  else
-    return Base64.encode(text);
-}
 
-// shim for old-style crypto lib
-function toSHA1(text){
-  if(CryptoJS && CryptoJS.SHA1)
-    return CryptoJS.SHA1(text).toString();
-  else
-    return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
-}
-function toSHA256(text){
-  if(CryptoJS && CryptoJS.SHA256)
-    return CryptoJS.SHA256(text).toString();
-
-}
-
-// check if string or object is date, if it is, return date object
-// feburary 31st == march 3rd in this solution
-function isDate(date) {
-    // check if object is being passed
-    if ( Object.prototype.toString.call(date) === "[object Date]" )
-        var d = date;
-    else
-        var d = new Date(date);
-    // deep check on date object
-    if ( Object.prototype.toString.call(d) === "[object Date]" )
-    {
-        // it is a date
-        if ( isNaN( d.valueOf() ) )
-        {
-            ADL.XAPIWrapper.log("Invalid date String passed");
-            return null;
-        } else {
-            return d;
-        }
-    } else {
-        // not a date
-        ADL.XAPIWrapper.log("Invalid date object");
-        return null;
-    }
-}
-
+// Create the XAPIWrapper using ADL namespace
 (function(ADL){
-    log.debug = false;
+  if (!onBrowser) {
+    var urlMod = require('url');
+    var XmlHttpRequest = require('xhr2');
+  }
 
-    function getByteLen(normal_val) {
-        // Force string type
-        normal_val = String(normal_val);
+  /*
+   * Config object used w/ url params to configure the lrs object
+   * change these to match your lrs
+   * @return {object} config object
+   * @example
+   * var conf = {
+   *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
+   *    "auth" : "Basic " + toBase64('tom:1234'),
+   * };
+   * ADL.XAPIWrapper.changeConfig(conf);
+   */
+  var Config = function() {
+      var conf = {};
+      conf['endpoint'] = "https://lrs.adlnet.gov/xapi/";
+      try
+      {
+          conf['auth'] = "Basic " + ADL.Util.toBase64('tom:1234');
+      }
+      catch (e)
+      {
+          log("Exception in Config trying to encode auth: " + e);
+      }
 
-        var byteLen = 0;
-        for (var i = 0; i < normal_val.length; i++) {
-            var c = normal_val.charCodeAt(i);
-            byteLen += c < (1 <<  7) ? 1 :
-                       c < (1 << 11) ? 2 :
-                       c < (1 << 16) ? 3 :
-                       c < (1 << 21) ? 4 :
-                       c < (1 << 26) ? 5 :
-                       c < (1 << 31) ? 6 : Number.NaN;
-        }
-        return byteLen;
+      // Statement defaults
+      // conf["actor"] = {"mbox":"default@example.com"};
+      // conf["registration"] =  ADL.Util.ruuid();
+      // conf["grouping"] = {"id":"ctxact:default/grouping"};
+      // conf["activity_platform"] = "default platform";
+      return conf;
+  }();
+
+  /*
+   * XAPIWrapper Constructor
+   * @param {object} config   with a minimum of an endoint property
+   * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
+   */
+  XAPIWrapper = function(config, verifyxapiversion) {
+    this.lrs = getLRSObject(config || {});
+
+    if (this.lrs.user && this.lrs.password)
+      updateAuth(this.lrs, this.lrs.user, this.lrs.password);
+    this.base = getbase(this.lrs.endpoint);
+
+    this.withCredentials = false;
+    this.withCredentials = config && config.withCredentials;
+
+    // Ensure that callbacks are always executed, first param is error (null if no error) followed
+    // by the result(s)
+    this.strictCallbacks = false;
+    this.strictCallbacks = config && config.strictCallbacks;
+
+    function getbase(url)
+    {
+      var l;
+
+      if (onBrowser) {
+        l = document.createElement("a");
+        l.href = url;
+      }
+      else {
+        l = urlMod.parse(url);
+      }
+
+      if (l.protocol && l.host)
+        return l.protocol + "//" + l.host;
+      else
+        log("Couldn't create base url from endpoint: " + url);
     }
 
-    /*
-     * Config object used w/ url params to configure the lrs object
-     * change these to match your lrs
-     * @return {object} config object
-     * @example
-     * var conf = {
-     *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
-     *    "auth" : "Basic " + toBase64('tom:1234'),
-     * };
-     * ADL.XAPIWrapper.changeConfig(conf);
-     */
-    var Config = function()
-    {
-        var conf = {};
-        conf['endpoint'] = "http://localhost:8000/xapi/";
-        try
-        {
-            conf['auth'] = "Basic " + toBase64('tom:1234');
-        }
-        catch (e)
-        {
-            log("Exception in Config trying to encode auth: " + e);
-        }
-
-        // Statement defaults
-        // conf["actor"] = {"mbox":"default@example.com"};
-        // conf["registration"] =  ruuid();
-        // conf["grouping"] = {"id":"ctxact:default/grouping"};
-        // conf["activity_platform"] = "default platform";
-
-        // Behavior defaults
-        // conf["strictCallbacks"] = false; // Strict error-first callbacks
-        return conf
-    }();
-
-    /*
-     * XAPIWrapper Constructor
-     * @param {object} config   with a minimum of an endoint property
-     * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
-     */
-    XAPIWrapper = function(config, verifyxapiversion)
-    {
-
-
-
-        this.lrs = getLRSObject(config || {});
-        if (this.lrs.user && this.lrs.password)
-            updateAuth(this.lrs, this.lrs.user, this.lrs.password);
-        this.base = getbase(this.lrs.endpoint);
-
-        this.withCredentials = false;
-        this.withCredentials = config && config.withCredentials;
-
-        // Ensure that callbacks are always executed, first param is error (null if no error) followed
-        // by the result(s)
-        this.strictCallbacks = false;
-        this.strictCallbacks = config && config.strictCallbacks;
-
-        function getbase(url)
-        {
-            var l = document.createElement("a");
-            l.href = url;
-            if (l.protocol && l.host)
-                return l.protocol + "//" + l.host;
-            else
-                ADL.XAPIWrapper.log("Couldn't create base url from endpoint: " + this.lrs.endpoint);
-        }
-
-        function updateAuth(obj, username, password){
-            obj.auth = "Basic " + toBase64(username + ":" + password);
-        }
-
-        if (verifyxapiversion && testConfig.call(this))
-        {
-            window.ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
-                function(r){
-                    if(r.status == 200)
-                    {
-                        try
-                        {
-                            var lrsabout = JSON.parse(r.response);
-                            var versionOK = false;
-                            for (var idx in lrsabout.version)
-                            {
-                                if(lrsabout.version[idx] == ADL.XAPIWrapper.xapiVersion)
-                                {
-                                    versionOK = true;
-                                    break;
-                                }
-                            }
-                            if (!versionOK)
-                            {
-                                ADL.XAPIWrapper.log("The lrs version [" + lrsabout.version +"]"+
-                                    " does not match this wrapper's XAPI version [" + ADL.XAPIWrapper.xapiVersion + "]");
-                            }
-                        }
-                        catch(e)
-                        {
-                            ADL.XAPIWrapper.log("The response was not an about object")
-                        }
-                    }
-                    else
-                    {
-                        ADL.XAPIWrapper.log("The request to get information about the LRS failed: " + r);
-                    }
-                }, null, false, null, this.withCredentials, false);
-
-
-        }
-
-        this.searchParams = function(){
-            var sp = {"format" : "exact"};
-            return sp;
-        };
-
-        this.hash = function(tohash){
-            if (!tohash) return null;
-            try
-            {
-                return toSHA1(tohash);
-            }
-            catch(e)
-            {
-                ADL.XAPIWrapper.log("Error trying to hash -- " + e);
-                return null;
-            }
-        };
-
-        this.changeConfig = function(config){
-            try
-            {
-                ADL.XAPIWrapper.log("updating lrs object with new configuration");
-                this.lrs = mergeRecursive(this.lrs, config);
-                if (config.user && config.password)
-                    this.updateAuth(this.lrs, config.user, config.password);
-                this.base = getbase(this.lrs.endpoint);
-                this.withCredentials = config.withCredentials;
-                this.strictCallbacks = config.strictCallbacks;
-            }
-            catch(e)
-            {
-                ADL.XAPIWrapper.log("error while changing configuration -- " + e);
-            }
-        };
-
-        this.updateAuth = updateAuth;
-    };
-
-    // This wrapper is based on the Experience API Spec version:
-    XAPIWrapper.prototype.xapiVersion = "1.0.1";
-
-    /*
-     * Adds info from the lrs object to the statement, if available.
-     * These values could be initialized from the Config object or from the url query string.
-     * @param {object} stmt   the statement object
-     */
-    XAPIWrapper.prototype.prepareStatement = function(stmt)
-    {
-        if(stmt.actor === undefined){
-            stmt.actor = JSON.parse(this.lrs.actor);
-        }
-        else if(typeof stmt.actor === "string") {
-            stmt.actor = JSON.parse(stmt.actor);
-        }
-        if (this.lrs.grouping ||
-            this.lrs.registration ||
-            this.lrs.activity_platform) {
-            if (!stmt.context) {
-                stmt.context = {};
-            }
-        }
-
-        if (this.lrs.grouping) {
-            if (!stmt.context.contextActivities) {
-                stmt.context.contextActivities = {};
-            }
-            stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
-        }
-        if (this.lrs.registration) {
-            stmt.context.registration = this.lrs.registration;
-        }
-        if (this.lrs.activity_platform) {
-            stmt.context.platform = this.lrs.activity_platform;
-        }
-    };
-
-    // tests the configuration of the lrs object
-    XAPIWrapper.prototype.testConfig = testConfig;
-
-    // writes to the console if available
-    XAPIWrapper.prototype.log = log;
-
-    /*
-     * Send a single statement to the LRS. Makes a Javascript object
-     * with the statement id as 'id' available to the callback function.
-     * @param {object} stmt   statement object to send
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id
-     *            of the statement
-     * @return {object} object containing xhr object and id of statement
-     * @example
-     * // Send Statement
-     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-     *                       "display" : {"en-US" : "answered"}},
-     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
-     * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
-     *
-     * // Send Statement with Callback
-     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-     *                       "display" : {"en-US" : "answered"}},
-     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
-     *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
-     * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
-     */
-    XAPIWrapper.prototype.sendStatement = function(stmt, callback, attachments)
-    {
-        if (this.testConfig())
-        {
-            this.prepareStatement(stmt);
-            var id;
-            if (stmt['id'])
-            {
-                id = stmt['id'];
-            }
-            else
-            {
-                id = ADL.ruuid();
-                stmt['id'] = id;
-            }
-
-            var payload = JSON.stringify(stmt);
-            var extraHeaders = null;
-            if(attachments && attachments.length > 0)
-            {
-                extraHeaders = {}
-                payload = this.buildMultipartPost(stmt,attachments,extraHeaders)
-            }
-            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
-                "POST", payload, this.lrs.auth, callback, {"id":id}, null, extraHeaders,
-                this.withCredentials, this.strictCallbacks);
-            if (!callback)
-                return {"xhr":resp,
-                        "id" :id};
-        }
-    };
-    /*
-    * Build the post body to include the multipart boundries, edit the statement to include the attachment types
-    * extraHeaders should be an object. It will have the multipart boundary value set
-    * attachments should be an array of objects of the type
-    * {
-          type:"signature" || {
-              usageType : URI,
-              display: Language-map
-              description: Language-map
-          },
-          value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
-       }
-    */
-    XAPIWrapper.prototype.buildMultipartPost = function(statement,attachments,extraHeaders)
-    {
-        statement.attachments = [];
-        for(var i =0; i < attachments.length; i++)
-        {
-            //replace the term 'signature' with the hard coded definition for a signature attachment
-            if(attachments[i].type == "signature")
-            {
-                attachments[i].type = {
-                   "usageType": "http://adlnet.gov/expapi/attachments/signature",
-                   "display": {
-                    "en-US": "A JWT signature"
-                   },
-                   "description": {
-                    "en-US": "A signature proving the statement was not modified"
-                   },
-                   "contentType": "application/octet-stream"
-                }
-            }
-
-            //compute the length and the sha2 of the attachment
-            attachments[i].type.length = attachments[i].value.length;
-            attachments[i].type.sha2 = toSHA256(attachments[i].value);
-
-            //attach the attachment metadata to the statement
-            statement.attachments.push(attachments[i].type)
-        }
-
-        var body = "";
-        var CRLF = "\r\n";
-        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
-
-        extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
-
-        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
-        body += JSON.stringify(statement);
-
-        for(var i in attachments)
-        {
-
-            body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
-            body += attachments[i].value;
-        }
-        body += CRLF + "--" + boundary + "--" + CRLF
-
-
-
-
-        return body;
+    function updateAuth(obj, username, password){
+      obj.auth = "Basic " + ADL.Util.toBase64(username + ":" + password);
     }
-    /*
-     * Send a list of statements to the LRS.
-     * @param {array} stmtArray   the list of statement objects to send
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object
-     * @example
-     * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-     *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-     *                       "display" : {"en-US" : "answered"}},
-     *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-     * ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
-     * >> {"version": "1.0.0",
-     *     "timestamp": "2013-09-09 21:36:40.185841+00:00",
-     *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
-     *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"},
-     *     "stored": "2013-09-09 21:36:40.186124+00:00",
-     *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
-     *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
-     *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},
-     *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
-     */
-    XAPIWrapper.prototype.sendStatements = function(stmtArray, callback)
+
+    if (verifyxapiversion && testConfig.call(this))
     {
-        if (this.testConfig())
-        {
-            for(var i in stmtArray)
-            {
-                this.prepareStatement(stmtArray[i]);
-            }
-            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
-                "POST", JSON.stringify(stmtArray), this.lrs.auth, callback, null,
-                false, null, this.withCredentials, this.strictCallbacks);
-
-
-            if (!callback)
-            {
-                return resp;
-            }
-        }
-    };
-
-    /*
-     * Get statement(s) based on the searchparams or more url.
-     * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of
-     *                key(search parameter)-value(parameter value) pairs.
-     *                Example:
-     *                  var myparams = ADL.XAPIWrapper.searchParams();
-     *                  myparams['verb'] = ADL.verbs.completed.id;
-     *                  var completedStmts = ADL.XAPIWrapper.getStatements(myparams);
-     * @param {string} more   the more url found in the StatementResults object, if there are more
-     *        statements available based on your get statements request. Pass the
-     *        more url as this parameter to retrieve those statements.
-     * @param {function} [callback] - function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * var ret = ADL.XAPIWrapper.getStatements();
-     * if (ret)
-     *     ADL.XAPIWrapper.log(ret.statements);
-     *
-     * >> <Array of statements>
-     */
-    XAPIWrapper.prototype.getStatements = function(searchparams, more, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "statements";
-            if (more)
-            {
-                url = this.base + more;
-            }
-            else
-            {
-                var urlparams = new Array();
-
-                for (s in searchparams)
+        ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+            function(r){
+                if(r.status == 200)
                 {
-                    if (s == "until" || s == "since") {
-                        var d = new Date(searchparams[s]);
-                        urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
-                    } else {
-                        urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                    try
+                    {
+                        var lrsabout = JSON.parse(r.response);
+                        var versionOK = false;
+                        for (var idx in lrsabout.version)
+                        {
+                            if(lrsabout.version[idx] == this.xapiVersion)
+                            {
+                                versionOK = true;
+                                break;
+                            }
+                        }
+                        if (!versionOK)
+                        {
+                            this.log("The lrs version [" + lrsabout.version +"]"+
+                                " does not match this wrapper's XAPI version [" + this.xapiVersion + "]");
+                        }
+                    }
+                    catch(e)
+                    {
+                        this.log("The response was not an about object")
                     }
                 }
-                if (urlparams.length > 0)
-                    url = url + "?" + urlparams.join("&");
-            }
-
-            var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth,
-                callback, null, false, null, this.withCredentials, this.strictCallbacks);
-
-            if(res === undefined || res.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(res.response);
-            }
-            catch(e)
-            {
-                return res.response;
-            }
-        }
-    };
-
-    /*
-     * Gets the Activity object from the LRS.
-     * @param {string} activityid   the id of the Activity to get
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * var res = ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
-     * ADL.XAPIWrapper.log(res);
-     * >> <Activity object>
-     */
-    XAPIWrapper.prototype.getActivities = function(activityid, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities?activityId=<activityid>";
-            url = url.replace('<activityid>', encodeURIComponent(activityid));
-
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
-                callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
-        }
-    };
-
-    /*
-     * Store activity state in the LRS
-     * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to
-     * @param {string} stateid   the id you want associated with this state
-     * @param {string} [registration]   the registraton id associated with this state
-     * @param {string} stateval   the state
-     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {boolean} false if no activity state is included
-     * @example
-     * var stateval = {"info":"the state info"};
-     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
-     *                    {"mbox":"mailto:tom@example.com"},
-     *                    "questionstate", null, stateval);
-     */
-    XAPIWrapper.prototype.sendState = function(activityid, agent, stateid, registration, stateval, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<stateid>',encodeURIComponent(stateid));
-
-            if (registration)
-            {
-                url += "&registration=" + encodeURIComponent(registration);
-            }
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var method = "PUT";
-            if (stateval)
-            {
-                if (stateval instanceof Array)
-                {
-                    stateval = JSON.stringify(stateval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                }
-                else if (stateval instanceof Object)
-                {
-                    stateval = JSON.stringify(stateval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                    method = "POST";
-                }
                 else
                 {
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/octet-stream";
+                    this.log("The request to get information about the LRS failed: " + r);
                 }
-            }
-            else
-            {
-                this.log("No activity state was included.");
-                return false;
-            }
-            //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
+            },null,false,null,this.withCredentials, false);
+    }
 
-            ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback,
-                null, null, headers, this.withCredentials, this.strictCallbacks);
-        }
+    this.searchParams = function() {
+        var sp = {"format" : "exact"};
+        return sp;
     };
 
-    /*
-     * Get activity state from the LRS
-     * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to
-     * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids
-     *            associated with the activity and agent)
-     * @param {string} [registration]   the registraton id associated with this state
-     * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-     *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
-     * >> {info: "the state info"}
-     */
-    XAPIWrapper.prototype.getState = function(activityid, agent, stateid, registration, since, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-
-            if (stateid)
-            {
-                url += "&stateId=" + encodeURIComponent(stateid);
-            }
-
-            if (registration)
-            {
-                url += "&registration=" + encodeURIComponent(registration);
-            }
-
-            if(since)
-            {
-                since = isDate(since);
-                if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
-                }
-            }
-
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
-                callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
-        }
-    };
-
-    /*
-     * Delete activity state in the LRS
-     * @param {string} activityid   the id of the Activity this state is about
-     * @param {object} agent   the agent this Activity state is related to
-     * @param {string} stateid   the id you want associated with this state
-     * @param {string} [registration]   the registraton id associated with this state
-     * @param {string} [matchHash]    the hash of the state to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current state or * to indicate no previous state
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * var stateval = {"info":"the state info"};
-     * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
-     *                           {"mbox":"mailto:tom@example.com"},
-     *                           "questionstate", null, stateval);
-     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-     *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
-     * >> {info: "the state info"}
-     *
-     * ADL.XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
-     *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
-     * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
-     *
-     * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-     *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
-     * >> 404
-     */
-    XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<stateid>',encodeURIComponent(stateid));
-
-            if (registration)
-            {
-                url += "&registration=" + encodeURIComponent(registration);
-            }
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
-                callback, null, false, headers, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result;
-            }
-        }
-    };
-
-    /*
-     * Store activity profile in the LRS
-     * @param {string} activityid   the id of the Activity this profile is about
-     * @param {string} profileid   the id you want associated with this profile
-     * @param {string} profileval   the profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {bolean} false if no activity profile is included
-     * @example
-     * var profile = {"info":"the profile"};
-     * ADL.XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
-     *                                     "actprofile", profile, null, "*");
-     */
-    XAPIWrapper.prototype.sendActivityProfile = function(activityid, profileid, profileval, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var method = "PUT";
-            if (profileval)
-            {
-                if (profileval instanceof Array)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                }
-                else if (profileval instanceof Object)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                    method = "POST";
-                }
-                else
-                {
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/octet-stream";
-                }
-            }
-            else
-            {
-                this.log("No activity profile was included.");
-                return false;
-            }
-
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
-                null, false, headers, this.withCredentials, this.strictCallbacks);
-        }
-    };
-
-    /*
-     * Get activity profile from the LRS
-     * @param {string} activityid   the id of the Activity this profile is about
-     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
-     *              associated with the activity
-     * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
-     * @param {function [callback]    function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-     *                                    "actprofile", null,
-     *                                    function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
-     * >> {info: "the profile"}
-     */
-    XAPIWrapper.prototype.getActivityProfile = function(activityid, profileid, since, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-
-            if (profileid)
-            {
-                url += "&profileId=" + encodeURIComponent(profileid);
-            }
-
-            if(since)
-            {
-                since = isDate(since);
-                if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
-                }
-            }
-
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
-                callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
-        }
-    };
-
-    /*
-     * Delete activity profile in the LRS
-     * @param {string} activityid   the id of the Activity this profile is about
-     * @param {string} profileid   the id you want associated with this profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
-     *                                       "actprofile");
-     * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
-     */
-    XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
-                callback, null, false, headers,this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result;
-            }
-        }
-    };
-
-    /*
-     * Gets the Person object from the LRS based on an agent object.
-     * The Person object may contain more information about an agent.
-     * See the xAPI Spec for details.
-     * @param {object} agent   the agent object to get a Person
-     * @param {function [callback]    function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * var res = ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
-     * ADL.XAPIWrapper.log(res);
-     * >> <Person object>
-     */
-    XAPIWrapper.prototype.getAgents = function(agent, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "agents?agent=<agent>";
-            url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
-
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
-                callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
-        }
-    };
-
-    /*
-     * Store agent profile in the LRS
-     * @param {object} agent   the agent this profile is related to
-     * @param {string} profileid   the id you want associated with this profile
-     * @param {string} profileval   the profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} false if no agent profile is included
-     * @example
-     * var profile = {"info":"the agent profile"};
-     * ADL.XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
-     *                                   "agentprofile", profile, null, "*");
-     */
-    XAPIWrapper.prototype.sendAgentProfile = function(agent, profileid, profileval, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
-
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var method = "PUT";
-            if (profileval)
-            {
-                if (profileval instanceof Array)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                }
-                else if (profileval instanceof Object)
-                {
-                    profileval = JSON.stringify(profileval);
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/json";
-                    method = "POST";
-                }
-                else
-                {
-                    headers = headers || {};
-                    headers["Content-Type"] ="application/octet-stream";
-                }
-            }
-            else
-            {
-                this.log("No agent profile was included.");
-                return false;
-            }
-
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
-                null, false, headers, this.withCredentials, this.strictCallbacks);
-        }
-    };
-
-    /*
-     * Get agnet profile from the LRS
-     * @param {object} agent   the agent associated with this profile
-     * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
-     *              associated with the agent
-     * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-     *                                  "agentprofile", null,
-     *                                  function(r){ADL.XAPIWrapper.log(JSON.parse(r.response));});
-     * >> {info: "the agent profile"}
-     */
-    XAPIWrapper.prototype.getAgentProfile = function(agent, profileid, since, callback)
-    {
-        if (this.testConfig()){
-            var url = this.lrs.endpoint + "agents/profile?agent=<agent>";
-
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            if (profileid)
-            {
-                url += "&profileId=" + encodeURIComponent(profileid);
-            }
-
-            if(since)
-            {
-                since = isDate(since);
-                if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
-                }
-            }
-
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
-                callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
-        }
-    };
-
-    /*
-     * Delete agent profile in the LRS
-     * @param {oject} agent   the id of the Agent this profile is about
-     * @param {string} profileid   the id you want associated with this profile
-     * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
-     * @param {string} [noneMatchHash]    the hash of the current profile or * to indicate no previous profile
-     * @param {string} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
-     *                                     "agentprofile");
-     * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
-     */
-    XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, matchHash, noneMatchHash, callback)
-    {
-        if (this.testConfig())
-        {
-            var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
-
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-            var headers = null;
-            if(matchHash && noneMatchHash)
-            {
-                log("Can't have both If-Match and If-None-Match");
-            }
-            else if (matchHash)
-            {
-                headers = {"If-Match":'"'+matchHash+'"'};
-            }
-            else if (noneMatchHash)
-            {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
-            }
-
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
-                callback, null, false, headers, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result;
-            }
-        }
-    };
-
-    /*
-     * Tests the configuration of the lrs object
-     */
-    function testConfig()
-    {
+    this.hash = function(tohash) {
+        if (!tohash) return null;
         try
         {
-            return this.lrs.endpoint != undefined && this.lrs.endpoint != "";
+            return ADL.Util.toSHA1(tohash);
         }
         catch(e)
         {
-            return false
+            ADL.XAPIWrapper.log("Error trying to hash -- " + e);
+            return null;
         }
-    }
+    };
 
-    // outputs the message to the console if available
-    function log(message)
-    {
-        if (!log.debug) return false;
+    this.changeConfig = function(config) {
         try
         {
-            console.log(message);
-            return true;
+            log("updating lrs object with new configuration");
+            this.lrs = mergeRecursive(this.lrs, config);
+            if (config.user && config.password)
+                updateAuth(this.lrs, config.user, config.password);
+            this.base = getbase(this.lrs.endpoint);
+            this.withCredentials = config.withCredentials;
+            this.strictCallbacks = config.strictCallbacks;
         }
-        catch(e){return false;}
-    }
-
-    // merges two object
-    function mergeRecursive(obj1, obj2)
-    {
-        for (var p in obj2)
+        catch(e)
         {
-            prop = obj2[p];
-            log(p + " : " + prop);
-            try
-            {
-                // Property in destination object set; update its value.
-                if ( obj2[p].constructor==Object )
-                {
-                    obj1[p] = mergeRecursive(obj1[p], obj2[p]);
+            log("error while changing configuration -- " + e);
+        }
+    };
 
-                }
-                else
-                {
-                  if (obj1 == undefined)
-                  {
-                    obj1 = new Object();
-                  }
-                    obj1[p] = obj2[p];
-                }
-            }
-            catch(e)
-            {
-              if (obj1 == undefined)
-              {
-                obj1 = new Object();
+    this.updateAuth = updateAuth;
+  }
+
+  // This wrapper is based on the Experience API Spec version:
+  XAPIWrapper.prototype.xapiVersion = "1.0.3";
+
+  /*
+   * Adds info from the lrs object to the statement, if available.
+   * These values could be initialized from the Config object or from the url query string.
+   * @param {object} stmt   the statement object
+   */
+  XAPIWrapper.prototype.prepareStatement = function(stmt)
+  {
+      if(stmt.actor === undefined){
+          stmt.actor = JSON.parse(this.lrs.actor);
+      }
+      else if(typeof stmt.actor === "string") {
+          stmt.actor = JSON.parse(stmt.actor);
+      }
+      if (this.lrs.grouping ||
+          this.lrs.registration ||
+          this.lrs.activity_platform) {
+          if (!stmt.context) {
+              stmt.context = {};
+          }
+      }
+
+      if (this.lrs.grouping) {
+          if (!stmt.context.contextActivities) {
+              stmt.context.contextActivities = {};
+          }
+          stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
+      }
+      if (this.lrs.registration) {
+          stmt.context.registration = this.lrs.registration;
+      }
+      if (this.lrs.activity_platform) {
+          stmt.context.platform = this.lrs.activity_platform;
+      }
+  };
+
+  // tests the configuration of the lrs object
+  XAPIWrapper.prototype.testConfig = testConfig;
+
+  // writes to the console if available
+  XAPIWrapper.prototype.log = log;
+
+  /*
+   * Send a single statement to the LRS using a PUT request.
+   * @param {object} stmt   statement object to send
+   * @param {string} id   id of the statement object to send
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   *            and an object with an id property assigned the id
+   *            of the statement
+   * @return {object} object containing xhr object and id of statement
+   */
+  XAPIWrapper.prototype.putStatement = function(stmt, id, callback, attachments)
+  {
+      if (this.testConfig())
+      {
+          this.prepareStatement(stmt);
+          stmt['id'] = (id == null || id == "") ? ADL.Util.ruuid() : id;
+
+          var payload = JSON.stringify(stmt);
+          var extraHeaders = null;
+          if(attachments && attachments.length > 0)
+          {
+              extraHeaders = {};
+              payload = this.buildMultipart(stmt, attachments, extraHeaders);
+          }
+
+          var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+              "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials, this.strictCallbacks);
+          if (!callback)
+              return {"xhr":resp,
+                      "id" :stmt['id']};
+      }
+  };
+
+  /*
+   * Send a single statement to the LRS using a POST request.
+   * Makes a Javascript object with the statement id as 'id' available to the callback function.
+   * @param {object} stmt   statement object to send
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   *            and an object with an id property assigned the id
+   *            of the statement
+   * @return {object} object containing xhr object and id of statement
+   */
+  XAPIWrapper.prototype.postStatement = function(stmt, callback, attachments)
+  {
+      if (this.testConfig())
+      {
+          this.prepareStatement(stmt);
+          var id;
+          if (stmt['id'])
+          {
+              id = stmt['id'];
+          }
+          else
+          {
+              id = ADL.Util.ruuid();
+              stmt['id'] = id;
+          }
+
+          var payload = JSON.stringify(stmt);
+          var extraHeaders = null;
+          if(attachments && attachments.length > 0)
+          {
+              extraHeaders = {}
+              payload = this.buildMultipart(stmt,attachments,extraHeaders)
+          }
+          var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+              "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
+          if (!callback)
+              return {"xhr":resp,
+                      "id" :id};
+      }
+  };
+
+  /*
+  * Build the post body to include the multipart boundries, edit the statement to include the attachment types
+  * extraHeaders should be an object. It will have the multipart boundary value set
+  * attachments should be an array of objects of the type
+  * {
+        type:"signature" || {
+          usageType : URI,
+          display: Language-map
+          description: Language-map
+        },
+        value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
+     }
+  */
+  XAPIWrapper.prototype.buildMultipart = function(statement,attachments,extraHeaders)
+  {
+      statement.attachments = [];
+      for(var i =0; i < attachments.length; i++)
+      {
+          //replace the term 'signature' with the hard coded definition for a signature attachment
+          if(attachments[i].type == "signature")
+          {
+              attachments[i].type = {
+                 "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                 "display": {
+                  "en-US": "A JWT signature"
+                 },
+                 "description": {
+                  "en-US": "A signature proving the statement was not modified"
+                 },
+                 "contentType": "application/octet-stream"
               }
-              // Property in destination object not set; create it and set its value.
-              obj1[p] = obj2[p];
-            }
-        }
+          }
 
-        return obj1;
-    }
+          //compute the length and the sha2 of the attachment
+          attachments[i].type.length = attachments[i].value.length;
+          attachments[i].type.sha2 = ADL.Util.toSHA256(attachments[i].value);
 
-    // iniitializes an lrs object with settings from
-    // a config file and from the url query string
-    function getLRSObject(config)
-    {
-        var lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
-        var lrs = new Object();
-        var qsVars, prop;
+          //attach the attachment metadata to the statement
+          statement.attachments.push(attachments[i].type)
+      }
 
-        qsVars = parseQueryString();
-        if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
-            for (var i = 0; i<lrsProps.length; i++){
-                prop = lrsProps[i];
-                if (qsVars[prop]){
-                    lrs[prop] = qsVars[prop];
-                    delete qsVars[prop];
-                }
-            }
-            if (Object.keys(qsVars).length !== 0) {
-              lrs.extended = qsVars;
-            }
+      var body = "";
+      var CRLF = "\r\n";
+      var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
 
-            lrs = mergeRecursive(config, lrs);
-        }
-        else {
-            lrs = config;
-        }
+      extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
 
-        return lrs;
-    }
+      body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
+      body += JSON.stringify(statement);
 
-    // parses the params in the url query string
-    function parseQueryString()
-    {
-        var qs, pairs, pair, ii, parsed;
+      for(var i in attachments)
+      {
 
-        qs = window.location.search.substr(1);
-
-        pairs = qs.split('&');
-        parsed = {};
-        for ( ii = 0; ii < pairs.length; ii++) {
-            pair = pairs[ii].split('=');
-            if (pair.length === 2 && pair[0]) {
-                parsed[pair[0]] = decodeURIComponent(pair[1]);
-            }
-        }
-
-        return parsed;
-    }
+          body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+          body += attachments[i].value;
+      }
+      body += CRLF + "--" + boundary + "--" + CRLF
 
 
-    function delay()
-    {
-        var xhr = new XMLHttpRequest();
-        var url = window.location + '?forcenocache='+ADL.ruuid();
-        xhr.open('GET', url, false);
-        xhr.send(null);
-    }
 
-    /*
-     * formats a request in a way that IE will allow
-     * @param {string} method   the http request method (ex: "PUT", "GET")
-     * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
-     * @param {array} [headers]   headers to include in the request
-     * @param {string} [data]   the body of the request, if there is one
-     * @return {object} xhr response object
-     */
-    function ie_request(method, url, headers, data)
-    {
-        var newUrl = url;
 
-        //Everything that was on query string goes into form vars
-        var formData = new Array();
-        var qsIndex = newUrl.indexOf('?');
-        if(qsIndex > 0){
-            formData.push(newUrl.substr(qsIndex+1));
-            newUrl = newUrl.substr(0, qsIndex);
-        }
+      return body;
+  }
 
-        //Method has to go on querystring, and nothing else
-        newUrl = newUrl + '?method=' + method;
+  /*
+   * Send a list of statements to the LRS.
+   * @param {array} stmtArray   the list of statement objects to send
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object
+   * @example
+   * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+   *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
+   *                       "display" : {"en-US" : "answered"}},
+   *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
+   * var resp_obj = XAPIWrapper.postStatement(stmt);
+   * XAPIWrapper.getStatements({"statementId":resp_obj.id});
+   * >> {"version": "1.0.0",
+   *     "timestamp": "2013-09-09 21:36:40.185841+00:00",
+   *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
+   *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"},
+   *     "stored": "2013-09-09 21:36:40.186124+00:00",
+   *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
+   *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
+   *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},
+   *     "id": "ea9c1d01-0606-4ec7-8e5d-20f87b1211ed"}
+   */
+  XAPIWrapper.prototype.postStatements = function(stmtArray, callback)
+  {
+      if (this.testConfig())
+      {
+          for(var i in stmtArray)
+          {
+              this.prepareStatement(stmtArray[i]);
+          }
+          var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
+              "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
 
-        //Headers
-        if(headers !== null){
-            for(var headerName in headers){
-                formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
-            }
-        }
 
-        //The original data is repackaged as "content" form var
-        if(data !== null){
-            formData.push('content=' + encodeURIComponent(data));
-        }
+          if (!callback)
+          {
+              return resp;
+          }
+      }
+  };
 
-        return {
-            "method":"POST",
-            "url":newUrl,
-            "headers":{},
-            "data":formData.join("&")
-        };
-    }
+  /*
+   * Get statement(s) based on the searchparams or more url.
+   * @param {object} searchparams   an XAPIWrapper.searchParams object of
+   *                key(search parameter)-value(parameter value) pairs.
+   *                Example:
+   *                  var myparams = XAPIWrapper.searchParams();
+   *                  myparams['verb'] = ADL.verbs.completed.id;
+   *                  var completedStmts = XAPIWrapper.getStatements(myparams);
+   * @param {string} more   the more url found in the StatementResults object, if there are more
+   *        statements available based on your get statements request. Pass the
+   *        more url as this parameter to retrieve those statements.
+   * @param {function} [callback] - function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * var ret = XAPIWrapper.getStatements();
+   * if (ret)
+   *     XAPIWrapper.log(ret.statements);
+   *
+   * >> <Array of statements>
+   */
+  XAPIWrapper.prototype.getStatements = function(searchparams, more, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "statements";
+          if (more)
+          {
+              url = this.base + more;
+          }
+          else
+          {
+              var urlparams = new Array();
 
-    /*!
-    Excerpt from: Math.uuid.js (v1.4)
-    http://www.broofa.com
-    mailto:robert@broofa.com
-    Copyright (c) 2010 Robert Kieffer
-    Dual licensed under the MIT and GPL licenses.
-    */
-    ADL.ruuid = function()
-    {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-                return v.toString(16);
-        });
-    };
+              for (s in searchparams)
+              {
+                  if (s == "until" || s == "since") {
+                      var d = new Date(searchparams[s]);
+                      urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                  } else {
+                      urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                  }
+              }
+              if (urlparams.length > 0)
+                  url = url + "?" + urlparams.join("&");
+          }
 
-    /*
-     * dateFromISOString
-     * parses an ISO string into a date object
-     * isostr - the ISO string
-     */
-    ADL.dateFromISOString = function(isostr)
-    {
-        var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
-            "([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
-            "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?";
-        var d = isostr.match(new RegExp(regexp));
+          var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
 
-        var offset = 0;
-        var date = new Date(d[1], 0, 1);
+          if(res === undefined || res.status == 404)
+          {
+              return null
+          }
 
-        if (d[3]) { date.setMonth(d[3] - 1); }
-        if (d[5]) { date.setDate(d[5]); }
-        if (d[7]) { date.setHours(d[7]); }
-        if (d[8]) { date.setMinutes(d[8]); }
-        if (d[10]) { date.setSeconds(d[10]); }
-        if (d[12]) { date.setMilliseconds(Number("0." + d[12]) * 1000); }
-        if (d[14]) {
-            offset = (Number(d[16]) * 60) + Number(d[17]);
-            offset *= ((d[15] == '-') ? 1 : -1);
-        }
+          try
+          {
+              return JSON.parse(res.response);
+          }
+          catch(e)
+          {
+              return res.response;
+          }
+      }
+  };
 
-        offset -= date.getTimezoneOffset();
-        time = (Number(date) + (offset * 60 * 1000));
+  XAPIWrapper.prototype.getMoreStatements = function (iterations, callback, searchParams) {
+      if (!onBrowser) throw new Error("Node not supported.");
 
-        var dateToReturn = new Date();
-        dateToReturn.setTime(Number(time));
-        return dateToReturn;
-    };
+      var stmts = [];
 
-    // Synchronous if callback is not provided (not recommended)
-    /*
-     * makes a request to a server (if possible, use functions provided in XAPIWrapper)
-     * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
-     * @param {string} url   the url of this request
-     * @param {string} method   the http request method
-     * @param {string} data   the payload
-     * @param {string} auth   the value for the Authorization header
-     * @param {function} callback   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
-     * @param {boolean} ignore404    allow page not found errors to pass
-     * @param {object} extraHeaders   other header key-values to be added to this request
-     * @param {boolean} withCredentials
-     * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
-     * @return {object} xhr response object
-     */
-    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
-    {
-        "use strict";
+      ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
+          if (! (r && r.response) ) return;
+          var res = JSON.parse(r.response);
+          if (! res.statements) return;
+          stmts = stmts.concat(res.statements);
 
-        var xhr,
-            finished = false,
-            xDomainRequest = false,
-            ieXDomain = false,
-            ieModeRequest,
-            urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-            location = window.location,
-            urlPort,
-            result,
-            extended,
-            prop,
-            until;
+          if (iterations-- <= 0) {
+              callback(stmts);
+          }
+          else {
+              if (res.more && res.more !== "")
+              {
+                  ADL.XAPIWrapper.getStatements(searchParams, res.more, getMore);
+              }
+              else if (res.more === "")
+              {
+                  callback(stmts);
+              }
+          }
+      });
+  };
 
-        //Consolidate headers
+  /*
+   * Gets the Activity object from the LRS.
+   * @param {string} activityid   the id of the Activity to get
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * var res = XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
+   * XAPIWrapper.log(res);
+   * >> <Activity object>
+   */
+  XAPIWrapper.prototype.getActivities = function(activityid, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "activities?activityId=<activityid>";
+          url = url.replace('<activityid>', encodeURIComponent(activityid));
+
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true,null,this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result.response;
+          }
+      }
+  };
+
+  /*
+   * Update activity state in the LRS
+   * @param {string} activityid   the id of the Activity this state is about
+   * @param {object} agent   the agent this Activity state is related to
+   * @param {string} stateid   the id you want associated with this state
+   * @param {string} [registration]   the registraton id associated with this state
+   * @param {string} stateval   the state
+   * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {boolean} false if no activity state is included
+   */
+  XAPIWrapper.prototype.putState = function(activityid, agent, stateid, registration, stateval, matchHash, callback)
+  {
+      if (this.testConfig())
+      {
+          if (!stateval)
+            return false;
+
+          if (!matchHash || matchHash == "")
+            matchHash = '*';
+
+          var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+          url = url.replace('<stateid>',encodeURIComponent(stateid));
+
+          if (registration)
+              url += "&registration=" + encodeURIComponent(registration);
+
+          var headers = {"If-Match":'"'+matchHash+'"'};
+          if (stateval instanceof Array || stateval instanceof Object)
+          {
+              stateval = JSON.stringify(stateval);
+              headers["Content-Type"] ="application/json";
+          }
+          else
+              headers["Content-Type"] ="application/octet-stream";
+
+
+          ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials, this.strictCallbacks);
+      }
+  };
+
+  /*
+   * Store activity state in the LRS
+   * @param {string} activityid   the id of the Activity this state is about
+   * @param {object} agent   the agent this Activity state is related to
+   * @param {string} stateid   the id you want associated with this state
+   * @param {string} [registration]   the registraton id associated with this state
+   * @param {string} stateval   the state
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {boolean} false if no activity state is included
+   */
+  XAPIWrapper.prototype.postState = function(activityid, agent, stateid, registration, stateval, callback)
+  {
+      if (this.testConfig())
+      {
+          if (!stateval)
+            return false;
+
+          var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+          url = url.replace('<stateid>',encodeURIComponent(stateid));
+
+          if (registration)
+              url += "&registration=" + encodeURIComponent(registration);
+
+          var headers = {};
+          if (stateval instanceof Array || stateval instanceof Object)
+          {
+              stateval = JSON.stringify(stateval);
+              headers["Content-Type"] ="application/json";
+          }
+          else
+              headers["Content-Type"] ="application/octet-stream";
+
+
+          ADL.XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
+      }
+  };
+
+  /*
+   * Get activity state from the LRS
+   * @param {string} activityid   the id of the Activity this state is about
+   * @param {object} agent   the agent this Activity state is related to
+   * @param {string} [stateid]    the id of the state, if not included, the response will be a list of stateids
+   *            associated with the activity and agent)
+   * @param {string} [registration]   the registraton id associated with this state
+   * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+   *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
+   * >> {info: "the state info"}
+   */
+  XAPIWrapper.prototype.getState = function(activityid, agent, stateid, registration, since, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+
+          if (stateid)
+          {
+              url += "&stateId=" + encodeURIComponent(stateid);
+          }
+
+          if (registration)
+          {
+              url += "&registration=" + encodeURIComponent(registration);
+          }
+
+          if(since)
+          {
+              since = ADL.Util.isDate(since);
+              if (since != null) {
+                  url += '&since=' + encodeURIComponent(since.toISOString());
+              }
+          }
+
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result.response;
+          }
+      }
+  };
+
+  /*
+   * Delete activity state in the LRS
+   * @param {string} activityid   the id of the Activity this state is about
+   * @param {object} agent   the agent this Activity state is related to
+   * @param {string} [stateid]   the id you want associated with this state
+   * @param {string} [registration]   the registraton id associated with this state
+   * @param {string} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * var stateval = {"info":"the state info"};
+   * XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
+   *                           {"mbox":"mailto:tom@example.com"},
+   *                           "questionstate", null, stateval);
+   * XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+   *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
+   * >> {info: "the state info"}
+   *
+   * XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
+   *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
+   * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+   *
+   * XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+   *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
+   * >> 404
+   */
+  XAPIWrapper.prototype.deleteState = function(activityid, agent, stateid, registration, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "activities/state?activityId=<activity ID>&agent=<agent>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+
+          if (stateid)
+          {
+              url += "&stateId=" + encodeURIComponent(stateid);
+          }
+
+          if (registration)
+          {
+              url += "&registration=" + encodeURIComponent(registration);
+          }
+
+          var headers = null;
+          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result;
+          }
+      }
+  };
+
+  /*
+   * Update activity profile in the LRS
+   * @param {string} activityid   the id of the Activity this profile is about
+   * @param {string} profileid   the id you want associated with this state
+   * @param {string} profileval   the profile
+   * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {boolean} false if no activity state is included
+   */
+  XAPIWrapper.prototype.putActivityProfile = function(activityid, profileid, profileval, matchHash, callback)
+  {
+      if (this.testConfig())
+      {
+          if (!profileval)
+            return false;
+
+          if (!matchHash || matchHash == "")
+            matchHash = '*';
+
+          var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          var headers = {"If-Match":'"'+matchHash+'"'};
+          if (profileval instanceof Array || profileval instanceof Object)
+          {
+              profileval = JSON.stringify(profileval);
+              headers["Content-Type"] ="application/json";
+          }
+          else
+              headers["Content-Type"] ="application/octet-stream";
+
+
+          ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+      }
+  };
+
+  /*
+   * Store activity profile in the LRS
+   * @param {string} activityid   the id of the Activity this profile is about
+   * @param {string} profileid   the id you want associated with this state
+   * @param {string} profileval   the profile
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {boolean} false if no activity state is included
+   */
+  XAPIWrapper.prototype.postActivityProfile = function(activityid, profileid, profileval, callback)
+  {
+      if (this.testConfig())
+      {
+        if (!profileval)
+          return false;
+
+        var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
+
+        url = url.replace('<activity ID>',encodeURIComponent(activityid));
+        url = url.replace('<profileid>',encodeURIComponent(profileid));
+
         var headers = {};
-        headers["Content-Type"] = "application/json";
-        headers["Authorization"] = auth;
-        headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
-        if(extraHeaders !== null){
-            for(var headerName in extraHeaders){
-                headers[headerName] = extraHeaders[headerName];
-            }
+        if (profileval instanceof Array || profileval instanceof Object)
+        {
+            profileval = JSON.stringify(profileval);
+            headers["Content-Type"] ="application/json";
         }
+        else
+            headers["Content-Type"] ="application/octet-stream";
 
-        //See if this really is a cross domain
-        xDomainRequest = (location.protocol.toLowerCase() !== urlparts[1] || location.hostname.toLowerCase() !== urlparts[2]);
-        if (!xDomainRequest) {
-            urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
-            xDomainRequest = (urlPort === location.port);
-        }
 
-        //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
-        if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-            xhr = new XMLHttpRequest();
-            xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
-            xhr.open(method, url, callback != null);
-            for(var headerName in headers){
-                xhr.setRequestHeader(headerName, headers[headerName]);
-            }
-        }
-        //Otherwise, use IE's XDomainRequest object
-        else {
-            ieXDomain = true;
-            ieModeRequest = ie_request(method, url, headers, data);
-            xhr = new XDomainRequest();
-            xhr.open(ieModeRequest.method, ieModeRequest.url);
-        }
+        ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+      }
+  };
 
-        //Setup request callback
-        function requestComplete() {
-            if(!finished){
-                // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
-                // onload or both might fire depending upon browser, just covering all bases with event hooks and
-                // using 'finished' flag to avoid triggering events multiple times
-                finished = true;
-                var notFoundOk = (ignore404 && xhr.status === 404);
-                if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
-                    if (callback) {
-                        if(callbackargs){
-                            strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
-                        }
-                        else {
-                            try {
-                                var body = JSON.parse(xhr.responseText);
-                                strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
-                            }
-                            catch(e){
-                                strictCallbacks ? callback(null, xhr, body) : callback(xhr,xhr.responseText);
-                            }
-                        }
-                    } else {
-                        result = xhr;
-                        return xhr;
-                    }
-                } else {
-                    var warning;
-                    try {
-                        warning = "There was a problem communicating with the Learning Record Store. ( "
-                            + xhr.status + " | " + xhr.response+ " )" + url
-                    } catch (ex) {
-                        warning = ex.toString();
-                    }
-                    ADL.XAPIWrapper.log(warning);
-                    ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
-                    result = xhr;
-                    return xhr;
+  /*
+   * Get activity profile from the LRS
+   * @param {string} activityid   the id of the Activity this profile is about
+   * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
+   *              associated with the activity
+   * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
+   * @param {function [callback]    function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+   *                                    "actprofile", null,
+   *                                    function(r){XAPIWrapper.log(JSON.parse(r.response));});
+   * >> {info: "the profile"}
+   */
+  XAPIWrapper.prototype.getActivityProfile = function(activityid, profileid, since, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+
+          if (profileid)
+          {
+              url += "&profileId=" + encodeURIComponent(profileid);
+          }
+
+          if(since)
+          {
+              since = ADL.Util.isDate(since);
+              if (since != null) {
+                  url += '&since=' + encodeURIComponent(since.toISOString());
+              }
+          }
+
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result.response;
+          }
+      }
+  };
+
+  /*
+   * Delete activity profile in the LRS
+   * @param {string} activityid   the id of the Activity this profile is about
+   * @param {string} profileid   the id you want associated with this profile
+   * @param {string} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
+   *                                       "actprofile");
+   * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+   */
+  XAPIWrapper.prototype.deleteActivityProfile = function(activityid, profileid, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "activities/profile?activityId=<activity ID>&profileId=<profileid>";
+
+          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          var headers = null;
+          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result;
+          }
+      }
+  };
+
+  /*
+   * Gets the Person object from the LRS based on an agent object.
+   * The Person object may contain more information about an agent.
+   * See the xAPI Spec for details.
+   * @param {object} agent   the agent object to get a Person
+   * @param {function [callback]    function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * var res = XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
+   * XAPIWrapper.log(res);
+   * >> <Person object>
+   */
+  XAPIWrapper.prototype.getAgents = function(agent, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "agents?agent=<agent>";
+          url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
+
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result.response;
+          }
+      }
+  };
+
+  /*
+   * Update agent profile in the LRS
+   * @param {object} agent   the agent this profile is related to
+   * @param {string} profileid   the id you want associated with this profile
+   * @param {string} profileval   the profile
+   * @param {string} [matchHash]    the hash of the profile to replace or * to replace any
+   * @param {string} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} false if no agent profile is included
+   */
+  XAPIWrapper.prototype.putAgentProfile = function(agent, profileid, profileval, matchHash, callback)
+  {
+      if (this.testConfig())
+      {
+          if (!profileval)
+            return false;
+
+          if (!matchHash || matchHash == "")
+            matchHash = '*';
+
+          var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
+
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          var headers = {"If-Match":'"'+matchHash+'"'};
+          if (profileval instanceof Array || profileval instanceof Object)
+          {
+              profileval = JSON.stringify(profileval);
+              headers["Content-Type"] ="application/json";
+          }
+          else
+              headers["Content-Type"] ="application/octet-stream";
+
+
+          ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+      }
+  };
+
+  /*
+   * Store agent profile in the LRS
+   * @param {object} agent   the agent this profile is related to
+   * @param {string} profileid   the id you want associated with this profile
+   * @param {string} profileval   the profile
+   * @param {string} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} false if no agent profile is included
+   */
+  XAPIWrapper.prototype.postAgentProfile = function(agent, profileid, profileval, callback)
+  {
+      if (this.testConfig())
+      {
+        if (!profileval)
+          return false;
+
+        var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
+
+        url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+        url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+        var headers = {};
+        if (profileval instanceof Array || profileval instanceof Object)
+        {
+            profileval = JSON.stringify(profileval);
+            headers["Content-Type"] ="application/json";
+        }
+        else
+            headers["Content-Type"] ="application/octet-stream";
+
+
+        ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+      }
+  };
+
+  /*
+   * Get agnet profile from the LRS
+   * @param {object} agent   the agent associated with this profile
+   * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
+   *              associated with the agent
+   * @param {object} [since]    date object or date string telling the LRS to return objects newer than the date supplied
+   * @param {function} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
+   *                                  "agentprofile", null,
+   *                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+   * >> {info: "the agent profile"}
+   */
+  XAPIWrapper.prototype.getAgentProfile = function(agent, profileid, since, callback)
+  {
+      if (this.testConfig()){
+          var url = this.lrs.endpoint + "agents/profile?agent=<agent>";
+
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          if (profileid)
+          {
+              url += "&profileId=" + encodeURIComponent(profileid);
+          }
+
+          if(since)
+          {
+              since = ADL.Util.isDate(since);
+              if (since != null) {
+                  url += '&since=' + encodeURIComponent(since.toISOString());
+              }
+          }
+
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null,this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result.response;
+          }
+      }
+  };
+
+  /*
+   * Delete agent profile in the LRS
+   * @param {oject} agent   the id of the Agent this profile is about
+   * @param {string} profileid   the id you want associated with this profile
+   * @param {string} [callback]   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   * @return {object} xhr response object or null if 404
+   * @example
+   * XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
+   *                                     "agentprofile");
+   * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+   */
+  XAPIWrapper.prototype.deleteAgentProfile = function(agent, profileid, callback)
+  {
+      if (this.testConfig())
+      {
+          var url = this.lrs.endpoint + "agents/profile?agent=<agent>&profileId=<profileid>";
+
+          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+          url = url.replace('<profileid>',encodeURIComponent(profileid));
+
+          var headers = null;
+          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials, this.strictCallbacks);
+
+          if(result === undefined || result.status == 404)
+          {
+              return null
+          }
+
+          try
+          {
+              return JSON.parse(result.response);
+          }
+          catch(e)
+          {
+              return result;
+          }
+      }
+  };
+
+  /*
+   * Tests the configuration of the lrs object
+   */
+  function testConfig()
+  {
+    try
+    {
+        return this.lrs.endpoint != undefined && this.lrs.endpoint != "";
+    }
+    catch(e)
+    {
+        return false;
+    }
+  }
+
+  // outputs the message to the console if available
+  function log(message)
+  {
+      if (!log.debug) return false;
+      try
+      {
+          console.log(message);
+          return true;
+      }
+      catch(e){return false;}
+  }
+
+  // merges two object
+  function mergeRecursive(obj1, obj2)
+  {
+      for (var p in obj2)
+      {
+          prop = obj2[p];
+		      log(p + " : " + prop);
+          try
+          {
+              // Property in destination object set; update its value.
+              if ( obj2[p].constructor==Object )
+              {
+                  obj1[p] = mergeRecursive(obj1[p], obj2[p]);
+              }
+              else
+              {
+                if (obj1 == undefined)
+                {
+                  obj1 = new Object();
                 }
-            } else {
-                return result;
+                  obj1[p] = obj2[p];
+              }
+          }
+          catch(e)
+          {
+            if (obj1 == undefined)
+            {
+              obj1 = new Object();
             }
-        };
+            // Property in destination object not set; create it and set its value.
+            obj1[p] = obj2[p];
+          }
+      }
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-               return requestComplete();
-            }
-        };
+      return obj1;
+  };
 
-        xhr.onload = requestComplete;
-        xhr.onerror = requestComplete;
-        //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
+  // iniitializes an lrs object with settings from
+  // a config file and from the url query string
+  function getLRSObject(config)
+  {
+      var lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
+      var lrs = new Object();
+      var qsVars, prop;
 
-        xhr.send(ieXDomain ? ieModeRequest.data : data);
+      qsVars = parseQueryString();
+      if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
+          for (var i = 0; i<lrsProps.length; i++){
+              prop = lrsProps[i];
+              if (qsVars[prop]){
+                  lrs[prop] = qsVars[prop];
+                  delete qsVars[prop];
+              }
+          }
+          if (Object.keys(qsVars).length !== 0) {
+            lrs.extended = qsVars;
+          }
 
-        if (!callback) {
-            // synchronous
-            if (ieXDomain) {
-                // synchronous call in IE, with no asynchronous mode available.
-                until = 1000 + new Date();
-                while (new Date() < until && xhr.readyState !== 4 && !finished) {
-                    delay();
-                }
-            }
-            return requestComplete();
-        }
-    };
+          lrs = mergeRecursive(config, lrs);
+      }
+      else {
+          lrs = config;
+      }
 
-    /*
-     * Holder for custom global error callback
-     * @param {object} xhr   xhr object or null
-     * @param {string} method   XMLHttpRequest request method
-     * @param {string} url   full endpoint url
-     * @param {function} callback   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
-     * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
-     * @example
-     * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
-     *   console.log(xhr);
-     *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
-     * };
-     */
-    ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
-        if (callback && strictCallbacks) {
-            var status = xhr ? xhr.status : undefined;
-            var error;
-            if (status) {
-                error = new Error('Request error: ' + xhr.status);
-            } else if (status === 0 || status === null) { // 0 and null = aborted
-                error = new Error('Request error: aborted');
-            } else {
-                error = new Error('Reqeust error: unknown');
-            }
+      return lrs;
+  };
 
-            if (callbackargs) {
-                callback(error, xhr, callbackargs);
-            } else {
-                try {
-                    var body = JSON.parse(xhr.responseText);
-                    callback(error, xhr, body);
-                } catch(e){
-                    callback(error, xhr, xhr.responseText);
-                }
-            }
-        }
-    };
+  // parses the params in the url query string
+  function parseQueryString()
+  {
+      var qs, pairs, pair, ii, parsed;
 
-    ADL.XAPIWrapper = new XAPIWrapper(Config, false);
+      var p = onBrowser ? window.location.search : urlMod.search;
+      qs = p ? p.substr(1) : "";
 
-}(window.ADL = window.ADL || {}));
+      pairs = qs.split('&');
+      parsed = {};
+      for ( ii = 0; ii < pairs.length; ii++) {
+          pair = pairs[ii].split('=');
+          if (pair.length === 2 && pair[0]) {
+              parsed[pair[0]] = decodeURIComponent(pair[1]);
+          }
+      }
+
+      return parsed;
+  };
+
+  function delay()
+  {
+      var xhr;
+      var url;
+
+      if (onBrowser) {
+        xhr = new XMLHttpRequest();
+        url = window.location;
+      }
+      else {
+        xhr = new XmlHttpRequest();
+        url = urlMod;
+      }
+
+      url += '?forcenocache='+ADL.Util.ruuid();
+      xhr.open('GET', url, false);
+      xhr.send(null);
+  };
+
+  /*
+   * formats a request in a way that IE will allow
+   * @param {string} method   the http request method (ex: "PUT", "GET")
+   * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
+   * @param {array} [headers]   headers to include in the request
+   * @param {string} [data]   the body of the request, if there is one
+   * @return {object} xhr response object
+   */
+  function ie_request(method, url, headers, data)
+  {
+      var newUrl = url;
+
+      //Everything that was on query string goes into form vars
+      var formData = new Array();
+      var qsIndex = newUrl.indexOf('?');
+      if(qsIndex > 0){
+          formData.push(newUrl.substr(qsIndex+1));
+          newUrl = newUrl.substr(0, qsIndex);
+      }
+
+      //Method has to go on querystring, and nothing else
+      newUrl = newUrl + '?method=' + method;
+
+      //Headers
+      if(headers !== null){
+          for(var headerName in headers){
+              formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
+          }
+      }
+
+      //The original data is repackaged as "content" form var
+      if(data !== null){
+          formData.push('content=' + encodeURIComponent(data));
+      }
+
+      return {
+          "method":"POST",
+          "url":newUrl,
+          "headers":{},
+          "data":formData.join("&")
+      };
+  };
+
+  // Synchronous if callback is not provided (not recommended)
+  /*
+   * makes a request to a server (if possible, use functions provided in XAPIWrapper)
+   * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
+   * @param {string} url   the url of this request
+   * @param {string} method   the http request method
+   * @param {string} data   the payload
+   * @param {string} auth   the value for the Authorization header
+   * @param {function} callback   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+   * @param {boolean} ignore404    allow page not found errors to pass
+   * @param {object} extraHeaders   other header key-values to be added to this request
+   * @param {boolean} withCredentials
+   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
+   * @return {object} xhr response object
+   */
+  ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
+  {
+    "use strict";
+
+      var xhr,
+          finished = false,
+          xDomainRequest = false,
+          ieXDomain = false,
+          ieModeRequest,
+          urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
+          location = onBrowser ? window.location : url,
+          urlPort,
+          result,
+          extended,
+          prop,
+          until;
+
+      //Consolidate headers
+      var headers = {};
+      headers["Content-Type"] = "application/json";
+      headers["Authorization"] = auth;
+      headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
+      if(extraHeaders !== null){
+          for(var headerName in extraHeaders){
+              headers[headerName] = extraHeaders[headerName];
+          }
+      }
+
+      //See if this really is a cross domain
+      xDomainRequest = (location.protocol !== urlparts[1] || location.hostname !== urlparts[2]);
+      if (!xDomainRequest) {
+          urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
+          xDomainRequest = (urlPort === location.port);
+      }
+
+      //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
+      var windowsVersionCheck = false;
+      if (onBrowser)
+        windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+      if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
+          xhr = onBrowser ? new XMLHttpRequest()  // browser environment
+                          : new XmlHttpRequest(); // nodeJS environment
+          xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
+          xhr.open(method, url, callback != null);
+          for(var headerName in headers){
+              xhr.setRequestHeader(headerName, headers[headerName]);
+          }
+      }
+      //Otherwise, use IE's XDomainRequest object
+      else {
+          ieXDomain = true;
+          ieModeRequest = ADL.XAPIWrapper.ie_request(method, url, headers, data);
+          xhr = new XDomainRequest();
+          xhr.open(ieModeRequest.method, ieModeRequest.url);
+      }
+
+      //Setup request callback
+      function requestComplete() {
+          if(!finished){
+              // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
+              // onload or both might fire depending upon browser, just covering all bases with event hooks and
+              // using 'finished' flag to avoid triggering events multiple times
+              finished = true;
+              var notFoundOk = (ignore404 && xhr.status === 404);
+              if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
+                  if (callback) {
+                      if(callbackargs){
+                          strictCallbacks ? callback(null. xhr, callbackargs) : callback(xhr, callbackargs);
+                      }
+                      else {
+                          try {
+                              var body = JSON.parse(xhr.responseText);
+                              strictCallbacks ? callback(null. xhr, body) : callback(xhr, body);
+                          }
+                          catch(e){
+                              callback(xhr,xhr.responseText);
+                              strictCallbacks ? callback(null. xhr, body) : callback(xhr, xhr.responseText);
+                          }
+                      }
+                  } else {
+                      result = xhr;
+                      return xhr;
+                  }
+              } else {
+                  var warning;
+                  try {
+                      warning = "There was a problem communicating with the Learning Record Store. ( "
+                          + xhr.status + " | " + xhr.response+ " )" + url
+                  } catch (ex) {
+                      warning = ex.toString();
+                  }
+                  ADL.XAPIWrapper.log(warning);
+                  ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
+                  result = xhr;
+                  return xhr;
+              }
+          } else {
+              return result;
+          }
+      };
+
+      xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+             return requestComplete();
+          }
+      };
+
+      xhr.onload = requestComplete;
+      xhr.onerror = requestComplete;
+      xhr.send(ieXDomain ? ieModeRequest.data : data);
+
+      if (!callback) {
+          // synchronous
+          if (ieXDomain) {
+              // synchronous call in IE, with no asynchronous mode available.
+              until = 1000 + new Date();
+              while (new Date() < until && xhr.readyState !== 4 && !finished) {
+                  delay();
+              }
+          }
+          return requestComplete();
+      }
+  };
+
+  /*
+   * Holder for custom global error callback
+   * @param {object} xhr   xhr object or null
+   * @param {string} method   XMLHttpRequest request method
+   * @param {string} url   full endpoint url
+   * @param {function} callback   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
+   * @example
+   * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
+   *   console.log(xhr);
+   *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
+   * };
+   */
+  ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
+    if (callback && strictCallbacks) {
+      var status = xhr ? xhr.status : undefined;
+      var error;
+      if (status) {
+          error = new Error('Request error: ' + xhr.status);
+      } else if (status === 0 || status === null) {
+          error = new Error('Request error: aborted');
+      } else {
+          error = new Error('Request error: unknown');
+      }
+
+      if (callbackargs) {
+          callback(error, xhr, callbackargs);
+      } else {
+          try {
+              var body = JSON.parse(xhr.responseText);
+              callback(error, xhr, body);
+          } catch (e){
+              callback(error, xhr, xhr.responseText);
+          }
+      }
+    }
+  };
+
+  ADL.XAPIWrapper = new XAPIWrapper(Config, false);
+
+})(ADL);
