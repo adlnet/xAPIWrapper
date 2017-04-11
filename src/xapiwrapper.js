@@ -64,6 +64,11 @@ else {
     this.withCredentials = false;
     this.withCredentials = config && config.withCredentials;
 
+    // Ensure that callbacks are always executed, first param is error (null if no error) followed
+    // by the result(s)
+    this.strictCallbacks = false;
+    this.strictCallbacks = config && config.strictCallbacks;
+
     function getbase(url)
     {
       var l;
@@ -119,7 +124,7 @@ else {
                 {
                     this.log("The request to get information about the LRS failed: " + r);
                 }
-            },null,false,null,this.withCredentials);
+            },null,false,null,this.withCredentials, false);
     }
 
     this.searchParams = function() {
@@ -149,6 +154,7 @@ else {
                 updateAuth(this.lrs, config.user, config.password);
             this.base = getbase(this.lrs.endpoint);
             this.withCredentials = config.withCredentials;
+            this.strictCallbacks = config.strictCallbacks;
         }
         catch(e)
         {
@@ -230,7 +236,7 @@ else {
           }
 
           var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
-              "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials);
+              "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials, this.strictCallbacks);
           if (!callback)
               return {"xhr":resp,
                       "id" :stmt['id']};
@@ -272,7 +278,7 @@ else {
               payload = this.buildMultipart(stmt,attachments,extraHeaders)
           }
           var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
-              "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials);
+              "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
           if (!callback)
               return {"xhr":resp,
                       "id" :id};
@@ -376,7 +382,7 @@ else {
               this.prepareStatement(stmtArray[i]);
           }
           var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
-              "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials);
+              "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
 
 
           if (!callback)
@@ -434,7 +440,7 @@ else {
                   url = url + "?" + urlparams.join("&");
           }
 
-          var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials);
+          var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
 
           if(res === undefined || res.status == 404)
           {
@@ -498,7 +504,7 @@ else {
           var url = this.lrs.endpoint + "activities?activityId=<activityid>";
           url = url.replace('<activityid>', encodeURIComponent(activityid));
 
-          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true,null,this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true,null,this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -558,7 +564,7 @@ else {
               headers["Content-Type"] ="application/octet-stream";
 
 
-          ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials);
+          ADL.XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials, this.strictCallbacks);
       }
   };
 
@@ -600,7 +606,7 @@ else {
               headers["Content-Type"] ="application/octet-stream";
 
 
-          ADL.XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials);
+          ADL.XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
       }
   };
 
@@ -648,7 +654,7 @@ else {
               }
           }
 
-          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -713,7 +719,7 @@ else {
           }
 
           var headers = null;
-          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -767,7 +773,7 @@ else {
               headers["Content-Type"] ="application/octet-stream";
 
 
-          ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+          ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
       }
   };
 
@@ -803,7 +809,7 @@ else {
             headers["Content-Type"] ="application/octet-stream";
 
 
-        ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+        ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
       }
   };
 
@@ -844,7 +850,7 @@ else {
               }
           }
 
-          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -885,7 +891,7 @@ else {
           url = url.replace('<profileid>',encodeURIComponent(profileid));
 
           var headers = null;
-          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -924,7 +930,7 @@ else {
           var url = this.lrs.endpoint + "agents?agent=<agent>";
           url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
 
-          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -978,7 +984,7 @@ else {
               headers["Content-Type"] ="application/octet-stream";
 
 
-          ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+          ADL.XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
       }
   };
 
@@ -1014,7 +1020,7 @@ else {
             headers["Content-Type"] ="application/octet-stream";
 
 
-        ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials);
+        ADL.XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
       }
   };
 
@@ -1055,7 +1061,7 @@ else {
               }
           }
 
-          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null,this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null,this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -1096,7 +1102,7 @@ else {
           url = url.replace('<profileid>',encodeURIComponent(profileid));
 
           var headers = null;
-          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials);
+          var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials, this.strictCallbacks);
 
           if(result === undefined || result.status == 404)
           {
@@ -1303,9 +1309,11 @@ else {
    * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
    * @param {boolean} ignore404    allow page not found errors to pass
    * @param {object} extraHeaders   other header key-values to be added to this request
+   * @param {boolean} withCredentials
+   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
    * @return {object} xhr response object
    */
-  ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials)
+  ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
   {
     "use strict";
 
@@ -1372,15 +1380,16 @@ else {
               if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
                   if (callback) {
                       if(callbackargs){
-                          callback(xhr, callbackargs);
+                          strictCallbacks ? callback(null. xhr, callbackargs) : callback(xhr, callbackargs);
                       }
                       else {
                           try {
                               var body = JSON.parse(xhr.responseText);
-                              callback(xhr,body);
+                              strictCallbacks ? callback(null. xhr, body) : callback(xhr, body);
                           }
                           catch(e){
                               callback(xhr,xhr.responseText);
+                              strictCallbacks ? callback(null. xhr, body) : callback(xhr, xhr.responseText);
                           }
                       }
                   } else {
@@ -1396,7 +1405,7 @@ else {
                       warning = ex.toString();
                   }
                   ADL.XAPIWrapper.log(warning);
-                  ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs);
+                  ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
                   result = xhr;
                   return xhr;
               }
@@ -1426,20 +1435,47 @@ else {
           }
           return requestComplete();
       }
-  }
+  };
 
   /*
    * Holder for custom global error callback
    * @param {object} xhr   xhr object or null
    * @param {string} method   XMLHttpRequest request method
    * @param {string} url   full endpoint url
+   * @param {function} callback   function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
    * @example
    * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
    *   console.log(xhr);
    *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
    * };
    */
-  ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){}
+  ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
+    if (callback && strictCallbacks) {
+      var status = xhr ? xhr.status : undefined;
+      var error;
+      if (status) {
+          error = new Error('Request error: ' + xhr.status);
+      } else if (status === 0 || status === null) {
+          error = new Error('Request error: aborted');
+      } else {
+          error = new Error('Request error: unknown');
+      }
+
+      if (callbackargs) {
+          callback(error, xhr, callbackargs);
+      } else {
+          try {
+              var body = JSON.parse(xhr.responseText);
+              callback(error, xhr, body);
+          } catch (e){
+              callback(error, xhr, xhr.responseText);
+          }
+      }
+    }
+  };
 
   ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
