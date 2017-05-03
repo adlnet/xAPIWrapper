@@ -7,7 +7,7 @@
      *     See (https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional)
      * @param {string} [name]   The natural-language name of the agent
      */
-    var Agent = ADL.Agent = function(identifier, name)
+    var Agent = function(identifier, name)
     {
       this.objectType = 'Agent';
       this.name = name;
@@ -47,7 +47,7 @@
      * @param {string} [members]    An array of Agents describing the membership of the group
      * @param {string} [name]   The natural-language name of the agent
      */
-    var Group = ADL.Group = function(identifier, members, name)
+    var Group = function(identifier, members, name)
     {
       Agent.call(this, identifier, name);
       this.member = members;

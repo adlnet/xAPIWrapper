@@ -5,7 +5,7 @@
     * @param {string} id   The IRI of the action taken
     * @param {string} [description]    An English-language description, or a Language Map
     */
-   var Verb = ADL.Verb = function(id, description)
+   var Verb = function(id, description)
    {
      // if passed a verb object then copy and return
      if( id && id.id ){

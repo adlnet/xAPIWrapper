@@ -38,7 +38,7 @@ if ( !Date.prototype.toISOString ) {
 
     var getObjDefName = function (o) {
         if (o.definition && o.definition.name) {
-            return ADL.Util.getLangVal(o.definition.name);
+            return Util.getLangVal(o.definition.name);
         }
         return undefined;
     };
@@ -47,14 +47,14 @@ if ( !Date.prototype.toISOString ) {
         if(o.objectType !== "SubStatement") return;
         if(o.object.objectType === "SubStatement") return;
         if(o.id || o.stored || o.version || o.authority) return;
-        var disp =  ADL.Util.getActorId(o.actor) + ":" + ADL.Util.getVerbDisplay(o.verb) + ":" + ADL.Util.getObjectId(o.object);
+        var disp =  Util.getActorId(o.actor) + ":" + Util.getVerbDisplay(o.verb) + ":" + Util.getObjectId(o.object);
         return disp;
     };
 
 
-    ADL.Util = {};
+    Util = {};
 
-    ADL.Util.getLang = function () {
+    Util.getLang = function () {
         var lang;
         if (typeof navigator !== 'undefined')
             lang =  navigator.language || navigator.browserLanguage ||
@@ -67,7 +67,7 @@ if ( !Date.prototype.toISOString ) {
         return lang || "en-US";
     };
 
-    ADL.Util.getLangVal = function (langprop) {
+    Util.getLangVal = function (langprop) {
 
         if (!langprop) return;
 
@@ -76,7 +76,7 @@ if ( !Date.prototype.toISOString ) {
         // skips if not a dict(obj) and returns
         if (options.length == 0) return undefined;
 
-        var lang = ADL.Util.getLang(),
+        var lang = Util.getLang(),
             ret,
             dispGotten = false;
 
@@ -95,11 +95,11 @@ if ( !Date.prototype.toISOString ) {
         return ret;
     };
 
-    ADL.Util.getActorId = function (a) {
+    Util.getActorId = function (a) {
         return a.mbox || a.openid || a.mbox_sha1sum || a.account;
     };
 
-    ADL.Util.getActorIdString = function (a) {
+    Util.getActorIdString = function (a) {
         var id = a.mbox || a.openid || a.mbox_sha1sum;
         if (! id) {
             if (a.account) id = a.account.homePage + ":" + a.account.name;
@@ -109,46 +109,46 @@ if ( !Date.prototype.toISOString ) {
         return id;
     };
 
-    ADL.Util.getActorDisplay = function (a) {
-        return a.name || ADL.Util.getActorIdString(a);
+    Util.getActorDisplay = function (a) {
+        return a.name || Util.getActorIdString(a);
     };
 
-    ADL.Util.getVerbDisplay = function (v) {
+    Util.getVerbDisplay = function (v) {
         if (!v) return;
         if (v.display) {
-            return ADL.Util.getLangVal(v.display) || v.id;
+            return Util.getLangVal(v.display) || v.id;
         }
         return v.id;
     };
 
-    ADL.Util.getObjectType = function (o) {
+    Util.getObjectType = function (o) {
         return o.objectType || ((o.id) ? "Activity" : "Agent");
     };
 
-    ADL.Util.getObjectId = function (o) {
+    Util.getObjectId = function (o) {
         if (o.id) return o.id;
-        var type = ADL.Util.getObjectType(o);
-        if (type === "Agent" || type === "Group") return ADL.Util.getActorId(o);
+        var type = Util.getObjectType(o);
+        if (type === "Agent" || type === "Group") return Util.getActorId(o);
         return undefined;
     };
 
-    ADL.Util.getObjectIdString = function (o) {
+    Util.getObjectIdString = function (o) {
         if (!o) return 'unknown'
         if (o.id) return o.id;
-        var type = ADL.Util.getObjectType(o);
-        if (type === "Agent" || type === "Group") return ADL.Util.getActorIdString(o);
+        var type = Util.getObjectType(o);
+        if (type === "Agent" || type === "Group") return Util.getActorIdString(o);
         else if (type == "SubStatement") {
             return getSubStatementDisplay(o);
         }
         return 'unknown';
     };
 
-    ADL.Util.getObjectDisplay = function (o) {
+    Util.getObjectDisplay = function (o) {
         if (!o) return "unknown"
         var disp = getObjDefName(o) || o.name || o.id;
         if (! disp) {
-            var type = ADL.Util.getObjectType(o);
-            if (type === "Agent" || type == "Group") disp = ADL.Util.getActorDisplay(o);
+            var type = Util.getObjectType(o);
+            if (type === "Agent" || type == "Group") disp = Util.getActorDisplay(o);
             else if (type == "SubStatement") {
                 disp = getSubStatementDisplay(o);
             }
@@ -164,7 +164,7 @@ if ( !Date.prototype.toISOString ) {
     Copyright (c) 2010 Robert Kieffer
     Dual licensed under the MIT and GPL licenses.
     */
-    ADL.Util.ruuid = function()
+    Util.ruuid = function()
     {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -177,7 +177,7 @@ if ( !Date.prototype.toISOString ) {
      * parses an ISO string into a date object
      * isostr - the ISO string
      */
-    ADL.Util.dateFromISOString = function(isostr)
+    Util.dateFromISOString = function(isostr)
     {
         var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
             "([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
@@ -206,7 +206,7 @@ if ( !Date.prototype.toISOString ) {
         return dateToReturn;
     }
 
-    ADL.Util.getByteLen = function(normal_val) {
+    Util.getByteLen = function(normal_val) {
         // Force string type
         normal_val = String(normal_val);
 
@@ -224,7 +224,7 @@ if ( !Date.prototype.toISOString ) {
     }
 
     // shim for old-style Base64 lib
-    ADL.Util.toBase64 = function(text){
+    Util.toBase64 = function(text){
       if(CryptoJS && CryptoJS.enc.Base64)
         return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
       else
@@ -232,13 +232,13 @@ if ( !Date.prototype.toISOString ) {
     }
 
     // shim for old-style crypto lib
-    ADL.Util.toSHA1 = function(text){
+    Util.toSHA1 = function(text){
       if(CryptoJS && CryptoJS.SHA1)
         return CryptoJS.SHA1(text).toString();
       else
         return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
     }
-    ADL.Util.toSHA256 = function(text){
+    Util.toSHA256 = function(text){
       if(CryptoJS && CryptoJS.SHA256)
         return CryptoJS.SHA256(text).toString();
 
@@ -246,7 +246,7 @@ if ( !Date.prototype.toISOString ) {
 
     // check if string or object is date, if it is, return date object
     // feburary 31st == march 3rd in this solution
-    ADL.Util.isDate = function(date) {
+    Util.isDate = function(date) {
         // check if object is being passed
         if ( Object.prototype.toString.call(date) === "[object Date]" )
             var d = date;
@@ -258,21 +258,21 @@ if ( !Date.prototype.toISOString ) {
             // it is a date
             if ( isNaN( d.valueOf() ) )
             {
-                ADL.XAPIWrapper.prototype.log("Invalid date String passed");
+                XAPIWrapper.prototype.log("Invalid date String passed");
                 return null;
             } else {
                 return d;
             }
         } else {
             // not a date
-            ADL.XAPIWrapper.prototype.log("Invalid date object");
+            XAPIWrapper.prototype.log("Invalid date object");
             return null;
         }
     }
 
 
     if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-      module.exports = ADL.Util;
+      module.exports = Util;
     }
 
 })(this);

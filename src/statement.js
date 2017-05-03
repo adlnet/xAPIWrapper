@@ -1,4 +1,13 @@
 (function(ADL){
+  // Require modules when using node
+  if (typeof module !== 'undefined') {
+    var Agent = require('./Agent').Agent;
+    var Group = require('./Agent').Group;
+    var Verb = require('./Verb');
+    var Activity = require('./Object').Activity;
+    var StatementRef = require('./Object').StatementRef;
+    var SubStatement = require('./Object').SubStatement;
+  }
 
   function _getobj(obj, path){
     var parts = path.split('.');
@@ -47,7 +56,7 @@
    * @param {string} [verb]   The Verb for the action described by the statement
    * @param {string} [object]   The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
    * @example
-   * var stmt = new ADL.Statement(
+   * var stmt = new Statement(
    *     'mailto:steve.vergenz.ctr@adlnet.gov',
    *    'http://adlnet.gov/expapi/verbs/launched',
    *    'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
@@ -62,7 +71,7 @@
    *     "objectType": "Activity",
    *     "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
    */
-  var Statement = ADL.Statement = function(actor,verb,object)
+  var Statement = function(actor,verb,object)
   {
     // initialize
 
@@ -79,20 +88,20 @@
     }
 
     if(actor){
-      if( actor instanceof ADL.Agent )
+      if( actor instanceof Agent )
         this.actor = actor;
       else if(actor.objectType === 'Agent' || !actor.objectType)
-        this.actor = new ADL.Agent(actor);
+        this.actor = new Agent(actor);
       else if(actor.objectType === 'Group')
-        this.actor = new ADL.Group(actor);
+        this.actor = new Group(actor);
     }
     else this.actor = null;
 
     if(verb){
-      if( verb instanceof ADL.Verb )
+      if( verb instanceof Verb )
         this.verb = verb;
       else
-        this.verb = new ADL.Verb(verb);
+        this.verb = new Verb(verb);
     }
     else this.verb = null;
 
@@ -100,34 +109,34 @@
     if(object)
     {
       if( object.objectType === 'Activity' || !object.objectType ){
-        if( object instanceof ADL.Activity )
+        if( object instanceof Activity )
           this.object = object;
         else
-          this.object = new ADL.Activity(object);
+          this.object = new Activity(object);
       }
       else if( object.objectType === 'Agent' ){
-        if( object instanceof ADL.Agent )
+        if( object instanceof Agent )
           this.object = object;
         else
-          this.object = new ADL.Agent(object);
+          this.object = new Agent(object);
       }
       else if( object.objectType === 'Group' ){
-        if( object instanceof ADL.Group )
+        if( object instanceof Group )
           this.object = object;
         else
-          this.object = new ADL.Group(object);
+          this.object = new Group(object);
       }
       else if( object.objectType === 'StatementRef' ){
-        if( object instanceof ADL.StatementRef )
+        if( object instanceof StatementRef )
           this.object = object;
         else
-          this.object = new ADL.StatementRef(object);
+          this.object = new StatementRef(object);
       }
       else if( object.objectType === 'SubStatement' ){
-        if( object instanceof ADL.SubStatement )
+        if( object instanceof SubStatement )
           this.object = object;
         else
-          this.object = new ADL.SubStatement(object);
+          this.object = new SubStatement(object);
       }
       else this.object = null;
     }
@@ -135,7 +144,7 @@
 
 
     this.generateId = function(){
-      this.id = ADL.Util.ruuid();
+      this.id = Util.ruuid();
     };
   };
 
@@ -150,19 +159,19 @@
   };
 
   Statement.prototype.generateRegistration = function(){
-    _getobj(this,'context').registration = ADL.Util.ruuid();
+    _getobj(this,'context').registration = Util.ruuid();
   };
 
   Statement.prototype.addParentActivity = function(activity){
-    _getobj(this,'context.contextActivities.parent[]').push(new ADL.Activity(activity));
+    _getobj(this,'context.contextActivities.parent[]').push(new Activity(activity));
   };
 
   Statement.prototype.addGroupingActivity = function(activity){
-    _getobj(this,'context.contextActivities.grouping[]').push(new ADL.Activity(activity));
+    _getobj(this,'context.contextActivities.grouping[]').push(new Activity(activity));
   };
 
   Statement.prototype.addOtherContextActivity = function(activity){
-    _getobj(this,'context.contextActivities.other[]').push(new ADL.Activity(activity));
+    _getobj(this,'context.contextActivities.other[]').push(new Activity(activity));
   };
 
 
@@ -170,4 +179,4 @@
     module.exports = Statement;
   }
 
-})(typeof module !== 'undefined' ? require('./index.js') : window.ADL = window.ADL || {});
+})(typeof module !== 'undefined' ? this : window.ADL = window.ADL || {});

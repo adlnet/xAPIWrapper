@@ -1,22 +1,12 @@
-// Create namespace depending on environment
-var ADL;
-var onBrowser = false;
-if (typeof module !== 'undefined') {
-  ADL = require('./index.js');
-  module.exports = ADL;
-}
-else {
-  ADL = window.ADL = window.ADL || {};
-  onBrowser = true;
+var onBrowser = (typeof module !== 'undefined') ? false : true;
+if (onBrowser == false) {
+  var urlMod = require('url');
+  var XmlHttpRequest = require('xhr2');
 }
 
+// Create the XAPIWrapper
+(function(){
 
-// Create the XAPIWrapper using ADL namespace
-(function(ADL){
-  if (!onBrowser) {
-    var urlMod = require('url');
-    var XmlHttpRequest = require('xhr2');
-  }
 
   /*
    * Config object used w/ url params to configure the lrs object
@@ -27,14 +17,14 @@ else {
    *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
    *    "auth" : "Basic " + toBase64('tom:1234'),
    * };
-   * ADL.XAPIWrapper.changeConfig(conf);
+   * XAPIWrapper.changeConfig(conf);
    */
   var Config = function() {
       var conf = {};
       conf['endpoint'] = "https://lrs.adlnet.gov/xapi/";
       try
       {
-          conf['auth'] = "Basic " + ADL.Util.toBase64('tom:1234');
+          conf['auth'] = "Basic " + Util.toBase64('tom:1234');
       }
       catch (e)
       {
@@ -43,7 +33,7 @@ else {
 
       // Statement defaults
       // conf["actor"] = {"mbox":"default@example.com"};
-      // conf["registration"] =  ADL.Util.ruuid();
+      // conf["registration"] =  Util.ruuid();
       // conf["grouping"] = {"id":"ctxact:default/grouping"};
       // conf["activity_platform"] = "default platform";
       return conf;
@@ -88,12 +78,12 @@ else {
     }
 
     function updateAuth(obj, username, password){
-      obj.auth = "Basic " + ADL.Util.toBase64(username + ":" + password);
+      obj.auth = "Basic " + Util.toBase64(username + ":" + password);
     }
 
     if (verifyxapiversion && testConfig.call(this))
     {
-        ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+        XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
             function(r){
                 if(r.status == 200)
                 {
@@ -136,11 +126,11 @@ else {
         if (!tohash) return null;
         try
         {
-            return ADL.Util.toSHA1(tohash);
+            return Util.toSHA1(tohash);
         }
         catch(e)
         {
-            ADL.XAPIWrapper.log("Error trying to hash -- " + e);
+            log("Error trying to hash -- " + e);
             return null;
         }
     };
@@ -225,7 +215,7 @@ else {
       if (this.testConfig())
       {
           this.prepareStatement(stmt);
-          stmt['id'] = (id == null || id == "") ? ADL.Util.ruuid() : id;
+          stmt['id'] = (id == null || id == "") ? Util.ruuid() : id;
 
           var payload = JSON.stringify(stmt);
           var extraHeaders = null;
@@ -235,7 +225,7 @@ else {
               payload = this.buildMultipart(stmt, attachments, extraHeaders);
           }
 
-          var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+          var resp = XHR_request(this.lrs, this.lrs.endpoint+"statements",
               "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials, this.strictCallbacks);
           if (!callback)
               return {"xhr":resp,
@@ -266,7 +256,7 @@ else {
           }
           else
           {
-              id = ADL.Util.ruuid();
+              id = Util.ruuid();
               stmt['id'] = id;
           }
 
@@ -277,7 +267,7 @@ else {
               extraHeaders = {}
               payload = this.buildMultipart(stmt,attachments,extraHeaders)
           }
-          var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+          var resp = XHR_request(this.lrs, this.lrs.endpoint+"statements",
               "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
           if (!callback)
               return {"xhr":resp,
@@ -320,7 +310,7 @@ else {
 
           //compute the length and the sha2 of the attachment
           attachments[i].type.length = attachments[i].value.length;
-          attachments[i].type.sha2 = ADL.Util.toSHA256(attachments[i].value);
+          attachments[i].type.sha2 = Util.toSHA256(attachments[i].value);
 
           //attach the attachment metadata to the statement
           statement.attachments.push(attachments[i].type)
@@ -463,7 +453,7 @@ else {
 
       var stmts = [];
 
-      ADL.XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
+      XAPIWrapper.getStatements(searchParams, null, function getMore(r) {
           if (! (r && r.response) ) return;
           var res = JSON.parse(r.response);
           if (! res.statements) return;
@@ -475,7 +465,7 @@ else {
           else {
               if (res.more && res.more !== "")
               {
-                  ADL.XAPIWrapper.getStatements(searchParams, res.more, getMore);
+                  XAPIWrapper.getStatements(searchParams, res.more, getMore);
               }
               else if (res.more === "")
               {
@@ -648,7 +638,7 @@ else {
 
           if(since)
           {
-              since = ADL.Util.isDate(since);
+              since = Util.isDate(since);
               if (since != null) {
                   url += '&since=' + encodeURIComponent(since.toISOString());
               }
@@ -844,7 +834,7 @@ else {
 
           if(since)
           {
-              since = ADL.Util.isDate(since);
+              since = Util.isDate(since);
               if (since != null) {
                   url += '&since=' + encodeURIComponent(since.toISOString());
               }
@@ -1055,7 +1045,7 @@ else {
 
           if(since)
           {
-              since = ADL.Util.isDate(since);
+              since = Util.isDate(since);
               if (since != null) {
                   url += '&since=' + encodeURIComponent(since.toISOString());
               }
@@ -1248,7 +1238,7 @@ else {
         url = urlMod;
       }
 
-      url += '?forcenocache='+ADL.Util.ruuid();
+      url += '?forcenocache='+Util.ruuid();
       xhr.open('GET', url, false);
       xhr.send(null);
   };
@@ -1313,7 +1303,7 @@ else {
    * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
    * @return {object} xhr response object
    */
-  ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
+  var XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
   {
     "use strict";
 
@@ -1334,7 +1324,7 @@ else {
       var headers = {};
       headers["Content-Type"] = "application/json";
       headers["Authorization"] = auth;
-      headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
+      headers['X-Experience-API-Version'] = XAPIWrapper.xapiVersion;
       if(extraHeaders !== null){
           for(var headerName in extraHeaders){
               headers[headerName] = extraHeaders[headerName];
@@ -1357,6 +1347,7 @@ else {
                           : new XmlHttpRequest(); // nodeJS environment
           xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
           xhr.open(method, url, callback != null);
+
           for(var headerName in headers){
               xhr.setRequestHeader(headerName, headers[headerName]);
           }
@@ -1364,7 +1355,7 @@ else {
       //Otherwise, use IE's XDomainRequest object
       else {
           ieXDomain = true;
-          ieModeRequest = ADL.XAPIWrapper.ie_request(method, url, headers, data);
+          ieModeRequest = XAPIWrapper.ie_request(method, url, headers, data);
           xhr = new XDomainRequest();
           xhr.open(ieModeRequest.method, ieModeRequest.url);
       }
@@ -1404,8 +1395,8 @@ else {
                   } catch (ex) {
                       warning = ex.toString();
                   }
-                  ADL.XAPIWrapper.log(warning);
-                  ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
+                  log(warning);
+                  xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
                   result = xhr;
                   return xhr;
               }
@@ -1447,12 +1438,12 @@ else {
    * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
    * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
    * @example
-   * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
+   * xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
    *   console.log(xhr);
    *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
    * };
    */
-  ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
+  var xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
     if (callback && strictCallbacks) {
       var status = xhr ? xhr.status : undefined;
       var error;
@@ -1477,6 +1468,6 @@ else {
     }
   };
 
-  ADL.XAPIWrapper = new XAPIWrapper(Config, false);
+  module.exports = new XAPIWrapper(Config, false);
 
-})(ADL);
+})();

@@ -1,12 +1,17 @@
 (function(ADL){
 
+  if (typeof module !== 'undefined') {
+    var Statement = function(){};
+    // var Statement = require('./Statement');
+  }
+
   /*
    * Describes an object that an agent interacts with
    * @param {string} id   The unique activity IRI
    * @param {string} name   An English-language identifier for the activity, or a Language Map
    * @param {string} description   An English-language description of the activity, or a Language Map
    */
-  var Activity = ADL.Activity = function(id, name, description)
+  var Activity = function(id, name, description)
   {
     // if first arg is activity, copy everything over
     if(id && id.id){
@@ -48,7 +53,7 @@
    * An object that refers to a separate statement
    * @param {string} id   The UUID of another statement
    */
-  var StatementRef = ADL.StatementRef = function(id){
+  var StatementRef = function(id){
     if(id && id.id){
       for(var i in id){
         this[i] = id[i];
@@ -73,8 +78,8 @@
    * @param {string} verb   The Verb for the action described by the statement
    * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
    */
-  var SubStatement = ADL.SubStatement = function(actor, verb, object){
-    ADL.Statement.call(this,actor,verb,object);
+  var SubStatement = function(actor, verb, object){
+    Statement.call(this,actor,verb,object);
     this.objectType = 'SubStatement';
 
     delete this.id;
@@ -82,7 +87,7 @@
     delete this.version;
     delete this.authority;
   };
-  SubStatement.prototype = new ADL.Statement;
+  SubStatement.prototype = new Statement;
   SubStatement.prototype.toString = function(){
     return '"' + SubStatement.prototype.prototype.toString.call(this) + '"';
   };
@@ -96,4 +101,4 @@
     };
   }
 
-})(typeof module !== 'undefined' ? require('./index.js') : window.ADL = window.ADL || {});
+})(typeof module !== 'undefined' ? this : window.ADL = window.ADL || {});
