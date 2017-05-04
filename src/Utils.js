@@ -6,7 +6,7 @@ if ( !Date.prototype.toISOString ) {
     function pad(number) {
       var r = String(number);
       if ( r.length === 1 ) {
-        r = '0' + r;
+        r = `0${r}`;
       }
       return r;
     }
@@ -47,7 +47,7 @@ if ( !Date.prototype.toISOString ) {
         if(o.objectType !== "SubStatement") return;
         if(o.object.objectType === "SubStatement") return;
         if(o.id || o.stored || o.version || o.authority) return;
-        var disp =  Util.getActorId(o.actor) + ":" + Util.getVerbDisplay(o.verb) + ":" + Util.getObjectId(o.object);
+        var disp =  `${Util.getActorId(o.actor)}:${Util.getVerbDisplay(o.verb)}:${Util.getObjectId(o.object)}`;
         return disp;
     };
 
@@ -102,8 +102,8 @@ if ( !Date.prototype.toISOString ) {
     Util.getActorIdString = function (a) {
         var id = a.mbox || a.openid || a.mbox_sha1sum;
         if (! id) {
-            if (a.account) id = a.account.homePage + ":" + a.account.name;
-            else if (a.member) id = "Anon Group " + a.member;
+            if (a.account) id = `${a.account.homePage}:${a.account.name}`;
+            else if (a.member) id = `Anon Group ${a.member}`;
             else id = 'unknown';
         }
         return id;
@@ -166,7 +166,7 @@ if ( !Date.prototype.toISOString ) {
     */
     Util.ruuid = function()
     {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
         });
@@ -192,7 +192,7 @@ if ( !Date.prototype.toISOString ) {
         if (d[7]) { date.setHours(d[7]); }
         if (d[8]) { date.setMinutes(d[8]); }
         if (d[10]) { date.setSeconds(d[10]); }
-        if (d[12]) { date.setMilliseconds(Number("0." + d[12]) * 1000); }
+        if (d[12]) { date.setMilliseconds(Number(`0.${d[12]}`) * 1000); }
         if (d[14]) {
             offset = (Number(d[16]) * 60) + Number(d[17]);
             offset *= ((d[15] == '-') ? 1 : -1);

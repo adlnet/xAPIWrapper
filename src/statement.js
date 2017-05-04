@@ -6,7 +6,6 @@
     var Verb = require('./Verb');
     var Activity = require('./Object').Activity;
     var StatementRef = require('./Object').StatementRef;
-    var SubStatement = require('./Object').SubStatement;
   }
 
   function _getobj(obj, path){
@@ -71,112 +70,137 @@
    *     "objectType": "Activity",
    *     "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
    */
-  var Statement = function(actor,verb,object)
-  {
-    // initialize
-
-    // if first arg is an xapi statement, parse
-    if( actor && actor.actor && actor.verb && actor.object ){
-      var stmt = actor;
-      for(var i in stmt){
-        if(i != 'actor' && i != 'verb' && i != 'object')
-          this[i] = stmt[i];
-      }
-      actor = stmt.actor;
-      verb = stmt.verb;
-      object = stmt.object;
-    }
-
-    if(actor){
-      if( actor instanceof Agent )
-        this.actor = actor;
-      else if(actor.objectType === 'Agent' || !actor.objectType)
-        this.actor = new Agent(actor);
-      else if(actor.objectType === 'Group')
-        this.actor = new Group(actor);
-    }
-    else this.actor = null;
-
-    if(verb){
-      if( verb instanceof Verb )
-        this.verb = verb;
-      else
-        this.verb = new Verb(verb);
-    }
-    else this.verb = null;
-
-    // decide what kind of object was passed
-    if(object)
+  class Statement {
+    constructor(actor,verb,object)
     {
-      if( object.objectType === 'Activity' || !object.objectType ){
-        if( object instanceof Activity )
-          this.object = object;
-        else
-          this.object = new Activity(object);
+      // initialize
+
+      // if first arg is an xapi statement, parse
+      if( actor && actor.actor && actor.verb && actor.object ){
+        var stmt = actor;
+        for(var i in stmt){
+          if(i != 'actor' && i != 'verb' && i != 'object')
+            this[i] = stmt[i];
+        }
+        actor = stmt.actor;
+        verb = stmt.verb;
+        object = stmt.object;
       }
-      else if( object.objectType === 'Agent' ){
-        if( object instanceof Agent )
-          this.object = object;
-        else
-          this.object = new Agent(object);
+
+      if(actor){
+        if( actor instanceof Agent )
+          this.actor = actor;
+        else if(actor.objectType === 'Agent' || !actor.objectType)
+          this.actor = new Agent(actor);
+        else if(actor.objectType === 'Group')
+          this.actor = new Group(actor);
       }
-      else if( object.objectType === 'Group' ){
-        if( object instanceof Group )
-          this.object = object;
+      else this.actor = null;
+
+      if(verb){
+        if( verb instanceof Verb )
+          this.verb = verb;
         else
-          this.object = new Group(object);
+          this.verb = new Verb(verb);
       }
-      else if( object.objectType === 'StatementRef' ){
-        if( object instanceof StatementRef )
-          this.object = object;
-        else
-          this.object = new StatementRef(object);
-      }
-      else if( object.objectType === 'SubStatement' ){
-        if( object instanceof SubStatement )
-          this.object = object;
-        else
-          this.object = new SubStatement(object);
+      else this.verb = null;
+
+      // decide what kind of object was passed
+      if(object)
+      {
+        if( object.objectType === 'Activity' || !object.objectType ){
+          if( object instanceof Activity )
+            this.object = object;
+          else
+            this.object = new Activity(object);
+        }
+        else if( object.objectType === 'Agent' ){
+          if( object instanceof Agent )
+            this.object = object;
+          else
+            this.object = new Agent(object);
+        }
+        else if( object.objectType === 'Group' ){
+          if( object instanceof Group )
+            this.object = object;
+          else
+            this.object = new Group(object);
+        }
+        else if( object.objectType === 'StatementRef' ){
+          if( object instanceof StatementRef )
+            this.object = object;
+          else
+            this.object = new StatementRef(object);
+        }
+        else if( object.objectType === 'SubStatement' ){
+          if( object instanceof SubStatement )
+            this.object = object;
+          else
+            this.object = new SubStatement(object);
+        }
+        else this.object = null;
       }
       else this.object = null;
-    }
-    else this.object = null;
 
 
-    this.generateId = function(){
-      this.id = Util.ruuid();
+      this.generateId = function(){
+        this.id = Util.ruuid();
+      };
     };
-  };
 
-  Statement.prototype.toString = function(){
-    return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString();
-  };
+    toString(){
+      return `${this.actor.toString()} ${this.verb.toString()} ${this.object.toString()}`;
+    };
 
-  Statement.prototype.isValid = function(){
-    return this.actor && this.actor.isValid()
-      && this.verb && this.verb.isValid()
-      && this.object && this.object.isValid();
-  };
+    isValid(){
+      return this.actor && this.actor.isValid()
+        && this.verb && this.verb.isValid()
+        && this.object && this.object.isValid();
+    };
 
-  Statement.prototype.generateRegistration = function(){
-    _getobj(this,'context').registration = Util.ruuid();
-  };
+    generateRegistration(){
+      _getobj(this,'context').registration = Util.ruuid();
+    };
 
-  Statement.prototype.addParentActivity = function(activity){
-    _getobj(this,'context.contextActivities.parent[]').push(new Activity(activity));
-  };
+    addParentActivity(activity){
+      _getobj(this,'context.contextActivities.parent[]').push(new Activity(activity));
+    };
 
-  Statement.prototype.addGroupingActivity = function(activity){
-    _getobj(this,'context.contextActivities.grouping[]').push(new Activity(activity));
-  };
+    addGroupingActivity(activity){
+      _getobj(this,'context.contextActivities.grouping[]').push(new Activity(activity));
+    };
 
-  Statement.prototype.addOtherContextActivity = function(activity){
-    _getobj(this,'context.contextActivities.other[]').push(new Activity(activity));
-  };
+    addOtherContextActivity(activity){
+      _getobj(this,'context.contextActivities.other[]').push(new Activity(activity));
+    };
+  }
+
+
+  /*
+   * A self-contained statement as the object of another statement
+   * See Statement for constructor details
+   * @param {string} actor   The Agent or Group committing the action described by the statement
+   * @param {string} verb   The Verb for the action described by the statement
+   * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
+   */
+  class SubStatement extends Statement {
+    constructor(actor, verb, object){
+      super(actor,verb,object);
+      this.objectType = 'SubStatement';
+
+      delete this.id;
+      delete this.stored;
+      delete this.version;
+      delete this.authority;
+    };
+    toString(){
+      return `"${super.toString()}"`;
+    };
+  }
 
 
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-    module.exports = Statement;
+    module.exports = { Statement, SubStatement };
   }
 
 })(typeof module !== 'undefined' ? this : window.ADL = window.ADL || {});
