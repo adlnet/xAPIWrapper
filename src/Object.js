@@ -1,4 +1,4 @@
-(function(ADL){
+{
 
   /*
    * Describes an object that an agent interacts with
@@ -11,8 +11,8 @@
     {
       // if first arg is activity, copy everything over
       if(id && id.id){
-        var act = id;
-        for(var i in act){
+        let act = id;
+        for(let i in act){
           this[i] = act[i];
         }
         return;
@@ -55,7 +55,7 @@
     constructor(id)
     {
       if(id && id.id){
-        for(var i in id){
+        for(let i in id){
           this[i] = id[i];
         }
       }
@@ -75,6 +75,9 @@
 
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = { Activity, StatementRef };
+  } else {
+    window.Activity = Activity;
+    window.StatementRef = StatementRef;
   }
 
-})(typeof module !== 'undefined' ? this : window.ADL = window.ADL || {});
+}

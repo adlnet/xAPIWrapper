@@ -1,4 +1,4 @@
-(function(ADL){
+{
 
     /*
      * Provides an easy constructor for xAPI agent objects
@@ -15,7 +15,7 @@
 
         // figure out what type of identifier was given
         if( identifier && (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
-          for(var i in identifier){
+          for(let i in identifier){
             this[i] = identifier[i];
           }
         }
@@ -61,6 +61,9 @@
 
     if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       module.exports = { Agent, Group };
+    } else {
+      window.Agent = Agent;
+      window.Group = Group;
     }
 
-})(typeof module === 'undefined' ? window.ADL = window.ADL || {} : this);
+}

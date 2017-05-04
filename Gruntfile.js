@@ -19,12 +19,11 @@ module.exports = function(grunt) {
             'lib/cryptojs_v3.1.2.js',
             'src/xAPIWrapper.js',
             'src/Utils.js',
+            'src/verbs.js',
             'src/Agent.js',
             'src/Verb.js',
-            'src/verbs.js',
             'src/Statement.js',
             'src/Object.js',
-            'src/index.js',
             'src/xAPILaunch.js'
           ]
         }

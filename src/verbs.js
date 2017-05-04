@@ -1,6 +1,6 @@
-(function(){
+{
 
-   var verbs = {
+   let verbs = {
       "abandoned" : {
          "id" : "https://w3id.org/xapi/adl/verbs/abandoned",
          "display" : {"en-US" : "abandoned"}
@@ -192,6 +192,8 @@
 
    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
      module.exports = verbs;
+   } else {
+     window.verbs = verbs;
    }
 
-})(typeof module === 'undefined' ? window.ADL = window.ADL || {} : this);
+}

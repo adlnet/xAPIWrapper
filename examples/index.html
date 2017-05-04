@@ -20,21 +20,21 @@
     <script type="text/javascript">
 
     function test() {
-      ADL.XAPIWrapper.changeConfig({
+      XAPIWrapper.changeConfig({
         "endpoint": "https://lrs.adlnet.gov/xapi/",
         "user": "tom",
         "password": "1234"
       });
 
 
-      var stmt = new ADL.Statement(
-        new ADL.Agent(ADL.XAPIWrapper.hash("mailto:user@example.com"), 'aaron'),
-        new ADL.Verb('http://adlnet.gov/expapi/verbs/browser_testing', 'browser_testing'),
-        new ADL.Activity("act:statement_posts/browser_testing"));
+      var stmt = new Statement(
+        new Agent(XAPIWrapper.hash("mailto:user@example.com"), 'aaron'),
+        new Verb('http://adlnet.gov/expapi/verbs/browser_testing', 'browser_testing'),
+        new Activity("act:statement_posts/browser_testing"));
 
       stmt.timestamp = (new Date()).toISOString();
 
-      ADL.XAPIWrapper.postStatement(stmt, function(r){console.log("Success");});
+      XAPIWrapper.postStatement(stmt, function(r){console.log("Success");});
     }
 
     </script>

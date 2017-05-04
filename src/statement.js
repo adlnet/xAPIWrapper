@@ -1,4 +1,5 @@
-(function(ADL){
+{
+
   // Require modules when using node
   if (typeof module !== 'undefined') {
     var Agent = require('./Agent').Agent;
@@ -9,9 +10,9 @@
   }
 
   function _getobj(obj, path){
-    var parts = path.split('.');
+    let parts = path.split('.');
 
-    var part = parts[0];
+    let part = parts[0];
     path = parts.slice(1).join('.');
 
     if( !obj[part] ){
@@ -77,8 +78,8 @@
 
       // if first arg is an xapi statement, parse
       if( actor && actor.actor && actor.verb && actor.object ){
-        var stmt = actor;
-        for(var i in stmt){
+        let stmt = actor;
+        for(let i in stmt){
           if(i != 'actor' && i != 'verb' && i != 'object')
             this[i] = stmt[i];
         }
@@ -143,7 +144,7 @@
       else this.object = null;
 
 
-      this.generateId = function(){
+      this.generateId = () => {
         this.id = Util.ruuid();
       };
     };
@@ -201,6 +202,9 @@
 
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = { Statement, SubStatement };
+  } else {
+    window.Statement = Statement;
+    window.SubStatement = SubStatement;
   }
 
-})(typeof module !== 'undefined' ? this : window.ADL = window.ADL || {});
+}

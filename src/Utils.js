@@ -1,17 +1,16 @@
 // adds toISOString to date objects if not there
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 if ( !Date.prototype.toISOString ) {
-  ( function() {
-
-    function pad(number) {
-      var r = String(number);
+  {
+    let pad = (number) => {
+      let r = String(number);
       if ( r.length === 1 ) {
         r = `0${r}`;
       }
       return r;
     }
 
-    Date.prototype.toISOString = function() {
+    Date.prototype.toISOString = () => {
       return this.getUTCFullYear()
         + '-' + pad( this.getUTCMonth() + 1 )
         + '-' + pad( this.getUTCDate() )
@@ -21,62 +20,59 @@ if ( !Date.prototype.toISOString ) {
         + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
         + 'Z';
     };
-
-  }() );
+  }
 }
 
 
-(function (obj) {
-    var ADL = obj;
-    var onBrowser = false;
+{
+    let onBrowser = false;
     if (typeof window !== 'undefined') {
-      ADL = window.ADL = obj.ADL || {};
       onBrowser = true;
     }
     else
       CryptoJS = require('crypto-js');
 
-    var getObjDefName = function (o) {
+    let getObjDefName = (o) => {
         if (o.definition && o.definition.name) {
             return Util.getLangVal(o.definition.name);
         }
         return undefined;
     };
 
-    var getSubStatementDisplay = function (o) {
+    let getSubStatementDisplay = (o) => {
         if(o.objectType !== "SubStatement") return;
         if(o.object.objectType === "SubStatement") return;
         if(o.id || o.stored || o.version || o.authority) return;
-        var disp =  `${Util.getActorId(o.actor)}:${Util.getVerbDisplay(o.verb)}:${Util.getObjectId(o.object)}`;
+        let disp =  `${Util.getActorId(o.actor)}:${Util.getVerbDisplay(o.verb)}:${Util.getObjectId(o.object)}`;
         return disp;
     };
 
 
     Util = {};
 
-    Util.getLang = function () {
-        var lang;
+    Util.getLang = () => {
+        let lang;
         if (typeof navigator !== 'undefined')
             lang =  navigator.language || navigator.browserLanguage ||
             navigator.systemLanguage || navigator.userLanguage;
         else if (process && process.env) {
-            var str = process.env.LANG;
+            let str = process.env.LANG;
             lang =  str.slice(0, str.indexOf('.'));
             lang = lang.replace(/_/, '-')
         }
         return lang || "en-US";
     };
 
-    Util.getLangVal = function (langprop) {
+    Util.getLangVal = (langprop) => {
 
         if (!langprop) return;
 
-        var options = Object.keys(langprop);
+        let options = Object.keys(langprop);
         // test that langprop is a dict (obj)
         // skips if not a dict(obj) and returns
         if (options.length == 0) return undefined;
 
-        var lang = Util.getLang(),
+        let lang = Util.getLang(),
             ret,
             dispGotten = false;
 
@@ -95,12 +91,12 @@ if ( !Date.prototype.toISOString ) {
         return ret;
     };
 
-    Util.getActorId = function (a) {
+    Util.getActorId = (a) => {
         return a.mbox || a.openid || a.mbox_sha1sum || a.account;
     };
 
     Util.getActorIdString = function (a) {
-        var id = a.mbox || a.openid || a.mbox_sha1sum;
+        let id = a.mbox || a.openid || a.mbox_sha1sum;
         if (! id) {
             if (a.account) id = `${a.account.homePage}:${a.account.name}`;
             else if (a.member) id = `Anon Group ${a.member}`;
@@ -109,11 +105,11 @@ if ( !Date.prototype.toISOString ) {
         return id;
     };
 
-    Util.getActorDisplay = function (a) {
+    Util.getActorDisplay = (a) => {
         return a.name || Util.getActorIdString(a);
     };
 
-    Util.getVerbDisplay = function (v) {
+    Util.getVerbDisplay = (v) => {
         if (!v) return;
         if (v.display) {
             return Util.getLangVal(v.display) || v.id;
@@ -121,21 +117,21 @@ if ( !Date.prototype.toISOString ) {
         return v.id;
     };
 
-    Util.getObjectType = function (o) {
+    Util.getObjectType = (o) => {
         return o.objectType || ((o.id) ? "Activity" : "Agent");
     };
 
-    Util.getObjectId = function (o) {
+    Util.getObjectId = (o) => {
         if (o.id) return o.id;
-        var type = Util.getObjectType(o);
+        let type = Util.getObjectType(o);
         if (type === "Agent" || type === "Group") return Util.getActorId(o);
         return undefined;
     };
 
-    Util.getObjectIdString = function (o) {
+    Util.getObjectIdString = (o) => {
         if (!o) return 'unknown'
         if (o.id) return o.id;
-        var type = Util.getObjectType(o);
+        let type = Util.getObjectType(o);
         if (type === "Agent" || type === "Group") return Util.getActorIdString(o);
         else if (type == "SubStatement") {
             return getSubStatementDisplay(o);
@@ -143,11 +139,11 @@ if ( !Date.prototype.toISOString ) {
         return 'unknown';
     };
 
-    Util.getObjectDisplay = function (o) {
+    Util.getObjectDisplay = (o) => {
         if (!o) return "unknown"
-        var disp = getObjDefName(o) || o.name || o.id;
+        let disp = getObjDefName(o) || o.name || o.id;
         if (! disp) {
-            var type = Util.getObjectType(o);
+            let type = Util.getObjectType(o);
             if (type === "Agent" || type == "Group") disp = Util.getActorDisplay(o);
             else if (type == "SubStatement") {
                 disp = getSubStatementDisplay(o);
@@ -164,10 +160,10 @@ if ( !Date.prototype.toISOString ) {
     Copyright (c) 2010 Robert Kieffer
     Dual licensed under the MIT and GPL licenses.
     */
-    Util.ruuid = function()
+    Util.ruuid = () =>
     {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                let r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
         });
     };
@@ -177,15 +173,15 @@ if ( !Date.prototype.toISOString ) {
      * parses an ISO string into a date object
      * isostr - the ISO string
      */
-    Util.dateFromISOString = function(isostr)
+    Util.dateFromISOString = (isostr) =>
     {
-        var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
+        let regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
             "([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
             "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?";
-        var d = isostr.match(new RegExp(regexp));
+        let d = isostr.match(new RegExp(regexp));
 
-        var offset = 0;
-        var date = new Date(d[1], 0, 1);
+        let offset = 0;
+        let date = new Date(d[1], 0, 1);
 
         if (d[3]) { date.setMonth(d[3] - 1); }
         if (d[5]) { date.setDate(d[5]); }
@@ -201,18 +197,18 @@ if ( !Date.prototype.toISOString ) {
         offset -= date.getTimezoneOffset();
         time = (Number(date) + (offset * 60 * 1000));
 
-        var dateToReturn = new Date();
+        let dateToReturn = new Date();
         dateToReturn.setTime(Number(time));
         return dateToReturn;
     }
 
-    Util.getByteLen = function(normal_val) {
+    Util.getByteLen = (normal_val) => {
         // Force string type
         normal_val = String(normal_val);
 
-        var byteLen = 0;
-        for (var i = 0; i < normal_val.length; i++) {
-            var c = normal_val.charCodeAt(i);
+        let byteLen = 0;
+        for (let i = 0; i < normal_val.length; i++) {
+            let c = normal_val.charCodeAt(i);
             byteLen += c < (1 <<  7) ? 1 :
                        c < (1 << 11) ? 2 :
                        c < (1 << 16) ? 3 :
@@ -224,7 +220,7 @@ if ( !Date.prototype.toISOString ) {
     }
 
     // shim for old-style Base64 lib
-    Util.toBase64 = function(text){
+    Util.toBase64 = (text) => {
       if(CryptoJS && CryptoJS.enc.Base64)
         return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
       else
@@ -232,47 +228,49 @@ if ( !Date.prototype.toISOString ) {
     }
 
     // shim for old-style crypto lib
-    Util.toSHA1 = function(text){
+    Util.toSHA1 = (text) => {
       if(CryptoJS && CryptoJS.SHA1)
         return CryptoJS.SHA1(text).toString();
       else
         return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
     }
-    Util.toSHA256 = function(text){
+    Util.toSHA256 = (text) => {
       if(CryptoJS && CryptoJS.SHA256)
         return CryptoJS.SHA256(text).toString();
-
     }
 
     // check if string or object is date, if it is, return date object
     // feburary 31st == march 3rd in this solution
-    Util.isDate = function(date) {
+    Util.isDate = (date) => {
+        let d;
         // check if object is being passed
         if ( Object.prototype.toString.call(date) === "[object Date]" )
-            var d = date;
+            d = date;
         else
-            var d = new Date(date);
+            d = new Date(date);
         // deep check on date object
         if ( Object.prototype.toString.call(d) === "[object Date]" )
         {
             // it is a date
             if ( isNaN( d.valueOf() ) )
             {
-                XAPIWrapper.prototype.log("Invalid date String passed");
+                XAPIWrapper.log("Invalid date String passed");
                 return null;
             } else {
                 return d;
             }
         } else {
             // not a date
-            XAPIWrapper.prototype.log("Invalid date object");
+            XAPIWrapper.log("Invalid date object");
             return null;
         }
     }
 
 
-    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    if (!onBrowser) {
       module.exports = Util;
+    } else {
+      window.Util = Util;
     }
 
-})(this);
+}

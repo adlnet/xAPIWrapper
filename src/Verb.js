@@ -1,4 +1,4 @@
-(function(ADL){
+{
 
    /*
     * Really only provides a convenient language map
@@ -10,7 +10,7 @@
      {
        // if passed a verb object then copy and return
        if( id && id.id ){
-         for(var i in id){
+         for(let i in id){
            this[i] = id[i];
          }
          return;
@@ -42,6 +42,8 @@
 
    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
      module.exports = Verb;
+   } else {
+     window.Verb = Verb;
    }
 
-})(typeof module === 'undefined' ? window.ADL = window.ADL || {} : this);
+}
