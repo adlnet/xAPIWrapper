@@ -767,7 +767,7 @@
      *            the function will be passed the XMLHttpRequest object
      * @return {boolean} false if no activity state is included
      */
-    postActivityProfilefunction(activityid, profileid, profileval, callback)
+    postActivityProfile(activityid, profileid, profileval, callback)
     {
         if (this.testConfig())
         {
