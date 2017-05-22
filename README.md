@@ -219,16 +219,16 @@ Alternatively, use the minified xapiwrapper version, which includes xapilaunch:
 <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
 ```  
 
-To use, construct and ADL.launch object passing in a callback.  
+To use, construct and launch object passing in a callback.  
 
 ``` javascript
-var wrapper;
+let wrapper;
 ADL.launch(function(err, launchdata, xAPIWrapper) {
     if (!err) {
         wrapper = xAPIWrapper;
         console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
     } else {
-        wrapper = ADL.XAPIWrapper;
+        wrapper = XAPIWrapper;
         wrapper.changeConfig({
             endpoint: "https://lrs.adlnet.gov/xapi/",
             user: 'tom',
@@ -244,26 +244,56 @@ ADL.launch(function(err, launchdata, xAPIWrapper) {
 
 #### Statements
 
-##### Statement Class (statement.js)
+##### Statement class (statement.js)
 
 ```JavaScript
 new Statement(actor, verb, object)
-new SubStatement(actor, verb, object)
-new Agent(identifier, name)
-new Group(identifier, members, name)
-new Verb(id, description)
-new Activity(id, name, description)
-new StatementRef(uuid)
 ```
 
 This sub-API makes it easier to author valid statements
-by adding constructors and encouraging best practices. All classes in this
+by adding constructors and encouraging best practices. All classes and objects in this
 API are fully JSON-compatible, so anything expecting a statement can
 take an improved statement and vice versa.
 
 In addition to the above forms, each constructor can instead take as an argument
 another instance of the class or the equivalent plain object. So you can convert
 a plain statement to an improved one by calling `new Statement(plain_obj)`.
+
+##### SubStatement class extends Statement (statement.js)
+
+```JavaScript
+new SubStatement(actor, verb, object)
+```
+
+##### Agent class (Agent.js)
+
+```JavaScript
+new Agent(identifier, name)
+```
+
+##### Group class extends Agent (Agent.js)
+
+```JavaScript
+new Group(identifier, members, name)
+```
+
+##### Verb class (Verb.js)
+
+```JavaScript
+new Verb(id, description)
+```
+
+##### Activity class (Object.js)
+
+```JavaScript
+new Activity(id, name, description)
+```
+
+##### StatementRef class (Object.js)
+
+```JavaScript
+new StatementRef(uuid)
+```
 
 ###### Building a Simple "I Did This"
 
@@ -283,7 +313,8 @@ let stmt = new Statement(
 		"id": "http://adlnet.gov/expapi/verbs/launched" },
 	"object": {
 		"objectType": "Activity",
-		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
+		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }
+}
 ```
 
 ###### Adding Descriptors
@@ -308,7 +339,8 @@ let stmt = new Statement(
 		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox",
 		"definition": {
 			"name": {
-				"en-US": "the Virtual World Sandbox" }}}}
+				"en-US": "the Virtual World Sandbox" }}}
+}
 ```
 
 ###### Adding Additional Fields
@@ -334,7 +366,8 @@ stmt.result = { 'response': 'Everything is a-okay!' };
 		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" },
 	"id": "d60ffbaa-52af-44b6-932d-c08865c540ff",
 	"result": {
-		"response": "Everything is a-okay!" }}
+		"response": "Everything is a-okay!" }
+}
 ```
 
 ###### Using Multiple Languages
@@ -364,7 +397,8 @@ stmt.object = new Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox');
 			"de-DE": "startete" }},
 	"object": {
 		"objectType": "Activity",
-		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
+		"id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }
+}
 ```
 
 ###### Using a Verb
@@ -377,10 +411,10 @@ let stmt = Statement(myactor, verbs.launched, myactivity);
 ```
 
 ##### Put Statement
-`function putStatement(statement, callback, [attachments])`  
+`function putStatement(statement, id, callback, [attachments])`  
 Sends a single Statement to the LRS using a PUT request. This
-method will automatically create the Statement ID. Providing a
-function to call after the put Statement request will make
+method takes in a Statement ID and, optionally, provides a callback
+function. The Put Statement request will make
 the request happen asynchronously, otherwise Put Statement
 will block until it receives the response from the LRS.  
 
@@ -484,7 +518,7 @@ XAPIWrapper.getStatements({"statementId":resp_obj.id});
 ```
 
 ###### Post Statement with xAPI Verbs
-ADL also has collected the [ADL xAPI Verbs](https://github.com/adlnet/xAPIVerbs)
+ADL also has collected the [xAPI Verbs](https://github.com/adlnet/xAPIVerbs)
 into a Javascript object to easily include. To use...  
 _Include verbs.js_  
 `<script type="text/javascript" src="./src/verbs.js"></script>`  
@@ -720,16 +754,17 @@ XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question", functi
 
 
 ##### Activity State
-`function sendState(activityid, agent, stateid, registration, statevalue, matchHash, noneMatchHash, callback)`  
+`function putState(activityid, agent, stateid, registration, statevalue, matchHash, callback)`  
+`function postState(activityid, agent, stateid, registration, statevalue, callback)`  
 `function getState(activityid, agent, stateid, registration, since, callback)`  
-`function deleteState(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)`
+`function deleteState(activityid, agent, stateid, registration, callback)`
 Save / Retrieve / Delete activity state information for a particular agent, and optional registration.
 
-###### Send / Retrieve New Activity State
+###### Post / Retrieve New Activity State
 
 ```JavaScript
 let stateval = {"info":"the state info"};
-XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
                           {"mbox":"mailto:tom@example.com"},
                           "questionstate", null, stateval);
 XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
@@ -737,12 +772,12 @@ XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
 >> {info: "the state info"}
 ```
 
-###### Change Activity State
+###### Put / Change Activity State
 
 ```JavaScript
 let oldstateval = {"info":"the state info"};
 let newstateval = {"info":"the new value"};
-XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+XAPIWrapper.putState("http://adlnet.gov/expapi/activities/question",
                           {"mbox":"mailto:tom@example.com"},
                           "questionstate", null, newstateval,
                           XAPIWrapper.hash(JSON.stringify(oldstateval)));
@@ -756,7 +791,7 @@ XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
 
 ```JavaScript
 let anotherstate = {"more": "info about act and agent"};
-XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
                           {"mbox":"mailto:tom@example.com"},
                           "another_state", null, anotherstate);
 let states = XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
@@ -771,14 +806,14 @@ XAPIWrapper.log(states);
 let actid = "tag:adlnet.gov,2013:expapi:1.0.0:activity:question/1";
 let stateval = {"info":"the state info"};
 let statehash = XAPIWrapper.hash(JSON.stringify(stateval));
-XAPIWrapper.sendState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
+XAPIWrapper.postState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
 let stateret = XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate");
 XAPIWrapper.log(stateret);
 >> {"info":"the state info"}
 
 let sincehere = new Date();
 let anotherstate = {"more": "info about act and agent","other":"stuff"};
-XAPIWrapper.sendState(actid, {"mbox":"mailto:tom@example.com"}, "another_state", null, anotherstate);
+XAPIWrapper.postState(actid, {"mbox":"mailto:tom@example.com"}, "another_state", null, anotherstate);
 let states = XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"});
 XAPIWrapper.log(states);
 >> ["questionstate", "another_state"]
@@ -792,7 +827,7 @@ XAPIWrapper.log(states);
 
 ```javascript
 let stateval = {"info":"the state info"};
-XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
+XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
                           {"mbox":"mailto:tom@example.com"},
                           "questionstate", null, stateval);
 XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
@@ -809,21 +844,29 @@ XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
 ```
 
 ##### Activity Profile
-`function sendActivityProfile(activityid, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
+`function putActivityProfile(activityid, profileid, profilevalue, matchHash, callback)`  
+`function postActivityProfile(activityid, profileid, profilevalue, callback)` 
 `function getActivityProfile(activityid, profileid, since, callback)`  
-`function deleteActivityProfile(activityid, profileid, matchHash, noneMatchHash, callback)`  
+`function deleteActivityProfile(activityid, profileid, callback)`  
 Allows for the storage, retrieval and deletion of data about an Activity.
 
-###### Send / Retrieve New Activity Profile
+###### Put / Post / Retrieve New Activity Profile
 
 ```JavaScript
-let profile = {"info":"the profile"};
-XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "actprofile", profile, null, "*");
+let putProfile = {"info":"the put profile"};
+let postProfile = {"info":"the post profile"};
+XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                    "actputprofile", putProfile, "*");
+XAPIWrapper.postActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                    "actpostprofile", postProfile);
 XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  "actprofile", null,
+                                  "actputprofile", null,
                                   function(r){XAPIWrapper.log(JSON.parse(r.response));});
->> {info: "the profile"}
+XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                  "actpostprofile", null,
+                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the put profile"}
+>> {info: "the post profile"}
 ```
 
 ###### Update Activity Profile
@@ -833,7 +876,7 @@ let profile = XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activitie
                                                  "actprofile");
 let oldprofhash = XAPIWrapper.hash(JSON.stringify(profile));
 profile['new'] = "changes to profile";
-XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
+XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
                                     "actprofile", profile, oldprofhash);
 XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
                                   "actprofile", null,
@@ -845,8 +888,8 @@ XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
 
 ```JavaScript
 let profile = {"info":"the profile"};
-XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "otheractprofile", profile, null, "*");
+XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                    "otheractprofile", profile, "*");
 XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
                                   null, null,
                                   function(r){XAPIWrapper.log(JSON.parse(r.response));});
@@ -861,7 +904,7 @@ let profid = "testprofile";
 let actprof = {"info":"the activity profile info"};
 let actprofhash = XAPIWrapper.hash(JSON.stringify(actprof));
 
-XAPIWrapper.sendActivityProfile(actid, profid, actprof, null, actprofhash);
+XAPIWrapper.putActivityProfile(actid, profid, actprof, actprofhash);
 let actprofret = XAPIWrapper.getActivityProfile(actid, profid);
 
 XAPIWrapper.log(actprofret);
@@ -872,7 +915,7 @@ let since = new Date();
 let newprofid = "new-profile";
 let profile = {"info":"the profile"};
 
-XAPIWrapper.sendActivityProfile(actid, newprofid, profile, null, "*");
+XAPIWrapper.putActivityProfile(actid, newprofid, profile, "*");
 let profiles = XAPIWrapper.getActivityProfile(actid, null, since);
 
 XAPIWrapper.log(profiles);
@@ -883,8 +926,8 @@ XAPIWrapper.log(profiles);
 
 ```javascript
 let profile = {"info":"the profile"};
-XAPIWrapper.sendActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "actprofile", profile, null, "*");
+XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                    "actprofile", profile, "*");
 XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
                                   "actprofile", null,
                                   function(r){XAPIWrapper.log(JSON.parse(r.response));});
@@ -939,21 +982,29 @@ XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"}, function(err, res, body
 ```
 
 ##### Agent Profile
-`function sendAgentProfile(agent, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
+`function putAgentProfile(agent, profileid, profilevalue, matchHash, callback)`  
+`function postAgentProfile(agent, profileid, profilevalue, callback)`  
 `function getAgentProfile(agent, profileid, since, callback)`  
-`function deleteAgentProfile(agent, profileid, matchHash, noneMatchHash, callback)`  
+`function deleteAgentProfile(agent, profileid, callback)`  
 Allows for the storage, retrieval and deletion of data about an Agent.
 
-###### Send / Retrieve New Agent Profile
+###### Put / Post / Retrieve New Agent Profile
 
 ```JavaScript
-let profile = {"info":"the agent profile"};
-XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "agentprofile", profile, null, "*");
+let putProfile = {"info":"the agent put profile"};
+let postProfile = {"info":"the agent post profile"};
+XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
+                                  "agentputprofile", putProfile, "*");
+XAPIWrapper.postAgentProfile({"mbox":"mailto:tom@example.com"},
+                                  "agentpostprofile", postProfile);
 XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 "agentprofile", null,
+                                 "agentputprofile", null,
                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
->> {info: "the agent profile"}
+XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
+                                 "agentpostprofile", null,
+                                 function(r){XAPIWrapper.log(JSON.parse(r.response));});
+>> {info: "the agent put profile"}
+>> {info: "the agent post profile"}
 ```
 
 ###### Update Agent Profile
@@ -963,7 +1014,7 @@ let profile = XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                                "agentprofile");
 let oldprofhash = XAPIWrapper.hash(JSON.stringify(profile));
 profile['new'] = "changes to the agent profile";
-XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
+XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
                                   "agentprofile", profile, oldprofhash);
 XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  "agentprofile", null,
@@ -975,8 +1026,8 @@ XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 
 ```JavaScript
 let profile = {"info":"the agent profile"};
-XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "othergentprofile", profile, null, "*");
+XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
+                                  "otheragentprofile", profile, "*");
 XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  null, null,
                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
@@ -990,13 +1041,13 @@ let otheragent = {"mbox":"mailto:tom@example.com"};
 let profile = {"info":"the other agent profile"};
 let otherprofid = "the-other-profile-id";
 
-XAPIWrapper.sendAgentProfile(otheragent, otherprofid, profile, null, "*");
+XAPIWrapper.putAgentProfile(otheragent, otherprofid, profile, "*");
 
 let since = new Date();
 let newprof = {"info":"the new other agent profile"};
 let newotherprofid = "the-new-other-profile-id";
 
-XAPIWrapper.sendAgentProfile(otheragent, newotherprofid, newprof, null, "*");
+XAPIWrapper.putAgentProfile(otheragent, newotherprofid, newprof, "*");
 let sinceprofiles = XAPIWrapper.getAgentProfile(otheragent, null, since);
 
 XAPIWrapper.log(sinceprofiles);
@@ -1007,8 +1058,8 @@ XAPIWrapper.log(sinceprofiles);
 
 ```javascript
 let profile = {"info":"the agent profile"};
-XAPIWrapper.sendAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "agentprofile", profile, null, "*");
+XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
+                                  "agentprofile", profile, "*");
 XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  "agentprofile", null,
                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
