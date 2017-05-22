@@ -1461,6 +1461,7 @@
 
   if (!onBrowser) {
     module.exports = new XAPIWrapper(Config, false);
+    // module.exports = new XAPIWrapper(Config, false);
   } else {
     window.XAPIWrapper = new XAPIWrapper(Config, false);
   }

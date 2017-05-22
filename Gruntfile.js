@@ -9,24 +9,23 @@ module.exports = function(grunt) {
         commitFiles: ['-a']
       }
     },
-    'uglify': {
+    'concat': {
       options: {
         banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
       },
-      'build': {
-        files: {
-          'dist/xAPIWrapper.min.js': [
-            'lib/cryptojs_v3.1.2.js',
-            'src/xAPIWrapper.js',
-            'src/Utils.js',
-            'src/verbs.js',
-            'src/Agent.js',
-            'src/Verb.js',
-            'src/Statement.js',
-            'src/Object.js',
-            'src/xAPILaunch.js'
-          ]
-        }
+      dist: {
+        src: [
+          'lib/cryptojs_v3.1.2.js',
+          'src/Utils.js',
+          'src/xAPIWrapper.js',
+          'src/verbs.js',
+          'src/Agent.js',
+          'src/Verb.js',
+          'src/Statement.js',
+          'src/Object.js',
+          'src/xAPILaunch.js'
+        ],
+        dest: 'dist/xapiwrapper.min.js'
       }
     },
     'exec': {
@@ -36,14 +35,11 @@ module.exports = function(grunt) {
 
   // Load the plugins.
   grunt.loadNpmTasks('grunt-bump');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-exec');
 
   // Default task(s).
-  grunt.registerTask('default', ['uglify']);//,'exec']);
-
-  // Build only
-  grunt.registerTask('build', ['uglify']);
+  grunt.registerTask('default', ['concat']);
 
   // Docs only
   grunt.registerTask('docs', ['exec']);

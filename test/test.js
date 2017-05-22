@@ -4,6 +4,7 @@
   let Util = require('./../src/Utils');
   let verbs = require('./../src/verbs');
   let XAPIWrapper = require('./../src/xAPIWrapper');
+  // import XAPIWrapper from "../src/xapiwrapper";
 
   XAPIWrapper.changeConfig({
     "endpoint": "https://lrs.adlnet.gov/xapi/",
