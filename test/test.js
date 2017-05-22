@@ -45,6 +45,6 @@
 
 
 
-  XAPIWrapper.postStatement(stmt, (r) => {});
+  XAPIWrapper.postStatement(stmt, (r) => {console.log("SUCCESS")});
 
 }
