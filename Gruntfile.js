@@ -11,7 +11,8 @@ module.exports = function(grunt) {
     },
     'concat': {
       options: {
-        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
+        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n',
+        compress: true
       },
       dist: {
         src: [
