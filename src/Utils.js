@@ -48,7 +48,7 @@ if ( !Date.prototype.toISOString ) {
     };
 
 
-    Util = {};
+    let Util = {};
 
     Util.getLang = () => {
         let lang;

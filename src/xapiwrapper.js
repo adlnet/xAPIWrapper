@@ -7,6 +7,7 @@
     onBrowser = false;
     var urlMod = require('url');
     var XmlHttpRequest = require('xhr2');
+    var Util = require('./../src/Utils.js');
   }
 
   /*
@@ -1134,7 +1135,7 @@
   {
       for (let p in obj2)
       {
-          prop = obj2[p];
+          let prop = obj2[p];
 		      log(`${p}:${prop}`);
           try
           {
@@ -1199,9 +1200,12 @@
   // parses the params in the url query string
   function parseQueryString()
   {
+    if (!onBrowser) {
+      return;
+    }
       let qs, pairs, pair, ii, parsed;
 
-      let p = onBrowser ? window.location.search : urlMod.search;
+      let p = window.location.search;
       qs = p ? p.substr(1) : "";
 
       pairs = qs.split('&');
@@ -1461,7 +1465,6 @@
 
   if (!onBrowser) {
     module.exports = new XAPIWrapper(Config, false);
-    // module.exports = new XAPIWrapper(Config, false);
   } else {
     window.XAPIWrapper = new XAPIWrapper(Config, false);
   }

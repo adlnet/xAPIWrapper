@@ -10,10 +10,6 @@ module.exports = function(grunt) {
       }
     },
     'concat': {
-      options: {
-        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n',
-        compress: true
-      },
       dist: {
         src: [
           'lib/cryptojs_v3.1.2.js',
@@ -29,6 +25,23 @@ module.exports = function(grunt) {
         dest: 'dist/xapiwrapper.min.js'
       }
     },
+    'babel': {
+      dist: {
+        files: {
+          'dist/xapiwrapper.min.js': 'dist/xapiwrapper.min.js'
+        }
+      }
+    },
+    'uglify': {
+      options: {
+        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
+      },
+      'build': {
+        files: {
+          'dist/xapiwrapper.min.js': 'dist/xapiwrapper.min.js'
+        }
+      }
+    },
     'exec': {
       docs: './node_modules/doxstrap/bin/doxstrap.js --source "src/xAPIWrapper.js:src/Statement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
     }
@@ -37,10 +50,15 @@ module.exports = function(grunt) {
   // Load the plugins.
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-babel');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-exec');
 
-  // Default task(s).
-  grunt.registerTask('default', ['concat']);
+  // Combine into single file, Transpile ES6 -> ES5
+  grunt.registerTask('default', ['concat', 'babel', 'uglify']);
+
+  // Create minified file
+  grunt.registerTask('build', ['uglify']);
 
   // Docs only
   grunt.registerTask('docs', ['exec']);
@@ -54,3 +72,17 @@ module.exports = function(grunt) {
   });
 
 };
+
+
+
+// 'traceur': {
+//   options: {
+//     experimental: true,
+//     moduleNames: false
+//   },
+//   custom: {
+//     files: {
+//       'dist/xapiwrapper.js': 'src/xapiwrapper.js'
+//     }
+//   }
+// },
