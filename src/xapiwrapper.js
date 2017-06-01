@@ -5,9 +5,8 @@
 
   if (typeof module !== 'undefined') {
     onBrowser = false;
-    var urlMod = require('url');
     var XmlHttpRequest = require('xhr2');
-    var Util = require('./../src/Utils.js');
+    var Util = require('./Utils.js');
   }
 
   /*
@@ -64,15 +63,11 @@
 
       function getbase(url)
       {
-        let l;
+        if (!onBrowser)
+          return;
 
-        if (onBrowser) {
-          l = document.createElement("a");
-          l.href = url;
-        }
-        else {
-          l = urlMod.parse(url);
-        }
+        let l = document.createElement("a");
+        l.href = url;
 
         if (l.protocol && l.host)
           return `${l.protocol}//${l.host}`;
@@ -1107,14 +1102,7 @@
      */
     testConfig()
     {
-      try
-      {
-          return this.lrs.endpoint != undefined && this.lrs.endpoint != "";
-      }
-      catch(e)
-      {
-          return false;
-      }
+      return (this.lrs.endpoint != undefined && this.lrs.endpoint != "");
     }
   }
 
@@ -1200,13 +1188,12 @@
   // parses the params in the url query string
   function parseQueryString()
   {
-    if (!onBrowser) {
-      return;
-    }
+      if (!onBrowser)
+        return {};
+
       let qs, pairs, pair, ii, parsed;
 
-      let p = window.location.search;
-      qs = p ? p.substr(1) : "";
+      qs = window.location.search.substr(1);
 
       pairs = qs.split('&');
       parsed = {};
@@ -1229,10 +1216,8 @@
         xhr = new XMLHttpRequest();
         url = window.location;
       }
-      else {
+      else
         xhr = new XmlHttpRequest();
-        url = urlMod;
-      }
 
       url += `?forcenocache=${Util.ruuid()}`;
       xhr.open('GET', url, false);
@@ -1309,7 +1294,7 @@
           ieXDomain = false,
           ieModeRequest,
           urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-          location = onBrowser ? window.location : url,
+          location = onBrowser ? window.location : "",
           urlPort,
           result,
           extended,
@@ -1367,16 +1352,16 @@
               if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
                   if (callback) {
                       if(callbackargs){
-                          strictCallbacks ? callback(null. xhr, callbackargs) : callback(xhr, callbackargs);
+                          strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
                       }
                       else {
                           try {
                               let body = JSON.parse(xhr.responseText);
-                              strictCallbacks ? callback(null. xhr, body) : callback(xhr, body);
+                              strictCallbacks ? callback(null, xhr, body) : callback(xhr, body);
                           }
                           catch(e){
                               callback(xhr,xhr.responseText);
-                              strictCallbacks ? callback(null. xhr, body) : callback(xhr, xhr.responseText);
+                              strictCallbacks ? callback(null, xhr, body) : callback(xhr, xhr.responseText);
                           }
                       }
                   } else {

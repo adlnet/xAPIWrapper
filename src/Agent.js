@@ -14,22 +14,24 @@
         this.name = name;
 
         // figure out what type of identifier was given
-        if( identifier && (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) ){
-          for(let i in identifier){
-            this[i] = identifier[i];
+        if(identifier) {
+          if( identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account ) {
+            for(let i in identifier){
+              this[i] = identifier[i];
+            }
           }
-        }
-        else if( /^mailto:/.test(identifier) ){
-          this.mbox = identifier;
-        }
-        else if( /^[0-9a-f]{40}$/i.test(identifier) ){
-          this.mbox_sha1sum = identifier;
-        }
-        else if( /^http[s]?:/.test(identifier) ){
-          this.openid = identifier;
-        }
-        else if( identifier && identifier.homePage && identifier.name ){
-          this.account = identifier;
+          else if( /^mailto:/.test(identifier) ){
+            this.mbox = identifier;
+          }
+          else if( /^[0-9a-f]{40}$/i.test(identifier) ){
+            this.mbox_sha1sum = identifier;
+          }
+          else if( /^http[s]?:/.test(identifier) ){
+            this.openid = identifier;
+          }
+          else if( identifier.homePage && identifier.name ){
+            this.account = identifier;
+          }
         }
       };
       toString(){
@@ -62,6 +64,7 @@
     if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
       module.exports = { Agent, Group };
     } else {
+      // window.ADL = { Agent, Group };
       window.Agent = Agent;
       window.Group = Group;
     }
