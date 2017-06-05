@@ -7,6 +7,9 @@
     onBrowser = false;
     var XmlHttpRequest = require('xhr2');
     var Util = require('./Utils.js');
+  } else {
+    window.ADL = window.ADL || {};
+    var Util = window.ADL.Util;
   }
 
   /*
@@ -1451,7 +1454,7 @@
   if (!onBrowser) {
     module.exports = new XAPIWrapper(Config, false);
   } else {
-    window.XAPIWrapper = new XAPIWrapper(Config, false);
+    window.ADL.XAPIWrapper = new XAPIWrapper(Config, false);
   }
 
 }

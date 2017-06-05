@@ -19,20 +19,10 @@
        // save id and build language map
        this.id = id;
        if(description)
-       {
-         if( typeof(description) === 'string' || description instanceof String ){
-           this.display = {'en-US': description};
-         }
-         else {
-           this.display = description;
-         }
-       }
+         this.display = (typeof(description) === 'string' || description instanceof String) ? {'en-US': description} : description;
      };
      toString(){
-       if(this.display && (this.display['en-US'] || this.display['en']))
-         return this.display['en-US'] || this.display['en'];
-       else
-         return this.id;
+       return JSON.stringify(this);
      };
      isValid(){
        return this.id;
@@ -43,7 +33,7 @@
    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
      module.exports = Verb;
    } else {
-     window.Verb = Verb;
+     window.ADL.Verb = Verb;
    }
 
 }

@@ -14,7 +14,7 @@
 
   let stmt = new Statement('mailto:user@adlnet.gov',
                            'http://adlnet.gov/expapi/verbs/npm_testing_activity',
-                           new Activity("act:statement_posts/node_test_activity"));
+                           new Activity("act:statement_posts/node_test_activity", 'tester', 'Testing activity class functionality'));
 
   stmt.timestamp = (new Date()).toISOString();
 

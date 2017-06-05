@@ -20,26 +20,19 @@
 
       this.objectType = 'Activity';
       this.id = id;
-      if( name || description )
-      {
+
+      if (name) {
         this.definition = {};
+        this.definition.name = (typeof(name)==='string'|| name instanceof String) ? {'en-US': name} : name;
+      }
 
-        if( typeof(name) === 'string' || name instanceof String )
-          this.definition.name = {'en-US': name};
-        else if(name)
-          this.definition.name = name;
-
-        if( typeof(description) === 'string' || description instanceof String )
-          this.definition.description = {'en-US': description};
-        else if(description)
-          this.definition.description = description;
+      if (description) {
+        this.definition = this.definition || {};
+        this.definition.description = (typeof(description)==='string'|| description instanceof String) ? {'en-US': description} : description;
       }
     };
     toString(){
-      if(this.definition && this.definition.name && (this.definition.name['en-US'] || this.definition.name['en']))
-        return this.definition.name['en-US'] || this.definition.name['en'];
-      else
-        return this.id;
+      return JSON.stringify(this);
     };
     isValid(){
       return this.id && (!this.objectType || this.objectType === 'Activity');
@@ -58,11 +51,11 @@
         for(let i in id){
           this[i] = id[i];
         }
+        return;
       }
-      else {
-        this.objectType = 'StatementRef';
-        this.id = id;
-      }
+
+      this.objectType = 'StatementRef';
+      this.id = id;
     };
     toString(){
       return `statement(${this.id})`;
@@ -76,8 +69,8 @@
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = { Activity, StatementRef };
   } else {
-    window.Activity = Activity;
-    window.StatementRef = StatementRef;
+    window.ADL.Activity = Activity;
+    window.ADL.StatementRef = StatementRef;
   }
 
 }

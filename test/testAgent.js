@@ -17,6 +17,10 @@
                             'http://adlnet.gov/expapi/verbs/npm_testing_agent',
                             'act:statement_posts/node_test_agent');
 
+  // let stmt = new Statement('mailto:user@example.com',
+  //                           'http://adlnet.gov/expapi/verbs/npm_testing_agent',
+  //                           'act:statement_posts/node_test_agent');
+
   stmt.timestamp = (new Date()).toISOString();
 
   console.log(stmt);

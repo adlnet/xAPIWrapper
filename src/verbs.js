@@ -193,7 +193,7 @@
    if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
      module.exports = verbs;
    } else {
-     window.verbs = verbs;
+     window.ADL.verbs = verbs;
    }
 
 }

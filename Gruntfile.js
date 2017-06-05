@@ -18,8 +18,8 @@ module.exports = function(grunt) {
           'src/verbs.js',
           'src/Agent.js',
           'src/Verb.js',
-          'src/Statement.js',
           'src/Object.js',
+          'src/Statement.js',
           'src/xAPILaunch.js'
         ],
         dest: 'dist/xapiwrapper.min.js'

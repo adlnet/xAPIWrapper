@@ -27,6 +27,7 @@ if ( !Date.prototype.toISOString ) {
 {
     let onBrowser = false;
     if (typeof window !== 'undefined') {
+      window.ADL = window.ADL || {};
       onBrowser = true;
     }
     else
@@ -95,7 +96,7 @@ if ( !Date.prototype.toISOString ) {
         return a.mbox || a.openid || a.mbox_sha1sum || a.account;
     };
 
-    Util.getActorIdString = function (a) {
+    Util.getActorIdString = (a) => {
         let id = a.mbox || a.openid || a.mbox_sha1sum;
         if (! id) {
             if (a.account) id = `${a.account.homePage}:${a.account.name}`;
@@ -106,15 +107,11 @@ if ( !Date.prototype.toISOString ) {
     };
 
     Util.getActorDisplay = (a) => {
-        return a.name || Util.getActorIdString(a);
+        return (a) ? a.toString() : undefined;
     };
 
     Util.getVerbDisplay = (v) => {
-        if (!v) return;
-        if (v.display) {
-            return Util.getLangVal(v.display) || v.id;
-        }
-        return v.id;
+        return (v) ? v.toString() : undefined;
     };
 
     Util.getObjectType = (o) => {
@@ -141,7 +138,7 @@ if ( !Date.prototype.toISOString ) {
 
     Util.getObjectDisplay = (o) => {
         if (!o) return "unknown"
-        let disp = getObjDefName(o) || o.name || o.id;
+        let disp = o.getObjDefName() || o.name || o.id;
         if (! disp) {
             let type = Util.getObjectType(o);
             if (type === "Agent" || type == "Group") disp = Util.getActorDisplay(o);
@@ -270,7 +267,7 @@ if ( !Date.prototype.toISOString ) {
     if (!onBrowser) {
       module.exports = Util;
     } else {
-      window.Util = Util;
+      window.ADL.Util = Util;
     }
 
 }

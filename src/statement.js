@@ -7,6 +7,12 @@
     var Verb = require('./Verb');
     var Activity = require('./Object').Activity;
     var StatementRef = require('./Object').StatementRef;
+  } else {
+    var Agent = window.ADL.Agent;
+    var Group = window.ADL.Group;
+    var Verb = window.ADL.Verb;
+    var Activity = window.ADL.Activity;
+    var StatementRef = window.ADL.StatementRef;
   }
 
   function _getobj(obj, path){
@@ -72,10 +78,8 @@
    *     "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
    */
   class Statement {
-    constructor(actor,verb,object)
+    constructor(actor=null,verb=null,object=null)
     {
-      // initialize
-
       // if first arg is an xapi statement, parse
       if( actor && actor.actor && actor.verb && actor.object ){
         let stmt = actor;
@@ -88,61 +92,39 @@
         object = stmt.object;
       }
 
+      this.actor = actor;
       if(actor){
-        if( actor instanceof Agent )
-          this.actor = actor;
-        else if(actor.objectType === 'Agent' || !actor.objectType)
+        if(actor.objectType === 'Agent' || !actor.objectType)
           this.actor = new Agent(actor);
         else if(actor.objectType === 'Group')
           this.actor = new Group(actor);
       }
-      else this.actor = null;
 
-      if(verb){
-        if( verb instanceof Verb )
-          this.verb = verb;
-        else
-          this.verb = new Verb(verb);
+      this.verb = verb;
+      if(verb && !(verb instanceof Verb)){
+        this.verb = new Verb(verb);
       }
-      else this.verb = null;
 
       // decide what kind of object was passed
+      this.object = object;
       if(object)
       {
-        if( object.objectType === 'Activity' || !object.objectType ){
-          if( object instanceof Activity )
-            this.object = object;
-          else
-            this.object = new Activity(object);
+        if( (object.objectType === 'Activity' || !object.objectType) && !(object instanceof Activity) ){
+          this.object = new Activity(object);
         }
-        else if( object.objectType === 'Agent' ){
-          if( object instanceof Agent )
-            this.object = object;
-          else
-            this.object = new Agent(object);
+        else if( object.objectType === 'Agent' && !(object instanceof Agent) ){
+          this.object = new Agent(object);
         }
-        else if( object.objectType === 'Group' ){
-          if( object instanceof Group )
-            this.object = object;
-          else
-            this.object = new Group(object);
+        else if( object.objectType === 'Group' && !(object instanceof Group) ){
+          this.object = new Group(object);
         }
-        else if( object.objectType === 'StatementRef' ){
-          if( object instanceof StatementRef )
-            this.object = object;
-          else
-            this.object = new StatementRef(object);
+        else if( object.objectType === 'StatementRef' && !(object instanceof StatementRef) ){
+          this.object = new StatementRef(object);
         }
-        else if( object.objectType === 'SubStatement' ){
-          if( object instanceof SubStatement )
-            this.object = object;
-          else
-            this.object = new SubStatement(object);
+        else if( object.objectType === 'SubStatement' && !(object instanceof SubStatement) ){
+          this.object = new SubStatement(object);
         }
-        else this.object = null;
       }
-      else this.object = null;
-
 
       this.generateId = () => {
         this.id = Util.ruuid();
@@ -203,8 +185,8 @@
   if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
     module.exports = { Statement, SubStatement };
   } else {
-    window.Statement = Statement;
-    window.SubStatement = SubStatement;
+    window.ADL.Statement = Statement;
+    window.ADL.SubStatement = SubStatement;
   }
 
 }
