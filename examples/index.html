@@ -34,7 +34,7 @@
 
       stmt.timestamp = (new Date()).toISOString();
 
-      ADL.XAPIWrapper.postStatement(stmt, function(r){console.log("Success");});
+      ADL.XAPIWrapper.postStatement(stmt, (resp, data) => console.log("Success"));
     }
 
     </script>

@@ -54,11 +54,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-exec');
 
-  // Combine into single file, Transpile ES6 -> ES5
+  // Combine into single file, Transpile ES6 -> ES5, Minify file
   grunt.registerTask('default', ['concat', 'babel', 'uglify']);
-
-  // Create minified file
-  grunt.registerTask('build', ['uglify']);
 
   // Docs only
   grunt.registerTask('docs', ['exec']);

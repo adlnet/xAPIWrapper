@@ -1,6 +1,6 @@
 {
 
-  log.debug = true;
+  let debug = true;
   let onBrowser = true;
 
   if (typeof module !== 'undefined') {
@@ -23,7 +23,7 @@
    * };
    * XAPIWrapper.changeConfig(conf);
    */
-  let Config = function() {
+  let Config = (() => {
       let conf = {};
       conf['endpoint'] = "https://lrs.adlnet.gov/xapi/";
       try
@@ -41,7 +41,7 @@
       // conf["grouping"] = {"id":"ctxact:default/grouping"};
       // conf["activity_platform"] = "default platform";
       return conf;
-  }();
+  })();
 
   class XAPIWrapper {
     /*
@@ -107,12 +107,12 @@
                       }
                       catch(e)
                       {
-                          this.log("The response was not an about object")
+                          log("The response was not an about object")
                       }
                   }
                   else
                   {
-                      this.log(`The request to get information about the LRS failed: ${r}`);
+                      log(`The request to get information about the LRS failed: ${r}`);
                   }
               },null,false,null,this.withCredentials, false);
       }
@@ -1110,58 +1110,22 @@
   }
 
   // outputs the message to the console if available
-  function log(message)
-  {
-      if (!log.debug) return false;
-      try
-      {
-          console.log(message);
-          return true;
-      }
-      catch(e){return false;}
+  let log = (message) => {
+      if (!debug)
+        return;
+
+      console.log(message);
   }
 
-  // merges two object
-  function mergeRecursive(obj1, obj2)
-  {
-      for (let p in obj2)
-      {
-          let prop = obj2[p];
-		      log(`${p}:${prop}`);
-          try
-          {
-              // Property in destination object set; update its value.
-              if ( obj2[p].constructor==Object )
-              {
-                  obj1[p] = mergeRecursive(obj1[p], obj2[p]);
-              }
-              else
-              {
-                if (obj1 == undefined)
-                {
-                  obj1 = new Object();
-                }
-                  obj1[p] = obj2[p];
-              }
-          }
-          catch(e)
-          {
-            if (obj1 == undefined)
-            {
-              obj1 = new Object();
-            }
-            // Property in destination object not set; create it and set its value.
-            obj1[p] = obj2[p];
-          }
-      }
-
-      return obj1;
+  // merges two objects
+  let mergeRecursive = (obj1, obj2) => {
+    Object.assign(obj1, obj1, obj2);
+    return obj1;
   };
 
   // iniitializes an lrs object with settings from
   // a config file and from the url query string
-  function getLRSObject(config)
-  {
+  let getLRSObject = (config) => {
       let lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
       let lrs = new Object();
       let qslets, prop;
@@ -1189,8 +1153,7 @@
   };
 
   // parses the params in the url query string
-  function parseQueryString()
-  {
+  let parseQueryString = () => {
       if (!onBrowser)
         return {};
 
@@ -1210,8 +1173,7 @@
       return parsed;
   };
 
-  function delay()
-  {
+  let delay = () => {
       let xhr;
       let url;
 
@@ -1235,8 +1197,7 @@
    * @param {string} [data]   the body of the request, if there is one
    * @return {object} xhr response object
    */
-  function ie_request(method, url, headers, data)
-  {
+  let ie_request = (method, url, headers, data) => {
       let newUrl = url;
 
       //Everything that was on query string goes into form lets
@@ -1287,8 +1248,7 @@
    * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
    * @return {object} xhr response object
    */
-  function XHR_request(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
-  {
+  let XHR_request = (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks) => {
     "use strict";
 
       let xhr,
@@ -1345,7 +1305,7 @@
       }
 
       //Setup request callback
-      function requestComplete() {
+      let requestComplete = () => {
           if(!finished){
               // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
               // onload or both might fire depending upon browser, just covering all bases with event hooks and
@@ -1388,7 +1348,7 @@
           }
       };
 
-      xhr.onreadystatechange = function () {
+      xhr.onreadystatechange = () => {
           if (xhr.readyState === 4) {
              return requestComplete();
           }
@@ -1426,7 +1386,7 @@
    *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
    * };
    */
-  function xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks){
+  let xhrRequestOnError = (xhr, method, url, callback, callbackargs, strictCallbacks) => {
     if (callback && strictCallbacks) {
       let status = xhr ? xhr.status : undefined;
       let error;

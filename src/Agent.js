@@ -11,14 +11,12 @@
       constructor(identifier, name)
       {
         this.objectType = 'Agent';
-        this.name = name;
+        this.name = name || 'unknown';
 
         // figure out what type of identifier was given
         if(identifier) {
           if( identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account ) {
-            for(let i in identifier){
-              this[i] = identifier[i];
-            }
+            Object.assign(this, identifier);
           }
           else if( /^mailto:/.test(identifier) ){
             this.mbox = identifier;
@@ -35,13 +33,28 @@
         }
       };
       toString(){
-        return JSON.stringify(this);
+        return JSON.stringify(this, null, ' ');
       };
       isValid()
       {
         return this.mbox || this.mbox_sha1sum || this.openid
           || (this.account.homePage && this.account.name)
           || (this.objectType === 'Group' && this.member);
+      };
+
+      show(){
+        console.log(this.toString());
+      };
+
+      getType(){ return "Agent" };
+
+      getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account };
+      getIdString(){
+          let id = this.mbox || this.openid || this.mbox_sha1sum;
+          if (!id && this.account)
+                return `${this.account.homePage}:${this.account.name}`;
+
+          return id || 'unknown';
       };
     }
 
@@ -54,15 +67,13 @@
     class Group {
       constructor(identifier, members, name)
       {
-        this.name = name;
+        this.name = name || 'Anonymous';
         this.member = members;
         this.objectType = 'Group';
 
         if (identifier) {
           if( identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account ) {
-            for(let i in identifier){
-              this[i] = identifier[i];
-            }
+            Object.assign(this, identifier);
           }
           else if( /^mailto:/.test(identifier) ){
             this.mbox = identifier;
@@ -79,13 +90,28 @@
         }
       };
       toString(){
-        return JSON.stringify(this);
+        return JSON.stringify(this, null, ' ');
       };
       isValid()
       {
         return this.mbox || this.mbox_sha1sum || this.openid
           || (this.account.homePage && this.account.name)
           || (this.objectType === 'Group' && this.member);
+      };
+
+      show(){
+        console.log(this.toString());
+      };
+
+      getType(){ return "Group" };
+
+      getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account };
+      getIdString(){
+          let id = this.mbox || this.openid || this.mbox_sha1sum;
+          if (!id && this.account)
+                return `${this.account.homePage}:${this.account.name}`;
+
+          return id || 'unknown';
       };
     }
 

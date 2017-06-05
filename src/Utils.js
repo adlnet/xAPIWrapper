@@ -1,17 +1,17 @@
-// adds toISOString to date objects if not there
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-if ( !Date.prototype.toISOString ) {
-  {
-    let pad = (number) => {
-      let r = String(number);
-      if ( r.length === 1 ) {
-        r = `0${r}`;
-      }
-      return r;
-    }
+{
+    // adds toISOString to date objects if not there
+    // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+    if ( !Date.prototype.toISOString ) {
+      let pad = (number) => {
+        let r = String(number);
+        if ( r.length === 1 ) {
+          r = `0${r}`;
+        }
+        return r;
+      };
 
-    Date.prototype.toISOString = () => {
-      return this.getUTCFullYear()
+      Date.prototype.toISOString = (() => {
+        return this.getUTCFullYear()
         + '-' + pad( this.getUTCMonth() + 1 )
         + '-' + pad( this.getUTCDate() )
         + 'T' + pad( this.getUTCHours() )
@@ -19,12 +19,10 @@ if ( !Date.prototype.toISOString ) {
         + ':' + pad( this.getUTCSeconds() )
         + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
         + 'Z';
-    };
-  }
-}
+      })();
+    }
 
 
-{
     let onBrowser = false;
     if (typeof window !== 'undefined') {
       window.ADL = window.ADL || {};
@@ -33,25 +31,8 @@ if ( !Date.prototype.toISOString ) {
     else
       CryptoJS = require('crypto-js');
 
-    let getObjDefName = (o) => {
-        if (o.definition && o.definition.name) {
-            return Util.getLangVal(o.definition.name);
-        }
-        return undefined;
-    };
-
-    let getSubStatementDisplay = (o) => {
-        if(o.objectType !== "SubStatement") return;
-        if(o.object.objectType === "SubStatement") return;
-        if(o.id || o.stored || o.version || o.authority) return;
-        let disp =  `${Util.getActorId(o.actor)}:${Util.getVerbDisplay(o.verb)}:${Util.getObjectId(o.object)}`;
-        return disp;
-    };
-
-
-    let Util = {};
-
-    Util.getLang = () => {
+    class Util {
+      getLang(){
         let lang;
         if (typeof navigator !== 'undefined')
             lang =  navigator.language || navigator.browserLanguage ||
@@ -62,10 +43,9 @@ if ( !Date.prototype.toISOString ) {
             lang = lang.replace(/_/, '-')
         }
         return lang || "en-US";
-    };
+      };
 
-    Util.getLangVal = (langprop) => {
-
+      getLangVal(langprop){
         if (!langprop) return;
 
         let options = Object.keys(langprop);
@@ -73,7 +53,7 @@ if ( !Date.prototype.toISOString ) {
         // skips if not a dict(obj) and returns
         if (options.length == 0) return undefined;
 
-        let lang = Util.getLang(),
+        let lang = this.getLang(),
             ret,
             dispGotten = false;
 
@@ -90,88 +70,28 @@ if ( !Date.prototype.toISOString ) {
         } while (!dispGotten && lang !=="");
 
         return ret;
-    };
+      };
 
-    Util.getActorId = (a) => {
-        return a.mbox || a.openid || a.mbox_sha1sum || a.account;
-    };
-
-    Util.getActorIdString = (a) => {
-        let id = a.mbox || a.openid || a.mbox_sha1sum;
-        if (! id) {
-            if (a.account) id = `${a.account.homePage}:${a.account.name}`;
-            else if (a.member) id = `Anon Group ${a.member}`;
-            else id = 'unknown';
-        }
-        return id;
-    };
-
-    Util.getActorDisplay = (a) => {
-        return (a) ? a.toString() : undefined;
-    };
-
-    Util.getVerbDisplay = (v) => {
-        return (v) ? v.toString() : undefined;
-    };
-
-    Util.getObjectType = (o) => {
-        return o.objectType || ((o.id) ? "Activity" : "Agent");
-    };
-
-    Util.getObjectId = (o) => {
-        if (o.id) return o.id;
-        let type = Util.getObjectType(o);
-        if (type === "Agent" || type === "Group") return Util.getActorId(o);
-        return undefined;
-    };
-
-    Util.getObjectIdString = (o) => {
-        if (!o) return 'unknown'
-        if (o.id) return o.id;
-        let type = Util.getObjectType(o);
-        if (type === "Agent" || type === "Group") return Util.getActorIdString(o);
-        else if (type == "SubStatement") {
-            return getSubStatementDisplay(o);
-        }
-        return 'unknown';
-    };
-
-    Util.getObjectDisplay = (o) => {
-        if (!o) return "unknown"
-        let disp = o.getObjDefName() || o.name || o.id;
-        if (! disp) {
-            let type = Util.getObjectType(o);
-            if (type === "Agent" || type == "Group") disp = Util.getActorDisplay(o);
-            else if (type == "SubStatement") {
-                disp = getSubStatementDisplay(o);
-            }
-        }
-
-        return disp;
-    };
-
-    /*!
-    Excerpt from: Math.uuid.js (v1.4)
-    http://www.broofa.com
-    mailto:robert@broofa.com
-    Copyright (c) 2010 Robert Kieffer
-    Dual licensed under the MIT and GPL licenses.
-    */
-    Util.ruuid = () =>
-    {
+      /*!
+      Excerpt from: Math.uuid.js (v1.4)
+      http://www.broofa.com
+      mailto:robert@broofa.com
+      Copyright (c) 2010 Robert Kieffer
+      Dual licensed under the MIT and GPL licenses.
+      */
+      ruuid(){
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
                 let r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
         });
-    };
+      };
 
-    /*
-     * dateFromISOString
-     * parses an ISO string into a date object
-     * isostr - the ISO string
-     */
-    Util.dateFromISOString = (isostr) =>
-    {
+      /*
+       * dateFromISOString
+       * parses an ISO string into a date object
+       * isostr - the ISO string
+       */
+      dateFromISOString(isostr){
         let regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" +
             "([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" +
             "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?";
@@ -197,9 +117,9 @@ if ( !Date.prototype.toISOString ) {
         let dateToReturn = new Date();
         dateToReturn.setTime(Number(time));
         return dateToReturn;
-    }
+      }
 
-    Util.getByteLen = (normal_val) => {
+      getByteLen(normal_val){
         // Force string type
         normal_val = String(normal_val);
 
@@ -214,31 +134,32 @@ if ( !Date.prototype.toISOString ) {
                        c < (1 << 31) ? 6 : Number.NaN;
         }
         return byteLen;
-    }
+      }
 
-    // shim for old-style Base64 lib
-    Util.toBase64 = (text) => {
-      if(CryptoJS && CryptoJS.enc.Base64)
-        return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
-      else
-        return Base64.encode(text);
-    }
+      // shim for old-style Base64 lib
+      toBase64(text){
+        if(CryptoJS && CryptoJS.enc.Base64)
+          return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
+        else
+          return Base64.encode(text);
+      }
 
-    // shim for old-style crypto lib
-    Util.toSHA1 = (text) => {
-      if(CryptoJS && CryptoJS.SHA1)
-        return CryptoJS.SHA1(text).toString();
-      else
-        return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
-    }
-    Util.toSHA256 = (text) => {
-      if(CryptoJS && CryptoJS.SHA256)
-        return CryptoJS.SHA256(text).toString();
-    }
+      // shim for old-style crypto lib
+      toSHA1(text){
+        if(CryptoJS && CryptoJS.SHA1)
+          return CryptoJS.SHA1(text).toString();
+        else
+          return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
+      }
 
-    // check if string or object is date, if it is, return date object
-    // feburary 31st == march 3rd in this solution
-    Util.isDate = (date) => {
+      toSHA256(text){
+        if(CryptoJS && CryptoJS.SHA256)
+          return CryptoJS.SHA256(text).toString();
+      }
+
+      // check if string or object is date, if it is, return date object
+      // feburary 31st == march 3rd in this solution
+      isDate(date){
         let d;
         // check if object is being passed
         if ( Object.prototype.toString.call(date) === "[object Date]" )
@@ -261,13 +182,14 @@ if ( !Date.prototype.toISOString ) {
             XAPIWrapper.log("Invalid date object");
             return null;
         }
+      }
     }
 
 
     if (!onBrowser) {
-      module.exports = Util;
+      module.exports = new Util;
     } else {
-      window.ADL.Util = Util;
+      window.ADL.Util = new Util;
     }
 
 }

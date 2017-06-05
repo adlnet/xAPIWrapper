@@ -11,10 +11,7 @@
     {
       // if first arg is activity, copy everything over
       if(id && id.id){
-        let act = id;
-        for(let i in act){
-          this[i] = act[i];
-        }
+        Object.assign(this, id);
         return;
       }
 
@@ -23,7 +20,7 @@
 
       if (name) {
         this.definition = {};
-        this.definition.name = (typeof(name)==='string'|| name instanceof String) ? {'en-US': name} : name;
+        this.definition.name = (typeof(name)==='string' || name instanceof String) ? {'en-US': name} : name;
       }
 
       if (description) {
@@ -32,11 +29,20 @@
       }
     };
     toString(){
-      return JSON.stringify(this);
+      return JSON.stringify(this, null, ' ');
     };
     isValid(){
       return this.id && (!this.objectType || this.objectType === 'Activity');
     };
+
+    show(){
+      console.log(this.toString());
+    };
+
+    getType(){ return "Activity" };
+
+    getId(){ return (this.id) ? this.id : undefined };
+    getIdString(){ return (this.id) ? this.id : 'unknown' };
   }
 
 
@@ -47,10 +53,8 @@
   class StatementRef {
     constructor(id)
     {
-      if(id && id.id){
-        for(let i in id){
-          this[i] = id[i];
-        }
+      if(id && id.id) {
+        Object.assign(this, id);
         return;
       }
 
@@ -58,11 +62,17 @@
       this.id = id;
     };
     toString(){
-      return `statement(${this.id})`;
+      return JSON.stringify(this, null, ' ');
     };
     isValid(){
       return this.id && this.objectType && this.objectType === 'StatementRef';
     };
+
+    show(){
+      console.log(this.toString());
+    };
+
+    getType(){ return "StatementRef" };
   }
 
 

@@ -10,9 +10,7 @@
      {
        // if passed a verb object then copy and return
        if( id && id.id ){
-         for(let i in id){
-           this[i] = id[i];
-         }
+         Object.assign(this, id);
          return;
        }
 
@@ -22,11 +20,17 @@
          this.display = (typeof(description) === 'string' || description instanceof String) ? {'en-US': description} : description;
      };
      toString(){
-       return JSON.stringify(this);
+       return JSON.stringify(this, null, ' ');
      };
      isValid(){
        return this.id;
      };
+
+     show(){
+       console.log(this.toString());
+     };
+
+     getId(){ return (this.display) ? Util.getLangVal(this.display) : this.id };
    }
 
 

@@ -82,14 +82,10 @@
     {
       // if first arg is an xapi statement, parse
       if( actor && actor.actor && actor.verb && actor.object ){
-        let stmt = actor;
-        for(let i in stmt){
-          if(i != 'actor' && i != 'verb' && i != 'object')
-            this[i] = stmt[i];
-        }
-        actor = stmt.actor;
-        verb = stmt.verb;
-        object = stmt.object;
+        Object.assign(this, actor);
+        verb = actor.verb;
+        object = actor.object;
+        actor = actor.actor;
       }
 
       this.actor = actor;
@@ -132,13 +128,17 @@
     };
 
     toString(){
-      return `${this.actor.toString()} ${this.verb.toString()} ${this.object.toString()}`;
+      return `\n${JSON.stringify(this, null, ' ')}\n`;
     };
 
     isValid(){
       return this.actor && this.actor.isValid()
         && this.verb && this.verb.isValid()
         && this.object && this.object.isValid();
+    };
+
+    show(){
+      console.log(this.toString());
     };
 
     generateRegistration(){
@@ -179,6 +179,8 @@
     toString(){
       return `"${super.toString()}"`;
     };
+
+    getType(){ return "SubStatement" };
   }
 
 

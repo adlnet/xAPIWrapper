@@ -26,8 +26,13 @@
 
   stmt.timestamp = (new Date()).toISOString();
 
-  console.log(stmt);
+  stmt.show();
 
   XAPIWrapper.postStatement(stmt, (resp, data) => console.log("Statement Pass") );
+
+
+  // Test Statement as first parameter
+  // let s = new Statement(stmt);
+  // console.log(s);
 
 }
