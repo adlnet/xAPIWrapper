@@ -258,6 +258,7 @@
                 extraHeaders = {}
                 payload = this.buildMultipart(stmt,attachments,extraHeaders)
             }
+
             let resp = XHR_request(this.lrs, `${this.lrs.endpoint}statements`,
                 "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
             if (!callback)

@@ -29,10 +29,14 @@
 
 
   // Test anonymous groups
-  // let anonStmt = new Statement(new Group(undefined, members),
-  //                           require('./../src/verbs').attempted,
-  //                           'act:statement_posts/node_test_group');
-  //
-  // anonStmt.show();
+  let anonStmt = new Statement(new Group(null, members, null),
+                            require('./../src/verbs').attempted,
+                            'act:statement_posts/node_test_group');
+
+  anonStmt.timestamp = (new Date()).toISOString();
+
+  XAPIWrapper.postStatement(anonStmt, (resp, data) => console.log("Group Pass") );
+
+  anonStmt.show();
 
 }

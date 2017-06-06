@@ -14,7 +14,6 @@
     var Verb = window.ADL.Verb;
     var Activity = window.ADL.Activity;
     var StatementRef = window.ADL.StatementRef;
-    var Util = window.ADL.Util;
   }
 
   function _getobj(obj, path){
@@ -92,7 +91,7 @@
 
       this.actor = actor;
       if(actor){
-        if(actor.objectType === 'Agent' || !actor.objectType && !(Agent instanceof Agent))
+        if((actor.objectType === 'Agent' || !actor.objectType) && !(Agent instanceof Agent))
           this.actor = new Agent(actor);
         else if(actor.objectType === 'Group' && !(actor instanceof Group))
           this.actor = new Group(actor);

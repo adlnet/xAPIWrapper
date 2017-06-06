@@ -70,6 +70,9 @@
       {
         this.objectType = 'Group';
 
+        if (name)
+          this.name = name;
+
         if (identifier) {
           if( identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account ) {
             Object.assign(this, identifier);
@@ -90,10 +93,6 @@
 
         if (members)
           this.member = members;
-
-        if (name)
-          this.name = name;
-
       }
       toString(){
         return JSON.stringify(this, null, '  ');

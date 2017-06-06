@@ -11,7 +11,6 @@
     "password": "1234"
   });
 
-
   let Agent = require('./../src/Agent').Agent;
   let Group = require('./../src/Agent').Group;
   let Verb = require('./../src/Verb');
