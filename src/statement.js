@@ -7,12 +7,14 @@
     var Verb = require('./Verb');
     var Activity = require('./Object').Activity;
     var StatementRef = require('./Object').StatementRef;
+    var Util = require('./Utils.js');
   } else {
     var Agent = window.ADL.Agent;
     var Group = window.ADL.Group;
     var Verb = window.ADL.Verb;
     var Activity = window.ADL.Activity;
     var StatementRef = window.ADL.StatementRef;
+    var Util = window.ADL.Util;
   }
 
   function _getobj(obj, path){
@@ -90,9 +92,9 @@
 
       this.actor = actor;
       if(actor){
-        if(actor.objectType === 'Agent' || !actor.objectType)
+        if(actor.objectType === 'Agent' || !actor.objectType && !(Agent instanceof Agent))
           this.actor = new Agent(actor);
-        else if(actor.objectType === 'Group')
+        else if(actor.objectType === 'Group' && !(actor instanceof Group))
           this.actor = new Group(actor);
       }
 
@@ -122,13 +124,13 @@
         }
       }
 
-      this.generateId = () => {
+      this.generateId = (() => {
         this.id = Util.ruuid();
-      };
+      })();
     };
 
     toString(){
-      return `\n${JSON.stringify(this, null, ' ')}\n`;
+      return `\n${JSON.stringify(this, null, '  ')}\n`;
     };
 
     isValid(){

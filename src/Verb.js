@@ -15,12 +15,14 @@
        }
 
        // save id and build language map
-       this.id = id;
+       if (id)
+        this.id = id;
+
        if(description)
-         this.display = (typeof(description) === 'string' || description instanceof String) ? {'en-US': description} : description;
+        this.display = (typeof(description) === 'string' || description instanceof String) ? {'en-US': description} : description;
      };
      toString(){
-       return JSON.stringify(this, null, ' ');
+       return JSON.stringify(this, null, '  ');
      };
      isValid(){
        return this.id;

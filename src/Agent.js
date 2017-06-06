@@ -11,7 +11,9 @@
       constructor(identifier, name)
       {
         this.objectType = 'Agent';
-        this.name = name || 'unknown';
+
+        if (name)
+          this.name = name;
 
         // figure out what type of identifier was given
         if(identifier) {
@@ -33,13 +35,12 @@
         }
       };
       toString(){
-        return JSON.stringify(this, null, ' ');
+        return JSON.stringify(this, null, '  ');
       };
       isValid()
       {
         return this.mbox || this.mbox_sha1sum || this.openid
-          || (this.account.homePage && this.account.name)
-          || (this.objectType === 'Group' && this.member);
+          || (this.account.homePage && this.account.name);
       };
 
       show(){
@@ -67,8 +68,6 @@
     class Group {
       constructor(identifier, members, name)
       {
-        this.name = name || 'Anonymous';
-        this.member = members;
         this.objectType = 'Group';
 
         if (identifier) {
@@ -88,9 +87,16 @@
             this.account = identifier;
           }
         }
-      };
+
+        if (members)
+          this.member = members;
+
+        if (name)
+          this.name = name;
+
+      }
       toString(){
-        return JSON.stringify(this, null, ' ');
+        return JSON.stringify(this, null, '  ');
       };
       isValid()
       {
@@ -111,7 +117,7 @@
           if (!id && this.account)
                 return `${this.account.homePage}:${this.account.name}`;
 
-          return id || 'unknown';
+          return id;
       };
     }
 

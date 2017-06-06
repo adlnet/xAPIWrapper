@@ -16,7 +16,9 @@
       }
 
       this.objectType = 'Activity';
-      this.id = id;
+
+      if (id)
+        this.id = id;
 
       if (name) {
         this.definition = {};
@@ -29,7 +31,7 @@
       }
     };
     toString(){
-      return JSON.stringify(this, null, ' ');
+      return JSON.stringify(this, null, '  ');
     };
     isValid(){
       return this.id && (!this.objectType || this.objectType === 'Activity');
@@ -59,10 +61,12 @@
       }
 
       this.objectType = 'StatementRef';
-      this.id = id;
+
+      if (id)
+        this.id = id;
     };
     toString(){
-      return JSON.stringify(this, null, ' ');
+      return JSON.stringify(this, null, '  ');
     };
     isValid(){
       return this.id && this.objectType && this.objectType === 'StatementRef';

@@ -17,14 +17,22 @@
                  new Agent(XAPIWrapper.hash("mailto:user2@example.com"), 'user2'),
                  new Agent(XAPIWrapper.hash("mailto:user3@example.com"), 'user3')];
 
-  let stmt = new Statement(new Group(XAPIWrapper.hash("mailto:user@example.com"), members, 'aaron'),
-                            'http://adlnet.gov/expapi/verbs/npm_testing_group',
+  let stmt = new Statement({"mbox":"mailto:user@example.com", "member":members, "name":"aaron"},
+                            require('./../src/verbs').attempted,
                             'act:statement_posts/node_test_group');
 
   stmt.timestamp = (new Date()).toISOString();
 
-  console.log(stmt);
+  stmt.show();
 
   XAPIWrapper.postStatement(stmt, (resp, data) => console.log("Group Pass") );
+
+
+  // Test anonymous groups
+  // let anonStmt = new Statement(new Group(undefined, members),
+  //                           require('./../src/verbs').attempted,
+  //                           'act:statement_posts/node_test_group');
+  //
+  // anonStmt.show();
 
 }

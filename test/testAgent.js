@@ -13,13 +13,13 @@
   let Agent = require('./../src/Agent').Agent;
   let Statement = require('./../src/Statement').Statement;
 
-  let stmt = new Statement(new Agent(XAPIWrapper.hash("mailto:user@example.com"), 'aaron'),
-                            'http://adlnet.gov/expapi/verbs/npm_testing_agent',
-                            'act:statement_posts/node_test_agent');
-
-  // let stmt = new Statement('mailto:user@example.com',
-  //                           'http://adlnet.gov/expapi/verbs/npm_testing_agent',
+  // let stmt = new Statement(new Agent(XAPIWrapper.hash("mailto:user@example.com"), 'aaron'),
+  //                           require('./../src/verbs').attempted,
   //                           'act:statement_posts/node_test_agent');
+
+  let stmt = new Statement({"mbox":'mailto:user@example.com', "name":'aaron'},
+                            require('./../src/verbs').attempted,
+                            'act:statement_posts/node_test_agent');
 
   stmt.timestamp = (new Date()).toISOString();
 
