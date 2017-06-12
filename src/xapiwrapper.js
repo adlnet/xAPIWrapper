@@ -5,7 +5,7 @@
 
   if (typeof module !== 'undefined') {
     onBrowser = false;
-    var XmlHttpRequest = require('xhr2');
+    var request = require('request');
     var Util = require('./Utils.js');
   } else {
     window.ADL = window.ADL || {};
@@ -1288,14 +1288,18 @@
       if (onBrowser)
         windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
       if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-          xhr = onBrowser ? new XMLHttpRequest()  // browser environment
-                          : new XmlHttpRequest(); // nodeJS environment
+        // Make request based on environment
+        if (!onBrowser) {
+          xhr = new request({url, method, headers, body:data}, callback);
+        } else {
+          xhr = new XMLHttpRequest();
           xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
           xhr.open(method, url, callback != null);
 
           for(let headerName in headers){
-              xhr.setRequestHeader(headerName, headers[headerName]);
+            xhr.setRequestHeader(headerName, headers[headerName]);
           }
+        }
       }
       //Otherwise, use IE's XDomainRequest object
       else {
@@ -1357,7 +1361,9 @@
 
       xhr.onload = requestComplete;
       xhr.onerror = requestComplete;
-      xhr.send(ieXDomain ? ieModeRequest.data : data);
+
+      if (onBrowser)
+        xhr.send(ieXDomain ? ieModeRequest.data : data);
 
       if (!callback) {
           // synchronous
@@ -1411,6 +1417,7 @@
       }
     }
   };
+
 
   if (!onBrowser) {
     module.exports = new XAPIWrapper(Config, false);

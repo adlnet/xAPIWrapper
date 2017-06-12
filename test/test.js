@@ -27,7 +27,7 @@
 
   stmt.show();
 
-  XAPIWrapper.postStatement(stmt, (resp, data) => console.log("Statement Pass") );
+  XAPIWrapper.postStatement(stmt, (error, resp, data) => console.log(error?error:"Statement sent") );
 
 
   // Test Statement as first parameter

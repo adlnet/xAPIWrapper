@@ -7,12 +7,12 @@
 
     <!-- <script src="../lib/cryptojs_v3.1.2.js"></script>
     <script src="../src/Utils.js"></script>
+    <script src="../src/xapiwrapper.js"></script>
+    <script src="../src/verbs.js"></script>
     <script src="../src/Agent.js"></script>
     <script src="../src/Verb.js"></script>
-    <script src="../src/verbs.js"></script>
-    <script src="../src/statement.js"></script>
     <script src="../src/Object.js"></script>
-    <script src="../src/xapiwrapper.js"></script> -->
+    <script src="../src/statement.js"></script> -->
 
   </head>
   <body onload='test()'>
@@ -34,7 +34,7 @@
 
       stmt.timestamp = (new Date()).toISOString();
 
-      ADL.XAPIWrapper.postStatement(stmt, (resp, data) => console.log("Success"));
+      ADL.XAPIWrapper.postStatement(stmt, (error, resp, data) => console.log("Success"));
     }
 
     </script>

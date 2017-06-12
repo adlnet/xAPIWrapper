@@ -55,12 +55,12 @@
   class StatementRef {
     constructor(id)
     {
+      this.objectType = 'StatementRef';
+
       if(id && id.id) {
         Object.assign(this, id);
         return;
       }
-
-      this.objectType = 'StatementRef';
 
       if (id)
         this.id = id;
