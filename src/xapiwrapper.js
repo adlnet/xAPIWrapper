@@ -137,7 +137,6 @@
       this.changeConfig = (config) => {
         try
         {
-            log("updating lrs object with new configuration");
             this.lrs = mergeRecursive(this.lrs, config);
             if (config.user && config.password)
                 updateAuth(this.lrs, config.user, config.password);
@@ -239,31 +238,47 @@
     {
         if (this.testConfig())
         {
-            this.prepareStatement(stmt);
-            let id;
-            if (stmt['id'])
-            {
-                id = stmt['id'];
-            }
-            else
-            {
-                id = Util.ruuid();
-                stmt['id'] = id;
-            }
+          this.prepareStatement(stmt);
+          let id;
+          if (stmt['id'])
+          {
+            id = stmt['id'];
+          }
+          else
+          {
+            id = Util.ruuid();
+            stmt['id'] = id;
+          }
 
-            let payload = JSON.stringify(stmt);
-            let extraHeaders = null;
-            if(attachments && attachments.length > 0)
-            {
-                extraHeaders = {}
-                payload = this.buildMultipart(stmt,attachments,extraHeaders)
-            }
+          let payload = JSON.stringify(stmt);
+          let extraHeaders = null;
+          if(attachments && attachments.length > 0)
+          {
+            extraHeaders = {}
+            payload = this.buildMultipart(stmt,attachments,extraHeaders)
+          }
 
-            let resp = XHR_request(this.lrs, `${this.lrs.endpoint}statements`,
-                "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
-            if (!callback)
-                return {"xhr":resp, id};
+          if (callback) {
+              let resp = XHR_request(this.lrs, `${this.lrs.endpoint}statements`,
+                  "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
+              return;
+          }
+
+          const conf = {url: `${this.lrs.endpoint}statements`,
+                        'method': 'POST',
+                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
+                        'body': payload};
+
+          return this.syncRequest(conf);
         }
+    };
+
+    syncRequest(conf) {
+      return new Promise((res, rej) => {
+        request(conf, (error, resp, data) => {
+          (error) ? rej(err) : res({resp, data});
+        });
+      });
     };
 
     /*

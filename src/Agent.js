@@ -70,6 +70,24 @@
       {
         this.objectType = 'Group';
 
+        // First argument is a Group object
+        if (arguments.length === 1 && identifier) {
+          if (identifier.member) {
+            // check for Group objects as members
+            for (let i = 0; i < identifier.member.length; i++) {
+              if (identifier.member[i].objectType == "Group" || identifier.member[i].hasOwnProperty('member'))
+                return;
+            }
+            members = identifier.member;
+            if (identifier.name)
+              name = identifier.name;
+          } else if (identifier.name) {
+            name = identifier.name;
+          } else {
+            return;
+          }
+        }
+
         if (name)
           this.name = name;
 
@@ -91,7 +109,7 @@
           }
         }
 
-        if (members)
+        if (members && !this.member)
           this.member = members;
       }
       toString(){

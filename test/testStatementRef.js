@@ -1,5 +1,9 @@
 {
 
+  describe("StatementRef Test:", () => {
+
+  });
+
   // Testing module functionality
   let XAPIWrapper = require('./../src/xAPIWrapper');
 

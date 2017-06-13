@@ -1,5 +1,9 @@
 {
 
+  describe("SubStatement Test:", () => {
+
+  });
+
   // Testing module functionality
   let XAPIWrapper = require('./../src/xAPIWrapper');
 

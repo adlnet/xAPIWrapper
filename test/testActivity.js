@@ -1,36 +1,83 @@
 {
 
-  // Testing module functionality
-  let Util = require('./../src/Utils');
-  let XAPIWrapper = require('./../src/xAPIWrapper');
+  describe("Activity Test:", () => {
+    // Activities to test
+    let def, trueFalse, choice, fillIn, longFillIn, match,
+        peform, seq, like, num, other;
 
-  XAPIWrapper.changeConfig({
-    "endpoint": "https://lrs.adlnet.gov/xapi/",
-    "user": "tom",
-    "password": "1234"
+    // Testing module functionality
+    let should, XAPIWrapper, Activity, Statement, verbs;
+
+    // Test statements
+    let s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
+
+    let objId = 'http://activity.com/id';
+
+
+    before(() => {
+      // Require necessary modules
+      should = require('should');
+      XAPIWrapper = require('./../src/xAPIWrapper');
+      Activity = require('./../src/Object').Activity;
+      Statement = require('./../src/Statement').Statement;
+      verbs = require('./../src/verbs');
+
+      XAPIWrapper.changeConfig({
+        "endpoint": "https://lrs.adlnet.gov/xapi/",
+        "user": "tom",
+        "password": "1234"
+      });
+
+      // Test statements
+
+    });
+
+
+    describe("JSON Object as statement object:", () => {
+      describe("Default", () => {
+        it('should pass with valid id', (done) => {
+
+        });
+      });
+      describe("Interaction Types", () => {
+        it('should pass with valid true/false type', (done) => {
+
+        });
+        it('should pass with valid choice type', (done) => {
+
+        });
+        it('should pass with valid fill-in type', (done) => {
+
+        });
+        it('should pass with valid long fill-in type', (done) => {
+
+        });
+        it('should pass with valid match type', (done) => {
+
+        });
+        it('should pass with valid performance type', (done) => {
+
+        });
+        it('should pass with valid sequence type', (done) => {
+
+        });
+        it('should pass with valid likert type', (done) => {
+
+        });
+        it('should pass with valid numeric type', (done) => {
+
+        });
+        it('should pass with valid other type', (done) => {
+
+        });
+      });
+
+      after(()=>console.log('\n'));
+    });
+
+    describe("Activity Object as statement object:", () => {
+
+    });
   });
-
-  let Activity = require('./../src/Object').Activity;
-  let Statement = require('./../src/Statement').Statement;
-
-
-  // Test all params of Activity
-  let stmt = new Statement('mailto:user@adlnet.gov',
-                           'http://adlnet.gov/expapi/verbs/npm_testing_activity',
-                           new Activity("act:statement_posts/node_test_activity", 'tester', 'Testing activity class functionality'));
-
-  stmt.timestamp = (new Date()).toISOString();
-
-  console.log(stmt.actor);
-  console.log(stmt.verb);
-  console.log(stmt.object);
-
-
-  XAPIWrapper.postStatement(stmt, (resp, data) => console.log("Activity Pass") );
-
-
-  // Test Activity as parameter
-  // let act = new Activity(stmt.object);
-  // console.log(act);
 
 }

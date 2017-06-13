@@ -91,7 +91,7 @@
 
       this.actor = actor;
       if(actor){
-        if((actor.objectType === 'Agent' || !actor.objectType) && !(Agent instanceof Agent))
+        if((actor.objectType === 'Agent' || !actor.objectType) && !(actor instanceof Agent))
           this.actor = new Agent(actor);
         else if(actor.objectType === 'Group' && !(actor instanceof Group))
           this.actor = new Group(actor);

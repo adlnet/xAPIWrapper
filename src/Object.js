@@ -16,9 +16,7 @@
       }
 
       this.objectType = 'Activity';
-
-      if (id)
-        this.id = id;
+      this.id = id;
 
       if (name) {
         this.definition = {};

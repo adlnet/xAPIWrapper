@@ -7,6 +7,7 @@
     "url": "https://github.com/adlnet/xAPIWrapper.git"
   },
   "devDependencies": {
+    "babel-plugin-transform-async-to-generator": "^6.24.1",
     "doxstrap": "~0.0.5",
     "grunt": "^0.4.5",
     "grunt-babel": "^6.0.0",
@@ -16,8 +17,12 @@
     "grunt-exec": "~0.4.6"
   },
   "babel": {
-    "presets": [
-      "es2015"
+    "plugins": [
+      "transform-async-to-generator"
     ]
+  },
+  "dependencies": {
+    "crypto-js": "^3.1.9-1",
+    "request": "^2.81.0"
   }
 }
