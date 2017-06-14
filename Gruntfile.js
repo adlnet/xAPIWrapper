@@ -69,17 +69,3 @@ module.exports = function(grunt) {
   });
 
 };
-
-
-
-// 'traceur': {
-//   options: {
-//     experimental: true,
-//     moduleNames: false
-//   },
-//   custom: {
-//     files: {
-//       'dist/xapiwrapper.js': 'src/xapiwrapper.js'
-//     }
-//   }
-// },
