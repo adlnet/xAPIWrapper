@@ -26,5 +26,14 @@
   "dependencies": {
     "crypto-js": "^3.1.9-1",
     "request": "^2.81.0"
+  },
+  "scripts": {
+    "testactivity": "mocha --compilers js:babel-register test/testActivity.js",
+    "testagent": "mocha --compilers js:babel-register test/testAgent.js",
+    "testasync": "mocha --compilers js:babel-register test/testAsync.js",
+    "testgroup": "mocha --compilers js:babel-register test/testGroup.js",
+    "teststatementref": "mocha --compilers js:babel-register test/testStatementRef.js",
+    "testsubstatement": "mocha --compilers js:babel-register test/testSubStatement.js",
+    "testverb": "mocha --compilers js:babel-register test/testVerb.js"
   }
 }

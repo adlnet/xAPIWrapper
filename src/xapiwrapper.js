@@ -32,7 +32,7 @@
       }
       catch (e)
       {
-          log(`Exception in Config trying to encode auth: ${e}`);
+          console.log(`Exception in Config trying to encode auth: ${e}`);
       }
 
       // Statement defaults
@@ -49,8 +49,9 @@
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
-    constructor(config, verifyxapiversion) {
-      this.lrs = getLRSObject(config || {});
+    constructor(config, verifyxapiversion)
+    {
+      this.lrs = this.getLRSObject(config || {});
 
       if (this.lrs.user && this.lrs.password)
         updateAuth(this.lrs, this.lrs.user, this.lrs.password);
@@ -74,48 +75,48 @@
 
         if (l.protocol && l.host)
           return `${l.protocol}//${l.host}`;
-        else
-          log(`Couldn't create base url from endpoint: ${url}`);
+
+        this.log(`Couldn't create base url from endpoint: ${url}`);
       }
 
       function updateAuth(obj, username, password){
         obj.auth = `Basic ${Util.toBase64(`${username}:${password}`)}`;
       }
 
-      if (verifyxapiversion && testConfig.call(this))
-      {
-          XHR_request(this.lrs, `${this.lrs.endpoint}about`, "GET", null, null,
-              r => {
-                  if(r.status == 200)
-                  {
-                      try
-                      {
-                          let lrsabout = JSON.parse(r.response);
-                          let versionOK = false;
-                          for (let idx in lrsabout.version)
-                          {
-                              if(lrsabout.version[idx] == this.xapiVersion)
-                              {
-                                  versionOK = true;
-                                  break;
-                              }
-                          }
-                          if (!versionOK)
-                          {
-                              log(`The lrs version [${lrsabout.version}] does not match this wrapper's XAPI version [${this.xapiVersion}]`);
-                          }
-                      }
-                      catch(e)
-                      {
-                          log("The response was not an about object")
-                      }
-                  }
-                  else
-                  {
-                      log(`The request to get information about the LRS failed: ${r}`);
-                  }
-              },null,false,null,this.withCredentials, false);
-      }
+      // if (verifyxapiversion && testConfig.call(this))
+      // {
+      //     XHR_request(this.lrs, `${this.lrs.endpoint}about`, "GET", null, null,
+      //         r => {
+      //             if(r.status == 200)
+      //             {
+      //                 try
+      //                 {
+      //                     let lrsabout = JSON.parse(r.response);
+      //                     let versionOK = false;
+      //                     for (let idx in lrsabout.version)
+      //                     {
+      //                         if(lrsabout.version[idx] == this.xapiVersion)
+      //                         {
+      //                             versionOK = true;
+      //                             break;
+      //                         }
+      //                     }
+      //                     if (!versionOK)
+      //                     {
+      //                         log(`The lrs version [${lrsabout.version}] does not match this wrapper's XAPI version [${this.xapiVersion}]`);
+      //                     }
+      //                 }
+      //                 catch(e)
+      //                 {
+      //                     log("The response was not an about object")
+      //                 }
+      //             }
+      //             else
+      //             {
+      //                 log(`The request to get information about the LRS failed: ${r}`);
+      //             }
+      //         },null,false,null,this.withCredentials, false);
+      // }
 
       this.searchParams = () => {
           return {"format": "exact"};
@@ -129,7 +130,7 @@
           }
           catch(e)
           {
-              log(`Error trying to hash -- ${e}`);
+              this.log(`Error trying to hash -- ${e}`);
               return null;
           }
       };
@@ -137,7 +138,7 @@
       this.changeConfig = (config) => {
         try
         {
-            this.lrs = mergeRecursive(this.lrs, config);
+            this.lrs = this.mergeRecursive(this.lrs, config);
             if (config.user && config.password)
                 updateAuth(this.lrs, config.user, config.password);
             this.base = getbase(this.lrs.endpoint);
@@ -146,7 +147,7 @@
         }
         catch(e)
         {
-            log(`error while changing configuration -- ${e}`);
+            this.log(`error while changing configuration -- ${e}`);
         }
       };
 
@@ -259,7 +260,7 @@
           }
 
           if (callback) {
-              let resp = XHR_request(this.lrs, `${this.lrs.endpoint}statements`,
+              this.defaultRequest(this.lrs, `${this.lrs.endpoint}statements`,
                   "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
               return;
           }
@@ -269,16 +270,8 @@
                         'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
                         'body': payload};
 
-          return this.syncRequest(conf);
+          return this.asyncRequest(conf);
         }
-    };
-
-    syncRequest(conf) {
-      return new Promise((res, rej) => {
-        request(conf, (error, resp, data) => {
-          (error) ? rej(err) : res({resp, data});
-        });
-      });
     };
 
     /*
@@ -376,14 +369,19 @@
             {
                 this.prepareStatement(stmtArray[i]);
             }
-            let resp = XHR_request(this.lrs,`${this.lrs.endpoint}statements`,
+
+            if (callback) {
+              this.defaultRequest(this.lrs,`${this.lrs.endpoint}statements`,
                 "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
-
-
-            if (!callback)
-            {
-                return resp;
+              return;
             }
+
+            const conf = {url: `${this.lrs.endpoint}statements`,
+                          'method': 'POST',
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
+                          'body': JSON.stringify(stmtArray)};
+
+            return this.asyncRequest(conf);
         }
     };
 
@@ -453,7 +451,8 @@
         }
     };
 
-    getMoreStatements(iterations, callback, searchParams) {
+    getMoreStatements(iterations, callback, searchParams)
+    {
         if (!onBrowser) throw new Error("Node not supported.");
 
         let stmts = [];
@@ -1116,104 +1115,17 @@
         }
     };
 
-    /*
-     * Tests the configuration of the lrs object
-     */
-    testConfig()
+    asyncRequest(conf)
     {
-      return (this.lrs.endpoint != undefined && this.lrs.endpoint != "");
-    }
-  }
+      return new Promise((res, rej) => {
+        request(conf, (error, resp, data) => {
+          (error) ? rej(err) : res({resp, data});
+        });
+      });
+    };
 
-  // outputs the message to the console if available
-  let log = (message) => {
-      if (!debug)
-        return;
-
-      console.log(message);
-  }
-
-  // merges two objects
-  let mergeRecursive = (obj1, obj2) => {
-    Object.assign(obj1, obj1, obj2);
-    return obj1;
-  };
-
-  // iniitializes an lrs object with settings from
-  // a config file and from the url query string
-  let getLRSObject = (config) => {
-      let lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
-      let lrs = new Object();
-      let qslets, prop;
-
-      qslets = parseQueryString();
-      if (qslets !== undefined && Object.keys(qslets).length !== 0) {
-          for (let i = 0; i<lrsProps.length; i++){
-              prop = lrsProps[i];
-              if (qslets[prop]){
-                  lrs[prop] = qslets[prop];
-                  delete qslets[prop];
-              }
-          }
-          if (Object.keys(qslets).length !== 0) {
-            lrs.extended = qslets;
-          }
-
-          lrs = mergeRecursive(config, lrs);
-      }
-      else {
-          lrs = config;
-      }
-
-      return lrs;
-  };
-
-  // parses the params in the url query string
-  let parseQueryString = () => {
-      if (!onBrowser)
-        return {};
-
-      let qs, pairs, pair, ii, parsed;
-
-      qs = window.location.search.substr(1);
-
-      pairs = qs.split('&');
-      parsed = {};
-      for ( ii = 0; ii < pairs.length; ii++) {
-          pair = pairs[ii].split('=');
-          if (pair.length === 2 && pair[0]) {
-              parsed[pair[0]] = decodeURIComponent(pair[1]);
-          }
-      }
-
-      return parsed;
-  };
-
-  let delay = () => {
-      let xhr;
-      let url;
-
-      if (onBrowser) {
-        xhr = new XMLHttpRequest();
-        url = window.location;
-      }
-      else
-        xhr = new XmlHttpRequest();
-
-      url += `?forcenocache=${Util.ruuid()}`;
-      xhr.open('GET', url, false);
-      xhr.send(null);
-  };
-
-  /*
-   * formats a request in a way that IE will allow
-   * @param {string} method   the http request method (ex: "PUT", "GET")
-   * @param {string} url   the url to the request (ex: XAPIWrapper.lrs.endpoint + "statements")
-   * @param {array} [headers]   headers to include in the request
-   * @param {string} [data]   the body of the request, if there is one
-   * @return {object} xhr response object
-   */
-  let ie_request = (method, url, headers, data) => {
+    ieRequest(method, url, headers, data)
+    {
       let newUrl = url;
 
       //Everything that was on query string goes into form lets
@@ -1245,28 +1157,10 @@
           "headers":{},
           "data":formData.join("&")
       };
-  };
+    };
 
-  // Synchronous if callback is not provided (not recommended)
-  /*
-   * makes a request to a server (if possible, use functions provided in XAPIWrapper)
-   * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
-   * @param {string} url   the url of this request
-   * @param {string} method   the http request method
-   * @param {string} data   the payload
-   * @param {string} auth   the value for the Authorization header
-   * @param {function} callback   function to be called after the LRS responds
-   *            to this request (makes the call asynchronous)
-   * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
-   * @param {boolean} ignore404    allow page not found errors to pass
-   * @param {object} extraHeaders   other header key-values to be added to this request
-   * @param {boolean} withCredentials
-   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
-   * @return {object} xhr response object
-   */
-  let XHR_request = (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks) => {
-    "use strict";
-
+    defaultRequest(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
+    {
       let xhr,
           finished = false,
           xDomainRequest = false,
@@ -1319,7 +1213,7 @@
       //Otherwise, use IE's XDomainRequest object
       else {
           ieXDomain = true;
-          ieModeRequest = ie_request(method, url, headers, data);
+          ieModeRequest = ieRequest(method, url, headers, data);
           xhr = new XDomainRequest();
           xhr.open(ieModeRequest.method, ieModeRequest.url);
       }
@@ -1358,8 +1252,8 @@
                   } catch (ex) {
                       warning = ex.toString();
                   }
-                  log(warning);
-                  xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
+                  this.log(warning);
+                  this.requestError(xhr, method, url, callback, callbackargs, strictCallbacks);
                   result = xhr;
                   return xhr;
               }
@@ -1377,61 +1271,447 @@
       xhr.onload = requestComplete;
       xhr.onerror = requestComplete;
 
-      if (onBrowser)
+      if (onBrowser) {
         xhr.send(ieXDomain ? ieModeRequest.data : data);
-
-      if (!callback) {
-          // synchronous
-          if (ieXDomain) {
-              // synchronous call in IE, with no asynchronous mode available.
-              until = 1000 + new Date();
-              while (new Date() < until && xhr.readyState !== 4 && !finished) {
-                  delay();
-              }
-          }
-          return requestComplete();
-      }
-  };
-
-  /*
-   * Holder for custom global error callback
-   * @param {object} xhr   xhr object or null
-   * @param {string} method   XMLHttpRequest request method
-   * @param {string} url   full endpoint url
-   * @param {function} callback   function to be called after the LRS responds
-   *            to this request (makes the call asynchronous)
-   * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
-   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
-   * @example
-   * xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
-   *   console.log(xhr);
-   *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
-   * };
-   */
-  let xhrRequestOnError = (xhr, method, url, callback, callbackargs, strictCallbacks) => {
-    if (callback && strictCallbacks) {
-      let status = xhr ? xhr.status : undefined;
-      let error;
-      if (status) {
-          error = new Error(`Request error: ${xhr.status}`);
-      } else if (status === 0 || status === null) {
-          error = new Error('Request error: aborted');
-      } else {
-          error = new Error('Request error: unknown');
       }
 
-      if (callbackargs) {
-          callback(error, xhr, callbackargs);
-      } else {
-          try {
-              let body = JSON.parse(xhr.responseText);
-              callback(error, xhr, body);
-          } catch (e){
-              callback(error, xhr, xhr.responseText);
+      // synchronous
+      if (ieXDomain) {
+          // synchronous call in IE, with no asynchronous mode available.
+          until = 1000 + new Date();
+          while (new Date() < until && xhr.readyState !== 4 && !finished) {
+              this.delay();
           }
       }
-    }
-  };
+    };
+
+    requestError(xhr, method, url, callback, callbackargs, strictCallbacks)
+    {
+      if (callback && strictCallbacks) {
+        let status = xhr ? xhr.status : undefined;
+        let error;
+        if (status) {
+            error = new Error(`Request error: ${xhr.status}`);
+        } else if (status === 0 || status === null) {
+            error = new Error('Request error: aborted');
+        } else {
+            error = new Error('Request error: unknown');
+        }
+
+        if (callbackargs) {
+            callback(error, xhr, callbackargs);
+        } else {
+            try {
+                let body = JSON.parse(xhr.responseText);
+                callback(error, xhr, body);
+            } catch (e){
+                callback(error, xhr, xhr.responseText);
+            }
+        }
+      }
+    };
+
+    /*
+     * Tests the configuration of the lrs object
+     */
+    testConfig()
+    {
+      return (this.lrs.endpoint != undefined && this.lrs.endpoint != "");
+    };
+
+    // outputs the message to the console if available
+    log(message)
+    {
+      if (!debug)
+        return;
+
+      console.log(message);
+    };
+
+    // iniitializes an lrs object with settings from
+    // a config file and from the url query string
+    getLRSObject(config)
+    {
+        let lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
+        let lrs = new Object();
+        let qslets, prop;
+
+        qslets = this.parseQueryString();
+        if (qslets !== undefined && Object.keys(qslets).length !== 0) {
+            for (let i = 0; i<lrsProps.length; i++){
+                prop = lrsProps[i];
+                if (qslets[prop]){
+                    lrs[prop] = qslets[prop];
+                    delete qslets[prop];
+                }
+            }
+            if (Object.keys(qslets).length !== 0) {
+              lrs.extended = qslets;
+            }
+
+            lrs = this.mergeRecursive(config, lrs);
+        }
+        else {
+            lrs = config;
+        }
+
+        return lrs;
+    };
+
+    // parses the params in the url query string
+    parseQueryString()
+    {
+        if (!onBrowser)
+          return {};
+
+        let qs, pairs, pair, ii, parsed;
+
+        qs = window.location.search.substr(1);
+
+        pairs = qs.split('&');
+        parsed = {};
+        for ( ii = 0; ii < pairs.length; ii++) {
+            pair = pairs[ii].split('=');
+            if (pair.length === 2 && pair[0]) {
+                parsed[pair[0]] = decodeURIComponent(pair[1]);
+            }
+        }
+
+        return parsed;
+    };
+
+    // merges two objects
+    mergeRecursive(obj1, obj2)
+    {
+      Object.assign(obj1, obj1, obj2);
+      return obj1;
+    };
+
+    delay()
+    {
+        let xhr;
+        let url;
+
+        if (onBrowser) {
+          xhr = new XMLHttpRequest();
+          url = window.location;
+        }
+        else
+          xhr = new XmlHttpRequest();
+
+        url += `?forcenocache=${Util.ruuid()}`;
+        xhr.open('GET', url, false);
+        xhr.send(null);
+    };
+  }
+
+  // // outputs the message to the console if available
+  // let log = (message) => {
+  //     if (!debug)
+  //       return;
+  //
+  //     console.log(message);
+  // }
+  //
+  // // merges two objects
+  // let mergeRecursive = (obj1, obj2) => {
+  //   Object.assign(obj1, obj1, obj2);
+  //   return obj1;
+  // };
+  //
+  // // iniitializes an lrs object with settings from
+  // // a config file and from the url query string
+  // let getLRSObject = (config) => {
+  //     let lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
+  //     let lrs = new Object();
+  //     let qslets, prop;
+  //
+  //     qslets = parseQueryString();
+  //     if (qslets !== undefined && Object.keys(qslets).length !== 0) {
+  //         for (let i = 0; i<lrsProps.length; i++){
+  //             prop = lrsProps[i];
+  //             if (qslets[prop]){
+  //                 lrs[prop] = qslets[prop];
+  //                 delete qslets[prop];
+  //             }
+  //         }
+  //         if (Object.keys(qslets).length !== 0) {
+  //           lrs.extended = qslets;
+  //         }
+  //
+  //         lrs = mergeRecursive(config, lrs);
+  //     }
+  //     else {
+  //         lrs = config;
+  //     }
+  //
+  //     return lrs;
+  // };
+  //
+  // // parses the params in the url query string
+  // let parseQueryString = () => {
+  //     if (!onBrowser)
+  //       return {};
+  //
+  //     let qs, pairs, pair, ii, parsed;
+  //
+  //     qs = window.location.search.substr(1);
+  //
+  //     pairs = qs.split('&');
+  //     parsed = {};
+  //     for ( ii = 0; ii < pairs.length; ii++) {
+  //         pair = pairs[ii].split('=');
+  //         if (pair.length === 2 && pair[0]) {
+  //             parsed[pair[0]] = decodeURIComponent(pair[1]);
+  //         }
+  //     }
+  //
+  //     return parsed;
+  // };
+  //
+  // let delay = () => {
+  //     let xhr;
+  //     let url;
+  //
+  //     if (onBrowser) {
+  //       xhr = new XMLHttpRequest();
+  //       url = window.location;
+  //     }
+  //     else
+  //       xhr = new XmlHttpRequest();
+  //
+  //     url += `?forcenocache=${Util.ruuid()}`;
+  //     xhr.open('GET', url, false);
+  //     xhr.send(null);
+  // };
+  //
+  // /*
+  //  * formats a request in a way that IE will allow
+  //  * @param {string} method   the http request method (ex: "PUT", "GET")
+  //  * @param {string} url   the url to the request (ex: XAPIWrapper.lrs.endpoint + "statements")
+  //  * @param {array} [headers]   headers to include in the request
+  //  * @param {string} [data]   the body of the request, if there is one
+  //  * @return {object} xhr response object
+  //  */
+  // let ie_request = (method, url, headers, data) => {
+  //     let newUrl = url;
+  //
+  //     //Everything that was on query string goes into form lets
+  //     let formData = new Array();
+  //     let qsIndex = newUrl.indexOf('?');
+  //     if(qsIndex > 0){
+  //         formData.push(newUrl.substr(qsIndex+1));
+  //         newUrl = newUrl.substr(0, qsIndex);
+  //     }
+  //
+  //     //Method has to go on querystring, and nothing else
+  //     newUrl = `${newUrl}?method=${method}`;
+  //
+  //     //Headers
+  //     if(headers !== null){
+  //         for(let headerName in headers){
+  //             formData.push(`${headerName}=${encodeURIComponent(headers[headerName])}`);
+  //         }
+  //     }
+  //
+  //     //The original data is repackaged as "content" form let
+  //     if(data !== null){
+  //         formData.push(`content=${encodeURIComponent(data)}`);
+  //     }
+  //
+  //     return {
+  //         "method":"POST",
+  //         "url":newUrl,
+  //         "headers":{},
+  //         "data":formData.join("&")
+  //     };
+  // };
+  //
+  // // Synchronous if callback is not provided (not recommended)
+  // /*
+  //  * makes a request to a server (if possible, use functions provided in XAPIWrapper)
+  //  * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
+  //  * @param {string} url   the url of this request
+  //  * @param {string} method   the http request method
+  //  * @param {string} data   the payload
+  //  * @param {string} auth   the value for the Authorization header
+  //  * @param {function} callback   function to be called after the LRS responds
+  //  *            to this request (makes the call asynchronous)
+  //  * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+  //  * @param {boolean} ignore404    allow page not found errors to pass
+  //  * @param {object} extraHeaders   other header key-values to be added to this request
+  //  * @param {boolean} withCredentials
+  //  * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
+  //  * @return {object} xhr response object
+  //  */
+  // let XHR_request = (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks) => {
+  //   "use strict";
+  //
+  //     let xhr,
+  //         finished = false,
+  //         xDomainRequest = false,
+  //         ieXDomain = false,
+  //         ieModeRequest,
+  //         urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
+  //         location = onBrowser ? window.location : "",
+  //         urlPort,
+  //         result,
+  //         extended,
+  //         prop,
+  //         until;
+  //
+  //     //Consolidate headers
+  //     let headers = {};
+  //     headers["Content-Type"] = "application/json";
+  //     headers["Authorization"] = auth;
+  //     headers['X-Experience-API-Version'] = "1.0.3";
+  //     if(extraHeaders !== null){
+  //         for(let headerName in extraHeaders){
+  //             headers[headerName] = extraHeaders[headerName];
+  //         }
+  //     }
+  //
+  //     //See if this really is a cross domain
+  //     xDomainRequest = (location.protocol !== urlparts[1] || location.hostname !== urlparts[2]);
+  //     if (!xDomainRequest) {
+  //         urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
+  //         xDomainRequest = (urlPort === location.port);
+  //     }
+  //
+  //     //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
+  //     let windowsVersionCheck = false;
+  //     if (onBrowser)
+  //       windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+  //     if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
+  //       // Make request based on environment
+  //       if (!onBrowser) {
+  //         xhr = new request({url, method, headers, body:data}, callback);
+  //       } else {
+  //         xhr = new XMLHttpRequest();
+  //         xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
+  //         xhr.open(method, url, callback != null);
+  //
+  //         for(let headerName in headers){
+  //           xhr.setRequestHeader(headerName, headers[headerName]);
+  //         }
+  //       }
+  //     }
+  //     //Otherwise, use IE's XDomainRequest object
+  //     else {
+  //         ieXDomain = true;
+  //         ieModeRequest = ie_request(method, url, headers, data);
+  //         xhr = new XDomainRequest();
+  //         xhr.open(ieModeRequest.method, ieModeRequest.url);
+  //     }
+  //
+  //     //Setup request callback
+  //     let requestComplete = () => {
+  //         if(!finished){
+  //             // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
+  //             // onload or both might fire depending upon browser, just covering all bases with event hooks and
+  //             // using 'finished' flag to avoid triggering events multiple times
+  //             finished = true;
+  //             let notFoundOk = (ignore404 && xhr.status === 404);
+  //             if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
+  //                 if (callback) {
+  //                     if(callbackargs){
+  //                         strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
+  //                     }
+  //                     else {
+  //                         try {
+  //                             let body = JSON.parse(xhr.responseText);
+  //                             strictCallbacks ? callback(null, xhr, body) : callback(xhr, body);
+  //                         }
+  //                         catch(e){
+  //                             callback(xhr,xhr.responseText);
+  //                             strictCallbacks ? callback(null, xhr, body) : callback(xhr, xhr.responseText);
+  //                         }
+  //                     }
+  //                 } else {
+  //                     result = xhr;
+  //                     return xhr;
+  //                 }
+  //             } else {
+  //                 let warning;
+  //                 try {
+  //                     warning = `There was a problem communicating with the Learning Record Store. ( ${xhr.status} | ${xhr.response} )${url}`;
+  //                 } catch (ex) {
+  //                     warning = ex.toString();
+  //                 }
+  //                 log(warning);
+  //                 xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
+  //                 result = xhr;
+  //                 return xhr;
+  //             }
+  //         } else {
+  //             return result;
+  //         }
+  //     };
+  //
+  //     xhr.onreadystatechange = () => {
+  //         if (xhr.readyState === 4) {
+  //            return requestComplete();
+  //         }
+  //     };
+  //
+  //     xhr.onload = requestComplete;
+  //     xhr.onerror = requestComplete;
+  //
+  //     if (onBrowser)
+  //       xhr.send(ieXDomain ? ieModeRequest.data : data);
+  //
+  //     if (!callback) {
+  //         // synchronous
+  //         if (ieXDomain) {
+  //             // synchronous call in IE, with no asynchronous mode available.
+  //             until = 1000 + new Date();
+  //             while (new Date() < until && xhr.readyState !== 4 && !finished) {
+  //                 delay();
+  //             }
+  //         }
+  //         return requestComplete();
+  //     }
+  // };
+  //
+  // /*
+  //  * Holder for custom global error callback
+  //  * @param {object} xhr   xhr object or null
+  //  * @param {string} method   XMLHttpRequest request method
+  //  * @param {string} url   full endpoint url
+  //  * @param {function} callback   function to be called after the LRS responds
+  //  *            to this request (makes the call asynchronous)
+  //  * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
+  //  * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
+  //  * @example
+  //  * xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
+  //  *   console.log(xhr);
+  //  *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
+  //  * };
+  //  */
+  // let xhrRequestOnError = (xhr, method, url, callback, callbackargs, strictCallbacks) => {
+  //   if (callback && strictCallbacks) {
+  //     let status = xhr ? xhr.status : undefined;
+  //     let error;
+  //     if (status) {
+  //         error = new Error(`Request error: ${xhr.status}`);
+  //     } else if (status === 0 || status === null) {
+  //         error = new Error('Request error: aborted');
+  //     } else {
+  //         error = new Error('Request error: unknown');
+  //     }
+  //
+  //     if (callbackargs) {
+  //         callback(error, xhr, callbackargs);
+  //     } else {
+  //         try {
+  //             let body = JSON.parse(xhr.responseText);
+  //             callback(error, xhr, body);
+  //         } catch (e){
+  //             callback(error, xhr, xhr.responseText);
+  //         }
+  //     }
+  //   }
+  // };
 
 
   if (!onBrowser) {
