@@ -22,7 +22,7 @@ describe("Activity Test:", () => {
 
     XAPIWrapper.changeConfig({
       "endpoint": "https://lrs.adlnet.gov/xapi/",
-      "user": "tom",
+      "user": "aaron",
       "password": "1234"
     });
 

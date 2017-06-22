@@ -25,7 +25,8 @@
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "xhr2": "^0.1.4"
   },
   "scripts": {
     "testactivity": "mocha --compilers js:babel-register test/testActivity.js",

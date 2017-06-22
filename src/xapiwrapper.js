@@ -191,90 +191,6 @@
     };
 
     /*
-     * Send a single statement to the LRS using a PUT request.
-     * @param {object} stmt   statement object to send
-     * @param {string} id   id of the statement object to send
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id
-     *            of the statement
-     * @return {object} object containing xhr object and id of statement
-     */
-    putStatement(stmt, id, callback, attachments)
-    {
-        if (this.testConfig())
-        {
-            this.prepareStatement(stmt);
-            stmt['id'] = (id == null || id == "") ? Util.ruuid() : id;
-
-            let payload = JSON.stringify(stmt);
-            let extraHeaders = null;
-            if(attachments && attachments.length > 0)
-            {
-                extraHeaders = {};
-                payload = this.buildMultipart(stmt, attachments, extraHeaders);
-            }
-
-            let resp = XHR_request(this.lrs, `${this.lrs.endpoint}statements`,
-                "PUT", payload, this.lrs.auth, callback, stmt['id'], null, extraHeaders, this.withCredentials, this.strictCallbacks);
-            if (!callback)
-                return {"xhr":resp,
-                        "id" :stmt['id']};
-        }
-    };
-
-    /*
-     * Send a single statement to the LRS using a POST request.
-     * Makes a Javascript object with the statement id as 'id' available to the callback function.
-     * @param {object} stmt   statement object to send
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id
-     *            of the statement
-     * @return {object} object containing xhr object and id of statement
-     */
-    postStatement(stmt, callback, attachments)
-    {
-        if (this.testConfig())
-        {
-          this.prepareStatement(stmt);
-          let id;
-          if (stmt['id'])
-          {
-            id = stmt['id'];
-          }
-          else
-          {
-            id = Util.ruuid();
-            stmt['id'] = id;
-          }
-
-          let payload = JSON.stringify(stmt);
-          let extraHeaders = null;
-          if(attachments && attachments.length > 0)
-          {
-            extraHeaders = {}
-            payload = this.buildMultipart(stmt,attachments,extraHeaders)
-          }
-
-          if (callback) {
-              this.defaultRequest(this.lrs, `${this.lrs.endpoint}statements`,
-                  "POST", payload, this.lrs.auth, callback, null, null, extraHeaders, this.withCredentials, this.strictCallbacks);
-              return;
-          }
-
-          const conf = {url: `${this.lrs.endpoint}statements`,
-                        'method': 'POST',
-                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
-                        'body': payload};
-
-          return this.asyncRequest(conf);
-        }
-    };
-
-    /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
     * extraHeaders should be an object. It will have the multipart boundary value set
     * attachments should be an array of objects of the type
@@ -338,6 +254,105 @@
     }
 
     /*
+     * Send a single statement to the LRS using a PUT request.
+     * @param {object} stmt   statement object to send
+     * @param {string} id   id of the statement object to send
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     *            and an object with an id property assigned the id
+     *            of the statement
+     * @return {object} object containing xhr object and id of statement
+     */
+    putStatement(stmt, id, callback, attachments)
+    {
+        if (this.testConfig() && (stmt && !(stmt instanceof Array)) && (id && stmt.id == id))
+        {
+            this.prepareStatement(stmt);
+            stmt.id = id;
+
+            let payload = JSON.stringify(stmt);
+            let extraHeaders = null;
+            if(attachments && attachments.length > 0)
+            {
+                extraHeaders = {};
+                payload = this.buildMultipart(stmt, attachments, extraHeaders);
+            }
+
+            if (callback) {
+                this.defaultRequest(this.lrs, `${this.lrs.endpoint}statements?statementId=${id}`,
+                    "PUT", payload, this.lrs.auth, callback, {id}, null, extraHeaders, this.withCredentials, this.strictCallbacks);
+                return;
+            }
+
+            const conf = {url: `${this.lrs.endpoint}statements?statementId=${id}`,
+                          'method': 'PUT',
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
+                          'body': payload};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
+        }
+    };
+
+    /*
+     * Send a single statement to the LRS using a POST request.
+     * Makes a Javascript object with the statement id as 'id' available to the callback function.
+     * @param {object} stmt   statement object to send
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     *            and an object with an id property assigned the id
+     *            of the statement
+     * @return {object} object containing xhr object and id of statement
+     */
+    postStatement(stmt, callback, attachments)
+    {
+        if (this.testConfig() && (stmt && !(stmt instanceof Array)))
+        {
+          this.prepareStatement(stmt);
+
+          let payload = JSON.stringify(stmt);
+          let extraHeaders = null;
+          if(attachments && attachments.length > 0)
+          {
+            extraHeaders = {}
+            payload = this.buildMultipart(stmt,attachments,extraHeaders)
+          }
+
+          if (callback) {
+              this.defaultRequest(this.lrs, `${this.lrs.endpoint}statements`,
+                  "POST", payload, this.lrs.auth, callback, {'id':stmt.id}, null, extraHeaders, this.withCredentials, this.strictCallbacks);
+              return;
+          }
+
+          const conf = {url: `${this.lrs.endpoint}statements`,
+                        'method': 'POST',
+                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
+                        'body': payload};
+
+          return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
+        }
+    };
+
+    /*
      * Send a list of statements to the LRS.
      * @param {array} stmtArray   the list of statement objects to send
      * @param {function} [callback]   function to be called after the LRS responds
@@ -363,7 +378,7 @@
      */
     postStatements(stmtArray, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && (stmtArray && stmtArray instanceof Array && stmtArray.length > 0))
         {
             for(let i in stmtArray)
             {
@@ -382,6 +397,15 @@
                           'body': JSON.stringify(stmtArray)};
 
             return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -420,7 +444,7 @@
             {
                 let urlparams = new Array();
 
-                for (s in searchparams)
+                for (let s in searchparams)
                 {
                     if (s == "until" || s == "since") {
                         let d = new Date(searchparams[s]);
@@ -433,21 +457,41 @@
                     url = `${url}?${urlparams.join("&")}`;
             }
 
-            let res = XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
+            // let res = XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
+            //
+            // if(res === undefined || res.status == 404)
+            // {
+            //     return null
+            // }
+            //
+            // try
+            // {
+            //     return JSON.parse(res.response);
+            // }
+            // catch(e)
+            // {
+            //     return res.response;
+            // }
 
-            if(res === undefined || res.status == 404)
-            {
-                return null
+            if (callback) {
+              return this.defaultRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, false, null, this.withCredentials, this.strictCallbacks);
+              return;
             }
 
-            try
-            {
-                return JSON.parse(res.response);
-            }
-            catch(e)
-            {
-                return res.response;
-            }
+            const conf = {url,
+                          'method': 'GET',
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -1178,7 +1222,7 @@
       let headers = {};
       headers["Content-Type"] = "application/json";
       headers["Authorization"] = auth;
-      headers['X-Experience-API-Version'] = "1.0.3";
+      headers['X-Experience-API-Version'] = this.xapiVersion;
       if(extraHeaders !== null){
           for(let headerName in extraHeaders){
               headers[headerName] = extraHeaders[headerName];
@@ -1201,6 +1245,7 @@
         if (!onBrowser) {
           xhr = new request({url, method, headers, body:data}, callback);
         } else {
+          // xhr = new (require('xhr2'));
           xhr = new XMLHttpRequest();
           xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
           xhr.open(method, url, callback != null);
