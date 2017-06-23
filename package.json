@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
+    "fs": "0.0.1-security",
     "request": "^2.81.0",
     "xhr2": "^0.1.4"
   },

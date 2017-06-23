@@ -1,4 +1,5 @@
 describe("Asynchronous Testing:", () => {
+  const fs = require('fs');
 
   // Response Types
   const OK = 200;
@@ -22,7 +23,7 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe.only("Statement(s)", () => {
+  describe("Statement(s)", () => {
     let s1, s2;
 
     beforeEach(() => {
@@ -38,7 +39,7 @@ describe("Asynchronous Testing:", () => {
       });
     });
 
-    describe.skip("PUT", () => {
+    describe("PUT", () => {
       it("should pass sending statement asynchronously", async () => {
         let res = await XAPIWrapper.putStatement(s1, s1['id']);
         (res.resp.statusCode).should.eql(NO_CONTENT);
@@ -74,11 +75,49 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      describe("With Attachments", () => {
+      describe.skip("With Attachments", () => {
+        let stmt;
+        let att;
 
+        beforeEach(() => {
+          // Get attachment data
+          content = fs.readFileSync('test/test.txt').toString();
+
+          att = {
+            value: content,
+            type: {
+              "usageType":"http://adlnet.gov/expapi/attachments/test",
+              "display":{"en-US": "Test Attachment"},
+              "description":{"en-US":"a test attachment for statement requests"},
+              "contentType":"application/octet-stream"
+            }
+          };
+
+          stmt = new Statement({
+            'actor': {'mbox':'mailto:a@example.com'},
+            'verb': {'id': 'http://adlnet.gov/expapi/verbs/attempted'},
+            'object': {'id': 'http://activity.com/id'}
+          });
+        });
+
+        it("should pass using valid attachment data asynchronously", async () => {
+          let res = await XAPIWrapper.putStatement(stmt, stmt.id, null, [att]);
+          (res.resp.statusCode).should.eql(NO_CONTENT);
+        });
+        it("should pass using valid attachment data with callback", (done) => {
+          XAPIWrapper.putStatement(stmt, stmt.id, (error, resp, data) => {
+            if (error) {
+              console.log(error);
+            } else {
+              (resp.statusCode).should.eql(NO_CONTENT);
+            }
+
+            done();
+          }, [att]);
+        });
       });
     });
-    describe.skip("POST", () => {
+    describe("POST", () => {
       it("should pass sending statement asynchronously", async () => {
         let res = await XAPIWrapper.postStatement(s1);
         (res.resp.statusCode).should.eql(OK);
@@ -138,11 +177,49 @@ describe("Asynchronous Testing:", () => {
           });
         });
       });
-      describe("With Attachments", () => {
+      describe.skip("With Attachments", () => {
+        let stmt;
+        let att;
 
+        beforeEach(() => {
+          // Get attachment data
+          content = fs.readFileSync('test/test.txt').toString();
+
+          att = {
+            value: content,
+            type: {
+              "usageType":"http://adlnet.gov/expapi/attachments/test",
+              "display":{"en-US": "Test Attachment"},
+              "description":{"en-US":"a test attachment for statement requests"},
+              "contentType":"application/octet-stream"
+            }
+          };
+
+          stmt = new Statement({
+            'actor': {'mbox':'mailto:a@example.com'},
+            'verb': {'id': 'http://adlnet.gov/expapi/verbs/attempted'},
+            'object': {'id': 'http://activity.com/id'}
+          });
+        });
+
+        it("should pass using valid attachment data asynchronously", async () => {
+          let res = await XAPIWrapper.postStatement(stmt, null, [att]);
+          (res.resp.statusCode).should.eql(OK);
+        });
+        it("should pass using valid attachment data with callback", (done) => {
+          XAPIWrapper.postStatement(stmt, (error, resp, data) => {
+            if (error) {
+              console.log(error);
+            } else {
+              (resp.statusCode).should.eql(OK);
+            }
+
+            done();
+          }, [att]);
+        });
       });
     });
-    describe.skip("GET", () => {
+    describe("GET", () => {
       it("should return list of statements asynchronously", async () => {
         let res = await XAPIWrapper.getStatements();
         (res.resp.statusCode==OK && res.data!=null).should.eql(true);
@@ -173,10 +250,10 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe.skip("State", () => {
+  describe("State", () => {
 
 
-    describe.skip("PUT", () => {
+    describe("PUT", () => {
       it("should pass using valid async/await", async () => {
 
       });
@@ -184,8 +261,8 @@ describe("Asynchronous Testing:", () => {
 
       });
     });
-    describe.skip("POST", () => {
-      it.skip("should pass using valid async/await", async () => {
+    describe("POST", () => {
+      it("should pass using valid async/await", async () => {
 
       });
       it("should pass using valid callback", (done) => {
@@ -194,8 +271,8 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe.skip("Activity Profile", () => {
-    describe.skip("PUT", () => {
+  describe("Activity Profile", () => {
+    describe("PUT", () => {
       it("should pass using valid async/await", async () => {
 
       });
@@ -203,7 +280,7 @@ describe("Asynchronous Testing:", () => {
 
       });
     });
-    describe.skip("POST", () => {
+    describe("POST", () => {
       it("should pass using valid async/await", async () => {
 
       });
@@ -213,8 +290,8 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe.skip("Agent Profile", () => {
-    describe.skip("PUT", () => {
+  describe("Agent Profile", () => {
+    describe("PUT", () => {
       it("should pass using valid async/await", async () => {
 
       });
@@ -222,7 +299,7 @@ describe("Asynchronous Testing:", () => {
 
       });
     });
-    describe.skip("POST", () => {
+    describe("POST", () => {
       it("should pass using valid async/await", async () => {
 
       });

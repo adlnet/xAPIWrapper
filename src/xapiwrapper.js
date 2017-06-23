@@ -228,7 +228,7 @@
             attachments[i].type.sha2 = Util.toSHA256(attachments[i].value);
 
             //attach the attachment metadata to the statement
-            statement.attachments.push(attachments[i].type)
+            statement.attachments.push(attachments[i].type);
         }
 
         let body = "";
@@ -246,8 +246,6 @@
             body += attachments[i].value;
         }
         body += `${CRLF}--${boundary}--${CRLF}`;
-
-
 
 
         return body;
@@ -285,10 +283,17 @@
                 return;
             }
 
+
             const conf = {url: `${this.lrs.endpoint}statements?statementId=${id}`,
                           'method': 'PUT',
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
                           'body': payload};
+
+            if(extraHeaders){
+              for(let headerName in extraHeaders){
+                conf.headers[headerName] = extraHeaders[headerName];
+              }
+            }
 
             return this.asyncRequest(conf);
         }
@@ -338,6 +343,12 @@
                         'method': 'POST',
                         'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
                         'body': payload};
+
+          if(extraHeaders){
+            for(let headerName in extraHeaders){
+              conf.headers[headerName] = extraHeaders[headerName];
+            }
+          }
 
           return this.asyncRequest(conf);
         }
@@ -1200,7 +1211,6 @@
           extended,
           prop,
           until;
-
       //Consolidate headers
       let headers = {};
       headers["Content-Type"] = "application/json";
