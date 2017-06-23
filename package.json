@@ -16,6 +16,7 @@
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-exec": "~0.4.6",
+    "mocha": "^3.4.2",
     "should": "^11.2.1"
   },
   "babel": {
@@ -31,7 +32,7 @@
   "scripts": {
     "testactivity": "mocha --compilers js:babel-register test/testActivity.js",
     "testagent": "mocha --compilers js:babel-register test/testAgent.js",
-    "testasync": "mocha --compilers js:babel-register test/testAsync.js",
+    "testasync": "mocha --no-timeouts --compilers js:babel-register test/testAsync.js",
     "testgroup": "mocha --compilers js:babel-register test/testGroup.js",
     "teststatementref": "mocha --compilers js:babel-register test/testStatementRef.js",
     "testsubstatement": "mocha --compilers js:babel-register test/testSubStatement.js",

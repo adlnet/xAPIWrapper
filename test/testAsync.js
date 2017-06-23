@@ -22,7 +22,7 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe("Statement(s)", () => {
+  describe.only("Statement(s)", () => {
     let s1, s2;
 
     beforeEach(() => {
@@ -73,6 +73,9 @@ describe("Asynchronous Testing:", () => {
           (error!==null).should.eql(true);
           done();
         });
+      });
+      describe("With Attachments", () => {
+
       });
     });
     describe.skip("POST", () => {
@@ -135,21 +138,37 @@ describe("Asynchronous Testing:", () => {
           });
         });
       });
+      describe("With Attachments", () => {
+
+      });
     });
     describe.skip("GET", () => {
-      it.skip("should return list of all statements asynchronously", async () => {
+      it("should return list of statements asynchronously", async () => {
         let res = await XAPIWrapper.getStatements();
+        (res.resp.statusCode==OK && res.data!=null).should.eql(true);
       });
-      it("should return list of all statements with callback", (done) => {
+      it("should return list of statements with callback", (done) => {
         XAPIWrapper.getStatements(null, null, (error, resp, data) => {
           if (error) {
             console.log(error);
           } else {
-            console.log(data);
+            (resp.statusCode==OK && data!=null).should.eql(true);
           }
 
           done();
         });
+      });
+      it("should return single statement asynchronously", async () => {
+        let res = await XAPIWrapper.getStatements({"limit":1});
+        (res.resp.statusCode==OK && res.data!=null).should.eql(true);
+      });
+      it("should return single statement using id asynchronously", async () => {
+        let id = '39d1c0bd-21b8-4523-b628-1c503cfb1732';
+        let res = await XAPIWrapper.getStatements({"statementId":id});
+        (JSON.parse(res.data).id).should.eql(id);
+      });
+      describe("More Statements", () => {
+
       });
     });
   });

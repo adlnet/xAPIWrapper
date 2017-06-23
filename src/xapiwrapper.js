@@ -440,7 +440,7 @@
             {
                 url = this.base + more;
             }
-            else
+            else if (searchparams)
             {
                 let urlparams = new Array();
 
@@ -457,29 +457,12 @@
                     url = `${url}?${urlparams.join("&")}`;
             }
 
-            // let res = XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
-            //
-            // if(res === undefined || res.status == 404)
-            // {
-            //     return null
-            // }
-            //
-            // try
-            // {
-            //     return JSON.parse(res.response);
-            // }
-            // catch(e)
-            // {
-            //     return res.response;
-            // }
-
             if (callback) {
-              return this.defaultRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, false, null, this.withCredentials, this.strictCallbacks);
+              this.defaultRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, false, null, this.withCredentials, this.strictCallbacks);
               return;
             }
 
             const conf = {url,
-                          'method': 'GET',
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
             return this.asyncRequest(conf);
@@ -1163,7 +1146,7 @@
     {
       return new Promise((res, rej) => {
         request(conf, (error, resp, data) => {
-          (error) ? rej(err) : res({resp, data});
+          (error) ? rej(error) : res({resp, data});
         });
       });
     };
@@ -1243,7 +1226,10 @@
       if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
         // Make request based on environment
         if (!onBrowser) {
-          xhr = new request({url, method, headers, body:data}, callback);
+          let options = {url, method, headers};
+          if (data)
+            options['body'] = data;
+          xhr = new request(options, callback);
         } else {
           // xhr = new (require('xhr2'));
           xhr = new XMLHttpRequest();
