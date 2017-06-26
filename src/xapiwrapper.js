@@ -518,43 +518,6 @@
     };
 
     /*
-     * Gets the Activity object from the LRS.
-     * @param {string} activityid   the id of the Activity to get
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
-     * @example
-     * let res = XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
-     * XAPIWrapper.log(res);
-     * >> <Activity object>
-     */
-    getActivities(activityid, callback)
-    {
-        if (this.testConfig())
-        {
-            let url = `${this.lrs.endpoint}activities?activityId=<activityid>`;
-            url = url.replace('<activityid>', encodeURIComponent(activityid));
-
-            let result = XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true,null,this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
-            }
-
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
-        }
-    };
-
-    /*
      * Update activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to
@@ -569,19 +532,12 @@
      */
     putState(activityid, agent, stateid, registration, stateval, matchHash, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && stateval && activityid && agent && stateid)
         {
-            if (!stateval)
-              return false;
-
             if (!matchHash || matchHash == "")
               matchHash = '*';
 
-            let url = `${this.lrs.endpoint}activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>`;
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<stateid>',encodeURIComponent(stateid));
+            let url = `${this.lrs.endpoint}activities/state?activityId=${activityid}&agent=${JSON.stringify(agent)}&stateId=${stateid}`;
 
             if (registration)
                 url += `&registration=${encodeURIComponent(registration)}`;
@@ -596,7 +552,26 @@
                 headers["Content-Type"] ="application/octet-stream";
 
 
-            XHR_request(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers,this.withCredentials, this.strictCallbacks);
+            if (callback) {
+              this.defaultRequest(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
+              return;
+            }
+
+            headers['X-Experience-API-Version'] = this.xapiVersion;
+            headers['Authorization'] = this.lrs.auth;
+
+            const conf = {url, 'method': 'PUT', headers, 'body': stateval};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -614,16 +589,9 @@
      */
     postState(activityid, agent, stateid, registration, stateval, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && stateval && activityid && agent && stateid)
         {
-            if (!stateval)
-              return false;
-
-            let url = `${this.lrs.endpoint}activities/state?activityId=<activity ID>&agent=<agent>&stateId=<stateid>`;
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-            url = url.replace('<stateid>',encodeURIComponent(stateid));
+            let url = `${this.lrs.endpoint}activities/state?activityId=${activityid}&agent=${JSON.stringify(agent)}&stateId=${stateid}`;
 
             if (registration)
                 url += `&registration=${encodeURIComponent(registration)}`;
@@ -637,8 +605,26 @@
             else
                 headers["Content-Type"] ="application/octet-stream";
 
+            if (callback) {
+              this.defaultRequest(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
+              return;
+            }
 
-            XHR_request(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
+            headers['X-Experience-API-Version'] = this.xapiVersion;
+            headers['Authorization'] = this.lrs.auth;
+
+            const conf = {url, 'method': 'POST', headers, 'body': stateval};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -661,12 +647,9 @@
      */
     getState(activityid, agent, stateid, registration, since, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && activityid && agent)
         {
-            let url = `${this.lrs.endpoint}activities/state?activityId=<activity ID>&agent=<agent>`;
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            let url = `${this.lrs.endpoint}activities/state?activityId=${activityid}&agent=${JSON.stringify(agent)}`;
 
             if (stateid)
             {
@@ -686,21 +669,24 @@
                 }
             }
 
-            let result = XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
+            if (callback) {
+              this.defaultRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+              return;
             }
 
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
+            const conf = {url,
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -733,12 +719,9 @@
      */
     deleteState(activityid, agent, stateid, registration, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && activityid && agent)
         {
-            let url = `${this.lrs.endpoint}activities/state?activityId=<activity ID>&agent=<agent>`;
-
-            url = url.replace('<activity ID>',encodeURIComponent(activityid));
-            url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
+            let url = `${this.lrs.endpoint}activities/state?activityId=${activityid}&agent=${JSON.stringify(agent)}`;
 
             if (stateid)
             {
@@ -750,22 +733,64 @@
                 url += `&registration=${encodeURIComponent(registration)}`;
             }
 
-            let headers = null;
-            let result = XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
+            if (callback) {
+              this.defaultRequest(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, null, null, this.withCredentials, this.strictCallbacks);
+              return;
             }
 
-            try
-            {
-                return JSON.parse(result.response);
+            const conf = {url,
+                          'method': "DELETE",
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
+        }
+    };
+
+    /*
+     * Gets the Activity object from the LRS.
+     * @param {string} activityid   the id of the Activity to get
+     * @param {function} [callback]   function to be called after the LRS responds
+     *            to this request (makes the call asynchronous)
+     *            the function will be passed the XMLHttpRequest object
+     * @return {object} xhr response object or null if 404
+     * @example
+     * let res = XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
+     * XAPIWrapper.log(res);
+     * >> <Activity object>
+     */
+    getActivities(activityid, callback)
+    {
+        if (this.testConfig() && activityid)
+        {
+            let url = `${this.lrs.endpoint}activities?activityId=${activityid}`;
+
+            if (callback) {
+              this.defaultRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+              return;
             }
-            catch(e)
-            {
-                return result;
-            }
+
+            const conf = {url,
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -821,15 +846,9 @@
      */
     postActivityProfile(activityid, profileid, profileval, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && profileval && activityid && profileid)
         {
-          if (!profileval)
-            return false;
-
-          let url = `${this.lrs.endpoint}activities/profile?activityId=<activity ID>&profileId=<profileid>`;
-
-          url = url.replace('<activity ID>',encodeURIComponent(activityid));
-          url = url.replace('<profileid>',encodeURIComponent(profileid));
+          let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
           let headers = {};
           if (profileval instanceof Array || profileval instanceof Object)
@@ -840,8 +859,26 @@
           else
               headers["Content-Type"] ="application/octet-stream";
 
+          if (callback) {
+            this.defaultRequest(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+            return;
+          }
 
-          XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+          headers['X-Experience-API-Version'] = this.xapiVersion;
+          headers['Authorization'] = this.lrs.auth;
+
+          const conf = {url, 'method': 'POST', headers, 'body': profileval};
+
+          return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -957,26 +994,28 @@
      */
     getAgents(agent, callback)
     {
-        if (this.testConfig())
+        if (this.testConfig() && agent)
         {
-            let url = `${this.lrs.endpoint}agents?agent=<agent>`;
-            url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
+            let url = `${this.lrs.endpoint}agents?agent=${JSON.stringify(agent)}`;
 
-            let result = XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
-
-            if(result === undefined || result.status == 404)
-            {
-                return null
+            if (callback) {
+              this.defaultRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+              return;
             }
 
-            try
-            {
-                return JSON.parse(result.response);
-            }
-            catch(e)
-            {
-                return result.response;
-            }
+            const conf = {url,
+                          'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
+
+            return this.asyncRequest(conf);
+        }
+
+        // Return rejected promise or error w/ callback on invalid requests
+        if (callback) {
+          callback('Error: invalid parameters');
+        } else {
+          return new Promise((res,rej) => {
+            rej('Error: invalid parameters');
+          });
         }
     };
 
@@ -1211,6 +1250,7 @@
           extended,
           prop,
           until;
+
       //Consolidate headers
       let headers = {};
       headers["Content-Type"] = "application/json";
