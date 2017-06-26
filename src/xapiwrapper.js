@@ -1284,7 +1284,7 @@
           // xhr = new (require('xhr2'));
           xhr = new XMLHttpRequest();
           xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
-          xhr.open(method, url, callback != null);
+          xhr.open(method, url, true);
 
           for(let headerName in headers){
             xhr.setRequestHeader(headerName, headers[headerName]);
