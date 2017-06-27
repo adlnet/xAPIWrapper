@@ -10,6 +10,7 @@
   } else {
     window.ADL = window.ADL || {};
     var Util = window.ADL.Util;
+    var request = fetch;
   }
 
   /*
@@ -54,34 +55,14 @@
       this.lrs = this.getLRSObject(config || {});
 
       if (this.lrs.user && this.lrs.password)
-        updateAuth(this.lrs, this.lrs.user, this.lrs.password);
-      this.base = getbase(this.lrs.endpoint);
+        this.updateAuth(this.lrs, this.lrs.user, this.lrs.password);
+      this.base = this.getbase(this.lrs.endpoint);
 
-      this.withCredentials = false;
       this.withCredentials = config && config.withCredentials;
 
       // Ensure that callbacks are always executed, first param is error (null if no error) followed
       // by the result(s)
-      this.strictCallbacks = false;
       this.strictCallbacks = config && config.strictCallbacks;
-
-      function getbase(url)
-      {
-        if (!onBrowser)
-          return;
-
-        let l = document.createElement("a");
-        l.href = url;
-
-        if (l.protocol && l.host)
-          return `${l.protocol}//${l.host}`;
-
-        this.log(`Couldn't create base url from endpoint: ${url}`);
-      }
-
-      function updateAuth(obj, username, password){
-        obj.auth = `Basic ${Util.toBase64(`${username}:${password}`)}`;
-      }
 
       // if (verifyxapiversion && testConfig.call(this))
       // {
@@ -118,41 +99,58 @@
       //         },null,false,null,this.withCredentials, false);
       // }
 
-      this.searchParams = () => {
-          return {"format": "exact"};
-      };
-
-      this.hash = (tohash) => {
-          if (!tohash) return null;
-          try
-          {
-              return Util.toSHA1(tohash);
-          }
-          catch(e)
-          {
-              this.log(`Error trying to hash -- ${e}`);
-              return null;
-          }
-      };
-
-      this.changeConfig = (config) => {
-        try
-        {
-            this.lrs = this.mergeRecursive(this.lrs, config);
-            if (config.user && config.password)
-                updateAuth(this.lrs, config.user, config.password);
-            this.base = getbase(this.lrs.endpoint);
-            this.withCredentials = config.withCredentials;
-            this.strictCallbacks = config.strictCallbacks;
-        }
-        catch(e)
-        {
-            this.log(`error while changing configuration -- ${e}`);
-        }
-      };
-
-      this.updateAuth = updateAuth;
       this.xapiVersion = "1.0.3";
+    }
+
+    getbase(url)
+    {
+      if (!onBrowser)
+        return;
+
+      let l = document.createElement("a");
+      l.href = url;
+
+      if (l.protocol && l.host)
+        return `${l.protocol}//${l.host}`;
+      else
+        this.log(`Couldn't create base url from endpoint: ${url}`);
+    }
+
+    updateAuth(obj, username, password)
+    {
+      obj.auth = `Basic ${Util.toBase64(`${username}:${password}`)}`;
+    }
+
+    searchParams()
+    {
+      return {"format": "exact"};
+    }
+
+    hash(tohash)
+    {
+      try {
+        return Util.toSHA1(tohash);
+      } catch (e) {
+        this.log(`Error trying to hash -- ${e}`);
+        return null;
+      }
+    }
+
+    changeConfig(config)
+    {
+      try
+      {
+        this.mergeRecursive(this.lrs, config);
+        if (config.user && config.password)
+            this.updateAuth(this.lrs, config.user, config.password);
+        this.base = this.getbase(this.lrs.endpoint);
+        this.withCredentials = config.withCredentials;
+        this.strictCallbacks = config.strictCallbacks;
+      }
+      catch(e)
+      {
+        this.log(`error while changing configuration -- ${e}`);
+      }
     }
 
     /*
@@ -264,10 +262,9 @@
      */
     putStatement(stmt, id, callback, attachments)
     {
-        if (this.testConfig() && (stmt && !(stmt instanceof Array)) && (id && stmt.id == id))
+        if (this.testConfig() && (stmt && !(stmt instanceof Array)) /*&& (id && stmt.id == id)*/)
         {
             this.prepareStatement(stmt);
-            stmt.id = id;
 
             let payload = JSON.stringify(stmt);
             let extraHeaders = null;
@@ -283,28 +280,19 @@
                 return;
             }
 
-
             const conf = {url: `${this.lrs.endpoint}statements?statementId=${id}`,
                           'method': 'PUT',
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
                           'body': payload};
 
-            if(extraHeaders){
-              for(let headerName in extraHeaders){
-                conf.headers[headerName] = extraHeaders[headerName];
-              }
-            }
+            Object.assign(conf.headers, extraHeaders);
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -344,22 +332,14 @@
                         'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
                         'body': payload};
 
-          if(extraHeaders){
-            for(let headerName in extraHeaders){
-              conf.headers[headerName] = extraHeaders[headerName];
-            }
-          }
+          Object.assign(conf.headers, extraHeaders);
 
           return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -389,11 +369,12 @@
      */
     postStatements(stmtArray, callback)
     {
-        if (this.testConfig() && (stmtArray && stmtArray instanceof Array && stmtArray.length > 0))
+        if (this.testConfig() && stmtArray)
         {
             for(let i in stmtArray)
             {
-                this.prepareStatement(stmtArray[i]);
+                if (stmtArray.hasOwnProperty(i))
+                  this.prepareStatement(stmtArray[i]);
             }
 
             if (callback) {
@@ -408,15 +389,11 @@
                           'body': JSON.stringify(stmtArray)};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -477,15 +454,11 @@
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -563,15 +536,11 @@
             const conf = {url, 'method': 'PUT', headers, 'body': stateval};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -616,15 +585,11 @@
             const conf = {url, 'method': 'POST', headers, 'body': stateval};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -678,15 +643,11 @@
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -743,15 +704,11 @@
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -782,15 +739,11 @@
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -1007,15 +960,11 @@
                           'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
             return this.asyncRequest(conf);
-        }
 
-        // Return rejected promise or error w/ callback on invalid requests
-        if (callback) {
+        } else if (callback) {
           callback('Error: invalid parameters');
         } else {
-          return new Promise((res,rej) => {
-            rej('Error: invalid parameters');
-          });
+          return new Promise((res,rej) => { rej('Error: invalid parameters'); });
         }
     };
 
@@ -1195,9 +1144,20 @@
     asyncRequest(conf)
     {
       return new Promise((res, rej) => {
-        request(conf, (error, resp, data) => {
-          (error) ? rej(error) : res({resp, data});
-        });
+        if (onBrowser) {
+          request(conf.url, conf)
+            .then((resp) => {
+              return resp.json().then((data) => res({resp, data}))
+                                .catch((error) => rej(error));
+            })
+            .catch((error) => {
+              rej(error);
+            });
+        } else {
+          request(conf, (error, resp, data) => {
+            (error) ? rej(error) : res({resp, data});
+          });
+        }
       });
     };
 
@@ -1256,11 +1216,7 @@
       headers["Content-Type"] = "application/json";
       headers["Authorization"] = auth;
       headers['X-Experience-API-Version'] = this.xapiVersion;
-      if(extraHeaders !== null){
-          for(let headerName in extraHeaders){
-              headers[headerName] = extraHeaders[headerName];
-          }
-      }
+      Object.assign(headers, extraHeaders);
 
       //See if this really is a cross domain
       xDomainRequest = (location.protocol !== urlparts[1] || location.hostname !== urlparts[2]);
@@ -1274,22 +1230,26 @@
       if (onBrowser)
         windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
       if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-        // Make request based on environment
-        if (!onBrowser) {
-          let options = {url, method, headers};
-          if (data)
-            options['body'] = data;
-          xhr = new request(options, callback);
-        } else {
-          // xhr = new (require('xhr2'));
-          xhr = new XMLHttpRequest();
-          xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
-          xhr.open(method, url, true);
-
-          for(let headerName in headers){
-            xhr.setRequestHeader(headerName, headers[headerName]);
-          }
-        }
+        let options = {url, method, headers};
+        if (data)
+          options['body'] = data;
+        xhr = new request(options, callback);
+        // // Make request based on environment
+        // if (!onBrowser) {
+        //   let options = {url, method, headers};
+        //   if (data)
+        //     options['body'] = data;
+        //   xhr = new request(options, callback);
+        // } else {
+        //   // xhr = new (require('xhr2'));
+        //   xhr = new XMLHttpRequest();
+        //   xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
+        //   xhr.open(method, url, true);
+        //
+        //   for(let headerName in headers){
+        //     xhr.setRequestHeader(headerName, headers[headerName]);
+        //   }
+        // }
       }
       //Otherwise, use IE's XDomainRequest object
       else {

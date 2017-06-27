@@ -19,13 +19,16 @@ module.exports = function(grunt) {
           'src/Agent.js',
           'src/Verb.js',
           'src/Object.js',
-          'src/Statement.js',
-          'src/xAPILaunch.js'
+          'src/Statement.js'
+          // 'src/xAPILaunch.js'
         ],
         dest: 'dist/xapiwrapper.min.js'
       }
     },
     'babel': {
+      options: {
+        presets: ['env']
+      },
       dist: {
         files: {
           'dist/xapiwrapper.min.js': 'dist/xapiwrapper.min.js'

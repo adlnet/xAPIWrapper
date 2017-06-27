@@ -3,16 +3,16 @@
   <head>
     <meta charset="utf-8">
     <title>xAPIWrapper</title>
-    <!-- <script src="../dist/xapiwrapper.min.js"></script> -->
+    <script src="../dist/xapiwrapper.min.js"></script>
 
-    <script src="../lib/cryptojs_v3.1.2.js"></script>
+    <!-- <script src="../lib/cryptojs_v3.1.2.js"></script>
     <script src="../src/Utils.js"></script>
     <script src="../src/xapiwrapper.js"></script>
     <script src="../src/verbs.js"></script>
     <script src="../src/Agent.js"></script>
     <script src="../src/Verb.js"></script>
     <script src="../src/Object.js"></script>
-    <script src="../src/statement.js"></script>
+    <script src="../src/statement.js"></script> -->
 
     <script type="text/javascript">
       function init() {
@@ -27,8 +27,6 @@
   </head>
   <body onload='init()'>
 
-    <p id="output"></p>
-
     <button onclick="asyncFunc()">Asynchronous</button>
     <button onclick="callback()">Callback</button>
 
@@ -40,10 +38,8 @@
           new ADL.Verb('http://adlnet.gov/expapi/verbs/browser_testing', 'browser_testing'),
           new ADL.Activity("act:statement_posts/browser_testing"));
 
-        var o = document.getElementById('output');
         let res = await ADL.XAPIWrapper.postStatement(stmt);
         console.log(res);
-        o.innerText = "Finished: " + res.resp.toString();
       }
 
       let callback = async () => {
@@ -52,14 +48,10 @@
           new ADL.Verb('http://adlnet.gov/expapi/verbs/browser_testing', 'browser_testing'),
           new ADL.Activity("act:statement_posts/browser_testing"));
 
-        var o = document.getElementById('output');
         ADL.XAPIWrapper.postStatement(stmt, (error, resp, data) => {
           if (error && !resp) {
-            console.log("Fail");
             console.log(error);
           } else {
-            console.log("Success");
-            console.log(error);
             console.log(resp);
           }
         });

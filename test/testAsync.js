@@ -146,7 +146,7 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      describe("Multiple Statements", () => {
+      describe.skip("Multiple Statements", () => {
         it("should pass sending statements asynchronously", async () => {
           let stmts=[new Statement(s1), new Statement(s2)];
           let res = await XAPIWrapper.postStatements(stmts);
