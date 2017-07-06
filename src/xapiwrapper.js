@@ -56,6 +56,7 @@
 
       if (this.lrs.user && this.lrs.password)
         this.updateAuth(this.lrs, this.lrs.user, this.lrs.password);
+
       this.base = this.getbase(this.lrs.endpoint);
 
       this.withCredentials = config && config.withCredentials;
@@ -140,16 +141,21 @@
     {
       try
       {
-        this.mergeRecursive(this.lrs, config);
+        this.lrs = this.mergeRecursive(this.lrs, config);
         if (config.user && config.password)
             this.updateAuth(this.lrs, config.user, config.password);
+        else {
+            this.log(`Failed to update auth:
+                      user: ${this.lrs.user}
+                      pass: ${this.lrs.pass}`);
+        }
         this.base = this.getbase(this.lrs.endpoint);
         this.withCredentials = config.withCredentials;
         this.strictCallbacks = config.strictCallbacks;
       }
       catch(e)
       {
-        this.log(`error while changing configuration -- ${e}`);
+        this.log(`Error while changing configuration -- ${e}`);
       }
     }
 
@@ -160,6 +166,7 @@
      */
     prepareStatement(stmt)
     {
+      try {
         if(stmt.actor === undefined){
             stmt.actor = JSON.parse(this.lrs.actor);
         }
@@ -186,6 +193,9 @@
         if (this.lrs.activity_platform) {
             stmt.context.platform = this.lrs.activity_platform;
         }
+      } catch (e) {
+        this.log(`Error while preparing statement: ${e}`);
+      }
     };
 
     /*
@@ -1360,7 +1370,9 @@
       return (this.lrs.endpoint != undefined && this.lrs.endpoint != "");
     };
 
-    // outputs the message to the console if available
+    /*
+     * Outputs messages to the console (debug mode only)
+     */
     log(message)
     {
       if (!debug)
@@ -1369,8 +1381,9 @@
       console.log(message);
     };
 
-    // iniitializes an lrs object with settings from
-    // a config file and from the url query string
+    /*
+     * Initializes an lrs object with settings from a config file and from the url query string
+     */
     getLRSObject(config)
     {
         let lrsProps = ["endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform"];
@@ -1399,7 +1412,9 @@
         return lrs;
     };
 
-    // parses the params in the url query string
+    /*
+     * Parses the params in the url query string
+     */
     parseQueryString()
     {
         if (!onBrowser)
@@ -1421,7 +1436,9 @@
         return parsed;
     };
 
-    // merges two objects
+    /*
+     * Merges two objects
+     */
     mergeRecursive(obj1, obj2)
     {
       Object.assign(obj1, obj1, obj2);
