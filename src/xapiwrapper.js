@@ -1487,13 +1487,16 @@ function isDate(date) {
                             strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
                         }
                         else {
+                          var body;
+
                             try {
-                                var body = JSON.parse(xhr.responseText);
-                                strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
+                                body = JSON.parse(xhr.responseText);
                             }
                             catch(e){
-                                strictCallbacks ? callback(null, xhr, body) : callback(xhr,xhr.responseText);
+                                body = xhr.responseText;
                             }
+
+                          strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
                         }
                     } else {
                         result = xhr;
@@ -1572,12 +1575,15 @@ function isDate(date) {
             if (callbackargs) {
                 callback(error, xhr, callbackargs);
             } else {
+              var body;
+
                 try {
-                    var body = JSON.parse(xhr.responseText);
-                    callback(error, xhr, body);
+                    body = JSON.parse(xhr.responseText);
                 } catch(e){
-                    callback(error, xhr, xhr.responseText);
+                    body = xhr.responseText;
                 }
+
+              callback(error, xhr, body);
             }
         }
     };
