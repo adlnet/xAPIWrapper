@@ -23,7 +23,8 @@ describe.skip("Activity Test:", () => {
     XAPIWrapper.changeConfig({
       "endpoint": "https://lrs.adlnet.gov/xapi/",
       "user": "aaron",
-      "password": "1234"
+      "password": "1234",
+      "strictCallbacks": true
     });
 
     // Test statements

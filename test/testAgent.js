@@ -10,6 +10,11 @@ describe('Agent Test:', () => {
 
   let objId = 'http://activity.com/id';
 
+  // Response Types
+  const OK = 200;
+  const NO_CONTENT = 204;
+  const BAD_REQUEST = 400;
+
 
   before(() => {
     def = {
@@ -50,7 +55,8 @@ describe('Agent Test:', () => {
     XAPIWrapper.changeConfig({
       "endpoint": "https://lrs.adlnet.gov/xapi/",
       "user": "aaron",
-      "password": "1234"
+      "password": "1234",
+      "strictCallbacks": true
     });
 
     // Test statements
@@ -68,11 +74,9 @@ describe('Agent Test:', () => {
       it('should pass with valid mbox object', (done) => {
         s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -82,11 +86,9 @@ describe('Agent Test:', () => {
       it('should pass with valid account object', (done) => {
         s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -94,11 +96,9 @@ describe('Agent Test:', () => {
       it('should fail with no valid homepage', (done) => {
         s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("Bad Request");
-          }
+          error.should.not.eql(null);
+          resp.status.should.eql(BAD_REQUEST);
+          resp.ok.should.eql(false);
 
           done();
         });
@@ -106,11 +106,9 @@ describe('Agent Test:', () => {
       it('should fail with no valid name', (done) => {
         s4.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s4, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("Bad Request");
-          }
+          error.should.not.eql(null);
+          resp.status.should.eql(BAD_REQUEST);
+          resp.ok.should.eql(false);
 
           done();
         });
@@ -120,11 +118,9 @@ describe('Agent Test:', () => {
       it('should pass with valid mbox_sha1sum object', (done) => {
         s5.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s5, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -134,18 +130,14 @@ describe('Agent Test:', () => {
       it('should pass with valid openid object', (done) => {
         s6.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s6, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
       });
     });
-
-    after(()=>console.log('\n'));
   });
 
   describe("Agent Object as statement actor:", () => {
@@ -154,11 +146,9 @@ describe('Agent Test:', () => {
         s1 = new Statement(new Agent(def), verbs.attempted, objId);
         s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -169,11 +159,9 @@ describe('Agent Test:', () => {
         s2 = new Statement(new Agent(account), verbs.attempted, objId);
         s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -182,11 +170,9 @@ describe('Agent Test:', () => {
         s3 = new Statement(new Agent(accountName), verbs.attempted, objId);
         s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("Bad Request");
-          }
+          error.should.not.eql(null);
+          resp.status.should.eql(BAD_REQUEST);
+          resp.ok.should.eql(false);
 
           done();
         });
@@ -195,11 +181,9 @@ describe('Agent Test:', () => {
         s4 = new Statement(new Agent(accountHomepage), verbs.attempted, objId);
         s4.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s4, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("Bad Request");
-          }
+          error.should.not.eql(null);
+          resp.status.should.eql(BAD_REQUEST);
+          resp.ok.should.eql(false);
 
           done();
         });
@@ -210,11 +194,9 @@ describe('Agent Test:', () => {
         s5 = new Statement(new Agent(mboxsha1sum), verbs.attempted, objId);
         s5.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s5, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -225,11 +207,9 @@ describe('Agent Test:', () => {
         s6 = new Statement(new Agent(openId), verbs.attempted, objId);
         s6.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s6, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
