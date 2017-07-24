@@ -597,11 +597,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match":ADL.formatHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
             var method = "PUT";
@@ -752,11 +752,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match":ADL.formatHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
@@ -810,11 +810,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match":ADL.formatHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
             var method = "PUT";
@@ -937,11 +937,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match":ADL.formatHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
@@ -1035,11 +1035,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match":ADL.formatHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
             var method = "PUT";
@@ -1162,11 +1162,11 @@ function isDate(date) {
             }
             else if (matchHash)
             {
-                headers = {"If-Match":'"'+matchHash+'"'};
+                headers = {"If-Match":ADL.formatHash(matchHash)};
             }
             else if (noneMatchHash)
             {
-                headers = {"If-None-Match":'"'+noneMatchHash+'"'};
+                headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
             var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
@@ -1587,6 +1587,11 @@ function isDate(date) {
             }
         }
     };
+
+    ADL.formatHash = function(hash)
+    {
+      return (hash==="*") ? hash : '"'+hash+'"';
+    }
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
