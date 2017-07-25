@@ -7,6 +7,11 @@ describe("Verb Test:", () => {
 
   let objId = 'http://activity.com/id';
 
+  // Response Types
+  const OK = 200;
+  const NO_CONTENT = 204;
+  const BAD_REQUEST = 400;
+
   // Test statements
   let s1, s2, s3, s4;
 
@@ -44,11 +49,9 @@ describe("Verb Test:", () => {
       it('should pass with valid id & display', (done) => {
         s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -58,11 +61,9 @@ describe("Verb Test:", () => {
       it('should pass with no display & valid id', (done) => {
         s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -72,11 +73,7 @@ describe("Verb Test:", () => {
       it('should fail with no id & valid display', (done) => {
         s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            (resp.statusMessage==="OK").should.eql(false);
-          }
+          error.should.not.eql(null);
 
           done();
         });
@@ -92,11 +89,9 @@ describe("Verb Test:", () => {
         s1 = new Statement('mailto:aaron@example.com', new Verb(def), objId);
         s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -107,11 +102,9 @@ describe("Verb Test:", () => {
         s2 = new Statement('mailto:aaron@example.com', new Verb(noDisplay), objId);
         s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -122,11 +115,7 @@ describe("Verb Test:", () => {
         s3 = new Statement('mailto:aaron@example.com', new Verb(noId), objId);
         s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            (resp.statusMessage==="OK").should.eql(false);
-          }
+          error.should.not.eql(null);
 
           done();
         });

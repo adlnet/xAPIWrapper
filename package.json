@@ -40,6 +40,6 @@
     "teststatementref": "mocha --compilers js:babel-register test/testStatementRef.js",
     "testsubstatement": "mocha --compilers js:babel-register test/testSubStatement.js",
     "testverb": "mocha --compilers js:babel-register test/testVerb.js",
-    "testall": "npm run testasync && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run substatement && npm run testverb"
+    "testall": "npm run testasync && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb"
   }
 }

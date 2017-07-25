@@ -9,6 +9,11 @@ describe("Group Test:", () => {
 
   let objId = 'http://activity.com/id';
 
+  // Response Types
+  const OK = 200;
+  const NO_CONTENT = 204;
+  const BAD_REQUEST = 400;
+
   // Test statements
   let s1, s2, s3, s4, s5, s6, s7, s8,
       s9, s10, s11, s12, s13, s14, s15;
@@ -208,11 +213,9 @@ describe("Group Test:", () => {
       it('should pass with valid mbox object', (done) => {
         s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -223,11 +226,9 @@ describe("Group Test:", () => {
         it('should pass with valid account object', (done) => {
           s2.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s2, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -235,11 +236,7 @@ describe("Group Test:", () => {
         it('should fail with no valid homepage', (done) => {
           s3.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s3, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              (resp.statusMessage==="OK").should.eql(false);
-            }
+            error.should.not.eql(null);
 
             done();
           });
@@ -247,11 +244,7 @@ describe("Group Test:", () => {
         it('should fail with no valid name', (done) => {
           s4.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s4, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("Bad Request");
-            }
+            error.should.not.eql(null);
 
             done();
           });
@@ -259,11 +252,9 @@ describe("Group Test:", () => {
         it('should pass with no members & valid id', (done) => {
           s5.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s5, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -273,11 +264,9 @@ describe("Group Test:", () => {
         it('should pass with valid mbox_sha1sum object', (done) => {
           s6.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s6, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -285,11 +274,9 @@ describe("Group Test:", () => {
         it('should pass with no members & valid account', (done) => {
           s7.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s7, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -299,11 +286,9 @@ describe("Group Test:", () => {
         it('should pass with valid openid object', (done) => {
           s8.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s8, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -311,11 +296,9 @@ describe("Group Test:", () => {
         it('should pass with no members & valid openId', (done) => {
           s9.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s9, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -325,11 +308,9 @@ describe("Group Test:", () => {
         it('should pass with members & valid mbox', (done) => {
           s10.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s10, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -341,11 +322,9 @@ describe("Group Test:", () => {
         it('should pass with single valid member', (done) => {
           s11.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s11, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -355,11 +334,7 @@ describe("Group Test:", () => {
         it('should fail with no members', (done) => {
           s12.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s12, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              (resp.statusMessage==="OK").should.eql(false);
-            }
+            error.should.not.eql(null);
 
             done();
           });
@@ -369,11 +344,9 @@ describe("Group Test:", () => {
         it('should pass with two valid members', (done) => {
           s13.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s13, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -384,25 +357,19 @@ describe("Group Test:", () => {
       it('should pass with valid auth members', (done) => {
         s14.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s14, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
       });
     });
-    describe("Group Member", (done) => {
+    describe("Group Member", () => {
       it('should fail with Group member object', (done) => {
         s15.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s15, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            (resp.statusMessage==="OK").should.eql(false);
-          }
+          error.should.not.eql(null);
 
           done();
         });
@@ -418,11 +385,9 @@ describe("Group Test:", () => {
         s1 = new Statement(new Group(def), verbs.attempted, objId);
         s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
@@ -434,11 +399,9 @@ describe("Group Test:", () => {
           s2 = new Statement(new Group(iAccount), verbs.attempted, objId);
           s2.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s2, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -447,11 +410,7 @@ describe("Group Test:", () => {
           s3 = new Statement(new Group(iAccountName), verbs.attempted, objId);
           s3.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s3, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              (resp.statusMessage==="OK").should.eql(false);
-            }
+            error.should.not.eql(null);
 
             done();
           });
@@ -460,11 +419,7 @@ describe("Group Test:", () => {
           s4 = new Statement(new Group(iAccountHomepage), verbs.attempted, objId);
           s4.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s4, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("Bad Request");
-            }
+            error.should.not.eql(null);
 
             done();
           });
@@ -473,11 +428,9 @@ describe("Group Test:", () => {
           s5 = new Statement(new Group(iAccountNoMembers), verbs.attempted, objId);
           s5.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s5, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -488,11 +441,9 @@ describe("Group Test:", () => {
           s6 = new Statement(new Group(iMboxsha1sum), verbs.attempted, objId);
           s6.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s6, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -501,11 +452,9 @@ describe("Group Test:", () => {
           s7 = new Statement(new Group(iMboxsha1sumNoMembers), verbs.attempted, objId);
           s7.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s7, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -516,11 +465,9 @@ describe("Group Test:", () => {
           s8 = new Statement(new Group(iOpenId), verbs.attempted, objId);
           s8.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s8, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -529,11 +476,9 @@ describe("Group Test:", () => {
           s9 = new Statement(new Group(iOpenIdNoMembers), verbs.attempted, objId);
           s9.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s9, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -544,11 +489,9 @@ describe("Group Test:", () => {
           s10 = new Statement(new Group(defNoMembers), verbs.attempted, objId);
           s10.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s10, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -561,11 +504,9 @@ describe("Group Test:", () => {
           s11 = new Statement(new Group(aGroup), verbs.attempted, objId);
           s11.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s11, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -576,11 +517,7 @@ describe("Group Test:", () => {
           s12 = new Statement(new Group(aGroupNoMembers), verbs.attempted, objId);
           s12.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s12, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              (resp.statusMessage==="OK").should.eql(false);
-            }
+            error.should.not.eql(null);
 
             done();
           });
@@ -591,11 +528,9 @@ describe("Group Test:", () => {
           s13 = new Statement(new Group(aGroupMembers), verbs.attempted, objId);
           s13.timestamp = (new Date()).toISOString();
           XAPIWrapper.postStatement(s13, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              resp.statusMessage.should.eql("OK");
-            }
+            (!error).should.eql(true);
+            resp.status.should.eql(OK);
+            resp.ok.should.eql(true);
 
             done();
           });
@@ -607,26 +542,20 @@ describe("Group Test:", () => {
         s14 = new Statement(new Group(auth), verbs.attempted, objId);
         s14.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s14, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            resp.statusMessage.should.eql("OK");
-          }
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
 
           done();
         });
       });
     });
-    describe("Group Member", (done) => {
+    describe("Group Member", () => {
       it('should fail with Group member object', (done) => {
         s15 = new Statement(new Group(groupMember), verbs.attempted, objId);
         s15.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s15, (error, resp, data) => {
-          if (error) {
-            console.log(error);
-          } else {
-            (resp.statusMessage==="OK").should.eql(false);
-          }
+          error.should.not.eql(null);
 
           done();
         });

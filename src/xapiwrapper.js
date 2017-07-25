@@ -406,23 +406,30 @@ class XAPIWrapper {
               this.prepareStatement(stmtArray[i]);
         }
 
+        let payload = JSON.stringify(stmtArray);
+
+        const conf = {
+          'url': `${this.lrs.endpoint}statements`,
+          'method': 'POST',
+          'headers': {
+            'Content-Type': 'application/json',
+            'X-Experience-API-Version': this.xapiVersion,
+            'Authorization': this.lrs.auth
+          },
+          'body': payload
+        };
+
         if (callback) {
-          this.callbackRequest(this.lrs,`${this.lrs.endpoint}statements`,
-            "POST", JSON.stringify(stmtArray), this.lrs.auth, callback,null,false,null,this.withCredentials, this.strictCallbacks);
+          this.callbackRequest(conf, callback, null, false);
           return;
         }
-
-        const conf = {url: `${this.lrs.endpoint}statements`,
-                      'method': 'POST',
-                      'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth},
-                      'body': JSON.stringify(stmtArray)};
 
         return this.asyncRequest(conf);
 
       } else if (callback) {
         callback('Error: invalid parameters');
       } else {
-        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
+        return new Promise((res,rej) => { return res('Error: invalid parameters'); });
       }
   };
 
@@ -474,13 +481,20 @@ class XAPIWrapper {
                   url = `${url}?${urlparams.join("&")}`;
           }
 
+          const conf = {
+            url,
+            'method': 'GET',
+            'headers': {
+              'Content-Type': 'application/json',
+              'X-Experience-API-Version': this.xapiVersion,
+              'Authorization': this.lrs.auth
+            }
+          };
+
           if (callback) {
-            this.callbackRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, false, null, this.withCredentials, this.strictCallbacks);
+            this.callbackRequest(conf, callback, null, false);
             return;
           }
-
-          const conf = {url,
-                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
           return this.asyncRequest(conf);
 
@@ -544,7 +558,7 @@ class XAPIWrapper {
           if (registration)
               url += `&registration=${encodeURIComponent(registration)}`;
 
-          let headers = {"If-Match":`"${matchHash}"`};
+          let headers = {"If-Match":this.formatHash(matchHash)};
           if (stateval instanceof Array || stateval instanceof Object)
           {
               stateval = JSON.stringify(stateval);
@@ -553,16 +567,20 @@ class XAPIWrapper {
           else
               headers["Content-Type"] ="application/octet-stream";
 
-
-          if (callback) {
-            this.callbackRequest(this.lrs, url, "PUT", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
-            return;
-          }
-
           headers['X-Experience-API-Version'] = this.xapiVersion;
           headers['Authorization'] = this.lrs.auth;
 
-          const conf = {url, 'method': 'PUT', headers, 'body': stateval};
+          const conf = {
+            url,
+            'method': 'PUT',
+            headers,
+            'body': stateval
+          };
+
+          if (callback) {
+            this.callbackRequest(conf, callback, null, false);
+            return;
+          }
 
           return this.asyncRequest(conf);
 
@@ -603,15 +621,20 @@ class XAPIWrapper {
           else
               headers["Content-Type"] ="application/octet-stream";
 
-          if (callback) {
-            this.callbackRequest(this.lrs, url, "POST", stateval, this.lrs.auth, callback, null, null, headers, this.withCredentials, this.strictCallbacks);
-            return;
-          }
-
           headers['X-Experience-API-Version'] = this.xapiVersion;
           headers['Authorization'] = this.lrs.auth;
 
-          const conf = {url, 'method': 'POST', headers, 'body': stateval};
+          const conf = {
+            url,
+            'method': 'POST',
+            headers,
+            'body': stateval
+          };
+
+          if (callback) {
+            this.callbackRequest(conf, callback, null, false);
+            return;
+          }
 
           return this.asyncRequest(conf);
 
@@ -663,13 +686,20 @@ class XAPIWrapper {
               }
           }
 
+          const conf = {
+            url,
+            'method': 'GET',
+            'headers': {
+              'Content-Type': 'application/json',
+              'X-Experience-API-Version': this.xapiVersion,
+              'Authorization': this.lrs.auth
+            }
+          };
+
           if (callback) {
-            this.callbackRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+            this.callbackRequest(conf, callback, null, true);
             return;
           }
-
-          const conf = {url,
-                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
           return this.asyncRequest(conf);
 
@@ -723,14 +753,20 @@ class XAPIWrapper {
               url += `&registration=${encodeURIComponent(registration)}`;
           }
 
+          const conf = {
+            url,
+            'method': 'DELETE',
+            'headers': {
+              'Content-Type': 'application/json',
+              'X-Experience-API-Version': this.xapiVersion,
+              'Authorization': this.lrs.auth
+            }
+          };
+
           if (callback) {
-            this.callbackRequest(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, null, null, this.withCredentials, this.strictCallbacks);
+            this.callbackRequest(conf, callback, null, false);
             return;
           }
-
-          const conf = {url,
-                        'method': "DELETE",
-                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
           return this.asyncRequest(conf);
 
@@ -750,22 +786,29 @@ class XAPIWrapper {
    * @return {object} xhr response object or null if 404
    * @example
    * let res = XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
-   * XAPIWrapper.log(res);
+   * log(res);
    * >> <Activity object>
    */
   getActivities(activityid, callback)
   {
-      if (this.testConfig() && activityid)
+      if (this.testConfig() && (activityid && activityid != ""))
       {
           let url = `${this.lrs.endpoint}activities?activityId=${activityid}`;
 
+          const conf = {
+            url,
+            'method': 'GET',
+            'headers': {
+              'Content-Type': 'application/json',
+              'X-Experience-API-Version': this.xapiVersion,
+              'Authorization': this.lrs.auth
+            }
+          };
+
           if (callback) {
-            this.callbackRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+            this.callbackRequest(conf, callback, null, true);
             return;
           }
-
-          const conf = {url,
-                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
           return this.asyncRequest(conf);
 
@@ -789,30 +832,42 @@ class XAPIWrapper {
    */
   putActivityProfile(activityid, profileid, profileval, matchHash, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && (activityid && profileid && profileval))
       {
-          if (!profileval)
-            return false;
+        if (!matchHash || matchHash == "")
+          matchHash = '*';
 
-          if (!matchHash || matchHash == "")
-            matchHash = '*';
+        let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
-          let url = `${this.lrs.endpoint}activities/profile?activityId=<activity ID>&profileId=<profileid>`;
+        let headers = {"If-Match":this.formatHash(matchHash)};
+        if (profileval instanceof Array || profileval instanceof Object)
+        {
+            profileval = JSON.stringify(profileval);
+            headers["Content-Type"] ="application/json";
+        }
+        else
+            headers["Content-Type"] ="application/octet-stream";
 
-          url = url.replace('<activity ID>',encodeURIComponent(activityid));
-          url = url.replace('<profileid>',encodeURIComponent(profileid));
+        headers['X-Experience-API-Version'] = this.xapiVersion;
+        headers['Authorization'] = this.lrs.auth;
 
-          let headers = {"If-Match":`"${matchHash}"`};
-          if (profileval instanceof Array || profileval instanceof Object)
-          {
-              profileval = JSON.stringify(profileval);
-              headers["Content-Type"] ="application/json";
-          }
-          else
-              headers["Content-Type"] ="application/octet-stream";
+        const conf = {
+          url,
+          'method': 'PUT',
+          headers,
+          'body': profileval
+        };
 
+        if (callback) {
+          this.callbackRequest(conf, callback, null, false);
+          return;
+        }
 
-          XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+        return this.asyncRequest(conf);
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -841,26 +896,26 @@ class XAPIWrapper {
         else
             headers["Content-Type"] ="application/octet-stream";
 
-        if (callback) {
-          this.callbackRequest(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
-          return;
-        }
-
         headers['X-Experience-API-Version'] = this.xapiVersion;
         headers['Authorization'] = this.lrs.auth;
 
-        const conf = {url, 'method': 'POST', headers, 'body': profileval};
+        const conf = {
+          url,
+          'method': 'POST',
+          headers,
+          'body': profileval
+        };
+
+        if (callback) {
+          this.callbackRequest(conf, callback, null, false);
+          return;
+        }
 
         return this.asyncRequest(conf);
-      }
-
-      // Return rejected promise or error w/ callback on invalid requests
-      if (callback) {
+      } else if (callback) {
         callback('Error: invalid parameters');
       } else {
-        return new Promise((res,rej) => {
-          rej('Error: invalid parameters');
-        });
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -980,13 +1035,20 @@ class XAPIWrapper {
       {
           let url = `${this.lrs.endpoint}agents?agent=${JSON.stringify(agent)}`;
 
+          const conf = {
+            url,
+            'method': 'GET',
+            'headers': {
+              'Content-Type': 'application/json',
+              'X-Experience-API-Version': this.xapiVersion,
+              'Authorization': this.lrs.auth
+            }
+          };
+
           if (callback) {
-            this.callbackRequest(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+            this.callbackRequest(conf, callback, null, true);
             return;
           }
-
-          const conf = {url,
-                        'headers': {'Content-Type':'application/json', 'X-Experience-API-Version':this.xapiVersion, 'Authorization':this.lrs.auth}};
 
           return this.asyncRequest(conf);
 
@@ -1012,28 +1074,40 @@ class XAPIWrapper {
   {
       if (this.testConfig())
       {
-          if (!profileval)
-            return false;
+        if (!profileval)
+          return false;
 
-          if (!matchHash || matchHash == "")
-            matchHash = '*';
+        if (!matchHash || matchHash == "")
+          matchHash = '*';
 
-          let url = `${this.lrs.endpoint}agents/profile?agent=<agent>&profileId=<profileid>`;
+        let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}&profileId=${profileid}`;
 
-          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-          url = url.replace('<profileid>',encodeURIComponent(profileid));
+        let headers = {"If-Match":this.formatHash(matchHash)};
+        if (profileval instanceof Array || profileval instanceof Object)
+        {
+            profileval = JSON.stringify(profileval);
+            headers["Content-Type"] ="application/json";
+        }
+        else
+            headers["Content-Type"] ="application/octet-stream";
 
-          let headers = {"If-Match":`"${matchHash}"`};
-          if (profileval instanceof Array || profileval instanceof Object)
-          {
-              profileval = JSON.stringify(profileval);
-              headers["Content-Type"] ="application/json";
-          }
-          else
-              headers["Content-Type"] ="application/octet-stream";
+        const conf = {
+          url,
+          'method': 'PUT',
+          headers,
+          'body': profileval
+        };
 
+        if (callback) {
+          this.callbackRequest(conf, callback, null, false);
+          return;
+        }
 
-          XHR_request(this.lrs, url, "PUT", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+        this.asyncRequest(conf);
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -1178,12 +1252,14 @@ class XAPIWrapper {
           return resp.json()
                   .then((data) => res({resp, data}))
                   .catch((error) => {
+                    if (!resp.ok) {
+                      rej(error);
+                    }
                     // failed to parse JSON (NOT AN ERROR)
-                    res({resp})
+                    else {
+                      res({resp})
+                    }
                   });
-        })
-        .catch((error) => {
-          rej(error);
         });
     });
   };
@@ -1282,26 +1358,25 @@ class XAPIWrapper {
       windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
     if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
       fetch(conf.url, conf)
-        .then((res) => {
-          return res.json().then((data) => {
+        .then((resp) => {
+          return resp.json().then((data) => {
             if (callbackargs)
-              this.strictCallbacks ? callback(null, res, callbackargs) : callback(res, callbackargs);
+              this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
             else
-              this.strictCallbacks ? callback(null, res, data) : callback(res, data);
+              this.strictCallbacks ? callback(null, resp, data) : callback(resp, data);
           })
           .catch((error) => {
+            if (!resp.ok) {
+              callback(error);
+            }
             // failed to parse JSON (NOT AN ERROR)
-            if (callbackargs)
-              this.strictCallbacks ? callback(null, res, callbackargs) : callback(res, callbackargs);
-            else
-              this.strictCallbacks ? callback(null, res, null) : callback(res, null);
+            else {
+              if (callbackargs)
+                this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
+              else
+                this.strictCallbacks ? callback(null, resp, null) : callback(resp, null);
+            }
           });
-        })
-        .catch((error) => {
-          log(error);
-
-          if (this.strictCallbacks)
-            callback(error, null, null);
         });
     }
     //Otherwise, use IE's XDomainRequest object
@@ -1500,6 +1575,11 @@ class XAPIWrapper {
       xhr.open('GET', url, false);
       xhr.send(null);
   };
+
+  formatHash(hash)
+  {
+    return (hash==="*") ? hash : `"${hash}"`;
+  }
 }
 
 

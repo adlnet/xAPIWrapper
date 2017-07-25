@@ -97,8 +97,6 @@ describe('Agent Test:', () => {
         s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
           error.should.not.eql(null);
-          resp.status.should.eql(BAD_REQUEST);
-          resp.ok.should.eql(false);
 
           done();
         });
@@ -107,8 +105,6 @@ describe('Agent Test:', () => {
         s4.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s4, (error, resp, data) => {
           error.should.not.eql(null);
-          resp.status.should.eql(BAD_REQUEST);
-          resp.ok.should.eql(false);
 
           done();
         });
@@ -171,8 +167,6 @@ describe('Agent Test:', () => {
         s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
           error.should.not.eql(null);
-          resp.status.should.eql(BAD_REQUEST);
-          resp.ok.should.eql(false);
 
           done();
         });
@@ -182,8 +176,6 @@ describe('Agent Test:', () => {
         s4.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s4, (error, resp, data) => {
           error.should.not.eql(null);
-          resp.status.should.eql(BAD_REQUEST);
-          resp.ok.should.eql(false);
 
           done();
         });
