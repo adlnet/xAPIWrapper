@@ -7,13 +7,14 @@
 class Activity {
   constructor(id, name, description)
   {
+    this.objectType = 'Activity';
+
     // if first arg is activity, copy everything over
     if(id && id.id){
       Object.assign(this, id);
       return;
     }
 
-    this.objectType = 'Activity';
     this.id = id;
 
     if (name) {
@@ -30,7 +31,7 @@ class Activity {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return this.id && (!this.objectType || this.objectType === 'Activity');
+    return this.id && this.objectType;
   };
 
   show(){
@@ -53,19 +54,23 @@ class StatementRef {
   {
     this.objectType = 'StatementRef';
 
-    if(id && id.id) {
+    // Catch invalid parameters
+    if (!id || id=="StatementRef")
+      return;
+
+    // Arg is a statementref object
+    if(id.id) {
       Object.assign(this, id);
       return;
     }
 
-    if (id)
-      this.id = id;
+    this.id = (typeof(id)==='string'||id instanceof String) ? id : "";
   };
   toString(){
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return this.id && this.objectType && this.objectType === 'StatementRef';
+    return (this.id && this.id != "") && this.objectType === 'StatementRef';
   };
 
   show(){

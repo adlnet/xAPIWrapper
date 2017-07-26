@@ -68,7 +68,6 @@ describe('Agent Test:', () => {
     s6 = new Statement(openId, verbs.attempted, objId);
   });
 
-
   describe("JSON Object as statement actor:", () => {
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
