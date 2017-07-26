@@ -1,3 +1,8 @@
+// Require Utils module when using node
+if (typeof module !== 'undefined') {
+  var Util = require('./Utils.js');
+}
+
 /*
  * Really only provides a convenient language map
  * @param {string} id   The IRI of the action taken
@@ -14,7 +19,7 @@ class Verb {
 
     // save id and build language map
     if (id)
-     this.id = id;
+     this.id = (typeof(id)==='string'||id instanceof String) ? id : "";
 
     if(description)
      this.display = (typeof(description) === 'string' || description instanceof String) ? {'en-US': description} : description;
@@ -23,14 +28,19 @@ class Verb {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return this.id;
+    return (this.id && this.id != "");
   };
 
   show(){
     console.log(this.toString());
   };
 
-  getId(){ return (this.display) ? Util.getLangVal(this.display) : this.id };
+  getDisplay(){
+    if (!this.isValid())
+      return;
+
+    return (this.display) ? Util.getLangVal(this.display) : this.id;
+  };
 }
 
 

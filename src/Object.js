@@ -1,3 +1,8 @@
+// Require Utils module when using node
+if (typeof module !== 'undefined') {
+  var Util = require('./Utils.js');
+}
+
 /*
  * Describes an object that an agent interacts with
  * @param {string} id   The unique activity IRI
@@ -7,14 +12,16 @@
 class Activity {
   constructor(id, name, description)
   {
+    this.objectType = 'Activity';
+
     // if first arg is activity, copy everything over
     if(id && id.id){
       Object.assign(this, id);
       return;
     }
 
-    this.objectType = 'Activity';
-    this.id = id;
+    if (id)
+      this.id = (typeof(id)==='string'||id instanceof String) ? id : "";
 
     if (name) {
       this.definition = {};
@@ -30,7 +37,7 @@ class Activity {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return this.id && (!this.objectType || this.objectType === 'Activity');
+    return (this.id && this.id != "") && (!this.objectType || this.objectType === "Activity");
   };
 
   show(){
@@ -39,8 +46,14 @@ class Activity {
 
   getType(){ return "Activity" };
 
-  getId(){ return (this.id) ? this.id : undefined };
-  getIdString(){ return (this.id) ? this.id : 'unknown' };
+  getId(){ return this.id; }
+
+  getDisplay(){
+    if (!this.isValid())
+      return;
+
+    return (this.definition && this.definition.name) ? Util.getLangVal(this.definition.name) : this.id;
+  }
 }
 
 
@@ -53,19 +66,20 @@ class StatementRef {
   {
     this.objectType = 'StatementRef';
 
+    // Arg is a statementref object
     if(id && id.id) {
       Object.assign(this, id);
       return;
     }
 
     if (id)
-      this.id = id;
+      this.id = (typeof(id)==='string'||id instanceof String) ? id : "";
   };
   toString(){
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return this.id && this.objectType && this.objectType === 'StatementRef';
+    return (this.id && this.id != "") && this.objectType === 'StatementRef';
   };
 
   show(){
@@ -73,6 +87,8 @@ class StatementRef {
   };
 
   getType(){ return "StatementRef" };
+
+  getId(){ return this.id; }
 }
 
 

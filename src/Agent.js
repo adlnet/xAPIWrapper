@@ -37,8 +37,8 @@ class Agent {
   };
   isValid()
   {
-    return this.mbox || this.mbox_sha1sum || this.openid
-      || (this.account.homePage && this.account.name);
+    return (this.mbox || this.mbox_sha1sum || this.openid || (this.account && this.account.homePage && this.account.name))
+            && (!this.objectType || this.objectType==="Agent");
   };
 
   show(){
@@ -47,13 +47,20 @@ class Agent {
 
   getType(){ return "Agent" };
 
-  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account };
+  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || (this.account && this.account.homePage && this.account.name) };
   getIdString(){
       let id = this.mbox || this.openid || this.mbox_sha1sum;
       if (!id && this.account)
             return `${this.account.homePage}:${this.account.name}`;
 
       return id || 'unknown';
+  };
+
+  getDisplay(){
+    if (!this.isValid())
+      return;
+
+    return this.name || this.getIdString();
   };
 }
 
@@ -115,9 +122,8 @@ class Group {
   };
   isValid()
   {
-    return this.mbox || this.mbox_sha1sum || this.openid
-      || (this.account.homePage && this.account.name)
-      || (this.objectType === 'Group' && this.member);
+    return (this.mbox || this.mbox_sha1sum || this.openid || (this.account && this.account.homePage && this.account.name))
+            || (this.objectType === "Group");
   };
 
   show(){
@@ -126,13 +132,26 @@ class Group {
 
   getType(){ return "Group" };
 
-  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account };
+  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || (this.account && this.account.homePage && this.account.name) };
   getIdString(){
       let id = this.mbox || this.openid || this.mbox_sha1sum;
-      if (!id && this.account)
-            return `${this.account.homePage}:${this.account.name}`;
+      if (!id) {
+        id = 'unknown';
+        if (this.account) {
+          id = `${this.account.homePage}:${this.account.name}`;
+        } else if (this.member) {
+          id = `Anon Group ${this.member}`
+        }
+      }
 
       return id;
+  };
+
+  getDisplay(){
+    if (!this.isValid())
+      return;
+
+    return this.name || this.getIdString();
   };
 }
 

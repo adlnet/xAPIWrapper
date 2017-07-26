@@ -77,8 +77,7 @@ function _getobj(obj, path){
  *     "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
  */
 class Statement {
-  constructor(actor=null,verb=null,object=null)
-  {
+  constructor(actor=null, verb=null, object=null){
     // if first arg is an xapi statement, parse
     if( actor && actor.actor && actor.verb && actor.object ){
       Object.assign(this, actor);
@@ -166,20 +165,38 @@ class Statement {
  * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
  */
 class SubStatement extends Statement {
-  constructor(actor, verb, object){
+  constructor(actor=null, verb=null, object=null){
     super(actor,verb,object);
     this.objectType = 'SubStatement';
 
     delete this.id;
+    delete this.generateId;
     delete this.stored;
     delete this.version;
     delete this.authority;
   };
   toString(){
-    return `"${super.toString()}"`;
+    return JSON.stringify(this, null, '  ');
+  };
+
+  isValid(){
+    return super.isValid()
+      && this.objectType==="SubStatement" && this.object.objectType!=this.objectType
+      && !this.hasOwnProperty("id") && !this.hasOwnProperty("stored") && !this.hasOwnProperty("version") && !this.hasOwnProperty("authority");
+  };
+
+  show(){
+    console.log(this.toString());
   };
 
   getType(){ return "SubStatement" };
+
+  getDisplay(){
+    if (!this.isValid())
+      return;
+
+    return `${this.actor.getId()}:${this.verb.getDisplay()}:${this.object.getId()}`;
+  }
 }
 
 

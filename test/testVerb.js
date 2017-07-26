@@ -1,9 +1,9 @@
 describe("Verb Test:", () => {
   // Verb objects to test
-  let def, noDisplay, noId, voided;
+  let def, noDisplay, noId;
 
   // Testing module functionality
-  let should, XAPIWrapper, Verb, Statement, verbs;
+  let should, XAPIWrapper, Util, Verb, Statement, verbs;
 
   let objId = 'http://activity.com/id';
 
@@ -13,13 +13,14 @@ describe("Verb Test:", () => {
   const BAD_REQUEST = 400;
 
   // Test statements
-  let s1, s2, s3, s4;
+  let s1, s2, s3;
 
 
   before(() => {
     // Require necessary modules
     should = require('should');
     XAPIWrapper = require('./../src/xAPIWrapper');
+    Util = require('./../src/Utils.js');
     Verb = require('./../src/Verb');
     Statement = require('./../src/Statement').Statement;
     verbs = require('./../src/verbs');
@@ -34,20 +35,38 @@ describe("Verb Test:", () => {
     def = verbs.attempted;
     noDisplay = { "id": verbs.registered.id };
     noId = { "display": verbs.suspended.display };
-    voided = verbs.voided;
 
     // Test statements
     s1 = new Statement('mailto:aaron@example.com', def, objId);
     s2 = new Statement('mailto:aaron@example.com', noDisplay, objId);
     s3 = new Statement('mailto:aaron@example.com', noId, objId);
-    s4 = new Statement('mailto:aaron@example.com', voided, objId);
   });
 
+  describe("Verb constructor test:", () => {
+    it("should pass with valid id & description", () => {
+      ((new Verb(def.id, def.display)).isValid()).should.eql(true);
+    });
+    it("should fail with invalid id & valid description", () => {
+      (!(new Verb(null, def.display)).isValid()).should.eql(true);
+    });
+    it("should fail with empty parameters", () => {
+      (!(new Verb()).isValid()).should.eql(true);
+    });
+    it("should pass when retrieving display objects", () => {
+      (s1.verb.getDisplay()).should.eql(Util.getLangVal(def.display));
+      (s2.verb.getDisplay()).should.eql(noDisplay.id);
+      (!s3.verb.getDisplay()).should.eql(true);
+    });
+  });
 
   describe("JSON Object as statement verb:", () => {
+    it("should pass calling isValid() on verb objects", () => {
+      (s1.verb.isValid()).should.eql(true);
+      (s2.verb.isValid()).should.eql(true);
+      (!s3.verb.isValid()).should.eql(true);
+    });
     describe("Default", (done) => {
       it('should pass with valid id & display', (done) => {
-        s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -59,7 +78,6 @@ describe("Verb Test:", () => {
     });
     describe("No Display", (done) => {
       it('should pass with no display & valid id', (done) => {
-        s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -71,7 +89,6 @@ describe("Verb Test:", () => {
     });
     describe("No ID", (done) => {
       it('should fail with no id & valid display', (done) => {
-        s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
           error.should.not.eql(null);
 
@@ -79,15 +96,22 @@ describe("Verb Test:", () => {
         });
       });
     });
-
-    after(()=>console.log('\n'));
   });
 
   describe("Verb Object as statement verb:", () => {
+    before(() => {
+      s1 = new Statement('mailto:aaron@example.com', new Verb(def), objId);
+      s2 = new Statement('mailto:aaron@example.com', new Verb(noDisplay), objId);
+      s3 = new Statement('mailto:aaron@example.com', new Verb(noId), objId);
+    });
+
+    it("should pass calling isValid() on verb objects", () => {
+      (s1.verb.isValid()).should.eql(true);
+      (s2.verb.isValid()).should.eql(true);
+      (!s3.verb.isValid()).should.eql(true);
+    });
     describe("Default", (done) => {
       it('should pass with valid id & display', (done) => {
-        s1 = new Statement('mailto:aaron@example.com', new Verb(def), objId);
-        s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -99,8 +123,6 @@ describe("Verb Test:", () => {
     });
     describe("No Display", (done) => {
       it('should pass with no display & valid id', (done) => {
-        s2 = new Statement('mailto:aaron@example.com', new Verb(noDisplay), objId);
-        s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -112,8 +134,6 @@ describe("Verb Test:", () => {
     });
     describe("No ID", (done) => {
       it('should fail with no id & valid display', (done) => {
-        s3 = new Statement('mailto:aaron@example.com', new Verb(noId), objId);
-        s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
           error.should.not.eql(null);
 

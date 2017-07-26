@@ -15,33 +15,32 @@ describe('Agent Test:', () => {
   const NO_CONTENT = 204;
   const BAD_REQUEST = 400;
 
-
   before(() => {
     def = {
-      "name": "Aaron",
+      "name": "Default display",
       "mbox":'mailto:aaron@example.com'
     }
     account = {
-      "name": "Aaron",
+      "name": "Account display",
       "account": {
         "homePage": "http://www.example.com",
         "name": "xAPI account name"
       }
     }
     accountName = {
-      "name": "Aaron",
+      "name": "No homepage account display",
       "account": {"name": "xAPI account name"}
     }
     accountHomepage = {
-      "name": "Aaron",
+      "name": "No name account display",
       "account": {"homePage": "http://www.example.com"}
     }
     mboxsha1sum = {
-      "name": "Aaron",
+      "name": "Mboxsha1sum display",
       "mbox_sha1sum": "169fd15497b877fae1a3e1a67cb0b6064ebc2da5"
     }
     openId = {
-      "name": "Aaron",
+      "name": "OpenId display",
       "openid": "http://openid.example.org/1234"
     }
 
@@ -68,11 +67,37 @@ describe('Agent Test:', () => {
     s6 = new Statement(openId, verbs.attempted, objId);
   });
 
+  describe("Agent constructor test:", () => {
+    it("should pass with valid id & name", () => {
+      ((new Agent(def, "aaron")).isValid()).should.eql(true);
+    });
+    it("should fail with invalid id & valid name", () => {
+      (!(new Agent(null, "aaron")).isValid()).should.eql(true);
+    });
+    it("should fail with empty parameters", () => {
+      (!(new Agent()).isValid()).should.eql(true);
+    });
+    it("should pass when retrieving display objects", () => {
+      (s1.actor.getDisplay()).should.eql(def.name);
+      (s2.actor.getDisplay()).should.eql(account.name);
+      (!s3.actor.getDisplay()).should.eql(true);
+      (!s4.actor.getDisplay()).should.eql(true);
+      (s5.actor.getDisplay()).should.eql(mboxsha1sum.name);
+      (s6.actor.getDisplay()).should.eql(openId.name);
+    });
+  });
 
   describe("JSON Object as statement actor:", () => {
+    it("should pass calling isValid() on agent objects", () => {
+      (s1.actor.isValid()).should.eql(true);
+      (s2.actor.isValid()).should.eql(true);
+      (!s3.actor.isValid()).should.eql(true);
+      (!s4.actor.isValid()).should.eql(true);
+      (s5.actor.isValid()).should.eql(true);
+      (s6.actor.isValid()).should.eql(true);
+    });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
-        s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -84,7 +109,6 @@ describe('Agent Test:', () => {
     });
     describe("Account", () => {
       it('should pass with valid account object', (done) => {
-        s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -94,7 +118,6 @@ describe('Agent Test:', () => {
         });
       });
       it('should fail with no valid homepage', (done) => {
-        s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
           error.should.not.eql(null);
 
@@ -102,7 +125,6 @@ describe('Agent Test:', () => {
         });
       });
       it('should fail with no valid name', (done) => {
-        s4.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s4, (error, resp, data) => {
           error.should.not.eql(null);
 
@@ -112,7 +134,6 @@ describe('Agent Test:', () => {
     });
     describe("Mbox Sha1sum", () => {
       it('should pass with valid mbox_sha1sum object', (done) => {
-        s5.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s5, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -124,7 +145,6 @@ describe('Agent Test:', () => {
     });
     describe("OpenId", () => {
       it('should pass with valid openid object', (done) => {
-        s6.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s6, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -137,10 +157,25 @@ describe('Agent Test:', () => {
   });
 
   describe("Agent Object as statement actor:", () => {
+    before(() => {
+      s1 = new Statement(new Agent(def), verbs.attempted, objId);
+      s2 = new Statement(new Agent(account), verbs.attempted, objId);
+      s3 = new Statement(new Agent(accountName), verbs.attempted, objId);
+      s4 = new Statement(new Agent(accountHomepage), verbs.attempted, objId);
+      s5 = new Statement(new Agent(mboxsha1sum), verbs.attempted, objId);
+      s6 = new Statement(new Agent(openId), verbs.attempted, objId);
+    });
+
+    it("should pass calling isValid() on agent objects", () => {
+      (s1.actor.isValid()).should.eql(true);
+      (s2.actor.isValid()).should.eql(true);
+      (!s3.actor.isValid()).should.eql(true);
+      (!s4.actor.isValid()).should.eql(true);
+      (s5.actor.isValid()).should.eql(true);
+      (s6.actor.isValid()).should.eql(true);
+    });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
-        s1 = new Statement(new Agent(def), verbs.attempted, objId);
-        s1.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -152,8 +187,6 @@ describe('Agent Test:', () => {
     });
     describe("Account", () => {
       it('should pass with valid account object', (done) => {
-        s2 = new Statement(new Agent(account), verbs.attempted, objId);
-        s2.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s2, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -163,8 +196,6 @@ describe('Agent Test:', () => {
         });
       });
       it('should fail with no valid homepage', (done) => {
-        s3 = new Statement(new Agent(accountName), verbs.attempted, objId);
-        s3.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s3, (error, resp, data) => {
           error.should.not.eql(null);
 
@@ -172,8 +203,6 @@ describe('Agent Test:', () => {
         });
       });
       it('should fail with no valid name', (done) => {
-        s4 = new Statement(new Agent(accountHomepage), verbs.attempted, objId);
-        s4.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s4, (error, resp, data) => {
           error.should.not.eql(null);
 
@@ -183,8 +212,6 @@ describe('Agent Test:', () => {
     });
     describe("Mbox Sha1sum", () => {
       it('should pass with valid mbox_sha1sum object', (done) => {
-        s5 = new Statement(new Agent(mboxsha1sum), verbs.attempted, objId);
-        s5.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s5, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
@@ -196,8 +223,6 @@ describe('Agent Test:', () => {
     });
     describe("OpenId", () => {
       it('should pass with valid openid object', (done) => {
-        s6 = new Statement(new Agent(openId), verbs.attempted, objId);
-        s6.timestamp = (new Date()).toISOString();
         XAPIWrapper.postStatement(s6, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);

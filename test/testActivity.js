@@ -1,18 +1,80 @@
-describe.skip("Activity Test:", () => {
+describe("Activity Test:", () => {
   // Activities to test
-  let def, trueFalse, choice, fillIn, longFillIn, match,
+  let def, noId, noName, noDesc, noDef, withType;
+
+  let trueFalse, choice, fillIn, longFillIn, match,
       peform, seq, like, num, other;
+
+  let actor = {'mbox':'mailto:a@example.com'};
+
+  // Response Types
+  const OK = 200;
+  const NO_CONTENT = 204;
+  const BAD_REQUEST = 400;
 
   // Testing module functionality
   let should, XAPIWrapper, Activity, Statement, verbs;
 
   // Test statements
-  let s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11;
+  let s1, s2, s3, s4, s5, s6;
 
-  let objId = 'http://activity.com/id';
+  let objId = 'http://example.adlnet.gov/xapi/example/activity';
 
 
   before(() => {
+    def = {
+      "definition": {
+          "description": {
+              "en-US": "Testing default activity"
+          },
+          "name": {
+              "en-US": "Default Activity"
+          }
+      },
+      "id": objId
+    }
+    noId = {
+      "definition": {
+          "description": {
+              "en-US": "Testing activity ID"
+          },
+          "name": {
+              "en-US": "No ID Activity"
+          }
+      }
+    }
+    noName = {
+      "definition": {
+          "description": {
+              "en-US": "Testing activity definition description"
+          }
+      },
+      "id": objId
+    }
+    noDesc = {
+      "definition": {
+          "name": {
+              "en-US": "No description Activity"
+          }
+      },
+      "id": objId
+    }
+    noDef = {
+      "id": objId
+    }
+    withType = {
+      "definition": {
+          "description": {
+              "en-US": "Testing activity with type"
+          },
+          "name": {
+              "en-US": "ObjectType Activity"
+          }
+      },
+      "id": objId,
+      "objectType": "Activity"
+    }
+
     // Require necessary modules
     should = require('should');
     XAPIWrapper = require('./../src/xAPIWrapper');
@@ -27,18 +89,106 @@ describe.skip("Activity Test:", () => {
       "strictCallbacks": true
     });
 
-    // Test statements
-
+    s1 = new Statement(actor, verbs.attempted, def);
+    s2 = new Statement(actor, verbs.attempted, noId);
+    s3 = new Statement(actor, verbs.attempted, noName);
+    s4 = new Statement(actor, verbs.attempted, noDesc);
+    s5 = new Statement(actor, verbs.attempted, noDef);
+    s6 = new Statement(actor, verbs.attempted, withType);
   });
 
+  describe("Activity constructor test:", () => {
+    it("should pass with valid id string only", () => {
+      ((new Activity(objId)).isValid()).should.eql(true);
+    });
+    it("should fail with invalid id & valid definition", () => {
+      (!(new Activity("", def.definition.name, def.definition.description)).isValid()).should.eql(true);
+    });
+    it("should fail with empty parameters", () => {
+      (!(new Activity()).isValid()).should.eql(true);
+    });
+    it("should pass when retrieving display objects", () => {
+      (s1.object.getDisplay()).should.not.eql(null);
+      (!s2.object.getDisplay()).should.eql(true);
+      (s3.object.getDisplay()).should.eql(noName.id);
+      (s4.object.getDisplay()).should.not.eql(null);
+      (s5.object.getDisplay()).should.eql(noDef.id);
+      (s6.object.getDisplay()).should.not.eql(null);
+    });
+  });
 
   describe("JSON Object as statement object:", () => {
+    it("should pass calling isValid() on activity objects", () => {
+      (s1.object.isValid()).should.eql(true);
+      (!s2.object.isValid()).should.eql(true);
+      (s3.object.isValid()).should.eql(true);
+      (s4.object.isValid()).should.eql(true);
+      (s5.object.isValid()).should.eql(true);
+      (s6.object.isValid()).should.eql(true);
+    });
     describe("Default", () => {
-      it('should pass with valid id', (done) => {
+      it('should pass with valid id & definition', (done) => {
+        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should pass using valid defaults with objectType', (done) => {
+        XAPIWrapper.postStatement(s6, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should fail with no id', (done) => {
+        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+          error.should.not.eql(null);
+
+          done();
+        });
+      });
+    });
+    describe("Name/Description", () => {
+      it('should pass with no definition name', (done) => {
+        XAPIWrapper.postStatement(s3, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should pass with no definition description', (done) => {
+        XAPIWrapper.postStatement(s4, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should pass with no definition', (done) => {
+        XAPIWrapper.postStatement(s5, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+    });
+
+    describe.skip("Definition", () => {
+      it("", (done) => {
 
       });
     });
-    describe("Interaction Types", () => {
+    describe.skip("Interaction Types", () => {
       it('should pass with valid true/false type', (done) => {
 
       });
@@ -70,11 +220,81 @@ describe.skip("Activity Test:", () => {
 
       });
     });
-
-    after(()=>console.log('\n'));
   });
 
   describe("Activity Object as statement object:", () => {
+    before(() => {
+      s1 = new Statement(actor, verbs.attempted, new Activity(def));
+      s2 = new Statement(actor, verbs.attempted, new Activity(noId));
+      s3 = new Statement(actor, verbs.attempted, new Activity(noName));
+      s4 = new Statement(actor, verbs.attempted, new Activity(noDesc));
+      s5 = new Statement(actor, verbs.attempted, new Activity(noDef));
+      s6 = new Statement(actor, verbs.attempted, new Activity(withType));
+    });
 
+    it("should pass calling isValid() on activity objects", () => {
+      (s1.object.isValid()).should.eql(true);
+      (!s2.object.isValid()).should.eql(true);
+      (s3.object.isValid()).should.eql(true);
+      (s4.object.isValid()).should.eql(true);
+      (s5.object.isValid()).should.eql(true);
+      (s6.object.isValid()).should.eql(true);
+    });
+    describe("Default", () => {
+      it('should pass with valid id & definition', (done) => {
+        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should pass using valid defaults with objectType', (done) => {
+        XAPIWrapper.postStatement(s6, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should fail with no id', (done) => {
+        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+          error.should.not.eql(null);
+
+          done();
+        });
+      });
+    });
+    describe("Name/Description", () => {
+      it('should pass with no definition name', (done) => {
+        XAPIWrapper.postStatement(s3, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should pass with no definition description', (done) => {
+        XAPIWrapper.postStatement(s4, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+      it('should pass with no definition', (done) => {
+        XAPIWrapper.postStatement(s5, (error, resp, data) => {
+          (!error).should.eql(true);
+          resp.status.should.eql(OK);
+          resp.ok.should.eql(true);
+
+          done();
+        });
+      });
+    });
   });
 });
