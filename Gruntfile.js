@@ -17,6 +17,7 @@ module.exports = function(grunt) {
         files: {
           'dist/xapiwrapper.min.js': [
             'lib/cryptojs_v3.1.2.js',
+            'src/activitytypes.js',
             'src/verbs.js',
             'src/xapiwrapper.js',
             'src/xapistatement.js',
