@@ -497,6 +497,7 @@ describe("Asynchronous Testing:", () => {
       it("should pass updating profile using valid activity/profile IDs asynchronously", async () => {
         let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
 
+
       });
       it("should pass updating profile using valid activity/profile IDs with callback", (done) => {
         XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {

@@ -7,21 +7,20 @@
 
 		function init()
 		{
-			var stmt = new ADL.XAPIStatement(
-				new ADL.XAPIStatement.Agent(ADL.XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
+			var stmt = new ADL.Statement(
+				new ADL.Agent(ADL.XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
 				ADL.verbs.launched,
-				new ADL.XAPIStatement.Activity('act:wrapper_test', 'xAPIWrapper test page',
+				new ADL.Activity('act:wrapper_test', 'xAPIWrapper test page',
 					'A website that exercises the functions of the xAPIWrapper')
 			);
-			stmt.generateId();
-			stmt.addOtherContextActivity( new ADL.XAPIStatement.Activity('compId:internet_proficiency') );
+			stmt.addOtherContextActivity( new ADL.Activity('compId:internet_proficiency') );
 			stmt.generateRegistration();
 
 			ADL.XAPIWrapper.changeConfig({
 				'endpoint': 'https://lrs.adlnet.gov/xapi/'
 			});
 
-			ADL.XAPIWrapper.sendStatement(stmt);
+			ADL.XAPIWrapper.postStatement(stmt);
 
 			var o = document.getElementById('output');
 			o.innerText = JSON.stringify(stmt, null, '    ');

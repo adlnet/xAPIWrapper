@@ -4,10 +4,10 @@ let onBrowser = true;
 if (typeof module !== 'undefined') {
   onBrowser = false;
   var fetch = require('node-fetch');
-  var Util = require('./Utils.js');
+  Util = require('./Utils.js');
 } else {
   window.ADL = window.ADL || {};
-  var Util = window.ADL.Util;
+  Util = window.ADL.Util;
 }
 
 /*
@@ -57,9 +57,9 @@ class XAPIWrapper {
    * @param {object} config   with a minimum of an endoint property
    * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
    */
-  constructor(config, verifyxapiversion)
+  constructor(config={}, verifyxapiversion=false)
   {
-    this.lrs = this.getLRSObject(config || {});
+    this.lrs = this.getLRSObject(config);
 
     if (this.lrs.user && this.lrs.password)
       this.updateAuth(this.lrs, this.lrs.user, this.lrs.password);
@@ -72,7 +72,7 @@ class XAPIWrapper {
     // by the result(s)
     this.strictCallbacks = config && config.strictCallbacks;
 
-    // if (verifyxapiversion && testConfig.call(this))
+    // if (verifyxapiversion && this.testConfig())
     // {
     //     XHR_request(this.lrs, `${this.lrs.endpoint}about`, "GET", null, null,
     //         r => {
@@ -151,11 +151,7 @@ class XAPIWrapper {
       this.lrs = this.mergeRecursive(this.lrs, config);
       if (config.user && config.password)
           this.updateAuth(this.lrs, config.user, config.password);
-      else {
-          log(`Failed to update auth:
-                    user: ${this.lrs.user}
-                    pass: ${this.lrs.pass}`);
-      }
+      
       this.base = this.getbase(this.lrs.endpoint);
       this.withCredentials = config.withCredentials;
       this.strictCallbacks = config.strictCallbacks;

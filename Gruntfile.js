@@ -15,12 +15,13 @@ module.exports = function(grunt) {
           'lib/cryptojs_v3.1.2.js',
           'src/Utils.js',
           'src/xAPIWrapper.js',
+          'src/activitytypes.js',
           'src/verbs.js',
           'src/Agent.js',
           'src/Verb.js',
           'src/Object.js',
-          'src/Statement.js'
-          // 'src/xAPILaunch.js'
+          'src/Statement.js',
+          'src/xAPILaunch.js'
         ],
         dest: 'dist/xapiwrapper.min.js'
       }

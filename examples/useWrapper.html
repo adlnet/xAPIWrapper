@@ -19,12 +19,9 @@
     <script src="../dist/xapiwrapper.min.js"></script>
 
     <!-- <script src="../lib/cryptojs_v3.1.2.js"></script>
+    <script src="../src/xapilaunch.js"></script>
     <script src="../src/verbs.js"></script>
-    <script src="../src/xapi-launch.js"></script>
     <script src="../src/xapiwrapper.js"></script> -->
-    <!-- <script src="../src/offline.js"></script>
-    <script src="../src/storage.js"></script>
-    <script src="../src/validator.js"></script> -->
 
     <style>
         #stmtinput {
@@ -362,10 +359,10 @@
             var instmt = JSON.parse(editor.getValue());
             if (Array.isArray(instmt)) {
                 console.log('sending array - multi stmt... ');
-                wrapper.sendStatements(instmt, outputResults);
+                wrapper.postStatements(instmt, outputResults);
             } else {
                 console.log('sending object - single stmt... ');
-                wrapper.sendStatement(instmt, outputResults);
+                wrapper.postStatement(instmt, outputResults);
             }
 
         });

@@ -22,13 +22,11 @@ if ( !Date.prototype.toISOString ) {
 }
 
 
-let onBrowser = false;
-if (typeof window !== 'undefined') {
-  window.ADL = window.ADL || {};
-  onBrowser = true;
-}
-else
+if (typeof module !== 'undefined') {
   CryptoJS = require('crypto-js');
+} else {
+  window.ADL = window.ADL || {};
+}
 
 class Util {
   getLang(){
@@ -185,7 +183,7 @@ class Util {
 }
 
 
-if (!onBrowser) {
+if (typeof module !== 'undefined') {
   module.exports = new Util;
 } else {
   window.ADL.Util = new Util;

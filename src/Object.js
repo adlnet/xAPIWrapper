@@ -1,6 +1,6 @@
 // Require Utils module when using node
 if (typeof module !== 'undefined') {
-  var Util = require('./Utils.js');
+  Util = require('./Utils.js');
 }
 
 /*

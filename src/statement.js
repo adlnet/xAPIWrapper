@@ -1,17 +1,17 @@
 // Require modules when using node
 if (typeof module !== 'undefined') {
-  var Agent = require('./Agent').Agent;
-  var Group = require('./Agent').Group;
-  var Verb = require('./Verb');
-  var Activity = require('./Object').Activity;
-  var StatementRef = require('./Object').StatementRef;
-  var Util = require('./Utils.js');
+  Agent = require('./Agent').Agent;
+  Group = require('./Agent').Group;
+  Verb = require('./Verb');
+  Activity = require('./Object').Activity;
+  StatementRef = require('./Object').StatementRef;
+  Util = require('./Utils.js');
 } else {
-  var Agent = window.ADL.Agent;
-  var Group = window.ADL.Group;
-  var Verb = window.ADL.Verb;
-  var Activity = window.ADL.Activity;
-  var StatementRef = window.ADL.StatementRef;
+  Agent = window.ADL.Agent;
+  Group = window.ADL.Group;
+  Verb = window.ADL.Verb;
+  Activity = window.ADL.Activity;
+  StatementRef = window.ADL.StatementRef;
 }
 
 function _getobj(obj, path){
