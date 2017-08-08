@@ -1,0 +1,5 @@
+{
+  "objectType": "Agent",
+  "name": "Default",
+  "mbox":"mailto:default@example.com"
+}

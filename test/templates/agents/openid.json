@@ -1,0 +1,5 @@
+{
+  "objectType": "Agent",
+  "name": "OpenId",
+  "openid":"http://openid.example.org/1234"
+}

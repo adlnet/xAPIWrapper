@@ -1,0 +1,14 @@
+{
+  "objectType": "Group",
+  "member": [
+    {
+      "account": {
+        "homePage": "http://www.example.com",
+        "name": "xAPI account name"
+      }
+    },
+    {
+      "mbox": "mailto:mem@example.com"
+    }
+  ]
+}

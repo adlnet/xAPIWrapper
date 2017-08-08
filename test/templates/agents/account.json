@@ -1,0 +1,8 @@
+{
+  "objectType": "Agent",
+  "name": "Account",
+  "account": {
+    "homePage": "http://www.example.com",
+    "name": "Account Name"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "objectType": "Group",
+  "name": "Identified Account No Member Group",
+  "account": {
+    "homePage": "http://www.example.com",
+    "name": "xAPI account name"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "objectType": "Group",
+  "name": "Id OpenId Group",
+  "openid": "http://openid.example.org/12345",
+  "member": [
+    {
+      "name": "Member",
+      "mbox": "mailto:mem@example.com"
+    }
+  ]
+}
