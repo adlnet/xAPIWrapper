@@ -34,12 +34,12 @@
   },
   "scripts": {
     "testasync": "mocha --no-timeouts --compilers js:babel-register test/testAsync.js",
-    "testactivity": "mocha --compilers js:babel-register test/testActivity.js",
-    "testagent": "mocha --compilers js:babel-register test/testAgent.js",
-    "testgroup": "mocha --compilers js:babel-register test/testGroup.js",
-    "teststatementref": "mocha --compilers js:babel-register test/testStatementRef.js",
-    "testsubstatement": "mocha --compilers js:babel-register test/testSubStatement.js",
-    "testverb": "mocha --compilers js:babel-register test/testVerb.js",
+    "testactivity": "mocha --no-timeouts --compilers js:babel-register test/testActivity.js",
+    "testagent": "mocha --no-timeouts --compilers js:babel-register test/testAgent.js",
+    "testgroup": "mocha --no-timeouts --compilers js:babel-register test/testGroup.js",
+    "teststatementref": "mocha --no-timeouts --compilers js:babel-register test/testStatementRef.js",
+    "testsubstatement": "mocha --no-timeouts --compilers js:babel-register test/testSubStatement.js",
+    "testverb": "mocha --no-timeouts --compilers js:babel-register test/testVerb.js",
     "testall": "npm run testasync && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb"
   }
 }

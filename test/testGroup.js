@@ -1,8 +1,8 @@
-describe.skip("Group Test:", () => {
+describe("Group Test:", () => {
   // Group objects to test
   let def, iAccount, iAccountName, iAccountHomepage, iAccountNoMembers,
       iMboxsha1sum, iMboxsha1sumNoMembers, iOpenId, iOpenIdNoMembers,
-      defNoMembers, aGroup, aGroupNoMembers, aGroupMembers, auth, groupMember;
+      iMbox, aGroup, aGroupNoMembers, aGroupMembers, auth, groupMember;
 
   // Testing module functionality
   let should, XAPIWrapper, Agent, Group, Statement, verbs;
@@ -18,130 +18,24 @@ describe.skip("Group Test:", () => {
   let s1, s2, s3, s4, s5, s6, s7, s8,
       s9, s10, s11, s12, s13, s14, s15;
 
+  // Path
+  const DIR = "./templates/groups/";
+
 
   before(() => {
-    def = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "mbox": "mailto:aaron@example.com"
-    };
-    iAccount = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "account": {
-        "homePage": "http://www.example.com",
-        "name": "xAPI account name"
-      },
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    iAccountName = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "account": {
-        "name": "xAPI account name"
-      },
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    iAccountHomepage = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "account": {
-        "homePage": "http://www.example.com",
-      },
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    iAccountNoMembers = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "account": {
-        "homePage": "http://www.example.com",
-        "name": "xAPI account name"
-      }
-    };
-    iMboxsha1sum = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "mbox_sha1sum": "169fd15497b877fae1a3e1a67cb0b6064ebc2da5",
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    iMboxsha1sumNoMembers = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "mbox_sha1sum": "169fd15497b877fae1a3e1a67cb0b6064ebc2da5"
-    };
-    iOpenId = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "openid": "http://openid.example.org/12345",
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    iOpenIdNoMembers = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "openid": "http://openid.example.org/12345"
-    };
-    defNoMembers = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "mbox": "mailto:aaron@example.com",
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    aGroup = {
-      "objectType": "Group",
-      "member": [
-        {
-          "name": "xAPI mbox",
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
-    aGroupNoMembers = {
-      "objectType": "Group"
-    };
-    aGroupMembers = {
-      "objectType": "Group",
-      "member": [
-        {
-          "account": {
-            "homePage": "http://www.example.com",
-            "name": "xAPI account name"
-          }
-        },
-        {
-          "mbox": "mailto:aaron@example.com"
-        }
-      ]
-    };
+    def = require(`${DIR}default.json`);
+    iAccount = require(`${DIR}identified_account.json`);
+    iAccountName = require(`${DIR}identified_account_no_homepage.json`);
+    iAccountHomepage = require(`${DIR}identified_account_no_name.json`);
+    iAccountNoMembers = require(`${DIR}identified_account_no_member.json`);
+    iMboxsha1sum = require(`${DIR}identified_mboxsha1sum.json`);
+    iMboxsha1sumNoMembers = require(`${DIR}identified_mboxsha1sum_no_member.json`);
+    iOpenId = require(`${DIR}identified_openid.json`);
+    iOpenIdNoMembers = require(`${DIR}identified_openid_no_member.json`);
+    iMbox = require(`${DIR}identified_mbox.json`);
+    aGroup = require(`${DIR}anonymous.json`);
+    aGroupNoMembers = require(`${DIR}anonymous_no_member.json`);
+    aGroupMembers = require(`${DIR}anonymous_two_member.json`);
     auth = {
       "objectType": "Group",
       "member": [
@@ -156,23 +50,7 @@ describe.skip("Group Test:", () => {
         }
       ]
     };
-    groupMember = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "mbox": "mailto:aaron@example.com",
-      "member": [
-        {
-          "name": "Group member",
-          "mbox": "mailto:group@example.com",
-          "member": [
-            {
-              "name": "Agent member",
-              "mbox": "mailto:groupmem@example.com"
-            }
-          ]
-        }
-      ]
-    }
+    groupMember = require(`${DIR}anonymous_group_member.json`);
 
     // Require necessary modules
     should = require('should');
@@ -199,7 +77,7 @@ describe.skip("Group Test:", () => {
     s7 = new Statement(iMboxsha1sumNoMembers, verbs.attempted, objId);
     s8 = new Statement(iOpenId, verbs.attempted, objId);
     s9 = new Statement(iOpenIdNoMembers, verbs.attempted, objId);
-    s10 = new Statement(defNoMembers, verbs.attempted, objId);
+    s10 = new Statement(iMbox, verbs.attempted, objId);
     s11 = new Statement(aGroup, verbs.attempted, objId);
     s12 = new Statement(aGroupNoMembers, verbs.attempted, objId);
     s13 = new Statement(aGroupMembers, verbs.attempted, objId);
@@ -208,6 +86,12 @@ describe.skip("Group Test:", () => {
   });
 
   describe("Group constructor test:", () => {
+    it("should pass with valid id & no members/name", () => {
+      ((new Group(def)).isValid()).should.eql(true);
+    });
+    it("should pass with valid id/members & no name", () => {
+      
+    });
     it("should fail with empty parameters", () => {
 
     });
@@ -218,7 +102,21 @@ describe.skip("Group Test:", () => {
 
   describe("JSON Object as statement actor:", () => {
     it("should pass calling isValid() on group objects", () => {
-
+      (s1.actor.isValid()).should.eql(true);
+      (s2.actor.isValid()).should.eql(true);
+      (!s3.actor.isValid()).should.eql(true);
+      (!s4.actor.isValid()).should.eql(true);
+      (s5.actor.isValid()).should.eql(true);
+      (s6.actor.isValid()).should.eql(true);
+      (s7.actor.isValid()).should.eql(true);
+      (s8.actor.isValid()).should.eql(true);
+      (s9.actor.isValid()).should.eql(true);
+      (s10.actor.isValid()).should.eql(true);
+      (s11.actor.isValid()).should.eql(true);
+      (!s12.actor.isValid()).should.eql(true);
+      (s13.actor.isValid()).should.eql(true);
+      // (s14.actor.isValid()).should.eql(true);
+      (!s15.actor.isValid()).should.eql(true);
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
@@ -384,7 +282,7 @@ describe.skip("Group Test:", () => {
       s7 = new Statement(new Group(iMboxsha1sumNoMembers), verbs.attempted, objId);
       s8 = new Statement(new Group(iOpenId), verbs.attempted, objId);
       s9 = new Statement(new Group(iOpenIdNoMembers), verbs.attempted, objId);
-      s10 = new Statement(new Group(defNoMembers), verbs.attempted, objId);
+      s10 = new Statement(new Group(iMbox), verbs.attempted, objId);
       s11 = new Statement(new Group(aGroup), verbs.attempted, objId);
       s12 = new Statement(new Group(aGroupNoMembers), verbs.attempted, objId);
       s13 = new Statement(new Group(aGroupMembers), verbs.attempted, objId);
@@ -393,7 +291,21 @@ describe.skip("Group Test:", () => {
     });
 
     it("should pass calling isValid() on group objects", () => {
-
+      (s1.actor.isValid()).should.eql(true);
+      (s2.actor.isValid()).should.eql(true);
+      (!s3.actor.isValid()).should.eql(true);
+      (!s4.actor.isValid()).should.eql(true);
+      (s5.actor.isValid()).should.eql(true);
+      (s6.actor.isValid()).should.eql(true);
+      (s7.actor.isValid()).should.eql(true);
+      (s8.actor.isValid()).should.eql(true);
+      (s9.actor.isValid()).should.eql(true);
+      (s10.actor.isValid()).should.eql(true);
+      (s11.actor.isValid()).should.eql(true);
+      (!s12.actor.isValid()).should.eql(true);
+      (s13.actor.isValid()).should.eql(true);
+      // (s14.actor.isValid()).should.eql(true);
+      (!s15.actor.isValid()).should.eql(true);
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {

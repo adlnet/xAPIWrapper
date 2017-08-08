@@ -75,56 +75,79 @@ class Group {
   {
     this.objectType = 'Group';
 
-    // First argument is a Group object
-    if (arguments.length === 1 && identifier) {
-      if (identifier.member) {
-        // check for Group objects as members
-        for (let i = 0; i < identifier.member.length; i++) {
-          if (identifier.member[i].objectType == "Group" || identifier.member[i].hasOwnProperty('member'))
-            return;
-        }
-        members = identifier.member;
-        if (identifier.name)
-          name = identifier.name;
-      } else if (identifier.name) {
-        name = identifier.name;
-      } else {
-        return;
-      }
-    }
-
     if (name)
       this.name = name;
 
+    if (members && this.isValidMembers(members))
+      this.member = members;
+
     if (identifier) {
-      if( identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account ) {
-        Object.assign(this, identifier);
+      // first argument is a Group object - validate it
+      if (identifier.objectType === "Group") {
+        // validate members if specified
+        let validMembers = false;
+        if (identifier.member) {
+          if (!this.isValidMembers(identifier.member)) {
+            return;
+          }
+          validMembers = true;
+        }
+
+        // validate IRI if specified
+        let validId = false;
+        if (identifier.mbox || identifier.mbox_sha1sum || identifier.openid) {
+          validId = true;
+        } else if (identifier.account) {
+          if (!(identifier.account.homePage && identifier.account.name)) {
+            return;
+          }
+          validId = true;
+        }
+
+        // copy over properties
+        if (validMembers || validId) {
+          Object.assign(this, identifier);
+        }
       }
-      else if( /^mailto:/.test(identifier) ){
-        this.mbox = identifier;
-      }
-      else if( /^[0-9a-f]{40}$/i.test(identifier) ){
-        this.mbox_sha1sum = identifier;
-      }
-      else if( /^http[s]?:/.test(identifier) ){
-        this.openid = identifier;
-      }
-      else if( identifier.homePage && identifier.name ){
-        this.account = identifier;
+      // determine IRI type
+      else {
+        if( /^mailto:/.test(identifier) ){
+          this.mbox = identifier;
+        }
+        else if( /^[0-9a-f]{40}$/i.test(identifier) ){
+          this.mbox_sha1sum = identifier;
+        }
+        else if( /^http[s]?:/.test(identifier) ){
+          this.openid = identifier;
+        }
+        else if( identifier.homePage && identifier.name ){
+          this.account = identifier;
+        }
       }
     }
-
-    if (members && !this.member)
-      this.member = members;
   }
   toString(){
     return JSON.stringify(this, null, '  ');
   };
-  isValid()
-  {
-    return (this.mbox || this.mbox_sha1sum || this.openid || (this.account && this.account.homePage && this.account.name))
-            || (this.objectType === "Group");
+  isValid(){
+    return ((this.mbox || this.mbox_sha1sum || this.openid || (this.account && this.account.homePage && this.account.name))
+            || (this.member && this.isValidMembers(this.member))) && (this.objectType && this.objectType === "Group");
   };
+  isValidMembers(members){
+    if (!members) return false;
+
+    if (Array.isArray(members) && members.length > 0) {
+      for (let i = 0; i < members.length; i++) {
+        if (members[i].objectType == "Group" || members[i].hasOwnProperty('member'))
+          return false;
+      }
+    } else {
+      console.log(`Invalid parameter: members=${members}`);
+      return false;
+    }
+
+    return true;
+  }
 
   show(){
     console.log(this.toString());

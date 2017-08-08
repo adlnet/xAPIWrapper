@@ -15,34 +15,16 @@ describe('Agent Test:', () => {
   const NO_CONTENT = 204;
   const BAD_REQUEST = 400;
 
+  // Path
+  const DIR = "./templates/agents/";
+
   before(() => {
-    def = {
-      "name": "Default display",
-      "mbox":'mailto:aaron@example.com'
-    }
-    account = {
-      "name": "Account display",
-      "account": {
-        "homePage": "http://www.example.com",
-        "name": "xAPI account name"
-      }
-    }
-    accountName = {
-      "name": "No homepage account display",
-      "account": {"name": "xAPI account name"}
-    }
-    accountHomepage = {
-      "name": "No name account display",
-      "account": {"homePage": "http://www.example.com"}
-    }
-    mboxsha1sum = {
-      "name": "Mboxsha1sum display",
-      "mbox_sha1sum": "169fd15497b877fae1a3e1a67cb0b6064ebc2da5"
-    }
-    openId = {
-      "name": "OpenId display",
-      "openid": "http://openid.example.org/1234"
-    }
+    def = require(`${DIR}default.json`);
+    account = require(`${DIR}account.json`);
+    accountName = require(`${DIR}account_no_homepage.json`);
+    accountHomepage = require(`${DIR}account_no_name.json`);
+    mboxsha1sum = require(`${DIR}mboxsha1sum.json`);
+    openId = require(`${DIR}openid.json`);
 
     // Require necessary modules
     should = require('should');
