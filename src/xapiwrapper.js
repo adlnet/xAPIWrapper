@@ -151,7 +151,7 @@ class XAPIWrapper {
       this.lrs = this.mergeRecursive(this.lrs, config);
       if (config.user && config.password)
           this.updateAuth(this.lrs, config.user, config.password);
-      
+
       this.base = this.getbase(this.lrs.endpoint);
       this.withCredentials = config.withCredentials;
       this.strictCallbacks = config.strictCallbacks;
@@ -277,36 +277,48 @@ class XAPIWrapper {
   {
       if (this.testConfig() && (stmt && !(stmt instanceof Array)))
       {
-          this.prepareStatement(stmt);
-
-          let payload = JSON.stringify(stmt);
-          let extraHeaders = null;
-          if(attachments && attachments.length > 0)
-          {
-              extraHeaders = {};
-              payload = this.buildMultipart(stmt, attachments, extraHeaders);
-          }
-
-          const conf = {
-            'url': `${this.lrs.endpoint}statements?statementId=${id}`,
-            'method': 'PUT',
-            'headers': {
-              'Content-Type': 'application/json',
-              'X-Experience-API-Version': this.xapiVersion,
-              'Authorization': this.lrs.auth
-            },
-            'body': payload
-          };
-
-          if (extraHeaders)
-            Object.assign(conf.headers, extraHeaders);
-
+        // validate id parameter
+        if (!id || id == "") {
           if (callback) {
-              this.callbackRequest(conf, callback, {id}, false);
-              return;
+            callback('Error: invalid id parameter');
+            return;
+          } else {
+            return new Promise((res,rej) => { rej('Error: invalid id parameter'); });
           }
+        }
 
-          return this.asyncRequest(conf);
+        stmt.id = id;
+
+        this.prepareStatement(stmt);
+
+        let payload = JSON.stringify(stmt);
+        let extraHeaders = null;
+        if(attachments && attachments.length > 0)
+        {
+            extraHeaders = {};
+            payload = this.buildMultipart(stmt, attachments, extraHeaders);
+        }
+
+        const conf = {
+          'url': `${this.lrs.endpoint}statements?statementId=${id}`,
+          'method': 'PUT',
+          'headers': {
+            'Content-Type': 'application/json',
+            'X-Experience-API-Version': this.xapiVersion,
+            'Authorization': this.lrs.auth
+          },
+          'body': payload
+        };
+
+        if (extraHeaders)
+          Object.assign(conf.headers, extraHeaders);
+
+        if (callback) {
+            this.callbackRequest(conf, callback, {id}, false);
+            return;
+        }
+
+        return this.asyncRequest(conf);
 
       } else if (callback) {
         callback('Error: invalid parameters');
@@ -816,7 +828,7 @@ class XAPIWrapper {
   };
 
   /*
-   * Update activity profile in the LRS
+   * Stores or updates activity profile in the LRS
    * @param {string} activityid   the id of the Activity this profile is about
    * @param {string} profileid   the id you want associated with this state
    * @param {string} profileval   the profile
@@ -830,12 +842,19 @@ class XAPIWrapper {
   {
       if (this.testConfig() && (activityid && profileid && profileval))
       {
-        if (!matchHash || matchHash == "")
-          matchHash = '*';
+        if (!matchHash || matchHash == "") {
+          if (callback) {
+            callback('Error: invalid ETag');
+            return;
+          } else {
+            return new Promise((res,rej) => { rej('Error: invalid ETag'); });
+          }
+        }
 
         let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
-        let headers = {"If-Match":this.formatHash(matchHash)};
+        let headers = (matchHash==="*") ? {"If-Match":this.formatHash(matchHash)} : {"If-None-Match":this.formatHash(matchHash)};
+
         if (profileval instanceof Array || profileval instanceof Object)
         {
             profileval = JSON.stringify(profileval);
@@ -860,6 +879,7 @@ class XAPIWrapper {
         }
 
         return this.asyncRequest(conf);
+        
       } else if (callback) {
         callback('Error: invalid parameters');
       } else {
@@ -868,7 +888,7 @@ class XAPIWrapper {
   };
 
   /*
-   * Store activity profile in the LRS
+   * Stores or merges activity profile in the LRS
    * @param {string} activityid   the id of the Activity this profile is about
    * @param {string} profileid   the id you want associated with this state
    * @param {string} profileval   the profile
@@ -879,7 +899,7 @@ class XAPIWrapper {
    */
   postActivityProfile(activityid, profileid, profileval, callback)
   {
-      if (this.testConfig() && profileval && activityid && profileid)
+      if (this.testConfig() && (activityid && profileid && profileval))
       {
         let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
@@ -908,6 +928,7 @@ class XAPIWrapper {
         }
 
         return this.asyncRequest(conf);
+
       } else if (callback) {
         callback('Error: invalid parameters');
       } else {
@@ -933,40 +954,44 @@ class XAPIWrapper {
    */
   getActivityProfile(activityid, profileid, since, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && activityid)
       {
-          let url = `${this.lrs.endpoint}activities/profile?activityId=<activity ID>`;
+        let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}`;
 
-          url = url.replace('<activity ID>',encodeURIComponent(activityid));
+        if (profileid)
+        {
+            url += `&profileId=${encodeURIComponent(profileid)}`;
+        }
 
-          if (profileid)
-          {
-              url += `&profileId=${encodeURIComponent(profileid)}`;
+        if(since)
+        {
+            since = Util.isDate(since);
+            if (since != null) {
+                url += `&since=${encodeURIComponent(since.toISOString())}`;
+            }
+        }
+
+        const conf = {
+          url,
+          'method': 'GET',
+          'headers': {
+            'Content-Type': 'application/json',
+            'X-Experience-API-Version': this.xapiVersion,
+            'Authorization': this.lrs.auth
           }
+        };
 
-          if(since)
-          {
-              since = Util.isDate(since);
-              if (since != null) {
-                  url += `&since=${encodeURIComponent(since.toISOString())}`;
-              }
-          }
+        if (callback) {
+          this.callbackRequest(conf, callback, null, true);
+          return;
+        }
 
-          let result = XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null, this.withCredentials, this.strictCallbacks);
+        return this.asyncRequest(conf);
 
-          if(result === undefined || result.status == 404)
-          {
-              return null
-          }
-
-          try
-          {
-              return JSON.parse(result.response);
-          }
-          catch(e)
-          {
-              return result.response;
-          }
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -985,29 +1010,31 @@ class XAPIWrapper {
    */
   deleteActivityProfile(activityid, profileid, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && (activityid && profileid))
       {
-          let url = `${this.lrs.endpoint}activities/profile?activityId=<activity ID>&profileId=<profileid>`;
+        let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
-          url = url.replace('<activity ID>',encodeURIComponent(activityid));
-          url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-          let headers = null;
-          let result = XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false, headers,this.withCredentials, this.strictCallbacks);
-
-          if(result === undefined || result.status == 404)
-          {
-              return null
+        const conf = {
+          url,
+          'method': 'DELETE',
+          'headers': {
+            'Content-Type': 'application/json',
+            'X-Experience-API-Version': this.xapiVersion,
+            'Authorization': this.lrs.auth
           }
+        };
 
-          try
-          {
-              return JSON.parse(result.response);
-          }
-          catch(e)
-          {
-              return result;
-          }
+        if (callback) {
+          this.callbackRequest(conf, callback, null, false);
+          return;
+        }
+
+        return this.asyncRequest(conf);
+
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -1068,17 +1095,21 @@ class XAPIWrapper {
    */
   putAgentProfile(agent, profileid, profileval, matchHash, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && (agent && profileid && profileval))
       {
-        if (!profileval)
-          return false;
-
-        if (!matchHash || matchHash == "")
-          matchHash = '*';
+        if (!matchHash || matchHash == "") {
+          if (callback) {
+            callback('Error: invalid ETag');
+            return;
+          } else {
+            return new Promise((res,rej) => { rej('Error: invalid ETag'); });
+          }
+        }
 
         let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}&profileId=${profileid}`;
 
-        let headers = {"If-Match":this.formatHash(matchHash)};
+        let headers = (matchHash==="*") ? {"If-Match":this.formatHash(matchHash)} : {"If-None-Match":this.formatHash(matchHash)};
+
         if (profileval instanceof Array || profileval instanceof Object)
         {
             profileval = JSON.stringify(profileval);
@@ -1100,6 +1131,7 @@ class XAPIWrapper {
         }
 
         this.asyncRequest(conf);
+
       } else if (callback) {
         callback('Error: invalid parameters');
       } else {
@@ -1119,15 +1151,9 @@ class XAPIWrapper {
    */
   postAgentProfile(agent, profileid, profileval, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && (agent && profileid && profileval))
       {
-        if (!profileval)
-          return false;
-
-        let url = `${this.lrs.endpoint}agents/profile?agent=<agent>&profileId=<profileid>`;
-
-        url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-        url = url.replace('<profileid>',encodeURIComponent(profileid));
+        let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}&profileId=${profileid}`;
 
         let headers = {};
         if (profileval instanceof Array || profileval instanceof Object)
@@ -1138,8 +1164,27 @@ class XAPIWrapper {
         else
             headers["Content-Type"] ="application/octet-stream";
 
+        headers['X-Experience-API-Version'] = this.xapiVersion;
+        headers['Authorization'] = this.lrs.auth;
 
-        XHR_request(this.lrs, url, "POST", profileval, this.lrs.auth, callback, null, false, headers, this.withCredentials, this.strictCallbacks);
+        const conf = {
+          url,
+          'method': 'POST',
+          headers,
+          'body': profileval
+        };
+
+        if (callback) {
+          this.callbackRequest(conf, callback, null, false);
+          return;
+        }
+
+        return this.asyncRequest(conf);
+
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -1161,41 +1206,44 @@ class XAPIWrapper {
    */
   getAgentProfile(agent, profileid, since, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && agent)
       {
-          let url = `${this.lrs.endpoint}agents/profile?agent=<agent>`;
+        let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}`;
 
-          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-          url = url.replace('<profileid>',encodeURIComponent(profileid));
+        if (profileid)
+        {
+            url += `&profileId=${encodeURIComponent(profileid)}`;
+        }
 
-          if (profileid)
-          {
-              url += `&profileId=${encodeURIComponent(profileid)}`;
+        if(since)
+        {
+            since = Util.isDate(since);
+            if (since != null) {
+                url += `&since=${encodeURIComponent(since.toISOString())}`;
+            }
+        }
+
+        const conf = {
+          url,
+          'method': 'GET',
+          'headers': {
+            'Content-Type': 'application/json',
+            'X-Experience-API-Version': this.xapiVersion,
+            'Authorization': this.lrs.auth
           }
+        };
 
-          if(since)
-          {
-              since = Util.isDate(since);
-              if (since != null) {
-                  url += `&since=${encodeURIComponent(since.toISOString())}`;
-              }
-          }
+        if (callback) {
+          this.callbackRequest(conf, callback, null, true);
+          return;
+        }
 
-          let result = XHR_request(this.lrs, url, "GET", null, this.lrs.auth, callback, null, true, null,this.withCredentials, this.strictCallbacks);
+        return this.asyncRequest(conf);
 
-          if(result === undefined || result.status == 404)
-          {
-              return null
-          }
-
-          try
-          {
-              return JSON.parse(result.response);
-          }
-          catch(e)
-          {
-              return result.response;
-          }
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -1214,29 +1262,31 @@ class XAPIWrapper {
    */
   deleteAgentProfile(agent, profileid, callback)
   {
-      if (this.testConfig())
+      if (this.testConfig() && (activityid && profileid))
       {
-          let url = `${this.lrs.endpoint}agents/profile?agent=<agent>&profileId=<profileid>`;
+        let url = `${this.lrs.endpoint}agents/profile?agent=${agent}&profileId=${profileid}`;
 
-          url = url.replace('<agent>',encodeURIComponent(JSON.stringify(agent)));
-          url = url.replace('<profileid>',encodeURIComponent(profileid));
-
-          let headers = null;
-          let result = XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth, callback, null, false,headers,this.withCredentials, this.strictCallbacks);
-
-          if(result === undefined || result.status == 404)
-          {
-              return null
+        const conf = {
+          url,
+          'method': 'DELETE',
+          'headers': {
+            'Content-Type': 'application/json',
+            'X-Experience-API-Version': this.xapiVersion,
+            'Authorization': this.lrs.auth
           }
+        };
 
-          try
-          {
-              return JSON.parse(result.response);
-          }
-          catch(e)
-          {
-              return result;
-          }
+        if (callback) {
+          this.callbackRequest(conf, callback, null, false);
+          return;
+        }
+
+        return this.asyncRequest(conf);
+
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
       }
   };
 
@@ -1334,13 +1384,6 @@ class XAPIWrapper {
         prop,
         until;
 
-    //Consolidate headers
-    // let headers = {};
-    // headers["Content-Type"] = "application/json";
-    // headers["Authorization"] = this.lrs.auth;
-    // headers['X-Experience-API-Version'] = this.xapiVersion;
-    // Object.assign(headers, extraHeaders);
-
     //See if this really is a cross domain
     xDomainRequest = (location.protocol !== urlparts[1] || location.hostname !== urlparts[2]);
     if (!xDomainRequest) {
@@ -1382,52 +1425,6 @@ class XAPIWrapper {
         xhr = new XDomainRequest();
         xhr.open(ieModeRequest.method, ieModeRequest.url);
     }
-
-    //Setup request callback
-    // let requestComplete = () => {
-    //     if(!finished){
-    //         // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
-    //         // onload or both might fire depending upon browser, just covering all bases with event hooks and
-    //         // using 'finished' flag to avoid triggering events multiple times
-    //         finished = true;
-    //         let notFoundOk = (ignore404 && xhr.status === 404);
-    //         if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
-    //             if (callback) {
-    //                 if(callbackargs){
-    //                   strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
-    //                 }
-    //                 else {
-    //                   var body;
-    //
-    //                   try {
-    //                       body = JSON.parse(xhr.responseText);
-    //                   }
-    //                   catch(e){
-    //                       body = xhr.responseText;
-    //                   }
-    //
-    //                   strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
-    //                 }
-    //             } else {
-    //                 result = xhr;
-    //                 return xhr;
-    //             }
-    //         } else {
-    //             let warning;
-    //             try {
-    //                 warning = `There was a problem communicating with the Learning Record Store. ( ${xhr.status} | ${xhr.response} )${url}`;
-    //             } catch (ex) {
-    //                 warning = ex.toString();
-    //             }
-    //             log(warning);
-    //             this.requestError(xhr, method, url, callback, callbackargs, strictCallbacks);
-    //             result = xhr;
-    //             return xhr;
-    //         }
-    //     } else {
-    //         return result;
-    //     }
-    // };
 
     // synchronous
     if (ieXDomain) {

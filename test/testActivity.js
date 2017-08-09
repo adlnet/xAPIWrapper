@@ -1,6 +1,6 @@
 describe("Activity Test:", () => {
   // Activities to test
-  let def, noId, noName, noDesc, noDef, withType;
+  let def, noId, noName, noDesc, noDef;
 
   let trueFalse, choice, fillIn, longFillIn, match,
       peform, seq, like, num, other;
@@ -18,62 +18,16 @@ describe("Activity Test:", () => {
   // Test statements
   let s1, s2, s3, s4, s5, s6;
 
-  let objId = 'http://example.adlnet.gov/xapi/example/activity';
+  // Path
+  const DIR = "./templates/activities/";
 
 
   before(() => {
-    def = {
-      "definition": {
-          "description": {
-              "en-US": "Testing default activity"
-          },
-          "name": {
-              "en-US": "Default Activity"
-          }
-      },
-      "id": objId
-    }
-    noId = {
-      "definition": {
-          "description": {
-              "en-US": "Testing activity ID"
-          },
-          "name": {
-              "en-US": "No ID Activity"
-          }
-      }
-    }
-    noName = {
-      "definition": {
-          "description": {
-              "en-US": "Testing activity definition description"
-          }
-      },
-      "id": objId
-    }
-    noDesc = {
-      "definition": {
-          "name": {
-              "en-US": "No description Activity"
-          }
-      },
-      "id": objId
-    }
-    noDef = {
-      "id": objId
-    }
-    withType = {
-      "definition": {
-          "description": {
-              "en-US": "Testing activity with type"
-          },
-          "name": {
-              "en-US": "ObjectType Activity"
-          }
-      },
-      "id": objId,
-      "objectType": "Activity"
-    }
+    def = require(`${DIR}default.json`);
+    noId = require(`${DIR}no_id.json`);
+    noName = require(`${DIR}no_name.json`);
+    noDesc = require(`${DIR}no_description.json`);
+    noDef = require(`${DIR}no_definition.json`);
 
     // Require necessary modules
     should = require('should');
@@ -94,12 +48,11 @@ describe("Activity Test:", () => {
     s3 = new Statement(actor, verbs.attempted, noName);
     s4 = new Statement(actor, verbs.attempted, noDesc);
     s5 = new Statement(actor, verbs.attempted, noDef);
-    s6 = new Statement(actor, verbs.attempted, withType);
   });
 
   describe("Activity constructor test:", () => {
     it("should pass with valid id string only", () => {
-      ((new Activity(objId)).isValid()).should.eql(true);
+      ((new Activity(def.id)).isValid()).should.eql(true);
     });
     it("should fail with invalid id & valid definition", () => {
       (!(new Activity("", def.definition.name, def.definition.description)).isValid()).should.eql(true);
@@ -113,7 +66,6 @@ describe("Activity Test:", () => {
       (s3.object.getDisplay()).should.eql(noName.id);
       (s4.object.getDisplay()).should.not.eql(null);
       (s5.object.getDisplay()).should.eql(noDef.id);
-      (s6.object.getDisplay()).should.not.eql(null);
     });
   });
 
@@ -124,20 +76,10 @@ describe("Activity Test:", () => {
       (s3.object.isValid()).should.eql(true);
       (s4.object.isValid()).should.eql(true);
       (s5.object.isValid()).should.eql(true);
-      (s6.object.isValid()).should.eql(true);
     });
     describe("Default", () => {
       it('should pass with valid id & definition', (done) => {
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-      it('should pass using valid defaults with objectType', (done) => {
-        XAPIWrapper.postStatement(s6, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -229,7 +171,6 @@ describe("Activity Test:", () => {
       s3 = new Statement(actor, verbs.attempted, new Activity(noName));
       s4 = new Statement(actor, verbs.attempted, new Activity(noDesc));
       s5 = new Statement(actor, verbs.attempted, new Activity(noDef));
-      s6 = new Statement(actor, verbs.attempted, new Activity(withType));
     });
 
     it("should pass calling isValid() on activity objects", () => {
@@ -238,20 +179,10 @@ describe("Activity Test:", () => {
       (s3.object.isValid()).should.eql(true);
       (s4.object.isValid()).should.eql(true);
       (s5.object.isValid()).should.eql(true);
-      (s6.object.isValid()).should.eql(true);
     });
     describe("Default", () => {
       it('should pass with valid id & definition', (done) => {
         XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-      it('should pass using valid defaults with objectType', (done) => {
-        XAPIWrapper.postStatement(s6, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);

@@ -120,9 +120,7 @@ class Statement {
       }
     }
 
-    this.generateId = (() => {
-      this.id = Util.ruuid();
-    })();
+    this.id = Util.ruuid();
   };
 
   toString(){

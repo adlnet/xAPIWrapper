@@ -1,0 +1,11 @@
+{
+  "objectType": "Activity",
+  "definition": {
+      "description": {
+          "en-US": "Testing default activity"
+      },
+      "name": {
+          "en-US": "Default Activity"
+      }
+  }
+}

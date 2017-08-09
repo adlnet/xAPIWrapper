@@ -6,6 +6,10 @@ describe("Asynchronous Testing:", () => {
   const NO_CONTENT = 204;
   const BAD_REQUEST = 400;
 
+  // Error messages
+  const INVALID_PARAMETER = 'Error: invalid parameters';
+  const INVALID_ETAG = 'Error: invalid ETag';
+
   // Testing module functionality
   let should, XAPIWrapper, Util, Statement;
 
@@ -470,7 +474,7 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe.skip("Activity Profile", () => {
+  describe.only("Activity Profile", () => {
     let actId, profileId, profileVal;
 
     before(() => {
@@ -494,69 +498,41 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should pass updating profile using valid activity/profile IDs asynchronously", async () => {
-        let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
-
-
-      });
-      it("should pass updating profile using valid activity/profile IDs with callback", (done) => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {
-
-
-          done();
-        });
-      });
-      it("should fail sending profile using null parameters asynchronously", async () => {
-        let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
-
-      });
-      it("should fail sending profile using null parameters with callback", (done) => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {
-
-
-          done();
-        });
-      });
       it("should fail sending profile using invalid activityId asynchronously", async () => {
-        let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
-
+        XAPIWrapper.putActivityProfile(null, profileId, profileVal, "*")
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETER);
+          });
       });
       it("should fail sending profile using invalid activityId with callback", (done) => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {
-
+        XAPIWrapper.putActivityProfile(null, profileId, profileVal, "*", (error, resp, data) => {
+          error.should.eql(INVALID_PARAMETER);
 
           done();
         });
       });
       it("should fail sending profile using invalid profileId asynchronously", async () => {
-        let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
-
+        XAPIWrapper.putActivityProfile(actId, null, profileVal, "*")
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETER);
+          });
       });
       it("should fail sending profile using invalid profileId with callback", (done) => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {
-
-
-          done();
-        });
-      });
-      it("should fail sending invalid profile asynchronously", async () => {
-        let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
-
-      });
-      it("should fail sending invalid profile with callback", (done) => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {
-
+        XAPIWrapper.putActivityProfile(actId, null, profileVal, "*", (error, resp, data) => {
+          error.should.eql(INVALID_PARAMETER);
 
           done();
         });
       });
-      it("should fail updating profile using invalid profile asynchronously", async () => {
-        let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*");
-
+      it("should fail sending profile using invalid ETag asynchronously", async () => {
+        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "")
+          .catch((error) => {
+            error.should.eql(INVALID_ETAG);
+          });
       });
-      it("should fail updating profile using invalid profile with callback", (done) => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "*", (error, resp, data) => {
-
+      it("should fail sending profile using invalid ETag with callback", (done) => {
+        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, null, (error, resp, data) => {
+          error.should.eql(INVALID_ETAG);
 
           done();
         });
@@ -577,9 +553,59 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-    });
-    describe("GET", () => {
+      it("should fail sending profile using invalid activityId asynchronously", async () => {
+        XAPIWrapper.postActivityProfile(null, profileId, profileVal)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETER);
+          });
+      });
+      it("should fail sending profile using invalid activityId with callback", (done) => {
+        XAPIWrapper.postActivityProfile(null, profileId, profileVal, (error, resp, data) => {
+          error.should.eql(INVALID_PARAMETER);
 
+          done();
+        });
+      });
+      it("should fail sending profile using invalid profileId asynchronously", async () => {
+        XAPIWrapper.postActivityProfile(actId, null, profileVal)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETER);
+          });
+      });
+      it("should fail sending profile using invalid profileId with callback", (done) => {
+        XAPIWrapper.postActivityProfile(actId, null, profileVal, (error, resp, data) => {
+          error.should.eql(INVALID_PARAMETER);
+
+          done();
+        });
+      });
+    });
+    describe.only("GET", () => {
+      it.skip("should return single activity profile using valid activity/profile IDs asynchronously", async () => {
+
+      });
+      it.skip("should return single activity profile using valid activity/profile IDs with callback", (done) => {
+
+      });
+      it.skip("should return list of activity profiles using valid activity id asynchronously", async () => {
+
+      });
+      it.skip("should return list of activity profiles using valid activity id with callback", (done) => {
+
+      });
+      it("should fail using invalid activity id asynchronously", async () => {
+        XAPIWrapper.getActivityProfile(null, profileId)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETER);
+          });
+      });
+      it("should fail using invalid activity id with callback", (done) => {
+        XAPIWrapper.getActivityProfile(null, profileId, null, (error, resp, data) => {
+          error.should.eql(INVALID_PARAMETER);
+
+          done();
+        });
+      });
     });
     describe("DELETE", () => {
 
