@@ -2,7 +2,7 @@ describe("Group Test:", () => {
   // Group objects to test
   let def, iAccount, iAccountName, iAccountHomepage, iAccountNoMembers,
       iMboxsha1sum, iMboxsha1sumNoMembers, iOpenId, iOpenIdNoMembers,
-      iMbox, aGroup, aGroupNoMembers, aGroupMembers, auth, groupMember;
+      iMbox, aGroup, aGroupNoMembers, aGroupMembers, groupMember;
 
   // Testing module functionality
   let should, XAPIWrapper, Agent, Group, Statement, verbs;
@@ -16,7 +16,7 @@ describe("Group Test:", () => {
 
   // Test statements
   let s1, s2, s3, s4, s5, s6, s7, s8,
-      s9, s10, s11, s12, s13, s14, s15;
+      s9, s10, s11, s12, s13, s14;
 
   // Path
   const DIR = "./templates/groups/";
@@ -36,20 +36,6 @@ describe("Group Test:", () => {
     aGroup = require(`${DIR}anonymous.json`);
     aGroupNoMembers = require(`${DIR}anonymous_no_member.json`);
     aGroupMembers = require(`${DIR}anonymous_two_member.json`);
-    auth = {
-      "objectType": "Group",
-      "member": [
-        {
-          "account": {
-            "homePage": "http://www.example.com/xAPI/OAuth/Token",
-            "name": "oauth_consumer_x75db"
-          }
-        },
-        {
-          "mbox": "mailto:aaron_authority@example.com"
-        }
-      ]
-    };
     groupMember = require(`${DIR}anonymous_group_member.json`);
 
     // Require necessary modules
@@ -81,8 +67,7 @@ describe("Group Test:", () => {
     s11 = new Statement(aGroup, verbs.attempted, objId);
     s12 = new Statement(aGroupNoMembers, verbs.attempted, objId);
     s13 = new Statement(aGroupMembers, verbs.attempted, objId);
-    s14 = new Statement(auth, verbs.attempted, objId);
-    s15 = new Statement(groupMember, verbs.attempted, objId);
+    s14 = new Statement(groupMember, verbs.attempted, objId);
   });
 
   describe("Group constructor test:", () => {
@@ -90,13 +75,28 @@ describe("Group Test:", () => {
       ((new Group(def)).isValid()).should.eql(true);
     });
     it("should pass with valid id/members & no name", () => {
-      
+      ((new Group(s10.actor.getId(), iMbox.member)).isValid()).should.eql(true);
+    });
+    it("should pass with valid members & no id/name", () => {
+        ((new Group(null, iMbox.member)).isValid()).should.eql(true);
     });
     it("should fail with empty parameters", () => {
-
+        (!(new Group()).isValid()).should.eql(true);
+    });
+    it("should fail with valid name only", () => {
+        (!(new Group(null, null, aGroup.name)).isValid()).should.eql(true);
+    });
+    it("should fail with invalid id/members", () => {
+        (!(new Group(iAccountName.account, groupMember.member)).isValid()).should.eql(true);
     });
     it("should pass when retrieving display objects", () => {
-
+        (s1.actor.getDisplay()).should.eql(def.name);
+        (s10.actor.getDisplay()).should.eql(iMbox.mbox);
+        (s7.actor.getDisplay()).should.eql(iMboxsha1sumNoMembers.mbox_sha1sum);
+        (s9.actor.getDisplay()).should.eql(iOpenIdNoMembers.openid);
+        (s2.actor.getDisplay()).should.eql(`${iAccount.account.homePage}:${iAccount.account.name}`);
+        (s11.actor.getDisplay()).should.eql('Anonymous Group');
+        (!s14.actor.getDisplay()).should.eql(true);
     });
   });
 
@@ -115,8 +115,7 @@ describe("Group Test:", () => {
       (s11.actor.isValid()).should.eql(true);
       (!s12.actor.isValid()).should.eql(true);
       (s13.actor.isValid()).should.eql(true);
-      // (s14.actor.isValid()).should.eql(true);
-      (!s15.actor.isValid()).should.eql(true);
+      (!s14.actor.isValid()).should.eql(true);
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
@@ -249,20 +248,9 @@ describe("Group Test:", () => {
         });
       });
     });
-    describe.skip("Authority", () => {
-      it('should pass with valid auth members', (done) => {
-        XAPIWrapper.postStatement(s14, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-    });
     describe("Group Member", () => {
       it('should fail with Group member object', (done) => {
-        XAPIWrapper.postStatement(s15, (error, resp, data) => {
+        XAPIWrapper.postStatement(s14, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
@@ -286,8 +274,7 @@ describe("Group Test:", () => {
       s11 = new Statement(new Group(aGroup), verbs.attempted, objId);
       s12 = new Statement(new Group(aGroupNoMembers), verbs.attempted, objId);
       s13 = new Statement(new Group(aGroupMembers), verbs.attempted, objId);
-      s14 = new Statement(new Group(auth), verbs.attempted, objId);
-      s15 = new Statement(new Group(groupMember), verbs.attempted, objId);
+      s14 = new Statement(new Group(groupMember), verbs.attempted, objId);
     });
 
     it("should pass calling isValid() on group objects", () => {
@@ -304,8 +291,7 @@ describe("Group Test:", () => {
       (s11.actor.isValid()).should.eql(true);
       (!s12.actor.isValid()).should.eql(true);
       (s13.actor.isValid()).should.eql(true);
-      // (s14.actor.isValid()).should.eql(true);
-      (!s15.actor.isValid()).should.eql(true);
+      (!s14.actor.isValid()).should.eql(true);
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
@@ -438,20 +424,9 @@ describe("Group Test:", () => {
         });
       });
     });
-    describe.skip("Authority", () => {
-      it('should pass with valid auth members', (done) => {
-        XAPIWrapper.postStatement(s14, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-    });
     describe("Group Member", () => {
       it('should fail with Group member object', (done) => {
-        XAPIWrapper.postStatement(s15, (error, resp, data) => {
+        XAPIWrapper.postStatement(s14, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();

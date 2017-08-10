@@ -558,15 +558,22 @@ class XAPIWrapper {
   {
       if (this.testConfig() && stateval && activityid && agent && stateid)
       {
-          if (!matchHash || matchHash == "")
-            matchHash = '*';
+          if (!matchHash || matchHash == "") {
+              if (callback) {
+                  callback('Error: invalid ETag');
+                  return;
+              } else {
+                  return new Promise((res, rej) => { rej('Error: invalid ETag'); });
+              }
+          }
 
           let url = `${this.lrs.endpoint}activities/state?activityId=${activityid}&agent=${JSON.stringify(agent)}&stateId=${stateid}`;
 
           if (registration)
               url += `&registration=${encodeURIComponent(registration)}`;
 
-          let headers = {"If-Match":this.formatHash(matchHash)};
+          let headers = (matchHash === "*") ? { "If-Match": this.formatHash(matchHash) } : { "If-None-Match": this.formatHash(matchHash) };
+
           if (stateval instanceof Array || stateval instanceof Object)
           {
               stateval = JSON.stringify(stateval);

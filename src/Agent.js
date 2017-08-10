@@ -58,7 +58,7 @@ class Agent {
 
   getDisplay(){
     if (!this.isValid())
-      return;
+      return null;
 
     return this.name || this.getIdString();
   };
@@ -162,8 +162,8 @@ class Group {
         id = 'unknown';
         if (this.account) {
           id = `${this.account.homePage}:${this.account.name}`;
-        } else if (this.member) {
-          id = `Anon Group ${this.member}`
+        } else if (this.member && this.isValidMembers(this.member)) {
+          id = `Anonymous Group`
         }
       }
 
@@ -172,7 +172,7 @@ class Group {
 
   getDisplay(){
     if (!this.isValid())
-      return;
+      return null;
 
     return this.name || this.getIdString();
   };

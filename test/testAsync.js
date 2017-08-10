@@ -284,20 +284,21 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should pass sending state using null matchHash asynchronously", async () => {
-        let res = await XAPIWrapper.putState(actId, agent, stateId, null, stateVal, null);
+      it("should pass updating state asynchronously", async () => {
+        let newState = {'info': 'the new updated state info'};
+        let res = await XAPIWrapper.putState(actId, agent, stateId, null, newState, "*");
         res.resp.status.should.eql(NO_CONTENT);
         res.resp.ok.should.eql(true);
       });
-      it("should pass updating state asynchronously", async () => {
-        let newState = {'info': 'the new updated state info'};
-        let res = await XAPIWrapper.putState(actId, agent, stateId, null, newState, XAPIWrapper.hash(JSON.stringify(stateVal)));
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+      it("should fail sending state using invalid matchHash asynchronously", async () => {
+          XAPIWrapper.putState(actId, agent, stateId, null, stateVal, null)
+            .catch((error) => {
+                error.should.eql(INVALID_ETAG);
+            });
       });
       it("should fail sending null stateval parameter asynchronously", async () => {
         try {
-          let res = await XAPIWrapper.putState(actId, agent, stateId, null, "*", null);
+          let res = await XAPIWrapper.putState(actId, agent, stateId, null, null, "*");
         } catch (e) {
           e.should.not.eql(null);
         }
@@ -580,7 +581,7 @@ describe("Asynchronous Testing:", () => {
         });
       });
     });
-    describe.only("GET", () => {
+    describe("GET", () => {
       it.skip("should return single activity profile using valid activity/profile IDs asynchronously", async () => {
 
       });
