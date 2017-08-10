@@ -280,10 +280,10 @@ class XAPIWrapper {
         // validate id parameter
         if (!id || id == "") {
           if (callback) {
-            callback('Error: invalid id parameter');
+            callback('Error: invalid id');
             return;
           } else {
-            return new Promise((res,rej) => { rej('Error: invalid id parameter'); });
+            return new Promise((res,rej) => { rej('Error: invalid id'); });
           }
         }
 
@@ -548,31 +548,21 @@ class XAPIWrapper {
    * @param {string} stateid   the id you want associated with this state
    * @param {string} [registration]   the registraton id associated with this state
    * @param {string} stateval   the state
-   * @param {string} [matchHash]    the hash of the state to replace or * to replace any
    * @param {function} [callback]   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    *            the function will be passed the XMLHttpRequest object
    * @return {boolean} false if no activity state is included
    */
-  putState(activityid, agent, stateid, registration, stateval, matchHash, callback)
+  putState(activityid, agent, stateid, registration, stateval, callback)
   {
-      if (this.testConfig() && stateval && activityid && agent && stateid)
+      if (this.testConfig() && (stateval && activityid && agent && stateid))
       {
-          if (!matchHash || matchHash == "") {
-              if (callback) {
-                  callback('Error: invalid ETag');
-                  return;
-              } else {
-                  return new Promise((res, rej) => { rej('Error: invalid ETag'); });
-              }
-          }
-
           let url = `${this.lrs.endpoint}activities/state?activityId=${activityid}&agent=${JSON.stringify(agent)}&stateId=${stateid}`;
 
           if (registration)
               url += `&registration=${encodeURIComponent(registration)}`;
 
-          let headers = (matchHash === "*") ? { "If-Match": this.formatHash(matchHash) } : { "If-None-Match": this.formatHash(matchHash) };
+          let headers = {};
 
           if (stateval instanceof Array || stateval instanceof Object)
           {
@@ -839,28 +829,41 @@ class XAPIWrapper {
    * @param {string} activityid   the id of the Activity this profile is about
    * @param {string} profileid   the id you want associated with this state
    * @param {string} profileval   the profile
-   * @param {string} [matchHash]    the hash of the state to replace or * to replace any
+   * @param {string} [eHeader]    the ETag header to specify If-Match or If-None-Match for the profile
+   * @param {string} [eHash]    the hash of the profile to replace or * to replace any
    * @param {function} [callback]   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    *            the function will be passed the XMLHttpRequest object
    * @return {boolean} false if no activity state is included
    */
-  putActivityProfile(activityid, profileid, profileval, matchHash, callback)
+  putActivityProfile(activityid, profileid, profileval, eHeader, eHash, callback)
   {
       if (this.testConfig() && (activityid && profileid && profileval))
       {
-        if (!matchHash || matchHash == "") {
+        // validate ETag header
+        if (eHeader != "If-Match" && eHeader != "If-None-Match") {
           if (callback) {
-            callback('Error: invalid ETag');
+            callback('Error: invalid ETag header');
             return;
           } else {
-            return new Promise((res,rej) => { rej('Error: invalid ETag'); });
+            return new Promise((res,rej) => { rej('Error: invalid ETag header'); });
+          }
+        }
+
+        // validate ETag hash
+        if (!eHash || eHash == "") {
+          if (callback) {
+            callback('Error: invalid ETag hash');
+            return;
+          } else {
+            return new Promise((res,rej) => { rej('Error: invalid ETag hash'); });
           }
         }
 
         let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
-        let headers = (matchHash==="*") ? {"If-Match":this.formatHash(matchHash)} : {"If-None-Match":this.formatHash(matchHash)};
+        let headers = {}
+        headers[`${eHeader}`] = this.formatHash(eHash);
 
         if (profileval instanceof Array || profileval instanceof Object)
         {
@@ -886,7 +889,7 @@ class XAPIWrapper {
         }
 
         return this.asyncRequest(conf);
-        
+
       } else if (callback) {
         callback('Error: invalid parameters');
       } else {
