@@ -124,12 +124,6 @@ describe("Activity Test:", () => {
         });
       });
     });
-
-    describe.skip("Definition", () => {
-      it("", (done) => {
-
-      });
-    });
     describe.skip("Interaction Types", () => {
       it('should pass with valid true/false type', (done) => {
 

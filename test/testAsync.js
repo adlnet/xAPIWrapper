@@ -9,9 +9,14 @@ describe("Asynchronous Testing:", () => {
 
   // Error messages
   const INVALID_PARAMETERS = 'Error: invalid parameters';
+  const INVALID_TIMESTAMP = 'Error: invalid timestamp';
   const INVALID_ETAG_HEADER = 'Error: invalid ETag header';
   const INVALID_ETAG_HASH = 'Error: invalid ETag hash';
   const INVALID_ID = 'Error: invalid id';
+
+  // ETag headers
+  const IF_NONE_MATCH = "If-None-Match";
+  const IF_MATCH = "If-Match";
 
   // Testing module functionality
   let should, XAPIWrapper, Util, Statement;
@@ -484,149 +489,278 @@ describe("Asynchronous Testing:", () => {
   });
 
   describe("Activity Profile", () => {
-    let actId, profileId, profileVal;
-
-    const IF_NONE_MATCH = "If-None-Match";
-    const IF_MATCH = "If-Match";
+    let activityId1, profileId1, profileVal1;
+    let activityId2, profileId2, profileVal2;
+    let etag;
 
     before(() => {
-      actId = 'http://adlnet.gov/expapi/activities/attempt';
-      profileId = 'attemptprofile';
-      profileVal = {'info': 'the profile info'};
+      activityId1 = 'http://www.example.com/activityId/hashset1';
+      profileId1 = Util.ruuid();
+      profileVal1 = {"activityId":activityId1, "profileId":profileId1};
+
+      activityId2 = 'http://www.example.com/activityId/hashset2';
+      profileId2 = Util.ruuid();
+      profileVal2 = {"activityId":activityId2, "profileId":profileId2};
     });
 
     describe("PUT", () => {
+      describe("If-None-Match", () => {
+        it("should pass storing new profile if none exist", async () => {
+          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+
+              return XAPIWrapper.getActivityProfile(activityId1, profileId1)
+                .then((res) => {
+                  res.data['activityId'].should.eql(activityId1);
+                  res.data['profileId'].should.eql(profileId1);
+                  res.resp.headers._headers['etag'].should.not.eql(null);
+                });
+            });
+        });
+        it("should pass storing new profile with etag if none exist", async () => {
+          etag = XAPIWrapper.hash(JSON.stringify(profileVal2));
+          await XAPIWrapper.putActivityProfile(activityId2, profileId2, profileVal2, IF_NONE_MATCH, etag)
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+
+              return XAPIWrapper.getActivityProfile(activityId2, profileId2)
+                .then((res) => {
+                  res.data['activityId'].should.eql(activityId2);
+                  res.data['profileId'].should.eql(profileId2);
+                  res.resp.headers._headers['etag'][0].should.eql(`"${etag}"`);
+                });
+            });
+        });
+        it("should fail storing existing profile", async () => {
+          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
+            .catch((error) => {
+              error.should.eql(PRE_COND_FAILED);
+            });
+        });
+      });
+      describe("If-Match", () => {
+        it("should pass updating existing profile", async () => {
+          let profile = profileVal1;
+          profile.profileId = Util.ruuid();
+          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "*")
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+
+              return XAPIWrapper.getActivityProfile(activityId1, profileId1)
+                .then((res) => {
+                  res.data.should.eql({
+                    activityId: activityId1,
+                    profileId: profile.profileId
+                  });
+                });
+            });
+        });
+        it("should pass updating existing profile with ETag", async () => {
+          let profile = profileVal2;
+          profile.profileId = Util.ruuid();
+          await XAPIWrapper.putActivityProfile(activityId2, profileId2, profile, IF_MATCH, etag)
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+
+              return XAPIWrapper.getActivityProfile(activityId2, profileId2)
+                .then((res) => {
+                  res.data.should.eql({
+                    activityId: activityId2,
+                    profileId: profile.profileId
+                  });
+                });
+            });
+        });
+        it("should fail updating existing profile with invalid etag", async () => {
+          let profile = profileVal1;
+          profile.profileId = Util.ruuid();
+          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
+            .catch((error) => {
+              error.should.eql(PRE_COND_FAILED);
+            });
+        });
+      });
       it("should fail sending profile using invalid activityId", async () => {
-        XAPIWrapper.putActivityProfile(null, profileId, profileVal)
+        XAPIWrapper.putActivityProfile(null, profileId1, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
       it("should fail sending profile using invalid profileId", async () => {
-        XAPIWrapper.putActivityProfile(actId, null, profileVal)
+        XAPIWrapper.putActivityProfile(activityId1, null, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
+      it("should fail sending invalid profile object", async () => {
+        XAPIWrapper.putActivityProfile(activityId1, profileId1, null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail sending profile using both ETag headers", async () => {
+        XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, `${IF_NONE_MATCH}${IF_MATCH}`, "*")
+          .catch((error) => {
+            error.should.eql(INVALID_ETAG_HEADER);
+          });
+      });
       it("should fail sending profile using invalid ETag hash", async () => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, IF_NONE_MATCH, "")
+        XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HASH);
           });
       });
       it("should fail sending profile using invalid ETag header", async () => {
-        XAPIWrapper.putActivityProfile(actId, profileId, profileVal, "", "*")
+        XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, "", "*")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HEADER);
           });
       });
-      describe.skip("If-None-Match", () => {
-        before(() => {
-          actId = 'http://www.example.com/activityId/hashset';
-          profileId = Util.ruuid();
-        });
 
-        it("should pass storing new profile without etag", async () => {
-          profileVal = {"activityId": actId, profileId};
-          let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, IF_NONE_MATCH, "*");
-          res.resp.status.should.eql(NO_CONTENT);
-
-          let pRes = await XAPIWrapper.getActivityProfile(actId, profileId);
-          pRes.resp.status.should.eql(OK);
-          pRes.data['activityId'].should.eql(actId);
-          pRes.data['profileId'].should.eql(profileId);
-        });
-        it("should pass storing new profile with pre-calculated etag", async () => {
-          profileVal = {"activityId": actId, profileId};
-          let etag = XAPIWrapper.hash(profileVal);
-          let res = await XAPIWrapper.putActivityProfile(actId, profileId, profileVal, IF_NONE_MATCH, etag);
-          res.resp.status.should.eql(NO_CONTENT);
-
-          let pRes = await XAPIWrapper.getActivityProfile(actId, profileId);
-          pRes.resp.status.should.eql(OK);
-          pRes.data['activityId'].should.eql(actId);
-          pRes.data['profileId'].should.eql(profileId);
-        });
-
-        after(() => {
-          XAPIWrapper.deleteActivityProfile(actId, profileId);
-        })
-      });
-      describe("If-Match", () => {
-
+      after(() => {
+        XAPIWrapper.deleteActivityProfile(activityId1, profileId1);
+        XAPIWrapper.deleteActivityProfile(activityId2, profileId2);
       });
     });
     describe("POST", () => {
-      it("should pass sending activity profile asynchronously", async () => {
-        let res = await XAPIWrapper.postActivityProfile(actId, profileId, profileVal);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
-      });
-      it("should pass sending profile using valid activity/profile IDs with callback", (done) => {
-        XAPIWrapper.postActivityProfile(actId, profileId, profileVal, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(NO_CONTENT);
-          resp.ok.should.eql(true);
+      it("should pass storing profile if none exist", async () => {
+        await XAPIWrapper.postActivityProfile(activityId1, profileId1, profileVal1)
+          .then((res) => {
+            res.resp.status.should.eql(NO_CONTENT);
 
-          done();
-        });
+            return XAPIWrapper.getActivityProfile(activityId1, profileId1)
+              .then((res) => {
+                res.data.should.eql(profileVal1);
+                res.resp.headers._headers['etag'].should.not.eql(null);
+              });
+          });
       });
-      it("should fail sending profile using invalid activityId asynchronously", async () => {
-        XAPIWrapper.postActivityProfile(null, profileId, profileVal)
+      it("should pass merging profiles", async () => {
+        let profile = {newProp: "New property"};
+        await XAPIWrapper.postActivityProfile(activityId1, profileId1, profile)
+          .then((res) => {
+            res.resp.status.should.eql(NO_CONTENT);
+
+            return XAPIWrapper.getActivityProfile(activityId1, profileId1)
+              .then((res) => {
+                res.data.should.eql({
+                  activityId: profileVal1.activityId,
+                  profileId: profileVal1.profileId,
+                  newProp: profile.newProp
+                });
+              });
+          });
+      });
+      it("should fail sending profile using invalid activityId", async () => {
+        XAPIWrapper.postActivityProfile(null, profileId1, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using invalid activityId with callback", (done) => {
-        XAPIWrapper.postActivityProfile(null, profileId, profileVal, (error, resp, data) => {
-          error.should.eql(INVALID_PARAMETERS);
-
-          done();
-        });
-      });
-      it("should fail sending profile using invalid profileId asynchronously", async () => {
-        XAPIWrapper.postActivityProfile(actId, null, profileVal)
+      it("should fail sending profile using invalid profileId", async () => {
+        XAPIWrapper.postActivityProfile(activityId1, null, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using invalid profileId with callback", (done) => {
-        XAPIWrapper.postActivityProfile(actId, null, profileVal, (error, resp, data) => {
-          error.should.eql(INVALID_PARAMETERS);
+      it("should fail sending invalid profile object", async () => {
+        XAPIWrapper.postActivityProfile(activityId1, profileId1, null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
 
-          done();
-        });
+      after(() => {
+        XAPIWrapper.deleteActivityProfile(activityId1, profileId1);
+        XAPIWrapper.deleteActivityProfile(activityId2, profileId2);
       });
     });
     describe("GET", () => {
-      it.skip("should return single activity profile using valid activity/profile IDs asynchronously", async () => {
-
+      let prof, date;
+      before(() => {
+        prof = [
+          {"activityId":'http://www.example.com/activityId/1', "profileId":Util.ruuid()},
+          {"activityId":'http://www.example.com/activityId/1', "profileId":Util.ruuid()},
+          {"activityId":'http://www.example.com/activityId/1', "profileId":Util.ruuid()}
+        ];
+        date = new Date().toISOString();
+        XAPIWrapper.postActivityProfile(prof[0].activityId, prof[0].profileId, prof[0]);
+        XAPIWrapper.postActivityProfile(prof[1].activityId, prof[1].profileId, prof[1]);
+        XAPIWrapper.postActivityProfile(prof[2].activityId, prof[2].profileId, prof[2]);
       });
-      it.skip("should return single activity profile using valid activity/profile IDs with callback", (done) => {
 
+      it("should return single activity profile using valid activity/profile IDs", async () => {
+        await XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId)
+          .then((res) => {
+            res.data['activityId'].should.eql(prof[0].activityId);
+            res.data['profileId'].should.eql(prof[0].profileId);
+          });
       });
-      it.skip("should return list of activity profiles using valid activity id asynchronously", async () => {
-
+      it("should return list of profile IDs using valid activityId & no profileId", async () => {
+        await XAPIWrapper.getActivityProfile(prof[0].activityId)
+          .then((res) => {
+            (Array.isArray(res.data)).should.eql(true);
+            (res.data.length).should.not.eql(0);
+          });
       });
-      it.skip("should return list of activity profiles using valid activity id with callback", (done) => {
-
+      it("should return single activity profile using valid activity/profile IDs & timestamp", async () => {
+        await XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId, date)
+          .then((res) => {
+            res.data['activityId'].should.eql(prof[0].activityId);
+            res.data['profileId'].should.eql(prof[0].profileId);
+          });
       });
-      it("should fail using invalid activity id asynchronously", async () => {
-        XAPIWrapper.getActivityProfile(null, profileId)
+      it("should return list of profile IDs using valid activityId & timestamp", async () => {
+        await XAPIWrapper.getActivityProfile(prof[0].activityId, null, date)
+          .then((res) => {
+            (Array.isArray(res.data)).should.eql(true);
+            (res.data.length).should.not.eql(0);
+          });
+      });
+      it("should fail using invalid activityId", async () => {
+        await XAPIWrapper.getActivityProfile(null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail using invalid activity id with callback", (done) => {
-        XAPIWrapper.getActivityProfile(null, profileId, null, (error, resp, data) => {
-          error.should.eql(INVALID_PARAMETERS);
+      it("should fail using invalid 'since' timestamp", async () => {
+        await XAPIWrapper.getActivityProfile(activityId1, profileId1, {})
+          .catch((error) => {
+            error.should.eql(INVALID_TIMESTAMP);
+          });
+      });
 
-          done();
-        });
+      after(() => {
+        XAPIWrapper.deleteActivityProfile(prof[0].activityId, prof[0].profileId);
+        XAPIWrapper.deleteActivityProfile(prof[1].activityId, prof[1].profileId);
+        XAPIWrapper.deleteActivityProfile(prof[2].activityId, prof[2].profileId);
       });
     });
     describe("DELETE", () => {
+      it("should pass deleting the profile using valid activity/profile IDs", async () => {
+        await XAPIWrapper.deleteActivityProfile(activityId1, profileId1)
+          .then((res) => {
+            res.resp.status.should.eql(NO_CONTENT);
 
+            return XAPIWrapper.getActivityProfile(activityId1, profileId1)
+              .catch((error) => {
+                error.name.should.eql('FetchError');
+              });
+          });
+      });
+      it("should fail deleting the profile using invalid activityId", async () => {
+        await XAPIWrapper.deleteActivityProfile(null, profileId1)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail deleting the profile using invalid profileId", async () => {
+        await XAPIWrapper.deleteActivityProfile(activityId1, null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
     });
   });
 
@@ -663,21 +797,282 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
-  describe.skip("Agent Profile", () => {
+  describe("Agent Profile", () => {
+    let agent1, profileId1, profile1;
+    let agent2, profileId2, profile2;
+    let etag;
+
+    before(() => {
+      agent1 = {"mbox":"mailto:user@example.com"};
+      profileId1 = Util.ruuid();
+      profile1 = {"agent":agent1, "profileId":profileId1};
+
+      agent2 = {
+        "account": {
+          "homePage": "http://www.example.com/agentId2",
+          "name": "Agent2"
+        }
+      };
+      profileId2 = Util.ruuid();
+      profile2 = {"agent":agent2, "profileId":profileId2};
+    });
+
     describe("PUT", () => {
-      it("should pass using valid async/await", async () => {
+      describe("If-None-Match", () => {
+        it("should pass storing new profile if none exist", async () => {
+          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
 
+              return XAPIWrapper.getAgentProfile(agent1, profileId1)
+                .then((res) => {
+                  res.data.should.eql(profile1);
+                  res.resp.headers._headers['etag'].should.not.eql(null);
+                });
+            });
+        });
+        it("should pass storing new profile with etag if none exist", async () => {
+          etag = XAPIWrapper.hash(JSON.stringify(profile2));
+          await XAPIWrapper.putAgentProfile(agent2, profileId2, profile2, IF_NONE_MATCH, etag)
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+
+              return XAPIWrapper.getAgentProfile(agent2, profileId2)
+                .then((res) => {
+                  res.data.should.eql(profile2);
+                  res.resp.headers._headers['etag'][0].should.eql(`"${etag}"`);
+                });
+            });
+        });
+        it("should fail storing existing profile", async () => {
+          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
+            .catch((error) => {
+              error.should.eql(PRE_COND_FAILED);
+            });
+        });
       });
-      it("should pass using valid callback", (done) => {
+      describe("If-Match", () => {
+        it("should pass updating existing profile", async () => {
+          let profile = profile1;
+          profile.profileId = Util.ruuid();
+          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "*")
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
 
+              return XAPIWrapper.getAgentProfile(agent1, profileId1)
+                .then((res) => {
+                  res.data.should.eql({
+                    agent: agent1,
+                    profileId: profile.profileId
+                  });
+                });
+            });
+        });
+        it("should pass updating existing profile with ETag", async () => {
+          let profile = profile2;
+          profile.profileId = Util.ruuid();
+          await XAPIWrapper.putAgentProfile(agent2, profileId2, profile, IF_MATCH, etag)
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+
+              return XAPIWrapper.getAgentProfile(agent2, profileId2)
+                .then((res) => {
+                  res.data.should.eql({
+                    agent: agent2,
+                    profileId: profile.profileId
+                  });
+                });
+            });
+        });
+        it("should fail updating existing profile with invalid etag", async () => {
+          let profile = profile1;
+          profile.profileId = Util.ruuid();
+          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
+            .catch((error) => {
+              error.should.eql(PRE_COND_FAILED);
+            });
+        });
+      });
+      it("should fail sending profile using invalid agent", async () => {
+        XAPIWrapper.putAgentProfile(null, profileId1, profile1)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail sending profile using invalid profileId", async () => {
+        XAPIWrapper.putAgentProfile(agent1, null, profile1)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail sending invalid profile object", async () => {
+        XAPIWrapper.putAgentProfile(agent1, profileId1, null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail sending profile using both ETag headers", async () => {
+        XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, `${IF_NONE_MATCH}${IF_MATCH}`, "*")
+          .catch((error) => {
+            error.should.eql(INVALID_ETAG_HEADER);
+          });
+      });
+      it("should fail sending profile using invalid ETag hash", async () => {
+        XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "")
+          .catch((error) => {
+            error.should.eql(INVALID_ETAG_HASH);
+          });
+      });
+      it("should fail sending profile using invalid ETag header", async () => {
+        XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, "", "*")
+          .catch((error) => {
+            error.should.eql(INVALID_ETAG_HEADER);
+          });
+      });
+
+      after(() => {
+        XAPIWrapper.deleteAgentProfile(agent1, profileId1);
+        XAPIWrapper.deleteAgentProfile(agent2, profileId2);
       });
     });
     describe("POST", () => {
-      it("should pass using valid async/await", async () => {
+      it("should pass storing profile if none exist", async () => {
+        await XAPIWrapper.postAgentProfile(agent1, profileId1, profile1)
+          .then((res) => {
+            res.resp.status.should.eql(NO_CONTENT);
 
+            return XAPIWrapper.getAgentProfile(agent1, profileId1)
+              .then((res) => {
+                res.data.should.eql(profile1);
+                res.resp.headers._headers['etag'].should.not.eql(null);
+              });
+          });
       });
-      it("should pass using valid callback", (done) => {
+      it("should pass merging profiles", async () => {
+        let profile = {newProp: "New property"};
+        await XAPIWrapper.postAgentProfile(agent1, profileId1, profile)
+          .then((res) => {
+            res.resp.status.should.eql(NO_CONTENT);
 
+            return XAPIWrapper.getAgentProfile(agent1, profileId1)
+              .then((res) => {
+                res.data.should.eql({
+                  agent: profile1.agent,
+                  profileId: profile1.profileId,
+                  newProp: profile.newProp
+                });
+              });
+          });
+      });
+      it("should fail sending profile using invalid agent", async () => {
+        XAPIWrapper.postAgentProfile(null, profileId1, profile1)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail sending profile using invalid profileId", async () => {
+        XAPIWrapper.postAgentProfile(agent1, null, profile1)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail sending invalid profile object", async () => {
+        XAPIWrapper.postAgentProfile(agent1, profileId1, null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+
+      after(() => {
+        XAPIWrapper.deleteAgentProfile(agent1, profileId1);
+        XAPIWrapper.deleteAgentProfile(agent2, profileId2);
+      });
+    });
+    describe("GET", () => {
+      let prof, date;
+      let agentId;
+      before(() => {
+        agentId = XAPIWrapper.hash(agent1);
+
+        prof = [
+          {"agent":{"mbox_sha1sum":agentId}, "profileId":Util.ruuid()},
+          {"agent":{"mbox_sha1sum":agentId}, "profileId":Util.ruuid()},
+          {"agent":{"mbox_sha1sum":agentId}, "profileId":Util.ruuid()}
+        ];
+        date = new Date().toISOString();
+        XAPIWrapper.postAgentProfile(prof[0].agent, prof[0].profileId, prof[0]);
+        XAPIWrapper.postAgentProfile(prof[1].agent, prof[1].profileId, prof[1]);
+        XAPIWrapper.postAgentProfile(prof[2].agent, prof[2].profileId, prof[2]);
+      });
+
+      it("should return single activity profile using valid agent & profileId", async () => {
+        await XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId)
+          .then((res) => {
+            res.data.should.eql(prof[0]);
+          });
+      });
+      it("should return list of profile IDs using valid agent & no profileId", async () => {
+        await XAPIWrapper.getAgentProfile(prof[0].agent)
+          .then((res) => {
+            (Array.isArray(res.data)).should.eql(true);
+            (res.data.length).should.not.eql(0);
+          });
+      });
+      it("should return single activity profile using valid agent, profileId & timestamp", async () => {
+        await XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId, date)
+          .then((res) => {
+            res.data.should.eql(prof[0]);
+          });
+      });
+      it("should return list of profile IDs using valid agent & timestamp", async () => {
+        await XAPIWrapper.getAgentProfile(prof[0].agent, null, date)
+          .then((res) => {
+            (Array.isArray(res.data)).should.eql(true);
+            (res.data.length).should.not.eql(0);
+          });
+      });
+      it("should fail using invalid agent", async () => {
+        await XAPIWrapper.getAgentProfile(null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail using invalid 'since' timestamp", async () => {
+        await XAPIWrapper.getAgentProfile(agent1, profileId1, {})
+          .catch((error) => {
+            error.should.eql(INVALID_TIMESTAMP);
+          });
+      });
+
+      after(() => {
+        XAPIWrapper.deleteAgentProfile(prof[0].agent, prof[0].profileId);
+        XAPIWrapper.deleteAgentProfile(prof[1].agent, prof[1].profileId);
+        XAPIWrapper.deleteAgentProfile(prof[2].agent, prof[2].profileId);
+      });
+    });
+    describe("DELETE", () => {
+      it("should pass deleting the profile using valid agent & profileId", async () => {
+        await XAPIWrapper.deleteAgentProfile(agent1, profileId1)
+          .then((res) => {
+            res.resp.status.should.eql(NO_CONTENT);
+
+            return XAPIWrapper.getAgentProfile(agent1, profileId1)
+              .catch((error) => {
+                error.name.should.eql('FetchError');
+              });
+          });
+      });
+      it("should fail deleting the profile using invalid agent", async () => {
+        await XAPIWrapper.deleteAgentProfile(null, profileId1)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
+      });
+      it("should fail deleting the profile using invalid profileId", async () => {
+        await XAPIWrapper.deleteAgentProfile(agent1, null)
+          .catch((error) => {
+            error.should.eql(INVALID_PARAMETERS);
+          });
       });
     });
   });

@@ -978,6 +978,13 @@ class XAPIWrapper {
             since = Util.isDate(since);
             if (since != null) {
                 url += `&since=${encodeURIComponent(since.toISOString())}`;
+            } else {
+              if (callback) {
+                callback('Error: invalid timestamp');
+                return;
+              } else {
+                return new Promise((res,rej) => { rej('Error: invalid timestamp'); });
+              }
             }
         }
 
@@ -1103,22 +1110,34 @@ class XAPIWrapper {
    *            the function will be passed the XMLHttpRequest object
    * @return {object} false if no agent profile is included
    */
-  putAgentProfile(agent, profileid, profileval, matchHash, callback)
+  putAgentProfile(agent, profileid, profileval, eHeader, eHash, callback)
   {
       if (this.testConfig() && (agent && profileid && profileval))
       {
-        if (!matchHash || matchHash == "") {
+        // validate ETag header
+        if (eHeader != "If-Match" && eHeader != "If-None-Match") {
           if (callback) {
-            callback('Error: invalid ETag');
+            callback('Error: invalid ETag header');
             return;
           } else {
-            return new Promise((res,rej) => { rej('Error: invalid ETag'); });
+            return new Promise((res,rej) => { rej('Error: invalid ETag header'); });
+          }
+        }
+
+        // validate ETag hash
+        if (!eHash || eHash == "") {
+          if (callback) {
+            callback('Error: invalid ETag hash');
+            return;
+          } else {
+            return new Promise((res,rej) => { rej('Error: invalid ETag hash'); });
           }
         }
 
         let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}&profileId=${profileid}`;
 
-        let headers = (matchHash==="*") ? {"If-Match":this.formatHash(matchHash)} : {"If-None-Match":this.formatHash(matchHash)};
+        let headers = {}
+        headers[`${eHeader}`] = this.formatHash(eHash);
 
         if (profileval instanceof Array || profileval instanceof Object)
         {
@@ -1127,6 +1146,9 @@ class XAPIWrapper {
         }
         else
             headers["Content-Type"] ="application/octet-stream";
+
+        headers['X-Experience-API-Version'] = this.xapiVersion;
+        headers['Authorization'] = this.lrs.auth;
 
         const conf = {
           url,
@@ -1140,7 +1162,7 @@ class XAPIWrapper {
           return;
         }
 
-        this.asyncRequest(conf);
+        return this.asyncRequest(conf);
 
       } else if (callback) {
         callback('Error: invalid parameters');
@@ -1230,6 +1252,13 @@ class XAPIWrapper {
             since = Util.isDate(since);
             if (since != null) {
                 url += `&since=${encodeURIComponent(since.toISOString())}`;
+            } else {
+              if (callback) {
+                callback('Error: invalid timestamp');
+                return;
+              } else {
+                return new Promise((res,rej) => { rej('Error: invalid timestamp'); });
+              }
             }
         }
 
@@ -1272,9 +1301,9 @@ class XAPIWrapper {
    */
   deleteAgentProfile(agent, profileid, callback)
   {
-      if (this.testConfig() && (activityid && profileid))
+      if (this.testConfig() && (agent && profileid))
       {
-        let url = `${this.lrs.endpoint}agents/profile?agent=${agent}&profileId=${profileid}`;
+        let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}&profileId=${profileid}`;
 
         const conf = {
           url,
@@ -1309,9 +1338,10 @@ class XAPIWrapper {
                   .then((data) => res({resp, data}))
                   .catch((error) => {
                     if (!resp.ok) {
-                      rej(error);
+                      // add precondition code if exists
+                      (resp.status!=412) ? rej(error) : rej(resp.status);
                     }
-                    // failed to parse JSON (NOT AN ERROR)
+                    // Failed to parse JSON (NOT AN ERROR)
                     else {
                       res({resp})
                     }
@@ -1416,9 +1446,10 @@ class XAPIWrapper {
           })
           .catch((error) => {
             if (!resp.ok) {
-              callback(error);
+              // add precondition code if exists
+              (resp.status!=412) ? callback(error) : callback(`${resp.status}`);
             }
-            // failed to parse JSON (NOT AN ERROR)
+            // Failed to parse JSON (NOT AN ERROR)
             else {
               if (callbackargs)
                 this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);

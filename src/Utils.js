@@ -169,14 +169,12 @@ class Util {
         // it is a date
         if ( isNaN( d.valueOf() ) )
         {
-            XAPIWrapper.log("Invalid date String passed");
             return null;
         } else {
             return d;
         }
     } else {
         // not a date
-        XAPIWrapper.log("Invalid date object");
         return null;
     }
   }

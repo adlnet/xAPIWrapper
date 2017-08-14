@@ -2,10 +2,10 @@
   "objectType": "Activity",
   "definition": {
       "description": {
-          "en-US": "Testing default activity"
+          "en-US": "Testing no id activity"
       },
       "name": {
-          "en-US": "Default Activity"
+          "en-US": "No Id Activity"
       }
   }
 }
