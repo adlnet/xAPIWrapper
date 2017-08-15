@@ -1077,4 +1077,50 @@ describe("Asynchronous Testing:", () => {
     });
   });
 
+  describe("No Strict Callbacks", () => {
+      let stmt;
+      before(() => {
+          XAPIWrapper.changeConfig({
+              "endpoint": "https://lrs.adlnet.gov/xapi/",
+              "user": "aaron",
+              "password": "1234",
+              "strictCallbacks": false
+          });
+          stmt = new Statement({
+              'actor': { 'mbox': 'mailto:user@example.com' },
+              'verb': { 'id': 'http://adlnet.gov/expapi/verbs/attempted' },
+              'object': { 'id': 'http://activity.com/id' }
+          });
+      });
+
+      it("should return 2 parameters(resp, data) with valid request", (done) => {
+          XAPIWrapper.postStatement(stmt, (resp, data) => {
+              resp.should.be.type('object');
+              resp.status.should.eql(OK);
+              data.should.not.eql(null);
+
+              done();
+          });
+      });
+      it("should return 2 parameters(resp, data) with valid request & callback args", (done) => {
+          let id = Util.ruuid();
+          XAPIWrapper.putStatement(new Statement(stmt), id, (resp, data) => {
+              resp.should.be.type('object');
+              resp.status.should.eql(NO_CONTENT);
+              data.id.should.eql(id)
+
+              done();
+          });
+      });
+      it("should return single error parameter with invalid request", (done) => {
+          stmt.id = "2";
+          XAPIWrapper.postStatement(stmt, (resp, data) => {
+              (resp.type==='invalid-json').should.eql(true);
+              ("undefined").should.eql(`${data}`);
+
+              done();
+          });
+      });
+  });
+
 });

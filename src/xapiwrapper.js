@@ -68,46 +68,46 @@ class XAPIWrapper {
 
     this.withCredentials = config && config.withCredentials;
 
-    // Ensure that callbacks are always executed, first param is error (null if no error) followed
-    // by the result(s)
+    // Strict callbacks for error parameter, null if no error (error, response, body)
     this.strictCallbacks = config && config.strictCallbacks;
-
-    // if (verifyxapiversion && this.testConfig())
-    // {
-    //     XHR_request(this.lrs, `${this.lrs.endpoint}about`, "GET", null, null,
-    //         r => {
-    //             if(r.status == 200)
-    //             {
-    //                 try
-    //                 {
-    //                     let lrsabout = JSON.parse(r.response);
-    //                     let versionOK = false;
-    //                     for (let idx in lrsabout.version)
-    //                     {
-    //                         if(lrsabout.version[idx] == this.xapiVersion)
-    //                         {
-    //                             versionOK = true;
-    //                             break;
-    //                         }
-    //                     }
-    //                     if (!versionOK)
-    //                     {
-    //                         log(`The lrs version [${lrsabout.version}] does not match this wrapper's XAPI version [${this.xapiVersion}]`);
-    //                     }
-    //                 }
-    //                 catch(e)
-    //                 {
-    //                     log("The response was not an about object")
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 log(`The request to get information about the LRS failed: ${r}`);
-    //             }
-    //         },null,false,null,this.withCredentials, false);
-    // }
-
+    
     this.xapiVersion = "1.0.3";
+
+    // Verify xAPI version
+     if (verifyxapiversion && this.testConfig())
+     {
+         let conf = {
+             'method': 'GET',
+             'headers': {
+                 'Content-Type': 'application/json',
+                 'X-Experience-API-Version': this.xapiVersion,
+                 'Authorization': this.lrs.auth
+             }
+         };
+         fetch(`${this.lrs.endpoint}about`, conf)
+             .then((resp) => {
+                 return resp.json().then((data) => {
+                     if (resp.ok) {
+                         let versions = data.version;
+                         let isValid = false;
+                         for (let version in versions) {
+                             if (versions[version] == this.xapiVersion) {
+                                 isValid = true;
+                                 break;
+                             }
+                         }
+
+                         if (!isValid) {
+                            log(`Invalid xAPI Version: ${this.xapiVersion}`);
+                            log(`Available versions are: ${JSON.stringify(versions)}`);
+                         }
+                     }
+                 })
+                     .catch((error) => {
+                         log(`Error thrown while verifying xAPI Version: ${error}`);
+                     });
+             });
+     }
   }
 
   getbase(url)
@@ -1338,12 +1338,12 @@ class XAPIWrapper {
                   .then((data) => res({resp, data}))
                   .catch((error) => {
                     if (!resp.ok) {
-                      // add precondition code if exists
+                      // add precondition error code if exists
                       (resp.status!=412) ? rej(error) : rej(resp.status);
                     }
                     // Failed to parse JSON (NOT AN ERROR)
                     else {
-                      res({resp})
+                      res({resp});
                     }
                   });
         });
@@ -1446,8 +1446,15 @@ class XAPIWrapper {
           })
           .catch((error) => {
             if (!resp.ok) {
-              // add precondition code if exists
-              (resp.status!=412) ? callback(error) : callback(`${resp.status}`);
+              // handle errors if strictCallbacks enabled
+              if (this.strictCallbacks) {
+                log(error);
+                this.requestError(resp, callback, callbackargs);  
+              }
+              // add precondition error code if exists
+              else {
+                callback((resp.status==412) ? callback(resp.status) : callback(error));
+              }
             }
             // Failed to parse JSON (NOT AN ERROR)
             else {
@@ -1479,44 +1486,40 @@ class XAPIWrapper {
 
   /*
    * Holder for custom global error callback
-   * @param {object} xhr   xhr object or null
-   * @param {string} method   XMLHttpRequest request method
-   * @param {string} url   full endpoint url
+   * @param {object} resp   response object
    * @param {function} callback   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
-   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
    * @example
-   * requestError = function(xhr, method, url, callback, callbackargs) {
-   *   console.log(xhr);
-   *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
+   * requestError = function(resp, callback, callbackargs) {
+   *   log(resp);
+   *   alert(resp.status + " " + resp.statusText + ": " + resp);
    * };
    */
-  requestError(xhr, method, url, callback, callbackargs, strictCallbacks)
+  requestError(resp, callback, callbackargs)
   {
-    if (callback && strictCallbacks) {
-      let status = xhr ? xhr.status : undefined;
+    if (callback) {
+      let status = resp ? resp.status : undefined;
       let error;
       if (status) {
-          error = new Error(`Request error: ${xhr.status}`);
-      } else if (status === 0 || status === null) {
-          error = new Error('Request error: aborted');
+          error = new Error(`Request error: ${status}`);
+          //error = (status==412) ? new Error(`${status}`) : new Error(`Request error: ${status}`);
       } else {
           error = new Error('Request error: unknown');
       }
 
       if (callbackargs) {
-          callback(error, xhr, callbackargs);
+          callback(error, resp, callbackargs);
       } else {
           var body;
 
           try {
-              body = JSON.parse(xhr.responseText);
+              body = JSON.parse(resp.responseText);
           } catch(e){
-              body = xhr.responseText;
+              body = resp.responseText;
           }
 
-          callback(error, xhr, body);
+          callback(error, resp, body);
       }
     }
   };
