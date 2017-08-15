@@ -70,7 +70,7 @@ class XAPIWrapper {
 
     // Strict callbacks for error parameter, null if no error (error, response, body)
     this.strictCallbacks = config && config.strictCallbacks;
-    
+
     this.xapiVersion = "1.0.3";
 
     // Verify xAPI version
@@ -311,7 +311,7 @@ class XAPIWrapper {
         };
 
         if (extraHeaders)
-          Object.assign(conf.headers, extraHeaders);
+          conf.headers = this.mergeRecursive(conf.headers, extraHeaders);
 
         if (callback) {
             this.callbackRequest(conf, callback, {id}, false);
@@ -364,7 +364,7 @@ class XAPIWrapper {
         };
 
         if (extraHeaders)
-          Object.assign(conf.headers, extraHeaders);
+          conf.headers = this.mergeRecursive(conf.headers, extraHeaders);
 
         if (callback) {
             this.callbackRequest(conf, callback, {'id':stmt.id}, false);
@@ -1329,6 +1329,11 @@ class XAPIWrapper {
       }
   };
 
+  /*
+   * makes a request to a server asynchronously
+   * @param {object} conf   the configuration of this request
+   * @return {Promise} the resolved or rejected promise of this request
+   */
   asyncRequest(conf)
   {
     return new Promise((res, rej) => {
@@ -1395,19 +1400,11 @@ class XAPIWrapper {
 
   /*
    * makes a request to a server (if possible, use functions provided in XAPIWrapper)
-   * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
-   * @param {string} url   the url of this request
-   * @param {string} method   the http request method
-   * @param {string} data   the payload
-   * @param {string} auth   the value for the Authorization header
+   * @param {object} conf   the configuration of this request
    * @param {function} callback   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
    * @param {boolean} ignore404    allow page not found errors to pass
-   * @param {object} extraHeaders   other header key-values to be added to this request
-   * @param {boolean} withCredentials
-   * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
-   * @return {object} xhr response object
    */
   callbackRequest(conf, callback, callbackargs, ignore404)
   {
@@ -1431,10 +1428,10 @@ class XAPIWrapper {
         xDomainRequest = (urlPort === location.port);
     }
 
-    //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
+    //If it's not cross domain or we're not using IE, use the usual fetch request
     let windowsVersionCheck = false;
     if (onBrowser)
-      windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+      windowsVersionCheck = window.XDomainRequest && (window.fetch && fetch.responseType === undefined);
     if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
       fetch(conf.url, conf)
         .then((resp) => {
@@ -1449,11 +1446,11 @@ class XAPIWrapper {
               // handle errors if strictCallbacks enabled
               if (this.strictCallbacks) {
                 log(error);
-                this.requestError(resp, callback, callbackargs);  
+                this.requestError(resp, callback, callbackargs);
               }
               // add precondition error code if exists
               else {
-                callback((resp.status==412) ? callback(resp.status) : callback(error));
+                callback((resp.status==412) ? resp.status : error);
               }
             }
             // Failed to parse JSON (NOT AN ERROR)
@@ -1469,7 +1466,7 @@ class XAPIWrapper {
     //Otherwise, use IE's XDomainRequest object
     else {
         ieXDomain = true;
-        ieModeRequest = this.ieRequest(method, url, headers, data);
+        ieModeRequest = this.ieRequest(conf.method, conf.url, conf.headers, conf.data);
         xhr = new XDomainRequest();
         xhr.open(ieModeRequest.method, ieModeRequest.url);
     }
@@ -1541,7 +1538,7 @@ class XAPIWrapper {
       let lrs = new Object();
       let qslets, prop;
 
-      qslets = this.parseQueryString();
+      qslets = Util.parseQueryString();
       if (qslets !== undefined && Object.keys(qslets).length !== 0) {
           for (let i = 0; i<lrsProps.length; i++){
               prop = lrsProps[i];
@@ -1564,36 +1561,13 @@ class XAPIWrapper {
   };
 
   /*
-   * Parses the params in the url query string
-   */
-  parseQueryString()
-  {
-      if (!onBrowser)
-        return {};
-
-      let qs, pairs, pair, ii, parsed;
-
-      qs = window.location.search.substr(1);
-
-      pairs = qs.split('&');
-      parsed = {};
-      for ( ii = 0; ii < pairs.length; ii++) {
-          pair = pairs[ii].split('=');
-          if (pair.length === 2 && pair[0]) {
-              parsed[pair[0]] = decodeURIComponent(pair[1]);
-          }
-      }
-
-      return parsed;
-  };
-
-  /*
    * Merges two objects
    */
   mergeRecursive(obj1, obj2)
   {
-    Object.assign(obj1, obj1, obj2);
-    return obj1;
+    // Not supported in IE11
+    let ret = Object.assign({}, obj2);
+    return Object.assign(ret, obj1);
   };
 
   delay()

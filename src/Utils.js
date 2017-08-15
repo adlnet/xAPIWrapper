@@ -21,14 +21,51 @@ if ( !Date.prototype.toISOString ) {
   })();
 }
 
+let inBrowser = true;
 
 if (typeof module !== 'undefined') {
   CryptoJS = require('crypto-js');
+  inBrowser = false;
 } else {
   window.ADL = window.ADL || {};
 }
 
 class Util {
+  /*
+   * Parses the params in the url query string
+   */
+  parseQueryString(variable){
+      if (!inBrowser)
+        return "";
+
+      let query = window.location.search.substring(1);
+      let vars = query.split('&');
+
+      // Parse single parameter in query string
+      if (variable && variable != "") {
+        for (let i = 0; i < vars.length; i++)
+        {
+          let pair = vars[i].split('=');
+          if (decodeURIComponent(pair[0]) == variable)
+          {
+            return decodeURIComponent(pair[1]);
+          }
+        }
+      }
+
+      // Parse all parameters in query string
+      let pair;
+      let params = {};
+      for (let ii = 0; ii < vars.length; ii++) {
+          pair = vars[ii].split('=');
+          if (pair.length === 2 && pair[0]) {
+              params[pair[0]] = decodeURIComponent(pair[1]);
+          }
+      }
+
+      return params;
+  }
+
   getLang(){
     let lang;
     if (typeof navigator !== 'undefined')

@@ -1,21 +1,8 @@
-
 if (typeof module !== 'undefined') {
   var fetch = require('node-fetch');
+  inBrowser = false;
 } else {
   window.ADL = window.ADL || {};
-}
-
-let getQueryVariable = (variable) => {
-    let query = window.location.search.substring(1);
-    let vars = query.split('&');
-    for (let i = 0; i < vars.length; i++)
-    {
-        let pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == variable)
-        {
-            return decodeURIComponent(pair[1]);
-        }
-    }
 }
 
 let cb_wrap = (cb) => {
@@ -69,9 +56,9 @@ let observeForNewULinks = () => {
 //This library will init all links in the DOM that include the attribute "courseLink = true"
 //with the information necessary for the document at that link to track as part of this session.
 let setupCourseLinks = (_nodes) => {
-    let launchToken = getQueryVariable("xAPILaunchKey");
-    let launchEndpoint = getQueryVariable("xAPILaunchService");
-    let encrypted = getQueryVariable("encrypted");
+    let launchToken = ADL.Util.parseQueryString("xAPILaunchKey");
+    let launchEndpoint = ADL.Util.parseQueryString("xAPILaunchService");
+    let encrypted = ADL.Util.parseQueryString("encrypted");
     let query = `xAPILaunchKey=${launchToken}&xAPILaunchService=${launchEndpoint}`;
     if (encrypted)
     {
@@ -93,9 +80,9 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
     cb = cb_wrap(cb);
     try
     {
-        let launchToken = getQueryVariable("xAPILaunchKey");
-        let launchEndpoint = getQueryVariable("xAPILaunchService");
-        let encrypted = getQueryVariable("encrypted");
+        let launchToken = ADL.Util.parseQueryString("xAPILaunchKey");
+        let launchEndpoint = ADL.Util.parseQueryString("xAPILaunchService");
+        let encrypted = ADL.Util.parseQueryString("encrypted");
         if (encrypted)
         {
             //here, we'd have to implement decryption for the data. This makes little sense in a client side only course
@@ -103,7 +90,7 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
 
         xAPILaunch.terminate = (message) => {
             let launch = new URL(launchEndpoint);
-            launch.pathname += "launch/" + launchToken + "/terminate";
+            launch.pathname += `launch/${launchToken}/terminate`;
             let xhr2 = new XMLHttpRequest();
             xhr2.withCredentials = true;
             xhr2.crossDomain = true;
@@ -118,6 +105,46 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
 
         let launch = new URL(launchEndpoint);
         launch.pathname += `launch/${launchToken}`;
+
+        // let conf = {
+        //   'method':'POST',
+        //   'credentials':'include',
+        //   'mode': 'cors'
+        // };
+        // // let res = await fetch(launch.toString(), conf);
+        // fetch(launch.toString(), conf)
+        //   .then((resp) => {
+        //     if (resp.status != 200) {
+        //       window.setTimeout(() => {
+        //         return cb(resp.responseText);
+        //       });
+        //     }
+        //     return resp.json().then((data) => {
+        //       let config = {
+        //         'endpoint': data.endpoint,
+        //         'actor': data.actor,
+        //         'withCredentials': true,
+        //         'strictCallbacks': strictCallbacks || false
+        //       };
+        //
+        //       window.onunload = () => {
+        //         if (terminate_on_unload)
+        //           xAPILaunch.terminate("User closed content");
+        //       }
+        //
+        //       let wrapper = new ADL.XAPIWrapper();
+        //       wrapper.changeConfig(config);
+        //
+        //       setupCourseLinks();
+        //       observeForNewLinks();
+        //       return cb(null, data, wrapper);
+        //     })
+        //   })
+        //   .catch((err) => {
+        //     window.setTimeout(() => {
+        //       return cb(err);
+        //     });
+        //   })
 
         let xhr = new XMLHttpRequest();
         xhr.withCredentials = true;
