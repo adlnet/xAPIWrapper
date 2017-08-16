@@ -1,0 +1,25 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "On average, how many hours of sleep do you get?"
+      },
+      "name": {
+          "en-US": "Numeric Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "numeric",
+      "correctResponsesPattern": [
+        "[:]24"
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}

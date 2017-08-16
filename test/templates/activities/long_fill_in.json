@@ -1,0 +1,25 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "What is an xAPI Statement?"
+      },
+      "name": {
+          "en-US": "Long-Fill-In Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "long-fill-in",
+      "correctResponsesPattern": [
+        "{case_matters=true}{lang=en}An experience or event that is tracked using xAPI."
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}

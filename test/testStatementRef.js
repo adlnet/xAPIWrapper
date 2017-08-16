@@ -50,25 +50,25 @@ describe("StatementRef Test:", () => {
       ((new StatementRef(def.id)).isValid()).should.eql(true);
     });
     it("should fail with empty parameters", () => {
-      (!(new StatementRef()).isValid()).should.eql(true);
+      ((new StatementRef()).isValid()).should.eql(false);
     });
     it("should fail with no id", () => {
-      (!(new StatementRef(noId)).isValid()).should.eql(true);
+      ((new StatementRef(noId)).isValid()).should.eql(false);
     });
     it("should fail with invalid id", () => {
-      (!(new StatementRef(invalidId)).isValid()).should.eql(true);
+      ((new StatementRef(invalidId)).isValid()).should.eql(false);
     });
     it("should fail with invalid property", () => {
-      (!(new StatementRef(invalidProp)).isValid()).should.eql(true);
+      ((new StatementRef(invalidProp)).isValid()).should.eql(false);
     });
   });
 
   describe("JSON Object as statement object:", () => {
     it("should pass calling isValid() on statementref objects", () => {
       (s1.object.isValid()).should.eql(true);
-      (!s2.object.isValid()).should.eql(true);
-      (!s3.object.isValid()).should.eql(true);
-      (!s4.object.isValid()).should.eql(true);
+      (s2.object.isValid()).should.eql(false);
+      (s3.object.isValid()).should.eql(false);
+      (s4.object.isValid()).should.eql(false);
     });
     it("should pass with valid id", (done) => {
       XAPIWrapper.postStatement(s1, (error, resp, data) => {
@@ -112,9 +112,9 @@ describe("StatementRef Test:", () => {
 
     it("should pass calling isValid() on statementref objects", () => {
       (s1.object.isValid()).should.eql(true);
-      (!s2.object.isValid()).should.eql(true);
-      (!s3.object.isValid()).should.eql(true);
-      (!s4.object.isValid()).should.eql(true);
+      (s2.object.isValid()).should.eql(false);
+      (s3.object.isValid()).should.eql(false);
+      (s4.object.isValid()).should.eql(false);
     });
     it("should pass with valid id & objectType", (done) => {
       XAPIWrapper.postStatement(s1, (error, resp, data) => {

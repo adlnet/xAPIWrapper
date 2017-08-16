@@ -1,0 +1,51 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "Put these events in chronological order:"
+      },
+      "name": {
+          "en-US": "Sequencing Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "sequencing",
+      "correctResponsesPattern": [
+        "b[,]c[,]a[,]b"
+      ],
+      "choices": [
+        {
+          "id": "a",
+          "description": {
+              "en-US": "World War 1"
+          }
+        },
+        {
+          "id": "b",
+          "description": {
+            "en-US": "Revolutionary War"
+          }
+        },
+        {
+          "id": "c",
+          "description": {
+              "en-US": "Civil War"
+          }
+        },
+        {
+          "id": "d",
+          "description": {
+              "en-US": "World War 2"
+          }
+        }
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}

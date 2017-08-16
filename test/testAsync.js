@@ -94,23 +94,25 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      describe.skip("With Attachments", () => {
+      describe("With Attachments", () => {
         let stmt;
         let att;
 
         beforeEach(() => {
           // Get attachment data
-          content = fs.readFileSync('test/test.txt').toString();
+          content = fs.readFileSync('test/templates/attachments/test.txt').toString();
 
-          att = {
-            value: content,
-            type: {
-              "usageType":"http://adlnet.gov/expapi/attachments/test",
-              "display":{"en-US": "Test Attachment"},
-              "description":{"en-US":"a test attachment for statement requests"},
-              "contentType":"application/octet-stream"
+          att = [
+            {
+              value: content,
+              type: {
+                "usageType":"http://adlnet.gov/expapi/attachments/test",
+                "display":{"en-US": "Test Attachment"},
+                "description":{"en-US":"a test attachment for statement requests"},
+                "contentType":"application/octet-stream"
+              }
             }
-          };
+          ]
 
           stmt = new Statement({
             'actor': {'mbox':'mailto:a@example.com'},
@@ -120,19 +122,18 @@ describe("Asynchronous Testing:", () => {
         });
 
         it("should pass using valid attachment data asynchronously", async () => {
-          let res = await XAPIWrapper.putStatement(stmt, stmt.id, null, [att]);
-          (res.resp.status).should.eql(NO_CONTENT);
+          await XAPIWrapper.putStatement(stmt, stmt.id, null, att)
+            .then((res) => {
+              res.resp.status.should.eql(NO_CONTENT);
+            });
         });
         it("should pass using valid attachment data with callback", (done) => {
           XAPIWrapper.putStatement(stmt, stmt.id, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              (resp.status).should.eql(NO_CONTENT);
-            }
+            resp.status.should.eql(NO_CONTENT);
+            data.id.should.eql(stmt.id);
 
             done();
-          }, [att]);
+          }, att);
         });
       });
     });
@@ -195,23 +196,25 @@ describe("Asynchronous Testing:", () => {
           });
         });
       });
-      describe.skip("With Attachments", () => {
+      describe("With Attachments", () => {
         let stmt;
         let att;
 
         beforeEach(() => {
           // Get attachment data
-          content = fs.readFileSync('test/test.txt').toString();
+          content = fs.readFileSync('test/templates/attachments/test.txt').toString();
 
-          att = {
-            value: content,
-            type: {
-              "usageType":"http://adlnet.gov/expapi/attachments/test",
-              "display":{"en-US": "Test Attachment"},
-              "description":{"en-US":"a test attachment for statement requests"},
-              "contentType":"application/octet-stream"
+          att = [
+            {
+              value: content,
+              type: {
+                "usageType":"http://adlnet.gov/expapi/attachments/test",
+                "display":{"en-US": "Test Attachment"},
+                "description":{"en-US":"a test attachment for statement requests"},
+                "contentType":"application/octet-stream"
+              }
             }
-          };
+          ]
 
           stmt = new Statement({
             'actor': {'mbox':'mailto:a@example.com'},
@@ -221,19 +224,17 @@ describe("Asynchronous Testing:", () => {
         });
 
         it("should pass using valid attachment data asynchronously", async () => {
-          let res = await XAPIWrapper.postStatement(stmt, null, [att]);
-          (res.resp.status).should.eql(OK);
+          await XAPIWrapper.postStatement(stmt, null, att)
+            .then((res) => {
+              res.resp.status.should.eql(OK);
+            });
         });
         it("should pass using valid attachment data with callback", (done) => {
           XAPIWrapper.postStatement(stmt, (error, resp, data) => {
-            if (error) {
-              console.log(error);
-            } else {
-              (resp.status).should.eql(OK);
-            }
+            resp.status.should.eql(OK);
 
             done();
-          }, [att]);
+          }, att);
         });
       });
     });

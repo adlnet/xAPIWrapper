@@ -287,6 +287,30 @@ class XAPIWrapper {
           }
         }
 
+        // validate attachments if specified
+        if (attachments) {
+          let isValid = true;
+          if (!Array.isArray(attachments) || attachments.length == 0) {
+            isValid = false;
+          } else {
+            for (let att in attachments) {
+              if (!(attachments[att] && attachments[att].type && attachments[att].value)) {
+                isValid = false;
+                break;
+              }
+            }
+          }
+
+          if (!isValid) {
+            if (callback) {
+              callback('Error: invalid attachment(s)');
+              return;
+            } else {
+              return new Promise((res,rej) => { rej('Error: invalid attachment(s)'); });
+            }
+          }
+        }
+
         stmt.id = id;
 
         this.prepareStatement(stmt);
@@ -311,7 +335,7 @@ class XAPIWrapper {
         };
 
         if (extraHeaders)
-          conf.headers = this.mergeRecursive(conf.headers, extraHeaders);
+          Object.assign(conf.headers, extraHeaders);
 
         if (callback) {
             this.callbackRequest(conf, callback, {id}, false);
@@ -342,6 +366,30 @@ class XAPIWrapper {
   {
       if (this.testConfig() && (stmt && !(stmt instanceof Array)))
       {
+        // validate attachments if specified
+        if (attachments) {
+          let isValid = true;
+          if (!Array.isArray(attachments) || attachments.length == 0) {
+            isValid = false;
+          } else {
+            for (let att in attachments) {
+              if (!(attachments[att] && attachments[att].type && attachments[att].value)) {
+                isValid = false;
+                break;
+              }
+            }
+          }
+
+          if (!isValid) {
+            if (callback) {
+              callback('Error: invalid attachment(s)');
+              return;
+            } else {
+              return new Promise((res,rej) => { rej('Error: invalid attachment(s)'); });
+            }
+          }
+        }
+
         this.prepareStatement(stmt);
 
         let payload = JSON.stringify(stmt);
@@ -364,7 +412,7 @@ class XAPIWrapper {
         };
 
         if (extraHeaders)
-          conf.headers = this.mergeRecursive(conf.headers, extraHeaders);
+          Object.assign(conf.headers, extraHeaders);
 
         if (callback) {
             this.callbackRequest(conf, callback, {'id':stmt.id}, false);
@@ -1565,9 +1613,7 @@ class XAPIWrapper {
    */
   mergeRecursive(obj1, obj2)
   {
-    // Not supported in IE11
-    let ret = Object.assign({}, obj2);
-    return Object.assign(ret, obj1);
+    return Object.assign(obj1, obj1, obj2);
   };
 
   delay()

@@ -47,10 +47,10 @@ describe("Verb Test:", () => {
       ((new Verb(def.id, def.display)).isValid()).should.eql(true);
     });
     it("should fail with invalid id & valid description", () => {
-      (!(new Verb(null, def.display)).isValid()).should.eql(true);
+      ((new Verb(null, def.display)).isValid()).should.eql(false);
     });
     it("should fail with empty parameters", () => {
-      (!(new Verb()).isValid()).should.eql(true);
+      ((new Verb()).isValid()).should.eql(false);
     });
     it("should pass when retrieving display objects", () => {
       (s1.verb.getDisplay()).should.eql(Util.getLangVal(def.display));
@@ -63,7 +63,7 @@ describe("Verb Test:", () => {
     it("should pass calling isValid() on verb objects", () => {
       (s1.verb.isValid()).should.eql(true);
       (s2.verb.isValid()).should.eql(true);
-      (!s3.verb.isValid()).should.eql(true);
+      (s3.verb.isValid()).should.eql(false);
     });
     describe("Default", (done) => {
       it('should pass with valid id & display', (done) => {
@@ -108,7 +108,7 @@ describe("Verb Test:", () => {
     it("should pass calling isValid() on verb objects", () => {
       (s1.verb.isValid()).should.eql(true);
       (s2.verb.isValid()).should.eql(true);
-      (!s3.verb.isValid()).should.eql(true);
+      (s3.verb.isValid()).should.eql(false);
     });
     describe("Default", (done) => {
       it('should pass with valid id & display', (done) => {

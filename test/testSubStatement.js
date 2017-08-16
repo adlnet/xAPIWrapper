@@ -1,14 +1,10 @@
 describe("SubStatement Test:", () => {
   // Substatement objects to test
-  let activityObj, agentObj, groupObj, refObj;
+  let def, noActor, noVerb, noObject, invActor, invAct, invVerb,
+      invAgent, invGroup, invStmtRef, objSubStmt, agent, group,
+      act, stmtRef, context, result;
 
-  // Default statement objects for easy testing
-  let defActor, defVerb, defAgent, defGroup, defActivity, defRef;
-
-  // Invalid objects for fail testing
-  let typeOnly, noActor, noVerb, noObject, subObject, invalidProps;
-
-  let actor = {'mbox':'mailto:a@example.com'};
+  let actor = {'mbox':'mailto:user@example.com'};
 
   // Response Types
   const OK = 200;
@@ -19,9 +15,31 @@ describe("SubStatement Test:", () => {
   let should, XAPIWrapper, Util, Statement, SubStatement, StatementRef, verbs;
 
   // Test statements
-  let s1, s2, s3, s4;
+  let s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11,
+      s12, s13, s14, s15, s16, s17;
+
+  // Path
+  const DIR = "./templates/substatements/";
 
   before(() => {
+    def = require(`${DIR}default.json`);
+    noActor = require(`${DIR}no_actor.json`);
+    noVerb = require(`${DIR}no_verb.json`);
+    noObject = require(`${DIR}no_object.json`);
+    invActor = require(`${DIR}invalid_actor.json`);
+    invAct = require(`${DIR}invalid_activity.json`);
+    invVerb = require(`${DIR}invalid_verb.json`);
+    invAgent = require(`${DIR}invalid_agent.json`);
+    invGroup = require(`${DIR}invalid_group.json`);
+    invStmtRef = require(`${DIR}invalid_statementref.json`);
+    objSubStmt = require(`${DIR}object_substatement.json`);
+    agent = require(`${DIR}agent.json`);
+    group = require(`${DIR}group.json`);
+    act = require(`${DIR}activity.json`);
+    stmtRef = require(`${DIR}statementref.json`);
+    context = require(`${DIR}context.json`);
+    result = require(`${DIR}result.json`);
+
     // Require necessary modules
     should = require('should');
     XAPIWrapper = require('./../src/xAPIWrapper');
@@ -38,154 +56,129 @@ describe("SubStatement Test:", () => {
       "strictCallbacks": true
     });
 
-
-    // Initialize statement objects
-    defActor = {
-      "objectType": "Agent",
-      "name": "xAPI mbox",
-      "mbox":'mailto:xapi@example.com'
-    }
-    defVerb = verbs.attempted
-    defAgent = {
-      "objectType": "Agent",
-      "name": "xAPI mbox_sha1sum",
-      "mbox_sha1sum": "169fd15497b877fae1a3e1a67cb0b6064ebc2da5"
-    }
-    defGroup = {
-      "objectType": "Group",
-      "name": "Identified Group",
-      "mbox": "mailto:xapigroup@example.com"
-    }
-    defActivity = {
-      "objectType": "Activity",
-      "id": "http://example.adlnet.gov/xapi/example/activity"
-    }
-    defRef = {
-      "objectType": "StatementRef",
-      "id": "12345678-1234-5678-1234-567812345678"
-    }
-
-    // Initialize substatement objects
-    activityObj = {
-      "objectType": "SubStatement",
-      "actor": defActor,
-      "verb": defVerb,
-      "object": defActivity
-    }
-    agentObj = {
-      "objectType": "SubStatement",
-      "actor": defActor,
-      "verb": defVerb,
-      "object": defAgent
-    }
-    groupObj = {
-      "objectType": "SubStatement",
-      "actor": defActor,
-      "verb": defVerb,
-      "object": defGroup
-    }
-    refObj = {
-      "objectType": "SubStatement",
-      "actor": defActor,
-      "verb": defVerb,
-      "object": defRef
-    }
-
     // Initialize statements
-    s1 = new Statement(actor, verbs.initialized, activityObj);
-    s2 = new Statement(actor, verbs.initialized, agentObj);
-    s3 = new Statement(actor, verbs.initialized, groupObj);
-    s4 = new Statement(actor, verbs.initialized, refObj);
+    s1 = new Statement(actor, verbs.initialized, def);
+    s2 = new Statement(actor, verbs.initialized, noActor);
+    s3 = new Statement(actor, verbs.initialized, noVerb);
+    s4 = new Statement(actor, verbs.initialized, noObject);
+    s5 = new Statement(actor, verbs.initialized, invActor);
+    s6 = new Statement(actor, verbs.initialized, invAct);
+    s7 = new Statement(actor, verbs.initialized, invVerb);
+    s8 = new Statement(actor, verbs.initialized, invAgent);
+    s9 = new Statement(actor, verbs.initialized, invGroup);
+    s10 = new Statement(actor, verbs.initialized, invStmtRef);
+    s11 = new Statement(actor, verbs.initialized, objSubStmt);
+    s12 = new Statement(actor, verbs.initialized, agent);
+    s13 = new Statement(actor, verbs.initialized, group);
+    s14 = new Statement(actor, verbs.initialized, act);
+    s15 = new Statement(actor, verbs.initialized, stmtRef);
+    s16 = new Statement(actor, verbs.initialized, context);
+    s17 = new Statement(actor, verbs.initialized, result);
   });
 
   describe("SubStatement constructor test:", () => {
     it("should pass with valid actor, verb & object", () => {
-      ((new SubStatement(defActor, defVerb, defActivity)).isValid()).should.eql(true)
+      ((new SubStatement(def.actor, def.verb, def.object)).isValid()).should.eql(true)
     });
     it("should fail with invalid actor & valid verb, object", () => {
-      (!(new SubStatement(null, defVerb, defActivity)).isValid()).should.eql(true);
+      ((new SubStatement(null, def.verb, def.object)).isValid()).should.eql(false);
     });
     it("should fail with invalid verb & valid actor, object", () => {
-      (!(new SubStatement(defActor, null, defActivity)).isValid()).should.eql(true);
+      ((new SubStatement(def.actor, null, def.object)).isValid()).should.eql(false);
     });
     it("should fail with invalid object & valid actor, verb", () => {
-      (!(new SubStatement(defActor, defVerb, null)).isValid()).should.eql(true);
+      ((new SubStatement(def.actor, def.verb, null)).isValid()).should.eql(false);
     });
     it("should fail using substatement as object", () => {
-      (!(new SubStatement(defActor, defVerb, activityObj)).isValid()).should.eql(true);
+      ((new SubStatement(def.actor, def.verb, objSubStmt.object)).isValid()).should.eql(false);
     });
     it("should fail with empty parameters", () => {
-      (!(new SubStatement()).isValid()).should.eql(true);
+      ((new SubStatement()).isValid()).should.eql(false);
     });
     it("should pass when retrieving display objects", () => {
       (s1.object.getDisplay()).should.not.eql(null);
-      (s2.object.getDisplay()).should.not.eql(null);
-      (s3.object.getDisplay()).should.not.eql(null);
-      (s4.object.getDisplay()).should.not.eql(null);
+      (!s2.object.getDisplay()).should.eql(true);
+      (!s3.object.getDisplay()).should.eql(true);
+      (!s4.object.getDisplay()).should.eql(true);
+      (!s5.object.getDisplay()).should.eql(true);
+      (!s6.object.getDisplay()).should.eql(true);
+      (!s7.object.getDisplay()).should.eql(true);
+      (!s8.object.getDisplay()).should.eql(true);
+      (!s9.object.getDisplay()).should.eql(true);
+      (!s10.object.getDisplay()).should.eql(true);
+      (!s11.object.getDisplay()).should.eql(true);
+      (s12.object.getDisplay()).should.not.eql(null);
+      (s13.object.getDisplay()).should.not.eql(null);
+      (s14.object.getDisplay()).should.not.eql(null);
+      (s15.object.getDisplay()).should.not.eql(null);
+      (s16.object.getDisplay()).should.not.eql(null);
+      (s17.object.getDisplay()).should.not.eql(null);
     });
   });
 
   describe("JSON Object as statement object:", () => {
     it("should pass calling isValid() on substatement objects", () => {
       (s1.object.isValid()).should.eql(true);
-      (s2.object.isValid()).should.eql(true);
-      (s3.object.isValid()).should.eql(true);
-      (s4.object.isValid()).should.eql(true);
+      (s2.object.isValid()).should.eql(false);
+      (s3.object.isValid()).should.eql(false);
+      (s4.object.isValid()).should.eql(false);
+      (s5.object.isValid()).should.eql(false);
+      (s6.object.isValid()).should.eql(false);
+      (s7.object.isValid()).should.eql(false);
+      (s8.object.isValid()).should.eql(false);
+      (s9.object.isValid()).should.eql(false);
+      (s10.object.isValid()).should.eql(false);
+      (s11.object.isValid()).should.eql(false);
+      (s12.object.isValid()).should.eql(true);
+      (s13.object.isValid()).should.eql(true);
+      (s14.object.isValid()).should.eql(true);
+      (s15.object.isValid()).should.eql(true);
+      (s16.object.isValid()).should.eql(true);
+      (s17.object.isValid()).should.eql(true);
     });
-    describe("Activity object", () => {
-      it('should pass using valid activity substatement object', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
 
-          done();
-        });
-      });
-    });
-    describe("Agent object", () => {
-      it('should pass using valid agent as substatement object', (done) => {
-        XAPIWrapper.postStatement(s2, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-    });
-    describe("Group object", () => {
-      it('should pass using valid group as substatement object', (done) => {
-        XAPIWrapper.postStatement(s3, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-    });
-    describe("StatementRef object", () => {
-      it('should pass using valid statementref as substatement object', (done) => {
-        XAPIWrapper.postStatement(s4, (error, resp, data) => {
-          (!error).should.eql(true);
-          resp.status.should.eql(OK);
-          resp.ok.should.eql(true);
-
-          done();
-        });
-      });
-    });
-    describe("SubStatement object", () => {
-
-    });
   });
 
   describe("SubStatement Object as statement object:", () => {
     before(() => {
-
+      s1 = new Statement(actor, verbs.initialized, new SubStatement(def));
+      s2 = new Statement(actor, verbs.initialized, new SubStatement(noActor));
+      s3 = new Statement(actor, verbs.initialized, new SubStatement(noVerb));
+      s4 = new Statement(actor, verbs.initialized, new SubStatement(noObject));
+      s5 = new Statement(actor, verbs.initialized, new SubStatement(invActor));
+      s6 = new Statement(actor, verbs.initialized, new SubStatement(invAct));
+      s7 = new Statement(actor, verbs.initialized, new SubStatement(invVerb));
+      s8 = new Statement(actor, verbs.initialized, new SubStatement(invAgent));
+      s9 = new Statement(actor, verbs.initialized, new SubStatement(invGroup));
+      s10 = new Statement(actor, verbs.initialized, new SubStatement(invStmtRef));
+      s11 = new Statement(actor, verbs.initialized, new SubStatement(objSubStmt));
+      s12 = new Statement(actor, verbs.initialized, new SubStatement(agent));
+      s13 = new Statement(actor, verbs.initialized, new SubStatement(group));
+      s14 = new Statement(actor, verbs.initialized, new SubStatement(act));
+      s15 = new Statement(actor, verbs.initialized, new SubStatement(stmtRef));
+      s16 = new Statement(actor, verbs.initialized, new SubStatement(context));
+      s17 = new Statement(actor, verbs.initialized, new SubStatement(result));
     });
 
+    it("should pass calling isValid() on substatement objects", () => {
+      (s1.object.isValid()).should.eql(true);
+      (s2.object.isValid()).should.eql(false);
+      (s3.object.isValid()).should.eql(false);
+      (s4.object.isValid()).should.eql(false);
+      (s5.object.isValid()).should.eql(false);
+      (s6.object.isValid()).should.eql(false);
+      (s7.object.isValid()).should.eql(false);
+      (s8.object.isValid()).should.eql(false);
+      (s9.object.isValid()).should.eql(false);
+      (s10.object.isValid()).should.eql(false);
+      (s11.object.isValid()).should.eql(false);
+      (s12.object.isValid()).should.eql(true);
+      (s13.object.isValid()).should.eql(true);
+      (s14.object.isValid()).should.eql(true);
+      (s15.object.isValid()).should.eql(true);
+      (s16.object.isValid()).should.eql(true);
+      (s17.object.isValid()).should.eql(true);
+    });
   });
 
 });

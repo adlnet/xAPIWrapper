@@ -1,0 +1,12 @@
+{
+  "objectType": "SubStatement",
+  "actor": {
+    "objectType": "Agent",
+    "name": "Default",
+    "mbox":"mailto:default@example.com"
+  },
+  "object": {
+    "objectType": "Activity",
+    "id": "http://www.example.com/meetings/occurances/1234"
+  }
+}

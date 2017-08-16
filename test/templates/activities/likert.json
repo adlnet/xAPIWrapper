@@ -1,0 +1,51 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "How likely are you to use xAPI?"
+      },
+      "name": {
+          "en-US": "Likert Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "likert",
+      "correctResponsesPattern": [
+        "d"
+      ],
+      "scale": [
+        {
+          "id": "a",
+          "description": {
+              "en-US": "Never"
+          }
+        },
+        {
+          "id": "b",
+          "description": {
+            "en-US": "Rarely"
+          }
+        },
+        {
+          "id": "c",
+          "description": {
+              "en-US": "Often"
+          }
+        },
+        {
+          "id": "d",
+          "description": {
+              "en-US": "Always"
+          }
+        }
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}

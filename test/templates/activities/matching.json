@@ -1,0 +1,77 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "Matching these NFL teams to their hometown:"
+      },
+      "name": {
+          "en-US": "Matching Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "matching",
+      "correctResponsesPattern": [
+        "steelers[.]d[,]chargers[.]a[,]raiders[.]c[,]dolphins[.]b"
+      ],
+      "source": [
+        {
+          "id": "steelers",
+          "description": {
+              "en-US": "Steelers"
+          }
+        },
+        {
+          "id": "chargers",
+          "description": {
+              "en-US": "Chargers"
+          }
+        },
+        {
+          "id": "raiders",
+          "description": {
+              "en-US": "Raiders"
+          }
+        },
+        {
+          "id": "dolphins",
+          "description": {
+              "en-US": "Dolphins"
+          }
+        }
+      ],
+      "target": [
+        {
+          "id": "a",
+          "description": {
+            "en-US": "San Diego"
+          }
+        },
+        {
+          "id": "b",
+          "description": {
+            "en-US": "Miami"
+          }
+        },
+        {
+          "id": "c",
+          "description": {
+              "en-US": "Oakland"
+          }
+        },
+        {
+          "id": "d",
+          "description": {
+            "en-US": "Pittsburgh"
+          }
+        }
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}

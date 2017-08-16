@@ -37,7 +37,8 @@ class Agent {
   };
   isValid()
   {
-    return (this.mbox || this.mbox_sha1sum || this.openid || (this.account && this.account.homePage && this.account.name))
+    return (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
+            || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
             && (!this.objectType || this.objectType==="Agent");
   };
 
@@ -130,8 +131,9 @@ class Group {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return ((this.mbox || this.mbox_sha1sum || this.openid || (this.account && this.account.homePage && this.account.name))
-            || (this.member && this.isValidMembers(this.member))) && (this.objectType && this.objectType === "Group");
+    return ((this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
+            || (this.account != undefined && this.account.homePage && this.account.name))
+            || (this.member != undefined && this.isValidMembers(this.member))) && (this.objectType != undefined && this.objectType === "Group");
   };
   isValidMembers(members){
     if (!members) return false;

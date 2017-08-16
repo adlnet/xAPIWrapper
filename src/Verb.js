@@ -28,7 +28,7 @@ class Verb {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return (this.id && this.id != "");
+    return (this.id != undefined && this.id != "");
   };
 
   show(){
@@ -37,7 +37,7 @@ class Verb {
 
   getDisplay(){
     if (!this.isValid())
-      return;
+      return null;
 
     return (this.display) ? Util.getLangVal(this.display) : this.id;
   };

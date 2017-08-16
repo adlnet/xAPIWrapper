@@ -81,13 +81,13 @@ describe("Group Test:", () => {
         ((new Group(null, iMbox.member)).isValid()).should.eql(true);
     });
     it("should fail with empty parameters", () => {
-        (!(new Group()).isValid()).should.eql(true);
+        ((new Group()).isValid()).should.eql(false);
     });
     it("should fail with valid name only", () => {
-        (!(new Group(null, null, aGroup.name)).isValid()).should.eql(true);
+        ((new Group(null, null, aGroup.name)).isValid()).should.eql(false);
     });
     it("should fail with invalid id/members", () => {
-        (!(new Group(iAccountName.account, groupMember.member)).isValid()).should.eql(true);
+        ((new Group(iAccountName.account, groupMember.member)).isValid()).should.eql(false);
     });
     it("should pass when retrieving display objects", () => {
         (s1.actor.getDisplay()).should.eql(def.name);
@@ -104,8 +104,8 @@ describe("Group Test:", () => {
     it("should pass calling isValid() on group objects", () => {
       (s1.actor.isValid()).should.eql(true);
       (s2.actor.isValid()).should.eql(true);
-      (!s3.actor.isValid()).should.eql(true);
-      (!s4.actor.isValid()).should.eql(true);
+      (s3.actor.isValid()).should.eql(false);
+      (s4.actor.isValid()).should.eql(false);
       (s5.actor.isValid()).should.eql(true);
       (s6.actor.isValid()).should.eql(true);
       (s7.actor.isValid()).should.eql(true);
@@ -113,9 +113,9 @@ describe("Group Test:", () => {
       (s9.actor.isValid()).should.eql(true);
       (s10.actor.isValid()).should.eql(true);
       (s11.actor.isValid()).should.eql(true);
-      (!s12.actor.isValid()).should.eql(true);
+      (s12.actor.isValid()).should.eql(false);
       (s13.actor.isValid()).should.eql(true);
-      (!s14.actor.isValid()).should.eql(true);
+      (s14.actor.isValid()).should.eql(false);
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
@@ -280,8 +280,8 @@ describe("Group Test:", () => {
     it("should pass calling isValid() on group objects", () => {
       (s1.actor.isValid()).should.eql(true);
       (s2.actor.isValid()).should.eql(true);
-      (!s3.actor.isValid()).should.eql(true);
-      (!s4.actor.isValid()).should.eql(true);
+      (s3.actor.isValid()).should.eql(false);
+      (s4.actor.isValid()).should.eql(false);
       (s5.actor.isValid()).should.eql(true);
       (s6.actor.isValid()).should.eql(true);
       (s7.actor.isValid()).should.eql(true);
@@ -289,9 +289,9 @@ describe("Group Test:", () => {
       (s9.actor.isValid()).should.eql(true);
       (s10.actor.isValid()).should.eql(true);
       (s11.actor.isValid()).should.eql(true);
-      (!s12.actor.isValid()).should.eql(true);
+      (s12.actor.isValid()).should.eql(false);
       (s13.actor.isValid()).should.eql(true);
-      (!s14.actor.isValid()).should.eql(true);
+      (s14.actor.isValid()).should.eql(false);
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {

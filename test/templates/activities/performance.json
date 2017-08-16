@@ -1,0 +1,45 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "This interaction measures performance over a day of RS sports:"
+      },
+      "name": {
+          "en-US": "Performance Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "performance",
+      "correctResponsesPattern": [
+        "pong[.]1:[,]dg[.]:10[,]lunch[.]"
+      ],
+      "steps": [
+        {
+          "id": "pong",
+          "description": {
+            "en-US": "Net pong matches won"
+          }
+        },
+        {
+          "id": "dg",
+          "description": {
+            "en-US": "Strokes over par in disc golf at Liberty"
+          }
+        },
+        {
+          "id": "lunch",
+          "description": {
+            "en-US": "Lunch having been eaten"
+          }
+        }
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}

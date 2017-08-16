@@ -37,8 +37,41 @@ class Activity {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return (this.id && this.id != "") && (!this.objectType || this.objectType === "Activity");
+    return ((this.id != undefined && this.id != "") && (this.isValidInteraction(this.definition))
+            && (!this.objectType || this.objectType === "Activity"));
   };
+  isValidInteraction(def){
+    if (def===undefined)
+      return true;
+
+    // interaction type
+    if (def.interactionType != undefined) {
+      if (typeof def.interactionType !== "string")
+        return false;
+
+      if (def.interactionType != "true-false" &&
+          def.interactionType != "choice" &&
+          def.interactionType != "fill-in" &&
+          def.interactionType != "long-fill-in" &&
+          def.interactionType != "matching" &&
+          def.interactionType != "performance" &&
+          def.interactionType != "sequencing" &&
+          def.interactionType != "likert" &&
+          def.interactionType != "numeric" &&
+          def.interactionType != "other") {
+        return false;
+      }
+    }
+
+    // extension
+    if (def.extensions != undefined) {
+      if (typeof def.extensions != "object") {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   show(){
     console.log(this.toString());
@@ -50,7 +83,7 @@ class Activity {
 
   getDisplay(){
     if (!this.isValid())
-      return;
+      return null;
 
     return (this.definition && this.definition.name) ? Util.getLangVal(this.definition.name) : this.id;
   }
@@ -79,7 +112,7 @@ class StatementRef {
     return JSON.stringify(this, null, '  ');
   };
   isValid(){
-    return (this.id && this.id != "") && this.objectType === 'StatementRef';
+    return (this.id != undefined && this.id != "") && this.objectType === 'StatementRef';
   };
 
   show(){

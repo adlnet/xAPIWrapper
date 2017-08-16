@@ -1,0 +1,16 @@
+{
+  "objectType": "SubStatement",
+  "verb": {
+    "id" : "http://adlnet.gov/expapi/verbs/experienced",
+    "display" : {
+      "de-DE" : "erlebte",
+      "en-US" : "experienced",
+      "fr-FR" : "a éprouvé",
+      "es-ES" : "experimentó"
+    }
+  },
+  "object": {
+    "objectType": "Activity",
+    "id": "http://www.example.com/meetings/occurances/1234"
+  }
+}

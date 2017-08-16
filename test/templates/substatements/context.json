@@ -1,0 +1,38 @@
+{
+  "objectType": "SubStatement",
+  "actor": {
+    "objectType": "Agent",
+    "name": "Default",
+    "mbox":"mailto:default@example.com"
+  },
+  "verb": {
+    "id" : "http://adlnet.gov/expapi/verbs/experienced",
+    "display" : {
+      "de-DE" : "erlebte",
+      "en-US" : "experienced",
+      "fr-FR" : "a éprouvé",
+      "es-ES" : "experimentó"
+    }
+  },
+  "object": {
+    "objectType": "Activity",
+    "id": "http://www.example.com/meetings/occurances/1234"
+  },
+  "context": {
+    "registration": "ec531277-b57b-4c15-8d91-d292c5b2b8f8",
+    "revision": "rev_10_3_2",
+    "platform": "Virtual meeting software",
+    "language": "tlh",
+    "statement": {
+      "objectType": "StatementRef",
+      "id": "6690e6c9-3ef0-4ed3-8b37-7f3964730bee"
+    },
+    "extensions": {
+      "http://example.com/profiles/meetings/contextextensions/airspeed": "600mph",
+      "http://example.com/profiles/meetings/contextextensions/pilot": {
+        "name": "Bob",
+        "id": "http://openid.com/342"
+      }
+    }
+  }
+}

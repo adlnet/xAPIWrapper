@@ -54,10 +54,10 @@ describe('Agent Test:', () => {
       ((new Agent(def, "aaron")).isValid()).should.eql(true);
     });
     it("should fail with invalid id & valid name", () => {
-      (!(new Agent(null, "aaron")).isValid()).should.eql(true);
+      ((new Agent(null, "aaron")).isValid()).should.eql(false);
     });
     it("should fail with empty parameters", () => {
-      (!(new Agent()).isValid()).should.eql(true);
+      ((new Agent()).isValid()).should.eql(false);
     });
     it("should pass when retrieving display objects", () => {
       (s1.actor.getDisplay()).should.eql(def.name);
@@ -73,8 +73,8 @@ describe('Agent Test:', () => {
     it("should pass calling isValid() on agent objects", () => {
       (s1.actor.isValid()).should.eql(true);
       (s2.actor.isValid()).should.eql(true);
-      (!s3.actor.isValid()).should.eql(true);
-      (!s4.actor.isValid()).should.eql(true);
+      (s3.actor.isValid()).should.eql(false);
+      (s4.actor.isValid()).should.eql(false);
       (s5.actor.isValid()).should.eql(true);
       (s6.actor.isValid()).should.eql(true);
     });
@@ -151,8 +151,8 @@ describe('Agent Test:', () => {
     it("should pass calling isValid() on agent objects", () => {
       (s1.actor.isValid()).should.eql(true);
       (s2.actor.isValid()).should.eql(true);
-      (!s3.actor.isValid()).should.eql(true);
-      (!s4.actor.isValid()).should.eql(true);
+      (s3.actor.isValid()).should.eql(false);
+      (s4.actor.isValid()).should.eql(false);
       (s5.actor.isValid()).should.eql(true);
       (s6.actor.isValid()).should.eql(true);
     });

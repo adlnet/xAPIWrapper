@@ -1,0 +1,20 @@
+{
+  "objectType": "SubStatement",
+  "actor": {
+    "objectType": "Agent",
+    "name": "Default",
+    "mbox":"mailto:default@example.com"
+  },
+  "verb": {
+    "id" : "http://adlnet.gov/expapi/verbs/experienced",
+    "display" : {
+      "de-DE" : "erlebte",
+      "en-US" : "experienced",
+      "fr-FR" : "a éprouvé",
+      "es-ES" : "experimentó"
+    }
+  },
+  "object": {
+    "objectType": "SubStatement"
+  }
+}

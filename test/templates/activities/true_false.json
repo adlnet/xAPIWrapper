@@ -1,0 +1,25 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "LRS stands for Learning Record Store"
+      },
+      "name": {
+          "en-US": "True-False Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "true-false",
+      "correctResponsesPattern": [
+        "true"
+      ],
+      "extensions": {
+        "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+        "http://example.com/profiles/meetings/extension/reporter": {
+          "name": "Bob",
+          "id": "http://openid.com/123"
+        }
+    }
+  }
+}

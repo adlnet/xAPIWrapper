@@ -128,9 +128,9 @@ class Statement {
   };
 
   isValid(){
-    return this.actor && this.actor.isValid()
-      && this.verb && this.verb.isValid()
-      && this.object && this.object.isValid();
+    return (this.actor != undefined && this.actor.isValid()
+      && this.verb != undefined && this.verb.isValid()
+      && this.object != undefined && this.object.isValid());
   };
 
   show(){
@@ -157,30 +157,61 @@ class Statement {
 
 /*
  * A self-contained statement as the object of another statement
- * See Statement for constructor details
  * @param {string} actor   The Agent or Group committing the action described by the statement
  * @param {string} verb   The Verb for the action described by the statement
  * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
  */
-class SubStatement extends Statement {
+class SubStatement {
   constructor(actor=null, verb=null, object=null){
-    super(actor,verb,object);
     this.objectType = 'SubStatement';
 
-    delete this.id;
-    delete this.generateId;
-    delete this.stored;
-    delete this.version;
-    delete this.authority;
+    if (actor) {
+      // First arg is substatement
+      if (actor.actor && actor.verb && actor.object) {
+        Object.assign(this, actor);
+        verb = actor.verb;
+        object = actor.object;
+        actor = actor.actor;
+      }
+
+      if(actor.objectType === 'Agent' || !actor.objectType) {
+        this.actor = (actor instanceof Agent) ? agent : new Agent(actor);
+      }
+      else if(actor.objectType === 'Group') {
+        this.actor = (actor instanceof Group) ? actor : new Group(actor);
+      }
+    }
+
+    if (verb) {
+      this.verb = (verb instanceof Verb) ? verb : new Verb(verb);
+    }
+
+    if (object) {
+      if(object.objectType === 'Activity' || !object.objectType){
+        this.object = (object instanceof Activity) ? object : new Activity(object);
+      }
+      else if(object.objectType === 'Agent'){
+        this.object = (object instanceof Agent) ? object : new Agent(object);
+      }
+      else if(object.objectType === 'Group'){
+        this.object = (object instanceof Group) ? object : new Group(object);
+      }
+      else if(object.objectType === 'StatementRef'){
+        this.object = (object instanceof StatementRef) ? object : new StatementRef(object);
+      }
+    }
   };
   toString(){
     return JSON.stringify(this, null, '  ');
   };
 
   isValid(){
-    return super.isValid()
-      && this.objectType==="SubStatement" && this.object.objectType!=this.objectType
-      && !this.hasOwnProperty("id") && !this.hasOwnProperty("stored") && !this.hasOwnProperty("version") && !this.hasOwnProperty("authority");
+    return (this.actor != undefined && this.actor.isValid()
+            && this.verb != undefined && this.verb.isValid()
+            && this.object != undefined && this.object.objectType!=this.objectType && this.object.isValid())
+            && this.objectType==="SubStatement" && !this.hasOwnProperty("id")
+            && !this.hasOwnProperty("stored") && !this.hasOwnProperty("version")
+            && !this.hasOwnProperty("authority");
   };
 
   show(){
@@ -191,7 +222,7 @@ class SubStatement extends Statement {
 
   getDisplay(){
     if (!this.isValid())
-      return;
+      return null;
 
     return `${this.actor.getId()}:${this.verb.getDisplay()}:${this.object.getId()}`;
   }

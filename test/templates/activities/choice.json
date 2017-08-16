@@ -1,0 +1,51 @@
+{
+  "objectType": "Activity",
+  "id": "http://www.example.com/meetings/occurances/1234",
+  "definition": {
+      "description": {
+          "en-US": "Which of these are not properties of a Statement?"
+      },
+      "name": {
+          "en-US": "Choice Activity"
+      },
+      "type": "http://adlnet.gov/expapi/activities/cmi.interaction",
+      "moreInfo": "http://example.com/1234",
+      "interactionType": "choice",
+      "correctResponsesPattern": [
+        "tiger[,]monkey"
+      ],
+      "choices": [
+        {
+          "id": "actor",
+          "description": {
+              "en-US": "Actor"
+          }
+        },
+        {
+          "id": "tiger",
+          "description": {
+            "en-US": "Tiger"
+          }
+        },
+        {
+          "id": "object",
+          "description": {
+              "en-US": "Object"
+          }
+        },
+        {
+          "id": "monkey",
+          "description": {
+              "en-US": "Monkey"
+          }
+        }
+      ],
+      "extensions": {
+      "http://example.com/profiles/meetings/extension/location": "X:\\meetings\\minutes\\examplemeeting.one",
+      "http://example.com/profiles/meetings/extension/reporter": {
+        "name": "Bob",
+        "id": "http://openid.com/123"
+      }
+    }
+  }
+}
