@@ -563,30 +563,37 @@ class XAPIWrapper {
 
   getMoreStatements(iterations, callback, searchParams)
   {
-      if (!onBrowser) throw new Error("Node not supported.");
+      if (this.testConfig()) {
+        let stmts = [];
 
-      let stmts = [];
+        if (callback) {
+          this.getStatements(searchParams, null, function getMore(error, resp, data){
+            if (!resp.ok || !data || !data.statements)
+              callback('Error: invalid response: ');
 
-      this.getStatements(searchParams, null, getMore = (r) => {
-          if (! (r && r.response) ) return;
-          let res = JSON.parse(r.response);
-          if (! res.statements) return;
-          stmts = stmts.concat(res.statements);
+            stmts = stmts.concat(data.statements);
 
-          if (iterations-- <= 0) {
-              callback(stmts);
-          }
-          else {
-              if (res.more && res.more !== "")
+            if (iterations-- <= 0) {
+              callback(null, null, stmts);
+            }
+            else {
+              if (data.more && data.more !== "")
               {
-                  this.getStatements(searchParams, res.more, getMore);
+                this.getStatements(searchParams, data.more, getMore);
               }
-              else if (res.more === "")
+              else if (data.more === "")
               {
-                  callback(stmts);
+                callback(null, null, stmts);
               }
-          }
-      });
+            }
+          });
+        }
+
+      } else if (callback) {
+        callback('Error: invalid parameters');
+      } else {
+        return new Promise((res,rej) => { rej('Error: invalid parameters'); });
+      }
   };
 
   /*

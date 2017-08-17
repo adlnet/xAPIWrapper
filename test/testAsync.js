@@ -259,12 +259,33 @@ describe("Asynchronous Testing:", () => {
         res.data.should.not.eql(null);
       });
       it("should return single statement using id asynchronously", async () => {
-        let id = '39d1c0bd-21b8-4523-b628-1c503cfb1732';
-        let res = await XAPIWrapper.getStatements({"statementId":id});
-        res.data.id.should.eql(id);
+        let stmt = new Statement(s1);
+        let id = stmt['id'];
+        await XAPIWrapper.postStatement(stmt)
+          .then((res) => {
+            return XAPIWrapper.getStatements({"statementId":id})
+              .then((res) => {
+                res.data.id.should.eql(id);
+              });
+          });
       });
       describe("More Statements", () => {
+        it("should return list of statements with no additional call", (done) => {
+          XAPIWrapper.getMoreStatements(0, (error, resp, data) => {
+            (Array.isArray(data)).should.eql(true);
+            data.length.should.not.eql(0);
 
+            done();
+          });
+        });
+        it("should return single statement with no additional call", (done) => {
+          XAPIWrapper.getMoreStatements(0, (error, resp, data) => {
+            (Array.isArray(data)).should.eql(true);
+            data.length.should.eql(1);
+
+            done();
+          }, {"limit":1});
+        });
       });
     });
   });
@@ -395,11 +416,14 @@ describe("Asynchronous Testing:", () => {
         });
       });
       it("should return single state using state id parameter asynchronously", async () => {
-        let post = await XAPIWrapper.postState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate", null, stateVal);
-
-        let res = await XAPIWrapper.getState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate");
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+        await XAPIWrapper.postState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate", null, stateVal)
+          .then((res) => {
+            return XAPIWrapper.getState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate")
+              .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+              });
+          });
       });
       it("should fail using invalid activity id or agent asynchronously", async () => {
         try {
@@ -460,12 +484,14 @@ describe("Asynchronous Testing:", () => {
 
   describe("Activities", () => {
     it("should return activity object asynchronously", async () => {
-      let res = await XAPIWrapper.getActivities('http://adlnet.gov/expapi/activities/question');
-      res.resp.status.should.eql(OK);
-      res.data.should.not.eql(null);
+      await XAPIWrapper.getActivities('http://activity.com/id')
+        .then((res) => {
+          res.resp.status.should.eql(OK);
+          res.data.should.not.eql(null);
+        });
     });
     it("should return activity object with callback", (done) => {
-      XAPIWrapper.getActivities('http://adlnet.gov/expapi/activities/question', (error, resp, data) => {
+      XAPIWrapper.getActivities('http://activity.com/id', (error, resp, data) => {
         (!error).should.eql(true);
         resp.status.should.eql(OK);
         resp.ok.should.eql(true);
