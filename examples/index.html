@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -49,7 +49,7 @@
           new ADL.Verb('http://adlnet.gov/expapi/verbs/browser_testing', 'browser_testing'),
           new ADL.Activity("act:statement_posts/browser_testing"));
 
-        ADL.XAPIWrapper.postStatement(stmt, (error, resp, data) => {
+        ADL.XAPIWrapper.postStatement(stmt, null, (error, resp, data) => {
           if (error && !resp) {
             console.log(error);
           } else {

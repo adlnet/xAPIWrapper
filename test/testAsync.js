@@ -53,13 +53,15 @@ describe("Asynchronous Testing:", () => {
     });
 
     describe("PUT", () => {
-      it("should pass sending statement asynchronously", async () => {
-        let res = await XAPIWrapper.putStatement(s1, s1['id']);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+      it("should pass sending statement asynchronously", () => {
+        return XAPIWrapper.putStatement(s1, s1['id'])
+            .then((res) => {
+                res.resp.status.should.eql(NO_CONTENT);
+                res.resp.ok.should.eql(true);
+            });
       });
       it("should pass sending statement with callback", (done) => {
-        XAPIWrapper.putStatement(s2, s2['id'], (error, resp, data) => {
+        XAPIWrapper.putStatement(s2, s2['id'], null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(NO_CONTENT);
           resp.ok.should.eql(true);
@@ -67,20 +69,20 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should fail sending null statement asynchronously", async () => {
-        XAPIWrapper.putStatement(null, Util.ruuid())
+      it("should fail sending null statement asynchronously", () => {
+        return XAPIWrapper.putStatement(null, Util.ruuid())
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending invalid id asynchronously", async () => {
-        XAPIWrapper.putStatement(s1, null)
+      it("should fail sending invalid id asynchronously", () => {
+        return XAPIWrapper.putStatement(s1, null)
           .catch((error) => {
             error.should.eql(INVALID_ID);
           });
       });
       it("should fail sending invalid id with callback", (done) => {
-        XAPIWrapper.putStatement(s2, "", (error, resp, data) => {
+        XAPIWrapper.putStatement(s2, "", null, (error, resp, data) => {
           error.should.eql(INVALID_ID);
 
           done();
@@ -88,7 +90,7 @@ describe("Asynchronous Testing:", () => {
       });
       it("should fail sending array with callback", (done) => {
         let stmt = [new Statement(s1)];
-        XAPIWrapper.putStatement(stmt, stmt['id'], (error, resp, data) => {
+        XAPIWrapper.putStatement(stmt, stmt['id'], null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
@@ -121,30 +123,32 @@ describe("Asynchronous Testing:", () => {
           });
         });
 
-        it("should pass using valid attachment data asynchronously", async () => {
-          await XAPIWrapper.putStatement(stmt, stmt.id, null, att)
+        it("should pass using valid attachment data asynchronously", () => {
+          return XAPIWrapper.putStatement(stmt, stmt.id, att, null)
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
             });
         });
         it("should pass using valid attachment data with callback", (done) => {
-          XAPIWrapper.putStatement(stmt, stmt.id, (error, resp, data) => {
+          XAPIWrapper.putStatement(stmt, stmt.id, att, (error, resp, data) => {
             resp.status.should.eql(NO_CONTENT);
             data.id.should.eql(stmt.id);
 
             done();
-          }, att);
+          });
         });
       });
     });
     describe("POST", () => {
-      it("should pass sending statement asynchronously", async () => {
-        let res = await XAPIWrapper.postStatement(s1);
-        res.resp.status.should.eql(OK);
-        res.resp.ok.should.eql(true);
+      it("should pass sending statement asynchronously", () => {
+        return XAPIWrapper.postStatement(s1)
+          .then((res) => {
+              res.resp.status.should.eql(OK);
+              res.resp.ok.should.eql(true);
+          });
       });
       it("should pass sending statement with callback", (done) => {
-        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+        XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -152,26 +156,27 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should fail sending null statement asynchronously", async () => {
-        try {
-          let res = await XAPIWrapper.postStatement(null);
-        } catch (e) {
-          e.should.not.eql(null);
-        }
+      it("should fail sending null statement asynchronously", () => {
+        return XAPIWrapper.postStatement(null)
+          .catch((error) => {
+              error.should.eql(INVALID_PARAMETERS);
+          });
       });
       it("should fail sending array with callback", (done) => {
-        XAPIWrapper.postStatement([new Statement(s1)], (error, resp, data) => {
+        XAPIWrapper.postStatement([new Statement(s1)], null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
         });
       });
       describe("Multiple Statements", () => {
-        it("should pass sending statements asynchronously", async () => {
+        it("should pass sending statements asynchronously", () => {
           let stmts=[new Statement(s1), new Statement(s2)];
-          let res = await XAPIWrapper.postStatements(stmts);
-          res.resp.status.should.eql(OK);
-          res.resp.ok.should.eql(true);
+          return XAPIWrapper.postStatements(stmts)
+            .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.resp.ok.should.eql(true);
+            });
         });
         it("should pass sending statements with callback", (done) => {
           let stmts = [new Statement(s1)];
@@ -223,26 +228,28 @@ describe("Asynchronous Testing:", () => {
           });
         });
 
-        it("should pass using valid attachment data asynchronously", async () => {
-          await XAPIWrapper.postStatement(stmt, null, att)
+        it("should pass using valid attachment data asynchronously", () => {
+          return XAPIWrapper.postStatement(stmt, att, null)
             .then((res) => {
               res.resp.status.should.eql(OK);
             });
         });
         it("should pass using valid attachment data with callback", (done) => {
-          XAPIWrapper.postStatement(stmt, (error, resp, data) => {
+          XAPIWrapper.postStatement(stmt, att, (error, resp, data) => {
             resp.status.should.eql(OK);
 
             done();
-          }, att);
+          });
         });
       });
     });
     describe("GET", () => {
-      it("should return list of statements asynchronously", async () => {
-        let res = await XAPIWrapper.getStatements();
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+      it("should return list of statements asynchronously", () => {
+        return XAPIWrapper.getStatements()
+            .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+            });
       });
       it("should return list of statements with callback", (done) => {
         XAPIWrapper.getStatements(null, null, (error, resp, data) => {
@@ -253,15 +260,17 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should return single statement asynchronously", async () => {
-        let res = await XAPIWrapper.getStatements({"limit":1});
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+      it("should return single statement asynchronously", () => {
+        return XAPIWrapper.getStatements({"limit":1})
+          .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+            });
       });
-      it("should return single statement using id asynchronously", async () => {
+      it("should return single statement using id asynchronously", () => {
         let stmt = new Statement(s1);
         let id = stmt['id'];
-        await XAPIWrapper.postStatement(stmt)
+        return XAPIWrapper.postStatement(stmt)
           .then((res) => {
             return XAPIWrapper.getStatements({"statementId":id})
               .then((res) => {
@@ -270,21 +279,65 @@ describe("Asynchronous Testing:", () => {
           });
       });
       describe("More Statements", () => {
+        it("should return list of statements with no additional call asynchronously", () => {
+          return XAPIWrapper.getMoreStatements(0, null)
+              .then((res) => {
+                  (Array.isArray(res.data)).should.eql(true);
+                  res.data.length.should.not.eql(0);
+              });
+        });
         it("should return list of statements with no additional call", (done) => {
-          XAPIWrapper.getMoreStatements(0, (error, resp, data) => {
+          XAPIWrapper.getMoreStatements(0, null, (error, resp, data) => {
             (Array.isArray(data)).should.eql(true);
             data.length.should.not.eql(0);
 
             done();
           });
         });
+        it("should return single statement with no additional call asynchronously", () => {
+          return XAPIWrapper.getMoreStatements(0, {"limit": 1})
+              .then((res) => {
+                  (Array.isArray(res.data)).should.eql(true);
+                  res.data.length.should.eql(1);
+              });
+        });
         it("should return single statement with no additional call", (done) => {
-          XAPIWrapper.getMoreStatements(0, (error, resp, data) => {
+            XAPIWrapper.getMoreStatements(0, {"limit": 1}, (error, resp, data) => {
             (Array.isArray(data)).should.eql(true);
             data.length.should.eql(1);
 
             done();
-          }, {"limit":1});
+          });
+        });
+        it("should return list of statements with single additional call asynchronously", () => {
+          return XAPIWrapper.getMoreStatements(1, null)
+              .then((res) => {
+                  (Array.isArray(res.data)).should.eql(true);
+                  res.data.length.should.eql(200);
+              });
+        });
+        it("should return list of statements with single additional call", (done) => {
+          XAPIWrapper.getMoreStatements(1, null, (error, resp, data) => {
+             (Array.isArray(data)).should.eql(true);
+             data.length.should.eql(200);
+
+             done();
+          });
+        });
+        it("should return list of statements with single additional call & limit of 1 asynchronously", () => {
+          return XAPIWrapper.getMoreStatements(1, {"limit": 1})
+              .then((res) => {
+                  (Array.isArray(res.data)).should.eql(true);
+                  res.data.length.should.eql(2);
+              });
+        });
+        it("should return list of statements with single additional call & limit of 1", (done) => {
+          XAPIWrapper.getMoreStatements(1, {"limit": 1}, (error, resp, data) => {
+            (Array.isArray(data)).should.eql(true);
+            data.length.should.eql(2);
+
+            done();
+          });
         });
       });
     });
@@ -301,10 +354,12 @@ describe("Asynchronous Testing:", () => {
     });
 
     describe("PUT", () => {
-      it("should pass sending default state asynchronously", async () => {
-        let res = await XAPIWrapper.putState(actId, agent, stateId, null, stateVal);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+      it("should pass sending default state asynchronously", () => {
+        return XAPIWrapper.putState(actId, agent, stateId, null, stateVal)
+            .then((res) => {
+                res.resp.status.should.eql(NO_CONTENT);
+                res.resp.ok.should.eql(true);
+            });
       });
       it("should pass sending default state with callback", (done) => {
         XAPIWrapper.putState(actId, agent, stateId, null, stateVal, (error, resp, data) => {
@@ -326,24 +381,28 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should pass updating state asynchronously", async () => {
+      it("should pass updating state asynchronously", () => {
         let newState = {'info': 'the new updated state info'};
-        let res = await XAPIWrapper.putState(actId, agent, stateId, null, newState);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+        return XAPIWrapper.putState(actId, agent, stateId, null, newState)
+            .then((res) => {
+                res.resp.status.should.eql(NO_CONTENT);
+                res.resp.ok.should.eql(true);
+            });
       });
-      it("should fail sending null stateval parameter asynchronously", async () => {
-        XAPIWrapper.putState(actId, agent, stateId, null, null)
+      it("should fail sending null stateval parameter asynchronously", () => {
+        return XAPIWrapper.putState(actId, agent, stateId, null, null)
           .catch((error) => {
-            error.should.eql(INVALID_PARAMETERS);
-          })
+              error.should.eql(INVALID_PARAMETERS);
+          });
       });
     });
     describe("POST", () => {
-      it("should pass sending state asynchronously", async () => {
-        let res = await XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, stateId, null, stateVal);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+      it("should pass sending state asynchronously", () => {
+        return XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, stateId, null, stateVal)
+            .then((res) => {
+                res.resp.status.should.eql(NO_CONTENT);
+                res.resp.ok.should.eql(true);
+            });
       });
       it("should pass sending state with callback", (done) => {
         XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, stateId, null, stateVal, (error, resp, data) => {
@@ -365,19 +424,20 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should fail sending null stateval parameter asynchronously", async () => {
-        try {
-          let res = await XAPIWrapper.postState(actId, agent, stateId, null, null);
-        } catch (e) {
-          e.should.not.eql(null);
-        }
+      it("should fail sending null stateval parameter asynchronously", () => {
+        return XAPIWrapper.postState(actId, agent, stateId, null, null)
+            .catch((error) => {
+                error.should.eql(INVALID_PARAMETERS);
+            });
       });
     });
     describe("GET", () => {
-      it("should return list of state id's using activity/agent asynchronously", async () => {
-        let res = await XAPIWrapper.getState(actId, agent);
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+      it("should return list of state id's using activity/agent asynchronously", () => {
+        return XAPIWrapper.getState(actId, agent)
+            .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+            });
       });
       it("should return list of state id's using activity/agent with callback", (done) => {
         XAPIWrapper.getState(actId, agent, null, null, null, (error, resp, data) => {
@@ -388,22 +448,28 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should return list of state id's using different agent asynchronously", async () => {
-        let res = await XAPIWrapper.getState(actId, {'mbox':'mailto:aaron@example.com'});
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+      it("should return list of state id's using different agent asynchronously", () => {
+        return XAPIWrapper.getState(actId, {'mbox':'mailto:aaron@example.com'})
+            .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+            });
       });
-      it("should return list of state id's using since parameter asynchronously", async () => {
+      it("should return list of state id's using since parameter asynchronously", () => {
         let date = "2017-06-26T11:45:28.297971+00:00";
-        let res = await XAPIWrapper.getState(actId, agent, null, null, date);
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+        return XAPIWrapper.getState(actId, agent, null, null, date)
+            .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+            });
       });
-      it("should return empty list using present since parameter asynchronously", async () => {
+      it("should return empty list using present since parameter asynchronously", () => {
         let date = (new Date()).toISOString();
-        let res = await XAPIWrapper.getState(actId, agent, null, null, date);
-        res.resp.status.should.eql(OK);
-        res.data.should.not.eql(null);
+        return XAPIWrapper.getState(actId, agent, null, null, date)
+            .then((res) => {
+                res.resp.status.should.eql(OK);
+                res.data.should.not.eql(null);
+            });
       });
       it("should return list of state id's using since parameter with callback", (done) => {
         let date = "2017-06-26T11:45:28.297971+00:00";
@@ -415,29 +481,30 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should return single state using state id parameter asynchronously", async () => {
-        await XAPIWrapper.postState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate", null, stateVal)
+      it("should return single state using state id parameter asynchronously", () => {
+        return XAPIWrapper.postState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate", null, stateVal)
           .then((res) => {
             return XAPIWrapper.getState('http://adlnet.gov/expapi/activities/tested', agent, "testedstate")
               .then((res) => {
-                res.resp.status.should.eql(OK);
-                res.data.should.not.eql(null);
+                  res.resp.status.should.eql(OK);
+                  res.data.should.not.eql(null);
               });
           });
       });
-      it("should fail using invalid activity id or agent asynchronously", async () => {
-        try {
-          let res = await XAPIWrapper.getState(actId);
-        } catch (e) {
-          e.should.not.eql(null);
-        }
+      it("should fail using invalid agent asynchronously", () => {
+        return XAPIWrapper.getState(actId)
+            .catch((error) => {
+                error.should.eql(INVALID_PARAMETERS);
+            });
       });
     });
     describe("DELETE", () => {
-      it("should delete specified state using activityId/agent parameters asynchronously", async () => {
-        let res = await XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/updated', agent);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+      it("should delete specified state using activityId/agent parameters asynchronously", () => {
+        return XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/updated', agent)
+            .then((res) => {
+                res.resp.status.should.eql(NO_CONTENT);
+                res.resp.ok.should.eql(true);
+            });
       });
       it("should delete specified state using activityId/agent parameters with callback", (done) => {
         XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/completed', agent, 'completedstate', null, (error, resp, data) => {
@@ -457,37 +524,42 @@ describe("Asynchronous Testing:", () => {
           done();
         });
       });
-      it("should delete specified state using state id parameter asynchronously", async () => {
-        let post = await XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, 'updatedstate', null, stateVal);
-
-        let res = await XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/updated', agent, 'updatedstate');
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+      it("should delete specified state using state id parameter asynchronously", () => {
+        return XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, 'updatedstate', null, stateVal)
+            .then((res) => {
+                return XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/updated', agent, 'updatedstate')
+                    .then((res) => {
+                        res.resp.status.should.eql(NO_CONTENT);
+                        res.resp.ok.should.eql(true);
+                    });
+            });
       });
-      it("should delete specified state using registration id parameter asynchronously", async () => {
+      it("should delete specified state using registration id parameter asynchronously", () => {
         let id = Util.ruuid();
-        let post = await XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, 'updatedstate', id, stateVal);
-
-        let res = await XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/updated', agent, null, id);
-        res.resp.status.should.eql(NO_CONTENT);
-        res.resp.ok.should.eql(true);
+        return XAPIWrapper.postState('http://adlnet.gov/expapi/activities/updated', agent, 'updatedstate', id, stateVal)
+            .then((res) => {
+                return XAPIWrapper.deleteState('http://adlnet.gov/expapi/activities/updated', agent, null, id)
+                    .then((res) => {
+                        res.resp.status.should.eql(NO_CONTENT);
+                        res.resp.ok.should.eql(true);
+                    });
+            });
       });
-      it("should fail using invalid activity id or agent parameters asynchronously", async () => {
-        try {
-          let res = await XAPIWrapper.deleteState(null, agent);
-        } catch (e) {
-          e.should.not.eql(null);
-        }
+      it("should fail using invalid activity id asynchronously", () => {
+        return XAPIWrapper.deleteState(null, agent)
+            .catch((error) => {
+                error.should.eql(INVALID_PARAMETERS);
+            })
       });
     });
   });
 
   describe("Activities", () => {
-    it("should return activity object asynchronously", async () => {
-      await XAPIWrapper.getActivities('http://activity.com/id')
+    it("should return activity object asynchronously", () => {
+      return XAPIWrapper.getActivities('http://activity.com/id')
         .then((res) => {
-          res.resp.status.should.eql(OK);
-          res.data.should.not.eql(null);
+            res.resp.status.should.eql(OK);
+            res.data.should.not.eql(null);
         });
     });
     it("should return activity object with callback", (done) => {
@@ -499,12 +571,11 @@ describe("Asynchronous Testing:", () => {
         done();
       });
     });
-    it("should fail using invalid activity object asynchronously", async () => {
-      try {
-        let res = await XAPIWrapper.getActivities('adlnet.gov/expapi/activities/question');
-      } catch (e) {
-        e.should.not.eql(null);
-      }
+    it("should fail using invalid activity object asynchronously", () => {
+      return XAPIWrapper.getActivities('bad id')
+          .catch((error) => {
+              error.should.not.eql(null);
+          });
     });
     it("should fail using null activity object with callback", (done) => {
       XAPIWrapper.getActivities(null, (error, resp, data) => {
@@ -532,8 +603,8 @@ describe("Asynchronous Testing:", () => {
 
     describe("PUT", () => {
       describe("If-None-Match", () => {
-        it("should pass storing new profile if none exist", async () => {
-          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
+        it("should pass storing new profile if none exist", () => {
+          return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -545,9 +616,9 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should pass storing new profile with etag if none exist", async () => {
+        it("should pass storing new profile with etag if none exist", () => {
           etag = XAPIWrapper.hash(JSON.stringify(profileVal2));
-          await XAPIWrapper.putActivityProfile(activityId2, profileId2, profileVal2, IF_NONE_MATCH, etag)
+          return XAPIWrapper.putActivityProfile(activityId2, profileId2, profileVal2, IF_NONE_MATCH, etag)
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -559,18 +630,18 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should fail storing existing profile", async () => {
-          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
+        it("should fail storing existing profile", () => {
+          return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
             .catch((error) => {
               error.should.eql(PRE_COND_FAILED);
             });
         });
       });
       describe("If-Match", () => {
-        it("should pass updating existing profile", async () => {
+        it("should pass updating existing profile", () => {
           let profile = profileVal1;
           profile.profileId = Util.ruuid();
-          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "*")
+          return XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "*")
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -583,10 +654,10 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should pass updating existing profile with ETag", async () => {
+        it("should pass updating existing profile with ETag", () => {
           let profile = profileVal2;
           profile.profileId = Util.ruuid();
-          await XAPIWrapper.putActivityProfile(activityId2, profileId2, profile, IF_MATCH, etag)
+          return XAPIWrapper.putActivityProfile(activityId2, profileId2, profile, IF_MATCH, etag)
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -599,63 +670,61 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should fail updating existing profile with invalid etag", async () => {
+        it("should fail updating existing profile with invalid etag", () => {
           let profile = profileVal1;
           profile.profileId = Util.ruuid();
-          await XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
+          return XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
             .catch((error) => {
               error.should.eql(PRE_COND_FAILED);
             });
         });
       });
-      it("should fail sending profile using invalid activityId", async () => {
-        XAPIWrapper.putActivityProfile(null, profileId1, profileVal1)
+      it("should fail sending profile using invalid activityId", () => {
+        return XAPIWrapper.putActivityProfile(null, profileId1, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using invalid profileId", async () => {
-        XAPIWrapper.putActivityProfile(activityId1, null, profileVal1)
+      it("should fail sending profile using invalid profileId", () => {
+        return XAPIWrapper.putActivityProfile(activityId1, null, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending invalid profile object", async () => {
-        XAPIWrapper.putActivityProfile(activityId1, profileId1, null)
+      it("should fail sending invalid profile object", () => {
+        return XAPIWrapper.putActivityProfile(activityId1, profileId1, null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using both ETag headers", async () => {
-        XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, `${IF_NONE_MATCH}${IF_MATCH}`, "*")
+      it("should fail sending profile using both ETag headers", () => {
+        return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, `${IF_NONE_MATCH}${IF_MATCH}`, "*")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HEADER);
           });
       });
-      it("should fail sending profile using invalid ETag hash", async () => {
-        XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "")
+      it("should fail sending profile using invalid ETag hash", () => {
+        return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HASH);
           });
       });
-      it("should fail sending profile using invalid ETag header", async () => {
-        XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, "", "*")
+      it("should fail sending profile using invalid ETag header", () => {
+        return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, "", "*")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HEADER);
           });
       });
 
       after(() => {
-        XAPIWrapper.deleteActivityProfile(activityId1, profileId1);
-        XAPIWrapper.deleteActivityProfile(activityId2, profileId2);
+          XAPIWrapper.deleteActivityProfile(activityId1, profileId1);
+          XAPIWrapper.deleteActivityProfile(activityId2, profileId2);
       });
     });
     describe("POST", () => {
-      it("should pass storing profile if none exist", async () => {
-        await XAPIWrapper.postActivityProfile(activityId1, profileId1, profileVal1)
+      it("should pass storing profile if none exist", () => {
+        return XAPIWrapper.postActivityProfile(activityId1, profileId1, profileVal1)
           .then((res) => {
-            res.resp.status.should.eql(NO_CONTENT);
-
             return XAPIWrapper.getActivityProfile(activityId1, profileId1)
               .then((res) => {
                 res.data.should.eql(profileVal1);
@@ -663,9 +732,9 @@ describe("Asynchronous Testing:", () => {
               });
           });
       });
-      it("should pass merging profiles", async () => {
+      it("should pass merging profiles", () => {
         let profile = {newProp: "New property"};
-        await XAPIWrapper.postActivityProfile(activityId1, profileId1, profile)
+        return XAPIWrapper.postActivityProfile(activityId1, profileId1, profile)
           .then((res) => {
             res.resp.status.should.eql(NO_CONTENT);
 
@@ -679,20 +748,20 @@ describe("Asynchronous Testing:", () => {
               });
           });
       });
-      it("should fail sending profile using invalid activityId", async () => {
-        XAPIWrapper.postActivityProfile(null, profileId1, profileVal1)
+      it("should fail sending profile using invalid activityId", () => {
+        return XAPIWrapper.postActivityProfile(null, profileId1, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using invalid profileId", async () => {
-        XAPIWrapper.postActivityProfile(activityId1, null, profileVal1)
+      it("should fail sending profile using invalid profileId", () => {
+        return XAPIWrapper.postActivityProfile(activityId1, null, profileVal1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending invalid profile object", async () => {
-        XAPIWrapper.postActivityProfile(activityId1, profileId1, null)
+      it("should fail sending invalid profile object", () => {
+        return XAPIWrapper.postActivityProfile(activityId1, profileId1, null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
@@ -713,46 +782,44 @@ describe("Asynchronous Testing:", () => {
         ];
         date = new Date().toISOString();
         XAPIWrapper.postActivityProfile(prof[0].activityId, prof[0].profileId, prof[0]);
-        XAPIWrapper.postActivityProfile(prof[1].activityId, prof[1].profileId, prof[1]);
-        XAPIWrapper.postActivityProfile(prof[2].activityId, prof[2].profileId, prof[2]);
       });
 
-      it("should return single activity profile using valid activity/profile IDs", async () => {
-        await XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId)
+      it("should return single activity profile using valid activity/profile IDs", () => {
+        return XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId)
           .then((res) => {
             res.data['activityId'].should.eql(prof[0].activityId);
             res.data['profileId'].should.eql(prof[0].profileId);
-          });
+          })
       });
-      it("should return list of profile IDs using valid activityId & no profileId", async () => {
-        await XAPIWrapper.getActivityProfile(prof[0].activityId)
+      it("should return list of profile IDs using valid activityId & no profileId", () => {
+        return XAPIWrapper.getActivityProfile(prof[0].activityId)
           .then((res) => {
             (Array.isArray(res.data)).should.eql(true);
             (res.data.length).should.not.eql(0);
           });
       });
-      it("should return single activity profile using valid activity/profile IDs & timestamp", async () => {
-        await XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId, date)
+      it("should return single activity profile using valid activity/profile IDs & timestamp", () => {
+        return XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId, date)
           .then((res) => {
             res.data['activityId'].should.eql(prof[0].activityId);
             res.data['profileId'].should.eql(prof[0].profileId);
           });
       });
-      it("should return list of profile IDs using valid activityId & timestamp", async () => {
-        await XAPIWrapper.getActivityProfile(prof[0].activityId, null, date)
+      it("should return list of profile IDs using valid activityId & timestamp", () => {
+        return XAPIWrapper.getActivityProfile(prof[0].activityId, null, date)
           .then((res) => {
             (Array.isArray(res.data)).should.eql(true);
             (res.data.length).should.not.eql(0);
           });
       });
-      it("should fail using invalid activityId", async () => {
-        await XAPIWrapper.getActivityProfile(null)
+      it("should fail using invalid activityId", () => {
+        return XAPIWrapper.getActivityProfile(null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail using invalid 'since' timestamp", async () => {
-        await XAPIWrapper.getActivityProfile(activityId1, profileId1, {})
+      it("should fail using invalid 'since' timestamp", () => {
+        return XAPIWrapper.getActivityProfile(activityId1, profileId1, {})
           .catch((error) => {
             error.should.eql(INVALID_TIMESTAMP);
           });
@@ -765,8 +832,8 @@ describe("Asynchronous Testing:", () => {
       });
     });
     describe("DELETE", () => {
-      it("should pass deleting the profile using valid activity/profile IDs", async () => {
-        await XAPIWrapper.deleteActivityProfile(activityId1, profileId1)
+      it("should pass deleting the profile using valid activity/profile IDs", () => {
+        return XAPIWrapper.deleteActivityProfile(activityId1, profileId1)
           .then((res) => {
             res.resp.status.should.eql(NO_CONTENT);
 
@@ -776,14 +843,14 @@ describe("Asynchronous Testing:", () => {
               });
           });
       });
-      it("should fail deleting the profile using invalid activityId", async () => {
-        await XAPIWrapper.deleteActivityProfile(null, profileId1)
+      it("should fail deleting the profile using invalid activityId", () => {
+        return XAPIWrapper.deleteActivityProfile(null, profileId1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail deleting the profile using invalid profileId", async () => {
-        await XAPIWrapper.deleteActivityProfile(activityId1, null)
+      it("should fail deleting the profile using invalid profileId", () => {
+        return XAPIWrapper.deleteActivityProfile(activityId1, null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
@@ -792,10 +859,12 @@ describe("Asynchronous Testing:", () => {
   });
 
   describe("Agents", () => {
-    it("should return person object asynchronously", async () => {
-      let res = await XAPIWrapper.getAgents({'mbox':'mailto:a@example.com'});
-      res.resp.status.should.eql(OK);
-      res.data.should.not.eql(null);
+    it("should return person object asynchronously", () => {
+      return XAPIWrapper.getAgents({'mbox':'mailto:a@example.com'})
+          .then((res) => {
+              res.resp.status.should.eql(OK);
+              res.data.should.not.eql(null);
+          });
     });
     it("should return person object with callback", (done) => {
       XAPIWrapper.getAgents({'mbox':'mailto:a@example.com'}, (error, resp, data) => {
@@ -808,19 +877,17 @@ describe("Asynchronous Testing:", () => {
         done();
       });
     });
-    it("should fail using invalid agent asynchronously", async () => {
-      try {
-        let res = await XAPIWrapper.getAgents({'mbox':'mailto:wrong@example.com'});
-      } catch (e) {
-        e.should.not.eql(null);
-      }
+    it("should fail using invalid agent asynchronously", () => {
+      return XAPIWrapper.getAgents({'mbox':'mailto:wrong@example.com'})
+          .catch((error) => {
+              error.should.not.eql(null);
+          });
     });
-    it("should fail using null agent parameter asynchronously", async () => {
-      try {
-        let res = await XAPIWrapper.getAgents(null);
-      } catch (e) {
-        e.should.not.eql(null);
-      }
+    it("should fail using null agent parameter asynchronously", () => {
+      return XAPIWrapper.getAgents(null)
+          .catch((error) => {
+              error.should.eql(INVALID_PARAMETERS);
+          })
     });
   });
 
@@ -846,8 +913,8 @@ describe("Asynchronous Testing:", () => {
 
     describe("PUT", () => {
       describe("If-None-Match", () => {
-        it("should pass storing new profile if none exist", async () => {
-          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
+        it("should pass storing new profile if none exist", () => {
+          return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -858,9 +925,9 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should pass storing new profile with etag if none exist", async () => {
+        it("should pass storing new profile with etag if none exist", () => {
           etag = XAPIWrapper.hash(JSON.stringify(profile2));
-          await XAPIWrapper.putAgentProfile(agent2, profileId2, profile2, IF_NONE_MATCH, etag)
+          return XAPIWrapper.putAgentProfile(agent2, profileId2, profile2, IF_NONE_MATCH, etag)
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -871,18 +938,18 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should fail storing existing profile", async () => {
-          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
+        it("should fail storing existing profile", () => {
+          return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
             .catch((error) => {
               error.should.eql(PRE_COND_FAILED);
             });
         });
       });
       describe("If-Match", () => {
-        it("should pass updating existing profile", async () => {
+        it("should pass updating existing profile", () => {
           let profile = profile1;
           profile.profileId = Util.ruuid();
-          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "*")
+          return XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "*")
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -895,10 +962,10 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should pass updating existing profile with ETag", async () => {
+        it("should pass updating existing profile with ETag", () => {
           let profile = profile2;
           profile.profileId = Util.ruuid();
-          await XAPIWrapper.putAgentProfile(agent2, profileId2, profile, IF_MATCH, etag)
+          return XAPIWrapper.putAgentProfile(agent2, profileId2, profile, IF_MATCH, etag)
             .then((res) => {
               res.resp.status.should.eql(NO_CONTENT);
 
@@ -911,60 +978,60 @@ describe("Asynchronous Testing:", () => {
                 });
             });
         });
-        it("should fail updating existing profile with invalid etag", async () => {
+        it("should fail updating existing profile with invalid etag", () => {
           let profile = profile1;
           profile.profileId = Util.ruuid();
-          await XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
+          return XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
             .catch((error) => {
               error.should.eql(PRE_COND_FAILED);
             });
         });
       });
-      it("should fail sending profile using invalid agent", async () => {
-        XAPIWrapper.putAgentProfile(null, profileId1, profile1)
+      it("should fail sending profile using invalid agent", () => {
+        return XAPIWrapper.putAgentProfile(null, profileId1, profile1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using invalid profileId", async () => {
-        XAPIWrapper.putAgentProfile(agent1, null, profile1)
+      it("should fail sending profile using invalid profileId", () => {
+        return XAPIWrapper.putAgentProfile(agent1, null, profile1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending invalid profile object", async () => {
-        XAPIWrapper.putAgentProfile(agent1, profileId1, null)
+      it("should fail sending invalid profile object", () => {
+        return XAPIWrapper.putAgentProfile(agent1, profileId1, null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using both ETag headers", async () => {
-        XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, `${IF_NONE_MATCH}${IF_MATCH}`, "*")
+      it("should fail sending profile using both ETag headers", () => {
+        return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, `${IF_NONE_MATCH}${IF_MATCH}`, "*")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HEADER);
           });
       });
-      it("should fail sending profile using invalid ETag hash", async () => {
-        XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "")
+      it("should fail sending profile using invalid ETag hash", () => {
+        return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HASH);
           });
       });
-      it("should fail sending profile using invalid ETag header", async () => {
-        XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, "", "*")
+      it("should fail sending profile using invalid ETag header", () => {
+        return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, "", "*")
           .catch((error) => {
             error.should.eql(INVALID_ETAG_HEADER);
           });
       });
 
       after(() => {
-        XAPIWrapper.deleteAgentProfile(agent1, profileId1);
-        XAPIWrapper.deleteAgentProfile(agent2, profileId2);
+          XAPIWrapper.deleteAgentProfile(agent1, profileId1);
+          XAPIWrapper.deleteAgentProfile(agent2, profileId2);
       });
     });
     describe("POST", () => {
-      it("should pass storing profile if none exist", async () => {
-        await XAPIWrapper.postAgentProfile(agent1, profileId1, profile1)
+      it("should pass storing profile if none exist", () => {
+        return XAPIWrapper.postAgentProfile(agent1, profileId1, profile1)
           .then((res) => {
             res.resp.status.should.eql(NO_CONTENT);
 
@@ -975,9 +1042,9 @@ describe("Asynchronous Testing:", () => {
               });
           });
       });
-      it("should pass merging profiles", async () => {
+      it("should pass merging profiles", () => {
         let profile = {newProp: "New property"};
-        await XAPIWrapper.postAgentProfile(agent1, profileId1, profile)
+        return XAPIWrapper.postAgentProfile(agent1, profileId1, profile)
           .then((res) => {
             res.resp.status.should.eql(NO_CONTENT);
 
@@ -991,28 +1058,28 @@ describe("Asynchronous Testing:", () => {
               });
           });
       });
-      it("should fail sending profile using invalid agent", async () => {
-        XAPIWrapper.postAgentProfile(null, profileId1, profile1)
+      it("should fail sending profile using invalid agent", () => {
+        return XAPIWrapper.postAgentProfile(null, profileId1, profile1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending profile using invalid profileId", async () => {
-        XAPIWrapper.postAgentProfile(agent1, null, profile1)
+      it("should fail sending profile using invalid profileId", () => {
+        return XAPIWrapper.postAgentProfile(agent1, null, profile1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail sending invalid profile object", async () => {
-        XAPIWrapper.postAgentProfile(agent1, profileId1, null)
+      it("should fail sending invalid profile object", () => {
+        return XAPIWrapper.postAgentProfile(agent1, profileId1, null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
 
       after(() => {
-        XAPIWrapper.deleteAgentProfile(agent1, profileId1);
-        XAPIWrapper.deleteAgentProfile(agent2, profileId2);
+          XAPIWrapper.deleteAgentProfile(agent1, profileId1);
+          XAPIWrapper.deleteAgentProfile(agent2, profileId2);
       });
     });
     describe("GET", () => {
@@ -1032,54 +1099,54 @@ describe("Asynchronous Testing:", () => {
         XAPIWrapper.postAgentProfile(prof[2].agent, prof[2].profileId, prof[2]);
       });
 
-      it("should return single activity profile using valid agent & profileId", async () => {
-        await XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId)
+      it("should return single activity profile using valid agent & profileId", () => {
+        return XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId)
           .then((res) => {
             res.data.should.eql(prof[0]);
           });
       });
-      it("should return list of profile IDs using valid agent & no profileId", async () => {
-        await XAPIWrapper.getAgentProfile(prof[0].agent)
+      it("should return list of profile IDs using valid agent & no profileId", () => {
+        return XAPIWrapper.getAgentProfile(prof[0].agent)
           .then((res) => {
             (Array.isArray(res.data)).should.eql(true);
             (res.data.length).should.not.eql(0);
           });
       });
-      it("should return single activity profile using valid agent, profileId & timestamp", async () => {
-        await XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId, date)
+      it("should return single activity profile using valid agent, profileId & timestamp", () => {
+        return XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId, date)
           .then((res) => {
             res.data.should.eql(prof[0]);
           });
       });
-      it("should return list of profile IDs using valid agent & timestamp", async () => {
-        await XAPIWrapper.getAgentProfile(prof[0].agent, null, date)
+      it("should return list of profile IDs using valid agent & timestamp", () => {
+        return XAPIWrapper.getAgentProfile(prof[0].agent, null, date)
           .then((res) => {
             (Array.isArray(res.data)).should.eql(true);
             (res.data.length).should.not.eql(0);
           });
       });
-      it("should fail using invalid agent", async () => {
-        await XAPIWrapper.getAgentProfile(null)
+      it("should fail using invalid agent", () => {
+        return XAPIWrapper.getAgentProfile(null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail using invalid 'since' timestamp", async () => {
-        await XAPIWrapper.getAgentProfile(agent1, profileId1, {})
+      it("should fail using invalid 'since' timestamp", () => {
+        return XAPIWrapper.getAgentProfile(agent1, profileId1, {})
           .catch((error) => {
             error.should.eql(INVALID_TIMESTAMP);
           });
       });
 
       after(() => {
-        XAPIWrapper.deleteAgentProfile(prof[0].agent, prof[0].profileId);
-        XAPIWrapper.deleteAgentProfile(prof[1].agent, prof[1].profileId);
-        XAPIWrapper.deleteAgentProfile(prof[2].agent, prof[2].profileId);
+          XAPIWrapper.deleteAgentProfile(prof[0].agent, prof[0].profileId);
+          XAPIWrapper.deleteAgentProfile(prof[1].agent, prof[1].profileId);
+          XAPIWrapper.deleteAgentProfile(prof[2].agent, prof[2].profileId);
       });
     });
     describe("DELETE", () => {
-      it("should pass deleting the profile using valid agent & profileId", async () => {
-        await XAPIWrapper.deleteAgentProfile(agent1, profileId1)
+      it("should pass deleting the profile using valid agent & profileId", () => {
+        return XAPIWrapper.deleteAgentProfile(agent1, profileId1)
           .then((res) => {
             res.resp.status.should.eql(NO_CONTENT);
 
@@ -1089,14 +1156,14 @@ describe("Asynchronous Testing:", () => {
               });
           });
       });
-      it("should fail deleting the profile using invalid agent", async () => {
-        await XAPIWrapper.deleteAgentProfile(null, profileId1)
+      it("should fail deleting the profile using invalid agent", () => {
+        return XAPIWrapper.deleteAgentProfile(null, profileId1)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
       });
-      it("should fail deleting the profile using invalid profileId", async () => {
-        await XAPIWrapper.deleteAgentProfile(agent1, null)
+      it("should fail deleting the profile using invalid profileId", () => {
+        return XAPIWrapper.deleteAgentProfile(agent1, null)
           .catch((error) => {
             error.should.eql(INVALID_PARAMETERS);
           });
@@ -1121,7 +1188,7 @@ describe("Asynchronous Testing:", () => {
       });
 
       it("should return 2 parameters(resp, data) with valid request", (done) => {
-          XAPIWrapper.postStatement(stmt, (resp, data) => {
+          XAPIWrapper.postStatement(stmt, null, (resp, data) => {
               resp.should.be.type('object');
               resp.status.should.eql(OK);
               data.should.not.eql(null);
@@ -1131,7 +1198,7 @@ describe("Asynchronous Testing:", () => {
       });
       it("should return 2 parameters(resp, data) with valid request & callback args", (done) => {
           let id = Util.ruuid();
-          XAPIWrapper.putStatement(new Statement(stmt), id, (resp, data) => {
+          XAPIWrapper.putStatement(new Statement(stmt), id, null, (resp, data) => {
               resp.should.be.type('object');
               resp.status.should.eql(NO_CONTENT);
               data.id.should.eql(id)
@@ -1141,7 +1208,7 @@ describe("Asynchronous Testing:", () => {
       });
       it("should return single error parameter with invalid request", (done) => {
           stmt.id = "2";
-          XAPIWrapper.postStatement(stmt, (resp, data) => {
+          XAPIWrapper.postStatement(stmt, null, (resp, data) => {
               (resp.type==='invalid-json').should.eql(true);
               ("undefined").should.eql(`${data}`);
 

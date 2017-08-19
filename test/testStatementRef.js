@@ -71,7 +71,7 @@ describe("StatementRef Test:", () => {
       (s4.object.isValid()).should.eql(false);
     });
     it("should pass with valid id", (done) => {
-      XAPIWrapper.postStatement(s1, (error, resp, data) => {
+      XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
         (!error).should.eql(true);
         resp.status.should.eql(OK);
         resp.ok.should.eql(true);
@@ -80,21 +80,21 @@ describe("StatementRef Test:", () => {
       });
     });
     it("should fail with no id", (done) => {
-      XAPIWrapper.postStatement(s2, (error, resp, data) => {
+      XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
         error.should.not.eql(null);
 
         done();
       });
     });
     it("should fail with invalid id", (done) => {
-      XAPIWrapper.postStatement(s3, (error, resp, data) => {
+      XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
         error.should.not.eql(null);
 
         done();
       });
     });
     it("should fail with invalid property", (done) => {
-      XAPIWrapper.postStatement(s4, (error, resp, data) => {
+      XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
         error.should.not.eql(null);
 
         done();
@@ -117,7 +117,7 @@ describe("StatementRef Test:", () => {
       (s4.object.isValid()).should.eql(false);
     });
     it("should pass with valid id & objectType", (done) => {
-      XAPIWrapper.postStatement(s1, (error, resp, data) => {
+      XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
         (!error).should.eql(true);
         resp.status.should.eql(OK);
         resp.ok.should.eql(true);
@@ -126,21 +126,21 @@ describe("StatementRef Test:", () => {
       });
     });
     it("should fail with undefined id", (done) => {
-      XAPIWrapper.postStatement(s2, (error, resp, data) => {
+      XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
         error.should.not.eql(null);
 
         done();
       });
     });
     it("should fail with invalid id", (done) => {
-      XAPIWrapper.postStatement(s3, (error, resp, data) => {
+      XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
         error.should.not.eql(null);
 
         done();
       });
     });
     it("should fail with invalid property", (done) => {
-      XAPIWrapper.postStatement(s4, (error, resp, data) => {
+      XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
         error.should.not.eql(null);
 
         done();

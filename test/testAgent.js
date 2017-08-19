@@ -80,7 +80,7 @@ describe('Agent Test:', () => {
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+        XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -91,7 +91,7 @@ describe('Agent Test:', () => {
     });
     describe("Account", () => {
       it('should pass with valid account object', (done) => {
-        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+        XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -100,14 +100,14 @@ describe('Agent Test:', () => {
         });
       });
       it('should fail with no valid homepage', (done) => {
-        XAPIWrapper.postStatement(s3, (error, resp, data) => {
+        XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
         });
       });
       it('should fail with no valid name', (done) => {
-        XAPIWrapper.postStatement(s4, (error, resp, data) => {
+        XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
@@ -116,7 +116,7 @@ describe('Agent Test:', () => {
     });
     describe("Mbox Sha1sum", () => {
       it('should pass with valid mbox_sha1sum object', (done) => {
-        XAPIWrapper.postStatement(s5, (error, resp, data) => {
+        XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -127,7 +127,7 @@ describe('Agent Test:', () => {
     });
     describe("OpenId", () => {
       it('should pass with valid openid object', (done) => {
-        XAPIWrapper.postStatement(s6, (error, resp, data) => {
+        XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -158,7 +158,7 @@ describe('Agent Test:', () => {
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+        XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -169,7 +169,7 @@ describe('Agent Test:', () => {
     });
     describe("Account", () => {
       it('should pass with valid account object', (done) => {
-        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+        XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -178,14 +178,14 @@ describe('Agent Test:', () => {
         });
       });
       it('should fail with no valid homepage', (done) => {
-        XAPIWrapper.postStatement(s3, (error, resp, data) => {
+        XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
         });
       });
       it('should fail with no valid name', (done) => {
-        XAPIWrapper.postStatement(s4, (error, resp, data) => {
+        XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
@@ -194,7 +194,7 @@ describe('Agent Test:', () => {
     });
     describe("Mbox Sha1sum", () => {
       it('should pass with valid mbox_sha1sum object', (done) => {
-        XAPIWrapper.postStatement(s5, (error, resp, data) => {
+        XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -205,7 +205,7 @@ describe('Agent Test:', () => {
     });
     describe("OpenId", () => {
       it('should pass with valid openid object', (done) => {
-        XAPIWrapper.postStatement(s6, (error, resp, data) => {
+        XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);

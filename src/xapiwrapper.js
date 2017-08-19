@@ -1,10 +1,11 @@
-let debug = true;
+let debug = false;
 let onBrowser = true;
 
 if (typeof module !== 'undefined') {
   onBrowser = false;
   var fetch = require('node-fetch');
   Util = require('./Utils.js');
+  var URL = require('URL');
 } else {
   window.ADL = window.ADL || {};
   Util = window.ADL.Util;
@@ -214,7 +215,7 @@ class XAPIWrapper {
         value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
      }
   */
-  buildMultipart(statement,attachments,extraHeaders)
+  buildMultipart(statement, attachments, extraHeaders)
   {
       statement.attachments = [];
       for(let i =0; i < attachments.length; i++)
@@ -266,6 +267,7 @@ class XAPIWrapper {
    * Send a single statement to the LRS using a PUT request.
    * @param {object} stmt   statement object to send
    * @param {string} id   id of the statement object to send
+   * @param [array] attachments   array of objects to send with statement
    * @param {function} [callback]   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    *            the function will be passed the XMLHttpRequest object
@@ -273,7 +275,7 @@ class XAPIWrapper {
    *            of the statement
    * @return {object} object containing xhr object and id of statement
    */
-  putStatement(stmt, id, callback, attachments)
+  putStatement(stmt, id, attachments, callback)
   {
       if (this.testConfig() && (stmt && !(stmt instanceof Array)))
       {
@@ -355,6 +357,7 @@ class XAPIWrapper {
    * Send a single statement to the LRS using a POST request.
    * Makes a Javascript object with the statement id as 'id' available to the callback function.
    * @param {object} stmt   statement object to send
+   * @param [array] attachments   array of objects to send with statement
    * @param {function} [callback]   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    *            the function will be passed the XMLHttpRequest object
@@ -362,7 +365,7 @@ class XAPIWrapper {
    *            of the statement
    * @return {object} object containing xhr object and id of statement
    */
-  postStatement(stmt, callback, attachments)
+  postStatement(stmt, attachments, callback)
   {
       if (this.testConfig() && (stmt && !(stmt instanceof Array)))
       {
@@ -518,7 +521,8 @@ class XAPIWrapper {
           let url = `${this.lrs.endpoint}statements`;
           if (more)
           {
-              url = this.base + more;
+              url = URL.resolve(url, more);
+              //url = this.base + more;
           }
           else if (searchparams)
           {
@@ -561,33 +565,63 @@ class XAPIWrapper {
       }
   };
 
-  getMoreStatements(iterations, callback, searchParams)
+  /*
+   * Get more statements based on the more url returned from first call.
+   * @param {integer} iterations   number of recursive calls when retrieving statements
+   * @param {object} searchparams   an XAPIWrapper.searchParams object of
+   *                key(search parameter)-value(parameter value) pairs.
+   *                Example:
+   *                  let myparams = XAPIWrapper.searchParams();
+   *                  myparams['verb'] = verbs.completed.id;
+   *                  let completedStmts = XAPIWrapper.getStatements(myparams);
+   * @param {function} [callback] - function to be called after the LRS responds
+   *            to this request (makes the call asynchronous)
+   *            the function will be passed the XMLHttpRequest object
+   */
+  getMoreStatements(iterations, searchparams, callback)
   {
       if (this.testConfig()) {
-        let stmts = [];
+          let stmts = new Array();
+          let wrapper = this;
 
-        if (callback) {
-          this.getStatements(searchParams, null, function getMore(error, resp, data){
-            if (!resp.ok || !data || !data.statements)
-              callback('Error: invalid response: ');
+          if (callback) {
+              wrapper.getStatements(searchparams, null, function getMore(error, resp, data) {
+                  if (!data) {
+                      callback(null, null, stmts);
+                      return;
+                  }
 
-            stmts = stmts.concat(data.statements);
+                  stmts = stmts.concat(data.statements);
 
-            if (iterations-- <= 0) {
-              callback(null, null, stmts);
-            }
-            else {
-              if (data.more && data.more !== "")
-              {
-                this.getStatements(searchParams, data.more, getMore);
+                  if (iterations > 0 && data.more && data.more != "") {
+                      iterations--;
+                      wrapper.getStatements(searchparams, data.more, getMore);
+                  } else {
+                      callback(null, null, stmts);
+                  }
+              });
+          } else {
+              
+              function getMore(more) {
+                  function process(res) {
+                      if (!res.data) {
+                          return {data:stmts};
+                      }
+
+                      stmts = stmts.concat(res.data.statements);
+
+                      if (iterations > 0 && res.data.more && res.data.more != "") {
+                          iterations--;
+                          return getMore(res.data.more);
+                      } else
+                          return {data:stmts};
+                  }
+
+                  return wrapper.getStatements(searchparams, more).then(process);
               }
-              else if (data.more === "")
-              {
-                callback(null, null, stmts);
-              }
-            }
-          });
-        }
+
+              return getMore(null);
+          }
 
       } else if (callback) {
         callback('Error: invalid parameters');

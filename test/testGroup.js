@@ -119,7 +119,7 @@ describe("Group Test:", () => {
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+        XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -131,7 +131,7 @@ describe("Group Test:", () => {
     describe("Identified", () => {
       describe("Account", () => {
         it('should pass with valid account object', (done) => {
-          XAPIWrapper.postStatement(s2, (error, resp, data) => {
+          XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -140,21 +140,21 @@ describe("Group Test:", () => {
           });
         });
         it('should fail with no valid homepage', (done) => {
-          XAPIWrapper.postStatement(s3, (error, resp, data) => {
+          XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
             error.should.not.eql(null);
 
             done();
           });
         });
         it('should fail with no valid name', (done) => {
-          XAPIWrapper.postStatement(s4, (error, resp, data) => {
+          XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
             error.should.not.eql(null);
 
             done();
           });
         });
         it('should pass with no members & valid id', (done) => {
-          XAPIWrapper.postStatement(s5, (error, resp, data) => {
+          XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -165,7 +165,7 @@ describe("Group Test:", () => {
       });
       describe("Mbox Sha1sum", () => {
         it('should pass with valid mbox_sha1sum object', (done) => {
-          XAPIWrapper.postStatement(s6, (error, resp, data) => {
+          XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -174,7 +174,7 @@ describe("Group Test:", () => {
           });
         });
         it('should pass with no members & valid account', (done) => {
-          XAPIWrapper.postStatement(s7, (error, resp, data) => {
+          XAPIWrapper.postStatement(s7, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -185,7 +185,7 @@ describe("Group Test:", () => {
       });
       describe("OpenId", () => {
         it('should pass with valid openid object', (done) => {
-          XAPIWrapper.postStatement(s8, (error, resp, data) => {
+          XAPIWrapper.postStatement(s8, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -194,7 +194,7 @@ describe("Group Test:", () => {
           });
         });
         it('should pass with no members & valid openId', (done) => {
-          XAPIWrapper.postStatement(s9, (error, resp, data) => {
+          XAPIWrapper.postStatement(s9, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -205,7 +205,7 @@ describe("Group Test:", () => {
       });
       describe("Mbox", () => {
         it('should pass with members & valid mbox', (done) => {
-          XAPIWrapper.postStatement(s10, (error, resp, data) => {
+          XAPIWrapper.postStatement(s10, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -218,7 +218,7 @@ describe("Group Test:", () => {
     describe("Anonymous", () => {
       describe("One Member", () => {
         it('should pass with single valid member', (done) => {
-          XAPIWrapper.postStatement(s11, (error, resp, data) => {
+          XAPIWrapper.postStatement(s11, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -229,7 +229,7 @@ describe("Group Test:", () => {
       });
       describe("No Members", () => {
         it('should fail with no members', (done) => {
-          XAPIWrapper.postStatement(s12, (error, resp, data) => {
+          XAPIWrapper.postStatement(s12, null, (error, resp, data) => {
             error.should.not.eql(null);
 
             done();
@@ -238,7 +238,7 @@ describe("Group Test:", () => {
       });
       describe("Two Members", () => {
         it('should pass with two valid members', (done) => {
-          XAPIWrapper.postStatement(s13, (error, resp, data) => {
+          XAPIWrapper.postStatement(s13, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -250,7 +250,7 @@ describe("Group Test:", () => {
     });
     describe("Group Member", () => {
       it('should fail with Group member object', (done) => {
-        XAPIWrapper.postStatement(s14, (error, resp, data) => {
+        XAPIWrapper.postStatement(s14, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
@@ -295,7 +295,7 @@ describe("Group Test:", () => {
     });
     describe("Default", () => {
       it('should pass with valid mbox object', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+        XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -307,7 +307,7 @@ describe("Group Test:", () => {
     describe("Identified", () => {
       describe("Account", () => {
         it('should pass with valid account object', (done) => {
-          XAPIWrapper.postStatement(s2, (error, resp, data) => {
+          XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -316,21 +316,21 @@ describe("Group Test:", () => {
           });
         });
         it('should fail with no valid homepage', (done) => {
-          XAPIWrapper.postStatement(s3, (error, resp, data) => {
+          XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
             error.should.not.eql(null);
 
             done();
           });
         });
         it('should fail with no valid name', (done) => {
-          XAPIWrapper.postStatement(s4, (error, resp, data) => {
+          XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
             error.should.not.eql(null);
 
             done();
           });
         });
         it('should pass with no members & valid id', (done) => {
-          XAPIWrapper.postStatement(s5, (error, resp, data) => {
+          XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -341,7 +341,7 @@ describe("Group Test:", () => {
       });
       describe("Mbox Sha1sum", () => {
         it('should pass with valid mbox_sha1sum object', (done) => {
-          XAPIWrapper.postStatement(s6, (error, resp, data) => {
+          XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -350,7 +350,7 @@ describe("Group Test:", () => {
           });
         });
         it('should pass with no members & valid account', (done) => {
-          XAPIWrapper.postStatement(s7, (error, resp, data) => {
+          XAPIWrapper.postStatement(s7, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -361,7 +361,7 @@ describe("Group Test:", () => {
       });
       describe("OpenId", () => {
         it('should pass with valid openid object', (done) => {
-          XAPIWrapper.postStatement(s8, (error, resp, data) => {
+          XAPIWrapper.postStatement(s8, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -370,7 +370,7 @@ describe("Group Test:", () => {
           });
         });
         it('should pass with no members & valid openId', (done) => {
-          XAPIWrapper.postStatement(s9, (error, resp, data) => {
+          XAPIWrapper.postStatement(s9, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -381,7 +381,7 @@ describe("Group Test:", () => {
       });
       describe("Mbox", () => {
         it('should pass with members & valid mbox', (done) => {
-          XAPIWrapper.postStatement(s10, (error, resp, data) => {
+          XAPIWrapper.postStatement(s10, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -394,7 +394,7 @@ describe("Group Test:", () => {
     describe("Anonymous", () => {
       describe("One Member", () => {
         it('should pass with single valid member', (done) => {
-          XAPIWrapper.postStatement(s11, (error, resp, data) => {
+          XAPIWrapper.postStatement(s11, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -405,7 +405,7 @@ describe("Group Test:", () => {
       });
       describe("No Members", () => {
         it('should fail with no members', (done) => {
-          XAPIWrapper.postStatement(s12, (error, resp, data) => {
+          XAPIWrapper.postStatement(s12, null, (error, resp, data) => {
             error.should.not.eql(null);
 
             done();
@@ -414,7 +414,7 @@ describe("Group Test:", () => {
       });
       describe("Two Members", () => {
         it('should pass with two valid members', (done) => {
-          XAPIWrapper.postStatement(s13, (error, resp, data) => {
+          XAPIWrapper.postStatement(s13, null, (error, resp, data) => {
             (!error).should.eql(true);
             resp.status.should.eql(OK);
             resp.ok.should.eql(true);
@@ -426,7 +426,7 @@ describe("Group Test:", () => {
     });
     describe("Group Member", () => {
       it('should fail with Group member object', (done) => {
-        XAPIWrapper.postStatement(s14, (error, resp, data) => {
+        XAPIWrapper.postStatement(s14, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();

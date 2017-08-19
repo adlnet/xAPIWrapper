@@ -67,7 +67,7 @@ describe("Verb Test:", () => {
     });
     describe("Default", (done) => {
       it('should pass with valid id & display', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+        XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -78,7 +78,7 @@ describe("Verb Test:", () => {
     });
     describe("No Display", (done) => {
       it('should pass with no display & valid id', (done) => {
-        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+        XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -89,7 +89,7 @@ describe("Verb Test:", () => {
     });
     describe("No ID", (done) => {
       it('should fail with no id & valid display', (done) => {
-        XAPIWrapper.postStatement(s3, (error, resp, data) => {
+        XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
@@ -112,7 +112,7 @@ describe("Verb Test:", () => {
     });
     describe("Default", (done) => {
       it('should pass with valid id & display', (done) => {
-        XAPIWrapper.postStatement(s1, (error, resp, data) => {
+        XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -123,7 +123,7 @@ describe("Verb Test:", () => {
     });
     describe("No Display", (done) => {
       it('should pass with no display & valid id', (done) => {
-        XAPIWrapper.postStatement(s2, (error, resp, data) => {
+        XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(OK);
           resp.ok.should.eql(true);
@@ -134,7 +134,7 @@ describe("Verb Test:", () => {
     });
     describe("No ID", (done) => {
       it('should fail with no id & valid display', (done) => {
-        XAPIWrapper.postStatement(s3, (error, resp, data) => {
+        XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
           error.should.not.eql(null);
 
           done();
