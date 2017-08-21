@@ -1,6 +1,5 @@
 if (typeof module !== 'undefined') {
   var fetch = require('node-fetch');
-  inBrowser = false;
 } else {
   window.ADL = window.ADL || {};
 }
@@ -89,7 +88,7 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
         }
 
         xAPILaunch.terminate = (message) => {
-            let launch = new URL(launchEndpoint);
+            let launch = ADL.Util.parseURL(launchEndpoint);
             launch.pathname += `launch/${launchToken}/terminate`;
             let xhr2 = new XMLHttpRequest();
             xhr2.withCredentials = true;
@@ -103,7 +102,7 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
         if (!launchToken || !launchEndpoint)
             return cb("invalid launch parameters");
 
-        let launch = new URL(launchEndpoint);
+        let launch = ADL.Util.parseURL(launchEndpoint);
         launch.pathname += `launch/${launchToken}`;
 
         // let conf = {

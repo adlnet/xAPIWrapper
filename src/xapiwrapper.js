@@ -277,7 +277,7 @@ class XAPIWrapper {
    */
   putStatement(stmt, id, attachments, callback)
   {
-      if (this.testConfig() && (stmt && !(stmt instanceof Array)))
+      if (this.testConfig() && (stmt && !Array.isArray(stmt) && stmt.isValid()))
       {
         // validate id parameter
         if (!id || id == "") {
@@ -367,7 +367,7 @@ class XAPIWrapper {
    */
   postStatement(stmt, attachments, callback)
   {
-      if (this.testConfig() && (stmt && !(stmt instanceof Array)))
+      if (this.testConfig() && (stmt && !Array.isArray(stmt) && stmt.isValid()))
       {
         // validate attachments if specified
         if (attachments) {
@@ -521,8 +521,7 @@ class XAPIWrapper {
           let url = `${this.lrs.endpoint}statements`;
           if (more)
           {
-              url = URL.resolve(url, more);
-              //url = this.base + more;
+              url += more.substr(more.lastIndexOf('m')-1);
           }
           else if (searchparams)
           {
@@ -601,7 +600,7 @@ class XAPIWrapper {
                   }
               });
           } else {
-              
+
               function getMore(more) {
                   function process(res) {
                       if (!res.data) {
@@ -1445,49 +1444,6 @@ class XAPIWrapper {
   };
 
   /*
-   * formats a request in a way that IE will allow
-   * @param {string} method   the http request method (ex: "PUT", "GET")
-   * @param {string} url   the url to the request (ex: XAPIWrapper.lrs.endpoint + "statements")
-   * @param {array} [headers]   headers to include in the request
-   * @param {string} [data]   the body of the request, if there is one
-   * @return {object} xhr response object
-   */
-  ieRequest(method, url, headers, data)
-  {
-    let newUrl = url;
-
-    //Everything that was on query string goes into form lets
-    let formData = new Array();
-    let qsIndex = newUrl.indexOf('?');
-    if(qsIndex > 0){
-        formData.push(newUrl.substr(qsIndex+1));
-        newUrl = newUrl.substr(0, qsIndex);
-    }
-
-    //Method has to go on querystring, and nothing else
-    newUrl = `${newUrl}?method=${method}`;
-
-    //Headers
-    if(headers !== null){
-        for(let headerName in headers){
-            formData.push(`${headerName}=${encodeURIComponent(headers[headerName])}`);
-        }
-    }
-
-    //The original data is repackaged as "content" form let
-    if(data !== null){
-        formData.push(`content=${encodeURIComponent(data)}`);
-    }
-
-    return {
-        "method":"POST",
-        "url":newUrl,
-        "headers":{},
-        "data":formData.join("&")
-    };
-  };
-
-  /*
    * makes a request to a server (if possible, use functions provided in XAPIWrapper)
    * @param {object} conf   the configuration of this request
    * @param {function} callback   function to be called after the LRS responds
@@ -1497,77 +1453,35 @@ class XAPIWrapper {
    */
   callbackRequest(conf, callback, callbackargs, ignore404)
   {
-    let xhr,
-        finished = false,
-        xDomainRequest = false,
-        ieXDomain = false,
-        ieModeRequest,
-        urlparts = conf.url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-        location = onBrowser ? window.location : "",
-        urlPort,
-        result,
-        extended,
-        prop,
-        until;
-
-    //See if this really is a cross domain
-    xDomainRequest = (location.protocol !== urlparts[1] || location.hostname !== urlparts[2]);
-    if (!xDomainRequest) {
-        urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
-        xDomainRequest = (urlPort === location.port);
-    }
-
-    //If it's not cross domain or we're not using IE, use the usual fetch request
-    let windowsVersionCheck = false;
-    if (onBrowser)
-      windowsVersionCheck = window.XDomainRequest && (window.fetch && fetch.responseType === undefined);
-    if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-      fetch(conf.url, conf)
-        .then((resp) => {
-          return resp.json().then((data) => {
+    fetch(conf.url, conf)
+      .then((resp) => {
+        return resp.json().then((data) => {
+          if (callbackargs)
+            this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
+          else
+            this.strictCallbacks ? callback(null, resp, data) : callback(resp, data);
+        })
+        .catch((error) => {
+          if (!resp.ok) {
+            // handle errors if strictCallbacks enabled
+            if (this.strictCallbacks) {
+              log(error);
+              this.requestError(resp, callback, callbackargs);
+            }
+            // add precondition error code if exists
+            else {
+              callback((resp.status==412) ? resp.status : error);
+            }
+          }
+          // Failed to parse JSON (NOT AN ERROR)
+          else {
             if (callbackargs)
               this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
             else
-              this.strictCallbacks ? callback(null, resp, data) : callback(resp, data);
-          })
-          .catch((error) => {
-            if (!resp.ok) {
-              // handle errors if strictCallbacks enabled
-              if (this.strictCallbacks) {
-                log(error);
-                this.requestError(resp, callback, callbackargs);
-              }
-              // add precondition error code if exists
-              else {
-                callback((resp.status==412) ? resp.status : error);
-              }
-            }
-            // Failed to parse JSON (NOT AN ERROR)
-            else {
-              if (callbackargs)
-                this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
-              else
-                this.strictCallbacks ? callback(null, resp, null) : callback(resp, null);
-            }
-          });
+              this.strictCallbacks ? callback(null, resp, null) : callback(resp, null);
+          }
         });
-    }
-    //Otherwise, use IE's XDomainRequest object
-    else {
-        ieXDomain = true;
-        ieModeRequest = this.ieRequest(conf.method, conf.url, conf.headers, conf.data);
-        xhr = new XDomainRequest();
-        xhr.open(ieModeRequest.method, ieModeRequest.url);
-    }
-
-    // synchronous
-    if (ieXDomain) {
-        // synchronous call in IE, with no asynchronous mode available.
-        until = 1000 + new Date();
-        while (new Date() < until && xhr.readyState !== 4 && !finished) {
-            this.delay();
-        }
-    }
+      });
   };
 
   /*
@@ -1655,23 +1569,6 @@ class XAPIWrapper {
   mergeRecursive(obj1, obj2)
   {
     return Object.assign(obj1, obj1, obj2);
-  };
-
-  delay()
-  {
-      let xhr;
-      let url;
-
-      if (onBrowser) {
-        xhr = new XMLHttpRequest();
-        url = window.location;
-      }
-      else
-        xhr = new XmlHttpRequest();
-
-      url += `?forcenocache=${Util.ruuid()}`;
-      xhr.open('GET', url, false);
-      xhr.send(null);
   };
 
   formatHash(hash)

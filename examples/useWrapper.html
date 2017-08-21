@@ -19,11 +19,6 @@
 
     <script src="../dist/xapiwrapper.min.js"></script>
 
-    <!-- <script src="../lib/cryptojs_v3.1.2.js"></script>
-    <script src="../src/xapilaunch.js"></script>
-    <script src="../src/verbs.js"></script>
-    <script src="../src/xapiwrapper.js"></script> -->
-
     <style>
         #stmtinput {
             height: 600px;
@@ -31,14 +26,6 @@
     </style>
 </head>
 <body class='container'>
-    <!-- <span id="onlineflag" class="label label-default pull-right">Checking..</span>
-    <input id="checkonlinetoggle" type="checkbox" data-toggle="toggle" data-on="Checking" data-off="Not Checking" data-onstyle="success" data-offstyle="warning" data-size="mini" checked>
-    <span id="endpoint" contentEditable="true"></span>
-    <div class="row">
-        <div class="col-xs-12">
-            <br>
-        </div>
-    </div> -->
     <div class="row">
         <h2> xAPI Test Page </h2>
         <p>endpoint: <span id="endpoint"></span></p>
@@ -204,7 +191,7 @@
                 wrapper = ADL.XAPIWrapper;
                 wrapper.changeConfig({
                     endpoint: "https://lrs.adlnet.gov/xapi/",
-                    user: 'tom',
+                    user: 'aaron',
                     password: '1234'
                 });
                 console.log("--- content statically configured ---\n", wrapper.lrs);

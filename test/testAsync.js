@@ -784,13 +784,6 @@ describe("Asynchronous Testing:", () => {
         XAPIWrapper.postActivityProfile(prof[0].activityId, prof[0].profileId, prof[0]);
       });
 
-      it("should return single activity profile using valid activity/profile IDs", () => {
-        return XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId)
-          .then((res) => {
-            res.data['activityId'].should.eql(prof[0].activityId);
-            res.data['profileId'].should.eql(prof[0].profileId);
-          })
-      });
       it("should return list of profile IDs using valid activityId & no profileId", () => {
         return XAPIWrapper.getActivityProfile(prof[0].activityId)
           .then((res) => {

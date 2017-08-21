@@ -1,3 +1,35 @@
+// Define Object property if in IE
+if (typeof Object.assign != 'function') {
+  Object.defineProperty(Object, "assign", {
+    value: function assign(dest, src) {
+      'use strict';
+      if (!dest || !src) {
+        console.log(`Invalid parameter(s)
+        dest: ${dest}
+        src: ${src}`);
+        return null;
+      }
+
+      let obj = Object(dest);
+
+      // handles multiple sources
+      for (let i = 1; i < arguments.length; i++) {
+        let currSrc = arguments[i];
+        if (!currSrc) continue;
+
+        for (let prop in currSrc) {
+          if (Object.prototype.hasOwnProperty.call(currSrc, prop))
+            obj[prop] = currSrc[prop];
+        }
+      }
+
+      return obj;
+    },
+    writable: true,
+    configurable: true
+  });
+}
+
 // adds toISOString to date objects if not there
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 if ( !Date.prototype.toISOString ) {
@@ -25,6 +57,7 @@ let inBrowser = true;
 
 if (typeof module !== 'undefined') {
   CryptoJS = require('crypto-js');
+  var URL = require('URL');
   inBrowser = false;
 } else {
   window.ADL = window.ADL || {};
@@ -64,6 +97,46 @@ class Util {
       }
 
       return params;
+  }
+
+  /*
+   * Parses URL into key/value pairs
+   * this is the replacement for URL api in IE
+   */
+  parseURL(url){
+    if (!url || url =="") {
+      return "";
+    }
+
+    // New parsed URL object
+    let parsed = {
+      keys: ['href', 'protocol', 'hostname', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'pathname', 'file', 'search', 'anchor'],
+      // keys: ['hash', 'host', 'hostname', 'href', 'origin', 'password', 'pathname', 'port', 'protocol', 'search', 'searchParams', 'username'],
+      query: {
+        name:'queryKey',
+        parser:/(?:^|&)([^&=]*)=?([^&]*)/g
+      },
+      parser: {
+        strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+		    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+      }
+    };
+
+    let mode = parsed.parser.loose.exec(url);
+    let numProps = parsed.keys.length;
+
+    for (var i = 0; i < numProps; i++) {
+      parsed[parsed.keys[i]] = mode[i] || "";
+    }
+
+    parsed[parsed.query.name] = {};
+    parsed[parsed.keys[12]].replace(parsed.query.parser, function($1, $2, $3) {
+      if ($1) {
+        parsed[parsed.query.name][$1] = $2;
+      }
+    });
+
+    return parsed;
   }
 
   getLang(){
