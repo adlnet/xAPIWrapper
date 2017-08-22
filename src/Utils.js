@@ -1,4 +1,4 @@
-// Define Object property if in IE
+// Define Object.assign if in IE
 if (typeof Object.assign != 'function') {
   Object.defineProperty(Object, "assign", {
     value: function assign(dest, src) {
@@ -62,6 +62,24 @@ if (typeof module !== 'undefined') {
 } else {
   window.ADL = window.ADL || {};
 }
+
+// Define fetch API if in IE
+// if (inBrowser && typeof window.fetch == 'undefined') {
+//   Object.defineProperty(window, "fetch", {
+//     value: function fetch(url, options){
+//       'use strict';
+//
+//       let xhr = new XMLHttpRequest();
+//       xhr.withCredentials = false;
+//       xhr.crossDomain = true;
+//
+//       xhr.onerror = (error) => {
+//
+//       }
+//     }
+//   });
+// }
+
 
 class Util {
   /*

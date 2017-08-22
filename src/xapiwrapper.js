@@ -521,7 +521,7 @@ class XAPIWrapper {
           let url = `${this.lrs.endpoint}statements`;
           if (more)
           {
-              url += more.substr(more.lastIndexOf('m')-1);
+              url += `/more${more.substr(`${more.lastIndexOf('/')}`)}`;
           }
           else if (searchparams)
           {
