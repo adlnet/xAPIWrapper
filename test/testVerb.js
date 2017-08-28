@@ -28,8 +28,7 @@ describe("Verb Test:", () => {
     XAPIWrapper.changeConfig({
       "endpoint": "https://lrs.adlnet.gov/xapi/",
       "user": "aaron",
-      "password": "1234",
-      "strictCallbacks": true
+      "password": "1234"
     });
 
     def = verbs.attempted;

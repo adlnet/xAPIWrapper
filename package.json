@@ -30,7 +30,6 @@
     "fs": "0.0.1-security",
     "node-fetch": "^1.7.1",
     "request": "^2.81.0",
-    "url": "^0.11.0",
     "xhr2": "^0.1.4"
   },
   "scripts": {

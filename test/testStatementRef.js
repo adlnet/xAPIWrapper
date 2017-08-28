@@ -35,8 +35,7 @@ describe("StatementRef Test:", () => {
     XAPIWrapper.changeConfig({
       "endpoint": "https://lrs.adlnet.gov/xapi/",
       "user": "aaron",
-      "password": "1234",
-      "strictCallbacks": true
+      "password": "1234"
     });
 
     s1 = new Statement(actor, verbs.attempted, def);

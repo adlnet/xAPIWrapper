@@ -1,33 +1,9 @@
-// Define Object.assign if in IE
-if (typeof Object.assign != 'function') {
-  Object.defineProperty(Object, "assign", {
-    value: function assign(dest, src) {
-      'use strict';
-      if (!dest || !src) {
-        console.log(`Invalid parameter(s)
-        dest: ${dest}
-        src: ${src}`);
-        return null;
-      }
-
-      let obj = Object(dest);
-
-      // handles multiple sources
-      for (let i = 1; i < arguments.length; i++) {
-        let currSrc = arguments[i];
-        if (!currSrc) continue;
-
-        for (let prop in currSrc) {
-          if (Object.prototype.hasOwnProperty.call(currSrc, prop))
-            obj[prop] = currSrc[prop];
-        }
-      }
-
-      return obj;
-    },
-    writable: true,
-    configurable: true
-  });
+let inBrowser = true;
+if (typeof module !== 'undefined') {
+  CryptoJS = require('crypto-js');
+  inBrowser = false;
+} else {
+  window.ADL = window.ADL || {};
 }
 
 // adds toISOString to date objects if not there
@@ -52,33 +28,6 @@ if ( !Date.prototype.toISOString ) {
     + 'Z';
   })();
 }
-
-let inBrowser = true;
-
-if (typeof module !== 'undefined') {
-  CryptoJS = require('crypto-js');
-  var URL = require('URL');
-  inBrowser = false;
-} else {
-  window.ADL = window.ADL || {};
-}
-
-// Define fetch API if in IE
-// if (inBrowser && typeof window.fetch == 'undefined') {
-//   Object.defineProperty(window, "fetch", {
-//     value: function fetch(url, options){
-//       'use strict';
-//
-//       let xhr = new XMLHttpRequest();
-//       xhr.withCredentials = false;
-//       xhr.crossDomain = true;
-//
-//       xhr.onerror = (error) => {
-//
-//       }
-//     }
-//   });
-// }
 
 
 class Util {
@@ -129,7 +78,6 @@ class Util {
     // New parsed URL object
     let parsed = {
       keys: ['href', 'protocol', 'hostname', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'pathname', 'file', 'search', 'anchor'],
-      // keys: ['hash', 'host', 'hostname', 'href', 'origin', 'password', 'pathname', 'port', 'protocol', 'search', 'searchParams', 'username'],
       query: {
         name:'queryKey',
         parser:/(?:^|&)([^&=]*)=?([^&]*)/g
@@ -205,11 +153,9 @@ class Util {
   Dual licensed under the MIT and GPL licenses.
   */
   ruuid(){
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            let r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-            return v.toString(16);
-    });
-  };
+    const s4 = () => Math.floor((1+Math.random()) * 0x10000).toString(16).substring(1);
+    return `${s4()+s4()}-${s4()}-${s4()}-${s4()}-${s4()+s4()+s4()}`;
+  }
 
   /*
    * dateFromISOString

@@ -31,8 +31,7 @@ describe("Asynchronous Testing:", () => {
     XAPIWrapper.changeConfig({
       "endpoint": "https://lrs.adlnet.gov/xapi/",
       "user": "aaron",
-      "password": "1234",
-      "strictCallbacks": true
+      "password": "1234"
     });
   });
 
@@ -54,6 +53,7 @@ describe("Asynchronous Testing:", () => {
 
     describe("PUT", () => {
       it("should pass sending statement asynchronously", () => {
+        s1['id'] = Util.ruuid();
         return XAPIWrapper.putStatement(s1, s1['id'])
             .then((res) => {
                 res.resp.status.should.eql(NO_CONTENT);
@@ -61,6 +61,7 @@ describe("Asynchronous Testing:", () => {
             });
       });
       it("should pass sending statement with callback", (done) => {
+        s2['id'] = Util.ruuid();
         XAPIWrapper.putStatement(s2, s2['id'], null, (error, resp, data) => {
           (!error).should.eql(true);
           resp.status.should.eql(NO_CONTENT);
@@ -121,6 +122,7 @@ describe("Asynchronous Testing:", () => {
             'verb': {'id': 'http://adlnet.gov/expapi/verbs/attempted'},
             'object': {'id': 'http://activity.com/id'}
           });
+          stmt['id'] = Util.ruuid();
         });
 
         it("should pass using valid attachment data asynchronously", () => {
@@ -269,6 +271,7 @@ describe("Asynchronous Testing:", () => {
       });
       it("should return single statement using id asynchronously", () => {
         let stmt = new Statement(s1);
+        stmt['id'] = Util.ruuid();
         let id = stmt['id'];
         return XAPIWrapper.postStatement(stmt)
           .then((res) => {
@@ -633,7 +636,7 @@ describe("Asynchronous Testing:", () => {
         it("should fail storing existing profile", () => {
           return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
             .catch((error) => {
-              error.should.eql(PRE_COND_FAILED);
+              error.status.should.eql(PRE_COND_FAILED);
             });
         });
       });
@@ -675,7 +678,7 @@ describe("Asynchronous Testing:", () => {
           profile.profileId = Util.ruuid();
           return XAPIWrapper.putActivityProfile(activityId1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
             .catch((error) => {
-              error.should.eql(PRE_COND_FAILED);
+              error.status.should.eql(PRE_COND_FAILED);
             });
         });
       });
@@ -934,7 +937,7 @@ describe("Asynchronous Testing:", () => {
         it("should fail storing existing profile", () => {
           return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
             .catch((error) => {
-              error.should.eql(PRE_COND_FAILED);
+              error.status.should.eql(PRE_COND_FAILED);
             });
         });
       });
@@ -976,7 +979,7 @@ describe("Asynchronous Testing:", () => {
           profile.profileId = Util.ruuid();
           return XAPIWrapper.putAgentProfile(agent1, profileId1, profile, IF_MATCH, "1234567891234567891212345678912345678912")
             .catch((error) => {
-              error.should.eql(PRE_COND_FAILED);
+              error.status.should.eql(PRE_COND_FAILED);
             });
         });
       });
@@ -1162,52 +1165,6 @@ describe("Asynchronous Testing:", () => {
           });
       });
     });
-  });
-
-  describe("No Strict Callbacks", () => {
-      let stmt;
-      before(() => {
-          XAPIWrapper.changeConfig({
-              "endpoint": "https://lrs.adlnet.gov/xapi/",
-              "user": "aaron",
-              "password": "1234",
-              "strictCallbacks": false
-          });
-          stmt = new Statement({
-              'actor': { 'mbox': 'mailto:user@example.com' },
-              'verb': { 'id': 'http://adlnet.gov/expapi/verbs/attempted' },
-              'object': { 'id': 'http://activity.com/id' }
-          });
-      });
-
-      it("should return 2 parameters(resp, data) with valid request", (done) => {
-          XAPIWrapper.postStatement(stmt, null, (resp, data) => {
-              resp.should.be.type('object');
-              resp.status.should.eql(OK);
-              data.should.not.eql(null);
-
-              done();
-          });
-      });
-      it("should return 2 parameters(resp, data) with valid request & callback args", (done) => {
-          let id = Util.ruuid();
-          XAPIWrapper.putStatement(new Statement(stmt), id, null, (resp, data) => {
-              resp.should.be.type('object');
-              resp.status.should.eql(NO_CONTENT);
-              data.id.should.eql(id)
-
-              done();
-          });
-      });
-      it("should return single error parameter with invalid request", (done) => {
-          stmt.id = "2";
-          XAPIWrapper.postStatement(stmt, null, (resp, data) => {
-              (resp.type==='invalid-json').should.eql(true);
-              ("undefined").should.eql(`${data}`);
-
-              done();
-          });
-      });
   });
 
 });

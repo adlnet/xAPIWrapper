@@ -75,7 +75,7 @@ let setupCourseLinks = (_nodes) => {
     };
 }
 
-let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
+let xAPILaunch = (cb, terminate_on_unload) => {
     cb = cb_wrap(cb);
     try
     {
@@ -122,8 +122,7 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
         //       let config = {
         //         'endpoint': data.endpoint,
         //         'actor': data.actor,
-        //         'withCredentials': true,
-        //         'strictCallbacks': strictCallbacks || false
+        //         'withCredentials': true
         //       };
         //
         //       window.onunload = () => {
@@ -168,7 +167,6 @@ let xAPILaunch = (cb, terminate_on_unload, strict_callbacks) => {
             conf['endpoint'] = launchData.endpoint;
             conf["actor"] = launchData.actor;
             conf.withCredentials = true;
-            conf.strictCallbacks = strict_callbacks || false;
 
             window.onunload = () => {
                 if (!terminate_on_unload)

@@ -32,9 +32,7 @@ class Agent {
       }
     }
   };
-  toString(){
-    return JSON.stringify(this, null, '  ');
-  };
+  toString(){ return JSON.stringify(this, null, '  '); }
   isValid()
   {
     return (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
@@ -42,20 +40,12 @@ class Agent {
             && (!this.objectType || this.objectType==="Agent");
   };
 
-  show(){
-    console.log(this.toString());
-  };
+  show(){ console.log(this.toString()); }
 
-  getType(){ return "Agent" };
+  getType(){ return "Agent" }
 
-  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || (this.account && this.account.homePage && this.account.name) };
-  getIdString(){
-      let id = this.mbox || this.openid || this.mbox_sha1sum;
-      if (!id && this.account)
-            return `${this.account.homePage}:${this.account.name}`;
-
-      return id || 'unknown';
-  };
+  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account }
+  getIdString(){ return this.getId() || 'unknown'; }
 
   getDisplay(){
     if (!this.isValid())
@@ -127,13 +117,12 @@ class Group {
       }
     }
   }
-  toString(){
-    return JSON.stringify(this, null, '  ');
-  };
+  toString(){ return JSON.stringify(this, null, '  '); }
   isValid(){
-    return ((this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
-            || (this.account != undefined && this.account.homePage && this.account.name))
-            || (this.member != undefined && this.isValidMembers(this.member))) && (this.objectType != undefined && this.objectType === "Group");
+    return (this.objectType != undefined && this.objectType === "Group"
+            && (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
+            || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
+            || (this.member != undefined && this.isValidMembers(this.member)));
   };
   isValidMembers(members){
     if (!members) return false;
@@ -151,26 +140,12 @@ class Group {
     return true;
   }
 
-  show(){
-    console.log(this.toString());
-  };
+  show(){ console.log(this.toString()); }
 
-  getType(){ return "Group" };
+  getType(){ return "Group" }
 
-  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || (this.account && this.account.homePage && this.account.name) };
-  getIdString(){
-      let id = this.mbox || this.openid || this.mbox_sha1sum;
-      if (!id) {
-        id = 'unknown';
-        if (this.account) {
-          id = `${this.account.homePage}:${this.account.name}`;
-        } else if (this.member && this.isValidMembers(this.member)) {
-          id = `Anonymous Group`
-        }
-      }
-
-      return id;
-  };
+  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account }
+  getIdString(){ return this.getId() || 'Anonymous Group'; }
 
   getDisplay(){
     if (!this.isValid())

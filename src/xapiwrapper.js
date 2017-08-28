@@ -5,7 +5,6 @@ if (typeof module !== 'undefined') {
   onBrowser = false;
   var fetch = require('node-fetch');
   Util = require('./Utils.js');
-  var URL = require('URL');
 } else {
   window.ADL = window.ADL || {};
   Util = window.ADL.Util;
@@ -21,6 +20,12 @@ if (typeof module !== 'undefined') {
  *    "auth" : `Basic ${Util.toBase64('tom:1234')}`,
  * };
  * XAPIWrapper.changeConfig(conf);
+ *
+ * Statement Defaults
+ * conf["actor"] = {"mbox":"default@example.com"};
+ * conf["registration"] =  Util.ruuid();
+ * conf["grouping"] = {"id":"ctxact:default/grouping"};
+ * conf["activity_platform"] = "default platform";
  */
 let Config = (() => {
     let conf = {};
@@ -34,23 +39,18 @@ let Config = (() => {
         console.log(`Exception in Config trying to encode auth: ${e}`);
     }
 
-    // Statement defaults
-    // conf["actor"] = {"mbox":"default@example.com"};
-    // conf["registration"] =  Util.ruuid();
-    // conf["grouping"] = {"id":"ctxact:default/grouping"};
-    // conf["activity_platform"] = "default platform";
     return conf;
 })();
 
 /*
  * Outputs messages to the console (debug mode only)
  */
-let log = ((message) => {
+let log = (message) => {
   if (!debug)
     return;
 
   console.log(message);
-});
+};
 
 class XAPIWrapper {
   /*
@@ -68,9 +68,6 @@ class XAPIWrapper {
     this.base = this.getbase(this.lrs.endpoint);
 
     this.withCredentials = config && config.withCredentials;
-
-    // Strict callbacks for error parameter, null if no error (error, response, body)
-    this.strictCallbacks = config && config.strictCallbacks;
 
     this.xapiVersion = "1.0.3";
 
@@ -90,13 +87,7 @@ class XAPIWrapper {
                  return resp.json().then((data) => {
                      if (resp.ok) {
                          let versions = data.version;
-                         let isValid = false;
-                         for (let version in versions) {
-                             if (versions[version] == this.xapiVersion) {
-                                 isValid = true;
-                                 break;
-                             }
-                         }
+                         let isValid = (versions.indexOf(this.xapiVersion)>=0);
 
                          if (!isValid) {
                             log(`Invalid xAPI Version: ${this.xapiVersion}`);
@@ -114,7 +105,10 @@ class XAPIWrapper {
   getbase(url)
   {
     if (!onBrowser)
-      return;
+    {
+      let base = Util.parseURL(url);
+      return `${base.protocol}://${base.host}`;
+    }
 
     let l = document.createElement("a");
     l.href = url;
@@ -155,7 +149,6 @@ class XAPIWrapper {
 
       this.base = this.getbase(this.lrs.endpoint);
       this.withCredentials = config.withCredentials;
-      this.strictCallbacks = config.strictCallbacks;
     }
     catch(e)
     {
@@ -204,7 +197,6 @@ class XAPIWrapper {
 
   /*
   * Build the post body to include the multipart boundries, edit the statement to include the attachment types
-  * extraHeaders should be an object. It will have the multipart boundary value set
   * attachments should be an array of objects of the type
   * {
         type:"signature" || {
@@ -214,6 +206,7 @@ class XAPIWrapper {
         },
         value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
      }
+  * extraHeaders should be an object. It will have the multipart boundary value set
   */
   buildMultipart(statement, attachments, extraHeaders)
   {
@@ -521,7 +514,7 @@ class XAPIWrapper {
           let url = `${this.lrs.endpoint}statements`;
           if (more)
           {
-              url += `/more${more.substr(`${more.lastIndexOf('/')}`)}`;
+            url = this.base + more;
           }
           else if (searchparams)
           {
@@ -529,15 +522,10 @@ class XAPIWrapper {
 
               for (let s in searchparams)
               {
-                  if (s == "until" || s == "since") {
-                      let d = new Date(searchparams[s]);
-                      urlparams.push(`${s}=${encodeURIComponent(d.toISOString())}`);
-                  } else {
-                      urlparams.push(`${s}=${encodeURIComponent(searchparams[s])}`);
-                  }
+                urlparams.push(`${s}=${encodeURIComponent(searchparams[s])}`);
               }
               if (urlparams.length > 0)
-                  url = `${url}?${urlparams.join("&")}`;
+                  url += `?${urlparams.join("&")}`;
           }
 
           const conf = {
@@ -773,10 +761,15 @@ class XAPIWrapper {
 
           if(since)
           {
-              since = Util.isDate(since);
-              if (since != null) {
-                  url += `&since=${encodeURIComponent(since.toISOString())}`;
-              }
+              if (!Util.isDate(since)) {
+                if (callback) {
+                  callback('Error: invalid timestamp');
+                  return;
+                } else {
+                  return new Promise((res,rej) => { rej('Error: invalid timestamp'); });
+                }
+              } else
+                url += `&since=${encodeURIComponent(since)}`;
           }
 
           const conf = {
@@ -1063,17 +1056,15 @@ class XAPIWrapper {
 
         if(since)
         {
-            since = Util.isDate(since);
-            if (since != null) {
-                url += `&since=${encodeURIComponent(since.toISOString())}`;
-            } else {
+            if (!Util.isDate(since)) {
               if (callback) {
                 callback('Error: invalid timestamp');
                 return;
               } else {
                 return new Promise((res,rej) => { rej('Error: invalid timestamp'); });
               }
-            }
+            } else
+              url += `&since=${encodeURIComponent(since)}`;
         }
 
         const conf = {
@@ -1337,17 +1328,15 @@ class XAPIWrapper {
 
         if(since)
         {
-            since = Util.isDate(since);
-            if (since != null) {
-                url += `&since=${encodeURIComponent(since.toISOString())}`;
-            } else {
+            if (!Util.isDate(since)) {
               if (callback) {
                 callback('Error: invalid timestamp');
                 return;
               } else {
                 return new Promise((res,rej) => { rej('Error: invalid timestamp'); });
               }
-            }
+            } else
+              url += `&since=${encodeURIComponent(since)}`;
         }
 
         const conf = {
@@ -1431,8 +1420,8 @@ class XAPIWrapper {
                   .then((data) => res({resp, data}))
                   .catch((error) => {
                     if (!resp.ok) {
-                      // add precondition error code if exists
-                      (resp.status!=412) ? rej(error) : rej(resp.status);
+                      error.status = resp.status;
+                      rej(error);
                     }
                     // Failed to parse JSON (NOT AN ERROR)
                     else {
@@ -1456,29 +1445,16 @@ class XAPIWrapper {
     fetch(conf.url, conf)
       .then((resp) => {
         return resp.json().then((data) => {
-          if (callbackargs)
-            this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
-          else
-            this.strictCallbacks ? callback(null, resp, data) : callback(resp, data);
+          callbackargs ? callback(null, resp, callbackargs) : callback(null, resp, data);
         })
         .catch((error) => {
           if (!resp.ok) {
-            // handle errors if strictCallbacks enabled
-            if (this.strictCallbacks) {
-              log(error);
-              this.requestError(resp, callback, callbackargs);
-            }
-            // add precondition error code if exists
-            else {
-              callback((resp.status==412) ? resp.status : error);
-            }
+            log(error);
+            this.requestError(resp, error, callback, callbackargs);
           }
           // Failed to parse JSON (NOT AN ERROR)
           else {
-            if (callbackargs)
-              this.strictCallbacks ? callback(null, resp, callbackargs) : callback(resp, callbackargs);
-            else
-              this.strictCallbacks ? callback(null, resp, null) : callback(resp, null);
+            callbackargs ? callback(null, resp, callbackargs) : callback(null, resp, null);
           }
         });
       });
@@ -1487,26 +1463,15 @@ class XAPIWrapper {
   /*
    * Holder for custom global error callback
    * @param {object} resp   response object
+   * @param {object} error   error object from failed fetch
    * @param {function} callback   function to be called after the LRS responds
    *            to this request (makes the call asynchronous)
    * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
-   * @example
-   * requestError = function(resp, callback, callbackargs) {
-   *   log(resp);
-   *   alert(resp.status + " " + resp.statusText + ": " + resp);
-   * };
    */
-  requestError(resp, callback, callbackargs)
+  requestError(resp, error, callback, callbackargs)
   {
     if (callback) {
-      let status = resp ? resp.status : undefined;
-      let error;
-      if (status) {
-          error = new Error(`Request error: ${status}`);
-          //error = (status==412) ? new Error(`${status}`) : new Error(`Request error: ${status}`);
-      } else {
-          error = new Error('Request error: unknown');
-      }
+      error.status = resp.status;
 
       if (callbackargs) {
           callback(error, resp, callbackargs);

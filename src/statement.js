@@ -119,8 +119,6 @@ class Statement {
         this.object = new SubStatement(object);
       }
     }
-
-    this.id = Util.ruuid();
   };
 
   toString(){

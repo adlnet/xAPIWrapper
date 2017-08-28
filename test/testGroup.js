@@ -94,7 +94,7 @@ describe("Group Test:", () => {
         (s10.actor.getDisplay()).should.eql(iMbox.mbox);
         (s7.actor.getDisplay()).should.eql(iMboxsha1sumNoMembers.mbox_sha1sum);
         (s9.actor.getDisplay()).should.eql(iOpenIdNoMembers.openid);
-        (s2.actor.getDisplay()).should.eql(`${iAccount.account.homePage}:${iAccount.account.name}`);
+        (s2.actor.getDisplay()).should.eql(iAccount.account);
         (s11.actor.getDisplay()).should.eql('Anonymous Group');
         (!s14.actor.getDisplay()).should.eql(true);
     });
