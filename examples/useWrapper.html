@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
     <script src="../test/libs/jquery/2.1.4/jquery.min.js"></script>
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
@@ -185,7 +186,7 @@
         var wrapper;
         ADL.launch(function(err, launchdata, xAPIWrapper) {
             if (!err) {
-                wrapper = ADL.XAPIWrapper = xAPIWrapper;
+                wrapper = ADL.XAPIWrapper;
                 console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
             } else {
                 wrapper = ADL.XAPIWrapper;
@@ -319,7 +320,7 @@
     </script>
 
     <script>
-        var outputResults = function (resp, thing) {
+        var outputResults = function (error, resp, thing) {
             var spanclass = "text-info";
             var text = "";
             if (resp.status >= 400) {

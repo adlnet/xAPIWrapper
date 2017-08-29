@@ -42,13 +42,13 @@ class Util {
       let vars = query.split('&');
 
       // Parse single parameter in query string
-      if (variable && variable != "") {
+      if (variable) {
         for (let i = 0; i < vars.length; i++)
         {
-          let pair = vars[i].split('=');
-          if (decodeURIComponent(pair[0]) == variable)
+          let p = vars[i].split('=');
+          if (decodeURIComponent(p[0]) == variable)
           {
-            return decodeURIComponent(pair[1]);
+            return decodeURIComponent(p[1]);
           }
         }
       }

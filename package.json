@@ -40,6 +40,7 @@
     "teststatementref": "mocha --no-timeouts --compilers js:babel-register test/testStatementRef.js",
     "testsubstatement": "mocha --no-timeouts --compilers js:babel-register test/testSubStatement.js",
     "testverb": "mocha --no-timeouts --compilers js:babel-register test/testVerb.js",
-    "testall": "npm run testasync && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb"
+    "testutils": "mocha --no-timeouts --compilers js:babel-register test/testUtils.js",
+    "testall": "npm run testasync && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb && npm run testutils"
   }
 }
