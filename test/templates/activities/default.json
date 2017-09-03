@@ -2,11 +2,11 @@
   "objectType": "Activity",
   "id": "http://www.example.com/meetings/occurances/1234",
   "definition": {
-      "description": {
-          "en-US": "Testing default activity"
-      },
-      "name": {
-          "en-US": "Default Activity"
-      }
+    "description": {
+      "en-US": "Testing default activity"
+    },
+    "name": {
+      "en-US": "Default Activity"
+    }
   }
 }

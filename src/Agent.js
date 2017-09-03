@@ -6,53 +6,51 @@
  * @param {string} [name]   The natural-language name of the agent
  */
 class Agent {
-  constructor(identifier, name)
-  {
-    this.objectType = 'Agent';
+    constructor(identifier, name) {
+        this.objectType = 'Agent';
 
-    if (name)
-      this.name = name;
+        if (name)
+            this.name = name;
 
-    // figure out what type of identifier was given
-    if(identifier) {
-      if( identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account ) {
-        Object.assign(this, identifier);
-      }
-      else if( /^mailto:/.test(identifier) ){
-        this.mbox = identifier;
-      }
-      else if( /^[0-9a-f]{40}$/i.test(identifier) ){
-        this.mbox_sha1sum = identifier;
-      }
-      else if( /^http[s]?:/.test(identifier) ){
-        this.openid = identifier;
-      }
-      else if( identifier.homePage && identifier.name ){
-        this.account = identifier;
-      }
-    }
-  };
-  toString(){ return JSON.stringify(this, null, '  '); }
-  isValid()
-  {
-    return (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
+        // figure out what type of identifier was given
+        if (identifier) {
+            if (identifier.mbox || identifier.mbox_sha1sum || identifier.openid || identifier.account) {
+                Object.assign(this, identifier);
+            }
+            else if (/^mailto:/.test(identifier)) {
+                this.mbox = identifier;
+            }
+            else if (/^[0-9a-f]{40}$/i.test(identifier)) {
+                this.mbox_sha1sum = identifier;
+            }
+            else if (/^http[s]?:/.test(identifier)) {
+                this.openid = identifier;
+            }
+            else if (identifier.homePage && identifier.name) {
+                this.account = identifier;
+            }
+        }
+    };
+    toString() { return JSON.stringify(this, null, '  '); }
+    isValid() {
+        return (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
             || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
-            && (!this.objectType || this.objectType==="Agent");
-  };
+            && (!this.objectType || this.objectType === "Agent");
+    };
 
-  show(){ console.log(this.toString()); }
+    show() { console.log(this.toString()); }
 
-  getType(){ return "Agent" }
+    getType() { return "Agent" }
 
-  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account }
-  getIdString(){ return this.getId() || 'unknown'; }
+    getId() { return this.mbox || this.openid || this.mbox_sha1sum || this.account }
+    getIdString() { return this.getId() || 'unknown'; }
 
-  getDisplay(){
-    if (!this.isValid())
-      return null;
+    getDisplay() {
+        if (!this.isValid())
+            return null;
 
-    return this.name || this.getIdString();
-  };
+        return this.name || this.getIdString();
+    };
 }
 
 /*
@@ -62,103 +60,102 @@ class Agent {
  * @param {string} [name]   The natural-language name of the agent
  */
 class Group {
-  constructor(identifier, members, name)
-  {
-    this.objectType = 'Group';
+    constructor(identifier, members, name) {
+        this.objectType = 'Group';
 
-    if (name)
-      this.name = name;
+        if (name)
+            this.name = name;
 
-    if (members && this.isValidMembers(members))
-      this.member = members;
+        if (members && this.isValidMembers(members))
+            this.member = members;
 
-    if (identifier) {
-      // first argument is a Group object - validate it
-      if (identifier.objectType === "Group") {
-        // validate members if specified
-        let validMembers = false;
-        if (identifier.member) {
-          if (!this.isValidMembers(identifier.member)) {
-            return;
-          }
-          validMembers = true;
-        }
+        if (identifier) {
+            // first argument is a Group object - validate it
+            if (identifier.objectType === "Group") {
+                // validate members if specified
+                let validMembers = false;
+                if (identifier.member) {
+                    if (!this.isValidMembers(identifier.member)) {
+                        return;
+                    }
+                    validMembers = true;
+                }
 
-        // validate IRI if specified
-        let validId = false;
-        if (identifier.mbox || identifier.mbox_sha1sum || identifier.openid) {
-          validId = true;
-        } else if (identifier.account) {
-          if (!(identifier.account.homePage && identifier.account.name)) {
-            return;
-          }
-          validId = true;
-        }
+                // validate IRI if specified
+                let validId = false;
+                if (identifier.mbox || identifier.mbox_sha1sum || identifier.openid) {
+                    validId = true;
+                } else if (identifier.account) {
+                    if (!(identifier.account.homePage && identifier.account.name)) {
+                        return;
+                    }
+                    validId = true;
+                }
 
-        // copy over properties
-        if (validMembers || validId) {
-          Object.assign(this, identifier);
+                // copy over properties
+                if (validMembers || validId) {
+                    Object.assign(this, identifier);
+                }
+            }
+            // determine IRI type
+            else {
+                if (/^mailto:/.test(identifier)) {
+                    this.mbox = identifier;
+                }
+                else if (/^[0-9a-f]{40}$/i.test(identifier)) {
+                    this.mbox_sha1sum = identifier;
+                }
+                else if (/^http[s]?:/.test(identifier)) {
+                    this.openid = identifier;
+                }
+                else if (identifier.homePage && identifier.name) {
+                    this.account = identifier;
+                }
+            }
         }
-      }
-      // determine IRI type
-      else {
-        if( /^mailto:/.test(identifier) ){
-          this.mbox = identifier;
-        }
-        else if( /^[0-9a-f]{40}$/i.test(identifier) ){
-          this.mbox_sha1sum = identifier;
-        }
-        else if( /^http[s]?:/.test(identifier) ){
-          this.openid = identifier;
-        }
-        else if( identifier.homePage && identifier.name ){
-          this.account = identifier;
-        }
-      }
     }
-  }
-  toString(){ return JSON.stringify(this, null, '  '); }
-  isValid(){
-    return (this.objectType != undefined && this.objectType === "Group"
+    toString() { return JSON.stringify(this, null, '  '); }
+    isValid() {
+        return (this.objectType != undefined && this.objectType === "Group"
             && (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
-            || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
+                || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
             || (this.member != undefined && this.isValidMembers(this.member)));
-  };
-  isValidMembers(members){
-    if (!members) return false;
+    };
+    isValidMembers(members) {
+        if (!members) return false;
 
-    if (Array.isArray(members) && members.length > 0) {
-      for (let i = 0; i < members.length; i++) {
-        if (members[i].objectType == "Group" || members[i].hasOwnProperty('member'))
-          return false;
-      }
-    } else {
-      console.log(`Invalid parameter: members=${members}`);
-      return false;
+        if (Array.isArray(members) && members.length > 0) {
+            for (let i = 0; i < members.length; i++) {
+                if (members[i].objectType == "Group" || members[i].hasOwnProperty('member'))
+                    return false;
+            }
+        } else {
+            console.log(`Invalid parameter: members=${members}`);
+            return false;
+        }
+
+        return true;
     }
 
-    return true;
-  }
+    show() { console.log(this.toString()); }
 
-  show(){ console.log(this.toString()); }
+    getType() { return "Group" }
 
-  getType(){ return "Group" }
+    getId() { return this.mbox || this.openid || this.mbox_sha1sum || this.account }
+    getIdString() { return this.getId() || 'Anonymous Group'; }
 
-  getId(){ return this.mbox || this.openid || this.mbox_sha1sum || this.account }
-  getIdString(){ return this.getId() || 'Anonymous Group'; }
+    getDisplay() {
+        if (!this.isValid())
+            return null;
 
-  getDisplay(){
-    if (!this.isValid())
-      return null;
-
-    return this.name || this.getIdString();
-  };
+        return this.name || this.getIdString();
+    };
 }
 
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-  module.exports = { Agent, Group };
+    module.exports = { Agent, Group };
 } else {
-  window.ADL.Agent = Agent;
-  window.ADL.Group = Group;
+    window.ADL.Agent = Agent;
+    window.ADL.Group = Group;
 }

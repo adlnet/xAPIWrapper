@@ -3,7 +3,7 @@
   "actor": {
     "objectType": "Agent",
     "name": "Default",
-    "mbox":"mailto:default@example.com"
+    "mbox": "mailto:default@example.com"
   },
   "object": {
     "objectType": "Activity",

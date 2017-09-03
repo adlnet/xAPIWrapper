@@ -4,7 +4,7 @@
     {
       "objectType": "Agent",
       "name": "Anon Member",
-      "mbox":"mailto:anonmem@example.com"
+      "mbox": "mailto:anonmem@example.com"
     }
   ]
 }

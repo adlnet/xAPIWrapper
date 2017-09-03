@@ -1,11 +1,11 @@
 {
   "objectType": "Activity",
   "definition": {
-      "description": {
-          "en-US": "Testing no id activity"
-      },
-      "name": {
-          "en-US": "No Id Activity"
-      }
+    "description": {
+      "en-US": "Testing no id activity"
+    },
+    "name": {
+      "en-US": "No Id Activity"
+    }
   }
 }

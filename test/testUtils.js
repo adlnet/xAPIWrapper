@@ -9,58 +9,58 @@ describe('Utils Test:', () => {
     before(() => {
         onBrowser = false;
         if (typeof window !== 'undefined') {
-          onBrowser = true;
-          Util = ADL.Util;
+            onBrowser = true;
+            Util = ADL.Util;
         }
         else {
-          should = require('should');
-          Util = require('./../src/Utils');
+            should = require('should');
+            Util = require('./../src/Utils');
         }
 
         defObject = {
-          "id":"http://from.user/act1",
-          "objectType":"StatementRef",
-          "definition": {
-            "name": {
-              "en-US": "soccer",
-              "fr": "football",
-              "de": "foossball"
+            "id": "http://from.user/act1",
+            "objectType": "StatementRef",
+            "definition": {
+                "name": {
+                    "en-US": "soccer",
+                    "fr": "football",
+                    "de": "foossball"
+                }
             }
-          }
         }
         defDisplay = {
-          "id":"http://verb.com/do2",
-          "display": {
-            "fr": "recommander",
-            "de": "empfehlen",
-            "es": "recomendar",
-            "en": "recommend"
-          }
+            "id": "http://verb.com/do2",
+            "display": {
+                "fr": "recommander",
+                "de": "empfehlen",
+                "es": "recomendar",
+                "en": "recommend"
+            }
         };
         enOnly = {
-          "id":"http://verb.com/do3",
-          "display": {
-            "en-US":"initialized"
-          }
+            "id": "http://verb.com/do3",
+            "display": {
+                "en-US": "initialized"
+            }
         };
         invDisplay = {
-          "id":"http://verb.com/do4",
-          "display": {
-            "fr": "établi",
-            "de": "etabliert"
-          }
+            "id": "http://verb.com/do4",
+            "display": {
+                "fr": "établi",
+                "de": "etabliert"
+            }
         };
         stmt = {
-          "actor": {
-            "member":["joe"],
-            "objectType": "Group"
-          },
-          "verb": {
-            "id":"http://verb.com/do5"
-          },
-          "object": {
-            "id":"http://from.user/act5"
-          }
+            "actor": {
+                "member": ["joe"],
+                "objectType": "Group"
+            },
+            "verb": {
+                "id": "http://verb.com/do5"
+            },
+            "object": {
+                "id": "http://from.user/act5"
+            }
         };
         subStmt = {
             "verb": {
@@ -95,7 +95,7 @@ describe('Utils Test:', () => {
             (Util.getLangVal(defDisplay.display)).should.eql("recommend");
         });
         it('should get a verb display', () => {
-          (Util.getLangVal(enOnly.display)).should.eql("initialized");
+            (Util.getLangVal(enOnly.display)).should.eql("initialized");
         });
         it('should return the first display option if language code does not match any of the keys', () => {
             ("undefined").should.eql(typeof Util.getLangVal(invDisplay.display));
@@ -107,7 +107,7 @@ describe('Utils Test:', () => {
             ("undefined").should.eql(typeof Util.getLangVal(stmt));
         });
         it('should get the proper display if given a proper dictionary even a couple levels deep', () => {
-          (Util.getLangVal(subStmt.verb.display)).should.eql(subStmt.verb.display.en);
+            (Util.getLangVal(subStmt.verb.display)).should.eql(subStmt.verb.display.en);
         });
         it('should quit if we pass in nothing to it', () => {
             ("undefined").should.eql(typeof Util.getLangVal());

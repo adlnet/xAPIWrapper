@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+    <meta charset="utf-8">
     <script src="../test/libs/jquery/2.1.4/jquery.min.js"></script>
 
     <!-- Latest compiled and minified CSS -->
@@ -186,13 +186,13 @@
         var wrapper;
         ADL.launch(function(err, launchdata, xAPIWrapper) {
             if (!err) {
-                wrapper = ADL.XAPIWrapper;
+                wrapper = ADL.XAPIWrapper = xAPIWrapper;
                 console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
             } else {
                 wrapper = ADL.XAPIWrapper;
                 wrapper.changeConfig({
                     endpoint: "https://lrs.adlnet.gov/xapi/",
-                    user: 'aaron',
+                    user: 'tom',
                     password: '1234'
                 });
                 console.log("--- content statically configured ---\n", wrapper.lrs);

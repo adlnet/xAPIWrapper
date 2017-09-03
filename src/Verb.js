@@ -1,6 +1,8 @@
 // Require Utils module when using node
 if (typeof module !== 'undefined') {
-  Util = require('./Utils.js');
+    Util = require('./Utils.js');
+} else {
+    Util = window.ADL.Util;
 }
 
 /*
@@ -9,43 +11,42 @@ if (typeof module !== 'undefined') {
  * @param {string} [description]    An English-language description, or a Language Map
  */
 class Verb {
-  constructor(id, description)
-  {
-    // if passed a verb object then copy and return
-    if( id && id.id ){
-      Object.assign(this, id);
-      return;
-    }
+    constructor(id, description) {
+        // if passed a verb object then copy and return
+        if (id && id.id) {
+            Object.assign(this, id);
+            return;
+        }
 
-    // save id and build language map
-    if (id)
-     this.id = (typeof(id)==='string'||id instanceof String) ? id : "";
+        // save id and build language map
+        if (id)
+            this.id = (typeof (id) === 'string' || id instanceof String) ? id : "";
 
-    if(description)
-     this.display = (typeof(description) === 'string' || description instanceof String) ? {'en-US': description} : description;
-  };
-  toString(){
-    return JSON.stringify(this, null, '  ');
-  };
-  isValid(){
-    return (this.id != undefined && this.id != "");
-  };
+        if (description)
+            this.display = (typeof (description) === 'string' || description instanceof String) ? { 'en-US': description } : description;
+    };
+    toString() {
+        return JSON.stringify(this, null, '  ');
+    };
+    isValid() {
+        return (this.id != undefined && this.id != "");
+    };
 
-  show(){
-    console.log(this.toString());
-  };
+    show() {
+        console.log(this.toString());
+    };
 
-  getDisplay(){
-    if (!this.isValid())
-      return null;
+    getDisplay() {
+        if (!this.isValid())
+            return null;
 
-    return (this.display) ? Util.getLangVal(this.display) : this.id;
-  };
+        return (this.display) ? Util.getLangVal(this.display) : this.id;
+    };
 }
 
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
-  module.exports = Verb;
+    module.exports = Verb;
 } else {
-  window.ADL.Verb = Verb;
+    window.ADL.Verb = Verb;
 }

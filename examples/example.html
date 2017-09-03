@@ -1,34 +1,33 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
-	<head>
+<head>
     <meta charset="utf-8">
-		<script src="../dist/xapiwrapper.min.js"></script>
-		<script type="text/javascript">
+    <script src="../dist/xapiwrapper.min.js"></script>
+    <script type="text/javascript">
 
-		function init()
-		{
-			var stmt = new ADL.Statement(
-				new ADL.Agent(ADL.XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
-				ADL.verbs.launched,
-				new ADL.Activity('act:wrapper_test', 'xAPIWrapper test page',
-					'A website that exercises the functions of the xAPIWrapper')
-			);
-			stmt.addOtherContextActivity( new ADL.Activity('compId:internet_proficiency') );
-			stmt.generateRegistration();
+        function init() {
+            var stmt = new ADL.Statement(
+                new ADL.Agent(ADL.XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
+                ADL.verbs.launched,
+                new ADL.Activity('act:wrapper_test', 'xAPIWrapper test page',
+                    'A website that exercises the functions of the xAPIWrapper')
+            );
+            stmt.addOtherContextActivity(new ADL.Activity('compId:internet_proficiency'));
+            stmt.generateRegistration();
 
-			ADL.XAPIWrapper.changeConfig({
-				'endpoint': 'https://lrs.adlnet.gov/xapi/'
-			});
+            ADL.XAPIWrapper.changeConfig({
+                'endpoint': 'https://lrs.adlnet.gov/xapi/'
+            });
 
-			ADL.XAPIWrapper.postStatement(stmt);
+            ADL.XAPIWrapper.postStatement(stmt);
 
-			var o = document.getElementById('output');
-			o.innerText = JSON.stringify(stmt, null, '    ');
-		}
+            var o = document.getElementById('output');
+            o.innerText = JSON.stringify(stmt, null, '    ');
+        }
 
-		</script>
-	</head>
-	<body onload='init()'>
-		<code><pre id='output'></pre></code>
-	</body>
+    </script>
+</head>
+<body onload='init()'>
+    <code><pre id='output'></pre></code>
+</body>
 </html>

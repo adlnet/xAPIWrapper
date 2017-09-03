@@ -2,8 +2,8 @@
   "objectType": "Activity",
   "id": "http://www.example.com/meetings/occurances/1234",
   "definition": {
-      "description": {
-          "en-US": "Testing no name activity"
-      }
+    "description": {
+      "en-US": "Testing no name activity"
+    }
   }
 }

@@ -3,9 +3,9 @@
   "actor": {
     "objectType": "Agent",
     "name": "Default",
-    "mbox":"mailto:default@example.com"
+    "mbox": "mailto:default@example.com"
   },
-  "verb": { },
+  "verb": {},
   "object": {
     "objectType": "Activity",
     "id": "http://www.example.com/meetings/occurances/1234"
