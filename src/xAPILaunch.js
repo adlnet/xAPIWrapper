@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 if (typeof module !== 'undefined') {
     var fetch = require('node-fetch');
 } else {
@@ -24,8 +25,8 @@ function cb_wrap(cb) {
                 callerArgs.push(args[i]);
             }
             cb.apply(window, callerArgs);
-        }, 0)
-    }
+        }, 0);
+    };
 }
 
 //The library will append the necessary launch info to each new A that is linked to the page.
@@ -71,11 +72,11 @@ function setupCourseLinks(_nodes) {
     for (let i = 0; i < _nodes.length; i++) {
         let link = _nodes[i];
         let href = link.href;
-        let courseLink = link.attributes.getNamedItem('courselink')
+        let courseLink = link.attributes.getNamedItem('courselink');
         if (courseLink && courseLink.value == "true") {
             link.href = (href.indexOf("?") > -1) ? `${href}&${query}` : `${href}?${query}`;
         }
-    };
+    }
 }
 
 function xAPILaunch(cb, terminate_on_unload) {
@@ -98,7 +99,7 @@ function xAPILaunch(cb, terminate_on_unload) {
             xhr2.open('POST', launch2.toString(), false);
             xhr2.setRequestHeader("Content-type", "application/json");
             xhr2.send(JSON.stringify({ "code": 0, "description": message || "User closed content" }));
-        }
+        };
 
         if (!launchToken || !launchEndpoint)
             return cb("invalid launch parameters");
@@ -113,11 +114,10 @@ function xAPILaunch(cb, terminate_on_unload) {
             //exit the try catch so inner execptions in the callback don't trigger this catch
             window.setTimeout(function () {
                 return cb(err);
-            })
-        }
+            });
+        };
 
         xhr.onload = function (e) {
-            console.log(xhr);
             if (xhr.status !== 200) {
                 return xhr.onerror(xhr.responseText);
             }
@@ -125,15 +125,15 @@ function xAPILaunch(cb, terminate_on_unload) {
             var launchData = body;
 
             var conf = {};
-            conf['endpoint'] = launchData.endpoint;
-            conf["actor"] = launchData.actor;
+            conf.endpoint = launchData.endpoint;
+            conf.actor = launchData.actor;
             conf.withCredentials = true;
 
             window.onunload = function () {
                 if (!terminate_on_unload)
                     return;
-                xAPILaunch.terminate("User closed content")
-            }
+                xAPILaunch.terminate("User closed content");
+            };
 
             let wrapper = new ADL.XAPIWrapper.constructor();
             wrapper.changeConfig(conf);
@@ -142,14 +142,14 @@ function xAPILaunch(cb, terminate_on_unload) {
             //Also, if links are added dynamically, we will do the same logic for those links.
             observeForNewLinks();
             return cb(null, body, wrapper);
-        }
+        };
         xhr.open('POST', launch.toString(), true);
         xhr.send();
     }
     catch (e) {
         cb(e);
     }
-};
+}
 
 
 if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {

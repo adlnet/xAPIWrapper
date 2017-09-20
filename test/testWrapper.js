@@ -1,4 +1,4 @@
-describe("Asynchronous Testing:", () => {
+describe("xAPIWrapper Test:", () => {
     const fs = require('fs');
 
     // Response Types
@@ -35,7 +35,7 @@ describe("Asynchronous Testing:", () => {
         });
     });
 
-    describe("Statement(s)", () => {
+    describe("Statements", () => {
         let s1, s2;
 
         beforeEach(() => {
@@ -452,7 +452,7 @@ describe("Asynchronous Testing:", () => {
                 });
             });
             it("should return list of state id's using different agent asynchronously", () => {
-                return XAPIWrapper.getState(actId, { 'mbox': 'mailto:aaron@example.com' })
+                return XAPIWrapper.getState(actId, { 'mbox': 'mailto:a@example.com' })
                     .then((res) => {
                         res.resp.status.should.eql(OK);
                         res.data.should.not.eql(null);
@@ -785,6 +785,8 @@ describe("Asynchronous Testing:", () => {
                 ];
                 date = new Date().toISOString();
                 XAPIWrapper.postActivityProfile(prof[0].activityId, prof[0].profileId, prof[0]);
+                XAPIWrapper.postActivityProfile(prof[1].activityId, prof[1].profileId, prof[1]);
+                XAPIWrapper.postActivityProfile(prof[2].activityId, prof[2].profileId, prof[2]);
             });
 
             it("should return list of profile IDs using valid activityId & no profileId", () => {

@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 let activityTypes = {
    "assessment": "http://adlnet.gov/expapi/activities/assessment",
    "attempt": "http://adlnet.gov/expapi/activities/attempt",

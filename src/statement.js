@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 // Require modules when using node
 if (typeof module !== 'undefined') {
     Agent = require('./Agent').Agent;
@@ -118,37 +119,37 @@ class Statement {
                 this.object = new SubStatement(object);
             }
         }
-    };
+    }
 
     toString() {
         return `\n${JSON.stringify(this, null, '  ')}\n`;
-    };
+    }
 
     isValid() {
-        return (this.actor != undefined && this.actor.isValid()
-            && this.verb != undefined && this.verb.isValid()
-            && this.object != undefined && this.object.isValid());
-    };
+        return (this.actor != undefined && this.actor.isValid() &&
+        this.verb != undefined && this.verb.isValid() &&
+        this.object != undefined && this.object.isValid());
+    }
 
     show() {
         console.log(this.toString());
-    };
+    }
 
     generateRegistration() {
         _getobj(this, 'context').registration = Util.ruuid();
-    };
+    }
 
     addParentActivity(activity) {
         _getobj(this, 'context.contextActivities.parent[]').push(new Activity(activity));
-    };
+    }
 
     addGroupingActivity(activity) {
         _getobj(this, 'context.contextActivities.grouping[]').push(new Activity(activity));
-    };
+    }
 
     addOtherContextActivity(activity) {
         _getobj(this, 'context.contextActivities.other[]').push(new Activity(activity));
-    };
+    }
 }
 
 
@@ -197,25 +198,25 @@ class SubStatement {
                 this.object = (object instanceof StatementRef) ? object : new StatementRef(object);
             }
         }
-    };
+    }
     toString() {
         return JSON.stringify(this, null, '  ');
-    };
+    }
 
     isValid() {
-        return (this.actor != undefined && this.actor.isValid()
-            && this.verb != undefined && this.verb.isValid()
-            && this.object != undefined && this.object.objectType != this.objectType && this.object.isValid())
-            && this.objectType === "SubStatement" && !this.hasOwnProperty("id")
-            && !this.hasOwnProperty("stored") && !this.hasOwnProperty("version")
-            && !this.hasOwnProperty("authority");
-    };
+        return (this.actor != undefined && this.actor.isValid() &&
+        this.verb != undefined && this.verb.isValid() &&
+        this.object != undefined && this.object.objectType != this.objectType && this.object.isValid()) &&
+        this.objectType === "SubStatement" && !this.hasOwnProperty("id") &&
+        !this.hasOwnProperty("stored") && !this.hasOwnProperty("version") &&
+        !this.hasOwnProperty("authority");
+    }
 
     show() {
         console.log(this.toString());
-    };
+    }
 
-    getType() { return "SubStatement" };
+    getType() { return "SubStatement"; }
 
     getDisplay() {
         if (!this.isValid())

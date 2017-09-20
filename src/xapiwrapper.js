@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 let debug = false;
 let onBrowser = true;
 
@@ -29,9 +30,9 @@ if (typeof module !== 'undefined') {
  */
 let Config = (() => {
     let conf = {};
-    conf['endpoint'] = "https://lrs.adlnet.gov/xapi/";
+    conf.endpoint = "https://lrs.adlnet.gov/xapi/";
     try {
-        conf['auth'] = `Basic ${Util.toBase64('tom:1234')}`;
+        conf.auth = `Basic ${Util.toBase64('tom:1234')}`;
     }
     catch (e) {
         console.log(`Exception in Config trying to encode auth: ${e}`);
@@ -180,7 +181,7 @@ class XAPIWrapper {
         } catch (e) {
             log(`Error while preparing statement: ${e}`);
         }
-    };
+    }
 
     /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
@@ -209,7 +210,7 @@ class XAPIWrapper {
                         "en-US": "A signature proving the statement was not modified"
                     },
                     "contentType": "application/octet-stream"
-                }
+                };
             }
 
             //compute the length and the sha2 of the attachment
@@ -324,7 +325,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Send a single statement to the LRS using a POST request.
@@ -369,8 +370,8 @@ class XAPIWrapper {
             let payload = JSON.stringify(stmt);
             let extraHeaders = null;
             if (attachments && attachments.length > 0) {
-                extraHeaders = {}
-                payload = this.buildMultipart(stmt, attachments, extraHeaders)
+                extraHeaders = {};
+                payload = this.buildMultipart(stmt, attachments, extraHeaders);
             }
 
             const conf = {
@@ -399,7 +400,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Send a list of statements to the LRS.
@@ -457,7 +458,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { return res('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Get statement(s) based on the searchparams or more url.
@@ -488,7 +489,7 @@ class XAPIWrapper {
                 url = this.base + more;
             }
             else if (searchparams) {
-                let urlparams = new Array();
+                let urlparams = [];
 
                 for (let s in searchparams) {
                     urlparams.push(`${s}=${encodeURIComponent(searchparams[s])}`);
@@ -519,7 +520,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Get more statements based on the more url returned from first call.
@@ -536,7 +537,7 @@ class XAPIWrapper {
      */
     getMoreStatements(iterations, searchparams, callback) {
         if (this.testConfig()) {
-            let stmts = new Array();
+            let stmts = [];
             let wrapper = this;
 
             if (callback) {
@@ -583,7 +584,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Update activity state in the LRS
@@ -614,7 +615,7 @@ class XAPIWrapper {
                 headers["Content-Type"] = "application/octet-stream";
 
             headers['X-Experience-API-Version'] = this.xapiVersion;
-            headers['Authorization'] = this.lrs.auth;
+            headers.Authorization = this.lrs.auth;
 
             const conf = {
                 url,
@@ -635,7 +636,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Store activity state in the LRS
@@ -665,7 +666,7 @@ class XAPIWrapper {
                 headers["Content-Type"] = "application/octet-stream";
 
             headers['X-Experience-API-Version'] = this.xapiVersion;
-            headers['Authorization'] = this.lrs.auth;
+            headers.Authorization = this.lrs.auth;
 
             const conf = {
                 url,
@@ -686,7 +687,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Get activity state from the LRS
@@ -751,7 +752,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Delete activity state in the LRS
@@ -814,7 +815,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Gets the Activity object from the LRS.
@@ -854,7 +855,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Stores or updates activity profile in the LRS
@@ -892,7 +893,7 @@ class XAPIWrapper {
 
             let url = `${this.lrs.endpoint}activities/profile?activityId=${activityid}&profileId=${profileid}`;
 
-            let headers = {}
+            let headers = {};
             headers[`${eHeader}`] = this.formatHash(eHash);
 
             if (profileval instanceof Array || profileval instanceof Object) {
@@ -903,7 +904,7 @@ class XAPIWrapper {
                 headers["Content-Type"] = "application/octet-stream";
 
             headers['X-Experience-API-Version'] = this.xapiVersion;
-            headers['Authorization'] = this.lrs.auth;
+            headers.Authorization = this.lrs.auth;
 
             const conf = {
                 url,
@@ -924,7 +925,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Stores or merges activity profile in the LRS
@@ -949,7 +950,7 @@ class XAPIWrapper {
                 headers["Content-Type"] = "application/octet-stream";
 
             headers['X-Experience-API-Version'] = this.xapiVersion;
-            headers['Authorization'] = this.lrs.auth;
+            headers.Authorization = this.lrs.auth;
 
             const conf = {
                 url,
@@ -970,7 +971,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Get activity profile from the LRS
@@ -1030,7 +1031,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Delete activity profile in the LRS
@@ -1071,7 +1072,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Gets the Person object from the LRS based on an agent object.
@@ -1113,7 +1114,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Update agent profile in the LRS
@@ -1150,7 +1151,7 @@ class XAPIWrapper {
 
             let url = `${this.lrs.endpoint}agents/profile?agent=${JSON.stringify(agent)}&profileId=${profileid}`;
 
-            let headers = {}
+            let headers = {};
             headers[`${eHeader}`] = this.formatHash(eHash);
 
             if (profileval instanceof Array || profileval instanceof Object) {
@@ -1161,7 +1162,7 @@ class XAPIWrapper {
                 headers["Content-Type"] = "application/octet-stream";
 
             headers['X-Experience-API-Version'] = this.xapiVersion;
-            headers['Authorization'] = this.lrs.auth;
+            headers.Authorization = this.lrs.auth;
 
             const conf = {
                 url,
@@ -1182,7 +1183,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Store agent profile in the LRS
@@ -1207,7 +1208,7 @@ class XAPIWrapper {
                 headers["Content-Type"] = "application/octet-stream";
 
             headers['X-Experience-API-Version'] = this.xapiVersion;
-            headers['Authorization'] = this.lrs.auth;
+            headers.Authorization = this.lrs.auth;
 
             const conf = {
                 url,
@@ -1228,7 +1229,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Get agnet profile from the LRS
@@ -1288,7 +1289,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * Delete agent profile in the LRS
@@ -1329,7 +1330,7 @@ class XAPIWrapper {
         } else {
             return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
-    };
+    }
 
     /*
      * makes a request to a server asynchronously
@@ -1354,7 +1355,7 @@ class XAPIWrapper {
                         });
                 });
         });
-    };
+    }
 
     /*
      * makes a request to a server (if possible, use functions provided in XAPIWrapper)
@@ -1368,7 +1369,11 @@ class XAPIWrapper {
         fetch(conf.url, conf)
             .then((resp) => {
                 return resp.json().then((data) => {
-                    callbackargs ? callback(null, resp, callbackargs) : callback(null, resp, data);
+                    if (callbackargs) {
+                      callback(null, resp, callbackargs);
+                    } else {
+                      callback(null, resp, data);
+                    }
                 })
                     .catch((error) => {
                         if (!resp.ok) {
@@ -1377,11 +1382,15 @@ class XAPIWrapper {
                         }
                         // Failed to parse JSON (NOT AN ERROR)
                         else {
-                            callbackargs ? callback(null, resp, callbackargs) : callback(null, resp, null);
+                            if (callbackargs) {
+                              callback(null, resp, callbackargs);
+                            } else {
+                              callback(null, resp, null);
+                            }
                         }
                     });
             });
-    };
+    }
 
     /*
      * Holder for custom global error callback
@@ -1409,21 +1418,21 @@ class XAPIWrapper {
                 callback(error, resp, body);
             }
         }
-    };
+    }
 
     /*
      * Tests the configuration of the lrs object
      */
     testConfig() {
         return (this.lrs.endpoint != undefined && this.lrs.endpoint != "");
-    };
+    }
 
     /*
      * Initializes an lrs object with settings from a config file and from the url query string
      */
     getLRSObject(config) {
         let lrsProps = ["endpoint", "auth", "actor", "registration", "activity_id", "grouping", "activity_platform"];
-        let lrs = new Object();
+        let lrs = {};
         let qslets, prop;
 
         qslets = Util.parseQueryString();
@@ -1446,14 +1455,14 @@ class XAPIWrapper {
         }
 
         return lrs;
-    };
+    }
 
     /*
      * Merges two objects
      */
     mergeRecursive(obj1, obj2) {
         return Object.assign(obj1, obj1, obj2);
-    };
+    }
 
     formatHash(hash) {
         return (hash === "*") ? hash : `"${hash}"`;

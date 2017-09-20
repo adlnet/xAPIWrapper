@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 // Require Utils module when using node
 if (typeof module !== 'undefined') {
     Util = require('./Utils.js');
@@ -33,15 +34,15 @@ class Activity {
             this.definition = this.definition || {};
             this.definition.description = (typeof (description) === 'string' || description instanceof String) ? { 'en-US': description } : description;
         }
-    };
+    }
     toString() {
         return JSON.stringify(this, null, '  ');
-    };
+    }
     isValid() {
-        return ((this.id != undefined && this.id != "")
-            && (this.isValidInteraction(this.definition) && this.isValidExtension(this.definition))
-            && (!this.objectType || this.objectType === "Activity"));
-    };
+        return ((this.id != undefined && this.id != "") &&
+        (this.isValidInteraction(this.definition) && this.isValidExtension(this.definition)) &&
+        (!this.objectType || this.objectType === "Activity"));
+    }
     isValidInteraction(def) {
         if (def === undefined)
             return true;
@@ -81,9 +82,9 @@ class Activity {
 
     show() {
         console.log(this.toString());
-    };
+    }
 
-    getType() { return "Activity" };
+    getType() { return "Activity"; }
 
     getId() { return this.id; }
 
@@ -112,19 +113,19 @@ class StatementRef {
 
         if (id)
             this.id = (typeof (id) === 'string' || id instanceof String) ? id : "";
-    };
+    }
     toString() {
         return JSON.stringify(this, null, '  ');
-    };
+    }
     isValid() {
         return (this.id != undefined && this.id != "") && this.objectType === 'StatementRef';
-    };
+    }
 
     show() {
         console.log(this.toString());
-    };
+    }
 
-    getType() { return "StatementRef" };
+    getType() { return "StatementRef"; }
 
     getId() { return this.id; }
 }

@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 /*
  * Provides an easy constructor for xAPI agent objects
  * @param {string} identifier   One of the Inverse Functional Identifiers specified in the spec.
@@ -30,19 +31,19 @@ class Agent {
                 this.account = identifier;
             }
         }
-    };
+    }
     toString() { return JSON.stringify(this, null, '  '); }
     isValid() {
-        return (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
-            || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
-            && (!this.objectType || this.objectType === "Agent");
-    };
+        return (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined ||
+          (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined)) &&
+          (!this.objectType || this.objectType === "Agent");
+    }
 
     show() { console.log(this.toString()); }
 
-    getType() { return "Agent" }
+    getType() { return "Agent"; }
 
-    getId() { return this.mbox || this.openid || this.mbox_sha1sum || this.account }
+    getId() { return this.mbox || this.openid || this.mbox_sha1sum || this.account; }
     getIdString() { return this.getId() || 'unknown'; }
 
     getDisplay() {
@@ -50,7 +51,7 @@ class Agent {
             return null;
 
         return this.name || this.getIdString();
-    };
+    }
 }
 
 /*
@@ -116,11 +117,11 @@ class Group {
     }
     toString() { return JSON.stringify(this, null, '  '); }
     isValid() {
-        return (this.objectType != undefined && this.objectType === "Group"
-            && (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined
-                || (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined))
-            || (this.member != undefined && this.isValidMembers(this.member)));
-    };
+        return (this.objectType != undefined && this.objectType === "Group" &&
+        (this.mbox != undefined || this.mbox_sha1sum != undefined || this.openid != undefined ||
+          (this.account != undefined && this.account.homePage != undefined && this.account.name != undefined)) ||
+          (this.member != undefined && this.isValidMembers(this.member)));
+    }
     isValidMembers(members) {
         if (!members) return false;
 
@@ -139,9 +140,9 @@ class Group {
 
     show() { console.log(this.toString()); }
 
-    getType() { return "Group" }
+    getType() { return "Group"; }
 
-    getId() { return this.mbox || this.openid || this.mbox_sha1sum || this.account }
+    getId() { return this.mbox || this.openid || this.mbox_sha1sum || this.account; }
     getIdString() { return this.getId() || 'Anonymous Group'; }
 
     getDisplay() {
@@ -149,7 +150,7 @@ class Group {
             return null;
 
         return this.name || this.getIdString();
-    };
+    }
 }
 
 

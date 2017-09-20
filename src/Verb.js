@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 // Require Utils module when using node
 if (typeof module !== 'undefined') {
     Util = require('./Utils.js');
@@ -24,24 +25,24 @@ class Verb {
 
         if (description)
             this.display = (typeof (description) === 'string' || description instanceof String) ? { 'en-US': description } : description;
-    };
+    }
     toString() {
         return JSON.stringify(this, null, '  ');
-    };
+    }
     isValid() {
         return (this.id != undefined && this.id != "");
-    };
+    }
 
     show() {
         console.log(this.toString());
-    };
+    }
 
     getDisplay() {
         if (!this.isValid())
             return null;
 
         return (this.display) ? Util.getLangVal(this.display) : this.id;
-    };
+    }
 }
 
 

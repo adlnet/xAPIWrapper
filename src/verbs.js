@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 let verbs = {
    "abandoned" : {
       "id" : "https://w3id.org/xapi/adl/verbs/abandoned",

@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 let inBrowser = true;
 if (typeof module !== 'undefined') {
     CryptoJS = require('crypto-js');
@@ -18,14 +19,13 @@ if (!Date.prototype.toISOString) {
     };
 
     Date.prototype.toISOString = (() => {
-        return this.getUTCFullYear()
-            + '-' + pad(this.getUTCMonth() + 1)
-            + '-' + pad(this.getUTCDate())
-            + 'T' + pad(this.getUTCHours())
-            + ':' + pad(this.getUTCMinutes())
-            + ':' + pad(this.getUTCSeconds())
-            + '.' + String((this.getUTCMilliseconds() / 1000).toFixed(3)).slice(2, 5)
-            + 'Z';
+        return this.getUTCFullYear() +
+        '-' + pad(this.getUTCMonth() + 1) +
+        '-' + pad(this.getUTCDate()) +
+        'T' + pad(this.getUTCHours()) +
+        ':' + pad(this.getUTCMinutes()) +
+        ':' + pad(this.getUTCSeconds()) +
+        '.' + String((this.getUTCMilliseconds() / 1000).toFixed(3)).slice(2, 5) + 'Z';
     })();
 }
 
@@ -111,10 +111,10 @@ class Util {
         else if (process && process.env) {
             let str = process.env.LANG;
             lang = str.slice(0, str.indexOf('.'));
-            lang = lang.replace(/_/, '-')
+            lang = lang.replace(/_/, '-');
         }
         return lang || "en-US";
-    };
+    }
 
     getLangVal(langprop) {
         if (!langprop) return;
@@ -139,7 +139,7 @@ class Util {
         } while (!dispGotten && lang !== "");
 
         return ret;
-    };
+    }
 
     /*!
     Excerpt from: Math.uuid.js (v1.4)
@@ -250,7 +250,7 @@ class Util {
 
 
 if (typeof module !== 'undefined') {
-    module.exports = new Util;
+    module.exports = new Util();
 } else {
-    window.ADL.Util = new Util;
+    window.ADL.Util = new Util();
 }

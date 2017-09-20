@@ -17,6 +17,7 @@
     "grunt-contrib-concat": "^1.0.1",
     "grunt-contrib-uglify": "~0.2.2",
     "grunt-exec": "~0.4.6",
+    "jshint": "^2.9.5",
     "mocha": "^3.4.2",
     "should": "^11.2.1"
   },
@@ -33,7 +34,7 @@
     "xhr2": "^0.1.4"
   },
   "scripts": {
-    "testasync": "mocha --no-timeouts --compilers js:babel-register test/testAsync.js",
+    "testwrapper": "mocha --no-timeouts --compilers js:babel-register test/testWrapper.js",
     "testactivity": "mocha --no-timeouts --compilers js:babel-register test/testActivity.js",
     "testagent": "mocha --no-timeouts --compilers js:babel-register test/testAgent.js",
     "testgroup": "mocha --no-timeouts --compilers js:babel-register test/testGroup.js",
@@ -41,6 +42,6 @@
     "testsubstatement": "mocha --no-timeouts --compilers js:babel-register test/testSubStatement.js",
     "testverb": "mocha --no-timeouts --compilers js:babel-register test/testVerb.js",
     "testutils": "mocha --no-timeouts --compilers js:babel-register test/testUtils.js",
-    "testall": "npm run testasync && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb && npm run testutils"
+    "test": "npm run testwrapper && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb && npm run testutils"
   }
 }
