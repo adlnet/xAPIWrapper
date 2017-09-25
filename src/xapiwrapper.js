@@ -133,7 +133,7 @@ class XAPIWrapper {
 
     changeConfig(config) {
         try {
-            this.lrs = this.mergeRecursive(this.lrs, config);
+            Object.assign(this.lrs, config);
             if (config.user && config.password)
                 this.updateAuth(this.lrs, config.user, config.password);
 
@@ -1448,20 +1448,13 @@ class XAPIWrapper {
                 lrs.extended = qslets;
             }
 
-            lrs = this.mergeRecursive(config, lrs);
+            Object.assign(lrs, config);
         }
         else {
             lrs = config;
         }
 
         return lrs;
-    }
-
-    /*
-     * Merges two objects
-     */
-    mergeRecursive(obj1, obj2) {
-        return Object.assign(obj1, obj1, obj2);
     }
 
     formatHash(hash) {

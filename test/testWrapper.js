@@ -783,7 +783,7 @@ describe("xAPIWrapper Test:", () => {
                     { "activityId": 'http://www.example.com/activityId/1', "profileId": Util.ruuid() },
                     { "activityId": 'http://www.example.com/activityId/1', "profileId": Util.ruuid() }
                 ];
-                date = new Date().toISOString();
+                date = Date().now;
                 XAPIWrapper.postActivityProfile(prof[0].activityId, prof[0].profileId, prof[0]);
                 XAPIWrapper.postActivityProfile(prof[1].activityId, prof[1].profileId, prof[1]);
                 XAPIWrapper.postActivityProfile(prof[2].activityId, prof[2].profileId, prof[2]);
@@ -1091,7 +1091,7 @@ describe("xAPIWrapper Test:", () => {
                     { "agent": { "mbox_sha1sum": agentId }, "profileId": Util.ruuid() },
                     { "agent": { "mbox_sha1sum": agentId }, "profileId": Util.ruuid() }
                 ];
-                date = new Date().toISOString();
+                date = Date().now;
                 XAPIWrapper.postAgentProfile(prof[0].agent, prof[0].profileId, prof[0]);
                 XAPIWrapper.postAgentProfile(prof[1].agent, prof[1].profileId, prof[1]);
                 XAPIWrapper.postAgentProfile(prof[2].agent, prof[2].profileId, prof[2]);
