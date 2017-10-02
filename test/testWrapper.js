@@ -25,8 +25,8 @@ describe("xAPIWrapper Test:", () => {
         // Require necessary modules
         should = require('should');
         XAPIWrapper = require('./../src/xAPIWrapper');
-        Util = require('./../src/Utils.js');
-        Statement = require('./../src/statement').Statement;
+        Util = require('./../src/Utils');
+        Statement = require('./../src/Statement').Statement;
 
         XAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",

@@ -1,7 +1,7 @@
 /*jshint esversion: 6*/
 // Require Utils module when using node
 if (typeof module !== 'undefined') {
-    Util = require('./Utils.js');
+    Util = require('./Utils');
 } else {
     Util = window.ADL.Util;
 }

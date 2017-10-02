@@ -44,7 +44,7 @@ describe("Group Test:", () => {
         Agent = require('./../src/Agent').Agent;
         Group = require('./../src/Agent').Group;
         Statement = require('./../src/Statement').Statement;
-        verbs = require('./../src/verbs');
+        verbs = require('./../src/Verbs');
 
         XAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",

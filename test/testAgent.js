@@ -31,7 +31,7 @@ describe('Agent Test:', () => {
         XAPIWrapper = require('./../src/xAPIWrapper');
         Agent = require('./../src/Agent').Agent;
         Statement = require('./../src/Statement').Statement;
-        verbs = require('./../src/verbs');
+        verbs = require('./../src/Verbs');
 
         XAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",

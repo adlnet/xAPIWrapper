@@ -7,15 +7,8 @@ describe('Utils Test:', () => {
     let stmt, subStmt;
 
     before(() => {
-        onBrowser = false;
-        if (typeof window !== 'undefined') {
-            onBrowser = true;
-            Util = ADL.Util;
-        }
-        else {
-            should = require('should');
-            Util = require('./../src/Utils');
-        }
+        should = require('should');
+        Util = require('./../src/Utils');
 
         defObject = {
             "id": "http://from.user/act1",

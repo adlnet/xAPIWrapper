@@ -20,10 +20,10 @@ describe("Verb Test:", () => {
         // Require necessary modules
         should = require('should');
         XAPIWrapper = require('./../src/xAPIWrapper');
-        Util = require('./../src/Utils.js');
+        Util = require('./../src/Utils');
         Verb = require('./../src/Verb');
         Statement = require('./../src/Statement').Statement;
-        verbs = require('./../src/verbs');
+        verbs = require('./../src/Verbs');
 
         XAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",

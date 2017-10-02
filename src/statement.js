@@ -6,7 +6,7 @@ if (typeof module !== 'undefined') {
     Verb = require('./Verb');
     Activity = require('./Object').Activity;
     StatementRef = require('./Object').StatementRef;
-    Util = require('./Utils.js');
+    Util = require('./Utils');
 } else {
     Agent = window.ADL.Agent;
     Group = window.ADL.Group;

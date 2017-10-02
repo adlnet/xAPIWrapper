@@ -27,10 +27,10 @@ describe("StatementRef Test:", () => {
         // Require necessary modules
         should = require('should');
         XAPIWrapper = require('./../src/xAPIWrapper');
-        Util = require('./../src/Utils.js');
-        Statement = require('./../src/statement').Statement;
-        StatementRef = require('./../src/object').StatementRef;
-        verbs = require('./../src/verbs');
+        Util = require('./../src/Utils');
+        Statement = require('./../src/Statement').Statement;
+        StatementRef = require('./../src/Object').StatementRef;
+        verbs = require('./../src/Verbs');
 
         XAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",

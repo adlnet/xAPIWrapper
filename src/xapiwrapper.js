@@ -5,7 +5,7 @@ let onBrowser = true;
 if (typeof module !== 'undefined') {
     onBrowser = false;
     var fetch = require('node-fetch');
-    Util = require('./Utils.js');
+    Util = require('./Utils');
 } else {
     window.ADL = window.ADL || {};
     Util = window.ADL.Util;
@@ -389,7 +389,7 @@ class XAPIWrapper {
                 Object.assign(conf.headers, extraHeaders);
 
             if (callback) {
-                this.callbackRequest(conf, callback, { 'id': stmt.id }, false);
+                this.callbackRequest(conf, callback, null, false);
                 return;
             }
 
@@ -1338,6 +1338,11 @@ class XAPIWrapper {
      * @return {Promise} the resolved or rejected promise of this request
      */
     asyncRequest(conf) {
+        // Check if we're using credentials
+        if (this.withCredentials) {
+          conf.credentials = 'include';
+        }
+
         return new Promise((res, rej) => {
             fetch(conf.url, conf)
                 .then((resp) => {
@@ -1366,6 +1371,11 @@ class XAPIWrapper {
      * @param {boolean} ignore404    allow page not found errors to pass
      */
     callbackRequest(conf, callback, callbackargs, ignore404) {
+        // Check if we're using credentials
+        if (this.withCredentials) {
+          conf.credentials = 'include';
+        }
+
         fetch(conf.url, conf)
             .then((resp) => {
                 return resp.json().then((data) => {
