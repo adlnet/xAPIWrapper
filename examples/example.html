@@ -6,8 +6,8 @@
     <script type="text/javascript">
 
         function init() {
-            var stmt = new ADL.Statement(
-                new ADL.Agent(ADL.XAPIWrapper.hash('mailto:user@example.com'), 'User'),
+            let stmt = new ADL.Statement(
+                new ADL.Agent(ADL.XAPIWrapper.hash('mailto:user@example.com'), 'user'),
                 ADL.verbs.launched,
                 new ADL.Activity('act:wrapper_test', 'xAPIWrapper test page',
                     'A website that exercises the functions of the xAPIWrapper')
@@ -21,7 +21,7 @@
 
             ADL.XAPIWrapper.postStatement(stmt);
 
-            var o = document.getElementById('output');
+            let o = document.getElementById('output');
             o.innerText = JSON.stringify(stmt, null, '    ');
         }
 

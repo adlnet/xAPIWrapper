@@ -124,7 +124,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             },
             "stored": "2016-01-25T20:15:46.622339+00:00",
             "authority": {
-              "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
+                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
                 "name": "xapi-tools",
                 "objectType": "Agent"
             },
@@ -240,7 +240,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             },
             "stored": "2016-01-25T20:05:53.282478+00:00",
             "authority": {
-              "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
+                "mbox": "mailto:tyler.mulligan.ctr+xapi-tools@adlnet.gov",
                 "name": "xapi-tools",
                 "objectType": "Agent"
             },
@@ -273,7 +273,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                     },
                     "name": {
                         "en-US": "Example Activity"
-                        }
+                    }
                 },
                 "id": "http://example.adlnet.gov/xapi/example/activity",
                 "objectType": "Activity"
@@ -487,7 +487,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
             "verb": {
                 "id": "http://adlnet.gov/expapi/verbs/asked",
                 "display": {
-                  "en-US": "asked"
+                    "en-US": "asked"
                 }
             },
             "version": "1.0.1",
@@ -705,7 +705,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                         }
                     ]
                 },
-                "instructor" :
+                "instructor":
                 {
                     "name": "Andrew Downes",
                     "account": {
@@ -720,11 +720,11 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                     "mbox": "mailto:teampb@example.com",
                     "objectType": "Group"
                 },
-                "platform" : "Example virtual meeting software",
-                "language" : "tlh",
-                "statement" : {
-                    "objectType":"StatementRef",
-                    "id" :"6690e6c9-3ef0-4ed3-8b37-7f3964730bee"
+                "platform": "Example virtual meeting software",
+                "language": "tlh",
+                "statement": {
+                    "objectType": "StatementRef",
+                    "id": "6690e6c9-3ef0-4ed3-8b37-7f3964730bee"
                 }
 
             },
@@ -742,7 +742,7 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                 "id": "http://www.example.com/meetings/occurances/34534",
                 "definition": {
                     "extensions": {
-                        "http://example.com/profiles/meetings/activitydefinitionextensions/room": {"name": "Kilby", "id" : "http://example.com/rooms/342"}
+                        "http://example.com/profiles/meetings/activitydefinitionextensions/room": { "name": "Kilby", "id": "http://example.com/rooms/342" }
                     },
                     "name": {
                         "en-GB": "example meeting",

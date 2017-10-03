@@ -99,9 +99,9 @@ Include the wrapper file, and optionally the dependencies.
 
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-<script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/statement.js"></script>
-<script type="text/javascript" src="./src/xapiwrapper.js"></script>
+<script type="text/javascript" src="./src/Verbs.js"></script>
+<script type="text/javascript" src="./src/Statement.js"></script>
+<script type="text/javascript" src="./src/xAPIWrapper.js"></script>
 ```
 
 Alternatively, use the minified version:
@@ -130,7 +130,7 @@ let Config = (() => {
     {
         log(`Exception in Config trying to encode auth: ${e}`);
     }
-    
+
     return conf;
 })();
 ```  
@@ -164,8 +164,8 @@ let creds = {
 XAPIWrapper.updateAuth(XAPIWrapper.lrs, creds.user, creds.password);
 ```  
 
-The script automatically runs, creating a xAPI Wrapper class. The class is created using the
-configuration object inside the xapiwrapper.js file. If you modified this
+The script automatically runs, creating a xAPIWrapper class. The class is created using the
+configuration object inside the xAPIWrapper.js file. If you modified this
 object with your configuration, then the xAPIWrapper class is ready to use.
 
 ``` shell
@@ -184,12 +184,12 @@ are keywords that if found are used in send statement requests. See below for
 usage examples.
 
 #### Logging  
-The wrapper comes with a logging function (`XAPIWrapper.log(message)`)
+The wrapper comes with a logging function (`log(message)`)
 which attempts to write a message to console.log. This can be configured
-to not write messages by setting `log.debug = false;`.
+to not write messages by setting `debug = false;`.
 
 #### xAPI Launch support
-The xAPI Wrapper supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-launch).
+The xAPIWrapper supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-launch).
 This allows configuration - agent info, lrs endpoint info - to be sent to the wrapper,
 instead of using hard-coded configurations. See [Using the xAPI-Launch library](https://github.com/adlnet/xapi-launch#using-the-xapi-launch-library) for
 more details.  
@@ -199,16 +199,17 @@ If you are using the src files, include xAPILaunch.js.
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
 <script type="text/javascript" src="./src/Utils.js"></script>
-<script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/xapiwrapper.js"></script>
+<script type="text/javascript" src="./src/xAPIWrapper.js"></script>
+<script type="text/javascript" src="./src/xAPILaunch.js"></script>
+<script type="text/javascript" src="./src/ActivityTypes.js"></script>
+<script type="text/javascript" src="./src/Verbs.js"></script>
 <script type="text/javascript" src="./src/Agent.js"></script>
 <script type="text/javascript" src="./src/Verb.js"></script>
-<script type="text/javascript" src="./src/statement.js"></script>
 <script type="text/javascript" src="./src/Object.js"></script>
-<script type="text/javascript" src="./src/xAPILaunch.js"></script>
+<script type="text/javascript" src="./src/Statement.js"></script>
 ```
 
-Alternatively, use the minified xapiwrapper version, which includes xapilaunch:
+Alternatively, use the minified xAPIWrapper version, which includes xAPILaunch:
 
 ``` html
 <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
@@ -220,10 +221,10 @@ To use, construct and launch object passing in a callback.
 let wrapper;
 ADL.launch(function(err, launchdata, xAPIWrapper) {
     if (!err) {
-        wrapper = xAPIWrapper;
+        wrapper = ADL.XAPIWrapper = xAPIWrapper;
         console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
     } else {
-        wrapper = XAPIWrapper;
+        wrapper = ADL.XAPIWrapper;
         wrapper.changeConfig({
             endpoint: "https://lrs.adlnet.gov/xapi/",
             user: 'tom',
@@ -239,7 +240,7 @@ ADL.launch(function(err, launchdata, xAPIWrapper) {
 
 #### Statements
 
-##### Statement class (statement.js)
+##### Statement class (Statement.js)
 
 ```JavaScript
 new Statement(actor, verb, object)
@@ -296,14 +297,14 @@ Passing in strings produces a default form: Agent Verb Activity.
 
 ```JavaScript
 let stmt = new Statement(
-	'mailto:steve.vergenz.ctr@adlnet.gov',
+	'mailto:user@example.com',
 	'http://adlnet.gov/expapi/verbs/launched',
 	'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
 );
 >> {
 	"actor": {
 		"objectType": "Agent",
-		"mbox": "mailto:steve.vergenz.ctr@adlnet.gov" },
+		"mbox": "mailto:user@example.com" },
 	"verb": {
 		"id": "http://adlnet.gov/expapi/verbs/launched" },
 	"object": {
@@ -316,15 +317,15 @@ let stmt = new Statement(
 
 ```JavaScript
 let stmt = new Statement(
-	new Agent(XAPIWrapper.hash('mailto:steve.vergenz.ctr@adlnet.gov'), 'Steven Vergenz'),
+	new Agent(XAPIWrapper.hash('mailto:user@example.com'), 'User'),
 	new Verb('http://adlnet.gov/expapi/verbs/launched', 'launched'),
 	new Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox', 'the Virtual World Sandbox')
 );
 >> {
 	"actor": {
 		"objectType": "Agent",
-		"name": "Steven Vergenz",
-		"mbox_sha1sum": "f9fa1a084b2b0825cabb802fcc1bb6024141eee2" },
+		"name": "User",
+		"mbox_sha1sum": "220322e6f00c8c88ae97398ed7e9150228859d9c" },
 	"verb": {
 		"id": "http://adlnet.gov/expapi/verbs/launched",
 		"display": {
@@ -344,16 +345,16 @@ You can mix generated and manual fields without any conflicts.
 
 ```JavaScript
 let stmt = new Statement(
-	'mailto:steve.vergenz.ctr@adlnet.gov',
+	'mailto:user@example.com',
 	'http://adlnet.gov/expapi/verbs/launched',
 	'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
 );
-stmt.generateId();
+stmt.id = Util.ruuid();
 stmt.result = { 'response': 'Everything is a-okay!' };
 >> {
 	"actor": {
 		"objectType": "Agent",
-		"mbox": "mailto:steve.vergenz.ctr@adlnet.gov" },
+		"mbox": "mailto:user@example.com" },
 	"verb": {
 		"id": "http://adlnet.gov/expapi/verbs/launched" },
 	"object": {
@@ -406,65 +407,47 @@ let stmt = Statement(myactor, verbs.launched, myactivity);
 ```
 
 ##### Put Statement
-`function putStatement(statement, id, [attachments], callback)`  
+`putStatement(statement, id, [attachments], callback)`  
 Sends a single Statement to the LRS using a PUT request. This
-method takes in a Statement ID and, optionally, provides a callback
-function. The Put Statement request will make
-the request happen asynchronously, otherwise Put Statement
-will block until it receives the response from the LRS.  
+method will automatically create the Statement ID. It
+takes in a Statement, Statement ID, Attachments, and optionally,
+provides a callback function. The putStatement request will make
+the request happen asynchronously, otherwise putStatement
+will return a Promise object.  
 
 ##### Post Statement
-`function postStatement(statement, [attachments], callback)`  
-Sends a single Statement to the LRS using a POST request. This
-method will automatically create the Statement ID. Providing a
-function to call after the post Statement request will make
-the request happen asynchronously, otherwise Post Statement
-will block until it receives the response from the LRS.
+`postStatement(statement, [attachments], callback)`  
+Sends a single Statement to the LRS using a POST request. It
+takes in a Statement, Attachments, and optionally, provides a callback
+function. Providing a function to call after the postStatement
+request will make the request happen asynchronously, otherwise
+postStatement will return a Promise object.
 ###### Post Statement without Callback
 
 ```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-let resp_obj = XAPIWrapper.postStatement(stmt);
-console.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+let resp_obj = await XAPIWrapper.postStatement(stmt);
+console.log("[" + resp_obj.data.id + "]: " + resp_obj.resp.status + " - " + resp_obj.resp.statusText);
 >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 200 - OK
 ```
 ###### Post Statement with Callback
 
 ```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-XAPIWrapper.postStatement(stmt, null, function(resp, obj){  
-    console.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
->> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
-```
-
-###### Post Statement with strict error-first callback
-
-Requires the config option `strictCallbacks` to be `true`.
-
-```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-            "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
-                      "display" : {"en-US" : "answered"}},
-            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-XAPIWrapper.postStatement(stmt, null, function(err, res, body) {
-    if (err) {
-        // Handle error case
-        return;
-    }
-
-    console.log("[" + body.id + "]: " + res.status + " - " + res.statusText);});
+XAPIWrapper.postStatement(stmt, null, (err, resp, data) => {  
+    console.log("[" + data.id + "]: " + resp.status + " - " + resp.statusText);});
 >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
 ```
 
 ###### Post Statement with Attachments
 The wrapper can construct a `multipart/mixed` POST for a single statement that includes attachments. Attachments should be
-supplied as an array in the 3rd parameter to `postStatement`. Attachments are optional. The attachments array should consist of
+supplied as an array in the 2nd parameter to `postStatement`. Attachments are optional. The attachments array should consist of
 objects that have a `type` and a `value` field. `Type` should be the metadata description of the attachment as described by the spec, and `value`
 should be a string containing the data to post. The type field does not need to include the SHA2 or the length. These will be computed
 for you. The type may optionally be the string 'signature'. In this case, the wrapper will construct the proper metadata block.
@@ -495,17 +478,20 @@ _URL_
 _Client Calls_
 
 ```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
-            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-let resp_obj = XAPIWrapper.postStatement(stmt);
-XAPIWrapper.getStatements({"statementId":resp_obj.id});
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"},
+            "id": Util.ruuid()};
+XAPIWrapper.postStatement(stmt)
+  .then((res) => {
+    return XAPIWrapper.getStatements({"statementId":stmt.id});
+  });
 >> {"version": "1.0.0",
-    "timestamp": "2013-09-09 21:36:40.185841+00:00",
+    "timestamp": "2017-10-02 21:36:40.185841+00:00",
     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
-    "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"},
-    "stored": "2013-09-09 21:36:40.186124+00:00",
+    "actor": {"mbox": "mailto:user@example.com", "name": "user", "objectType": "Agent"},
+    "stored": "2017-10-02 21:36:40.186124+00:00",
     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
 >   "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},
@@ -516,20 +502,23 @@ XAPIWrapper.getStatements({"statementId":resp_obj.id});
 ADL also has collected the [xAPI Verbs](https://github.com/adlnet/xAPIVerbs)
 into a Javascript object to easily include. To use...  
 _Include verbs.js_  
-`<script type="text/javascript" src="./src/verbs.js"></script>`  
+`<script type="text/javascript" src="./src/Verbs.js"></script>`  
 _Client Calls_  
 
 ```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : verbs.answered,
-            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-let resp_obj = XAPIWrapper.postStatement(stmt);
-XAPIWrapper.getStatements({"statementId":resp_obj.id});
+            "object" : {"id" : "http://adlnet.gov/expapi/activities/question"},
+            "id": Util.ruuid()};
+XAPIWrapper.postStatement(stmt)
+  .then((res) => {
+    return XAPIWrapper.getStatements({"statementId":stmt.id});
+  });
 >> {"version": "1.0.0",
-    "timestamp": "2013-09-09 22:08:51.440327+00:00",
+    "timestamp": "2017-10-02 22:08:51.440327+00:00",
     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
-    "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"},
-    "stored": "2013-09-09 22:08:51.440614+00:00",
+    "actor": {"mbox": "mailto:user@example.com", "name": "user", "objectType": "Agent"},
+    "stored": "2017-10-02 22:08:51.440614+00:00",
 >   "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
     "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
@@ -537,87 +526,70 @@ XAPIWrapper.getStatements({"statementId":resp_obj.id});
 
 ###### Post Statement with Statement class
 
-By including _statement.js_, you gain access to a convenience wrapper to ease the building
+By including _Statement.js_, you gain access to a convenience wrapper to ease the building
 of statements without a lot of the formatting fluff.
 
 ```JavaScript
-let stmt = new Statement("mailto:tom@example.com", null, "http://adlnet.gov/expapi/activities/question");
+let stmt = new Statement("mailto:user@example.com", null, "http://adlnet.gov/expapi/activities/question");
 stmt.verb = new Verb("http://adlnet.gov/expapi/verbs/answered", "answered");
-stmt.generateId();
-XAPIWrapper.postStatement(stmt);
-XAPIWrapper.getStatements({"statementId": stmt.id});
+stmt.id = Util.ruuid();
+XAPIWrapper.postStatement(stmt)
+  .then((res) => {
+    return XAPIWrapper.getStatements({"statementId": stmt.id});
+  });
 >> {"version": "1.0.0",
-    "timestamp": "2013-09-09 22:08:51.440327+00:00",
+    "timestamp": "2017-10-02 22:08:51.440327+00:00",
     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
-    "actor": {"mbox": "mailto:tom@example.com", "objectType": "Agent"},
-    "stored": "2013-09-09 22:08:51.440614+00:00",
+    "actor": {"mbox": "mailto:user@example.com", "objectType": "Agent"},
+    "stored": "2017-10-02 22:08:51.440614+00:00",
 >   "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
     "id": "9c5a910b-83c2-4114-84f5-d41ed790f8cf"}
 ```
 
 ##### Post Statements
-`function postStatements(statementArray, callback)`  
+`function postStatements(stmtArray, callback)`  
 Sends a list of Statements to the LRS in one batch. It
 accepts the list of Statements and a callback function as
-arguments and returns the XHR request object if no callback
-is supplied. The response of the XHR request upon success will
+arguments and returns a Promise object if no callback
+is supplied. The response's data object of the request upon success will
 contain a list of Statement IDs.
 
 ###### Post Statements without callback
 
 ```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : verbs.answered,
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question/1"}};
-let stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt2 = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : verbs.answered,
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question/2"}};
 let stmts = [stmt, stmt2];
-let r = XAPIWrapper.postStatements(stmts);
-JSON.parse(r.response);
+XAPIWrapper.postStatements(stmts)
+  .then((res) => {
+    console.log(res.data);
+  });
 >> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
 ```
 
 ###### Post Statements with callback
 
 ```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : verbs.answered,
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question/1"}};
-let stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
+let stmt2 = {"actor" : {"mbox" : "mailto:user@example.com"},
             "verb" : verbs.answered,
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question/2"}};
 let stmts = [stmt, stmt2];
-XAPIWrapper.postStatements(stmts, function(r){XAPIWrapper.log(JSON.parse(r.response));});
->> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
-```
-
-###### Post Statements with strict error-first callback
-
-Requires the config option `strictCallbacks` to be `true`.
-
-```JavaScript
-let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
-            "verb" : verbs.answered,
-            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/1"}};
-let stmt2 = {"actor" : {"mbox" : "mailto:tom@example.com"},
-            "verb" : verbs.answered,
-            "object" : {"id" : "http://adlnet.gov/expapi/activities/question/2"}};
-let stmts = [stmt, stmt2];
-XAPIWrapper.postStatements(stmts, function(err, res, body) {
-    if (err) {
-        // Handle error case
-        return;
-    }
-
-    XAPIWrapper.log(body);
+XAPIWrapper.postStatements(stmts, (err, resp, data) => {
+  console.log(data);
 });
 >> ["2d819ea4-1a1e-11e3-a888-08002787eb49", "409c27de-1a1e-11e3-a888-08002787eb49"]
 ```
 
 ##### Get Statements
-`function getStatements(searchParams, more, callback)`  
+`getStatements(searchParams, more, callback)`  
 Get a single or collection of Statements based on
 search parameters or a StatementResult more value.
 
@@ -627,64 +599,37 @@ a search parameter object to narrow down the StatementResult set. However,
 this call is included to support report style pages.
 
 ```JavaScript
-let ret = XAPIWrapper.getStatements();
+let ret = await XAPIWrapper.getStatements();
 if (ret)
-   XAPIWrapper.log(ret.statements);
+   console.log(ret.data);
 
 >> <Array of statements>
 ```
 
 ###### Get all Statements with callback
 ```JavaScript
-XAPIWrapper.getStatements(null, null,
-        function(r){XAPIWrapper.log(JSON.parse(r.response).statements);});
+XAPIWrapper.getStatements(null, null, (err, resp, data) => {
+  console.log(data);
+});
 >> <Array of statements>
 ```
 
 ###### Use the more property to get more Statements
 
 ```JavaScript
-let res = XAPIWrapper.getStatements();
-XAPIWrapper.log(res.statements);
->> <Array of statements>
-
-if (res.more && res.more !== ""){
-   let more = XAPIWrapper.getStatements(null, res.more);
-   XAPIWrapper.log(more.statements);
-}
+let res = await XAPIWrapper.getMoreStatements(0, null);
+console.log(res.data);
 >> <Array of statements>
 ```
 
 ###### Use the more property to get more Statements with callback
 
 ```JavaScript
-XAPIWrapper.getStatements(null, null,
-   function getmore(r){
-      let res = JSON.parse(r.response);
-      XAPIWrapper.log(res.statements);
-      if (res.more && res.more !== ""){
-         XAPIWrapper.getStatements(null, res.more, getmore);
-      }
-   });
->> <Array of statements>
->> <Array of statements>
-...
-```
-
-###### Get all Statements with with strict error-first callback
-
-Requires the config option `strictCallbacks` to be `true`.
-
-```JavaScript
-XAPIWrapper.getStatements(null, null, function(err, res, body) {
-    if (err) {
-        // Handle error case
-        return;
-    }
-
-    XAPIWrapper.log(body.statements);
+XAPIWrapper.getMoreStatements(0, null, (error, resp, data) => {
+    console.log(data);
 });
 >> <Array of statements>
+...
 ```
 
 ###### Get Statements based on search parameters
@@ -695,8 +640,8 @@ for more information.
 ```JavaScript
 let search = XAPIWrapper.searchParams();
 search['verb'] = verbs.answered.id;
-let res = XAPIWrapper.getStatements(search);
-XAPIWrapper.log(res.statements);
+let res = await XAPIWrapper.getStatements(search);
+console.log(res.data);
 >> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/answered">
 ```  
 
@@ -705,54 +650,38 @@ let search = XAPIWrapper.searchParams();
 search['verb'] = verbs.terminated.id;
 search['activity'] = "http://adlnet.gov/courses/roses/posttest";
 search['related_activities'] = "true";
-let res = XAPIWrapper.getStatements(search);
-XAPIWrapper.log(res.statements);
+let res = await XAPIWrapper.getStatements(search);
+console.log(res.data);
 >> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/terminated" and an activity id of "http://adlnet.gov/courses/roses/posttest" in the statement>
 ```
 
 #### Activities
 ##### Get Activity
-`function getActivities(activityid, callback)`
+`getActivities(activityid, callback)`
 Get the Activity object from the LRS by providing an Activity ID.
 
 ###### Get Activity without callback
 
 ```JavaScript
-let res = XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
-console.log(res);
+let res = await XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
+console.log(res.data);
 >> <Activity object>
 ```
 
 ###### Get Activity with callback
 
 ```JavaScript
-XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question",
-                         function(r){console.log(JSON.parse(r.response));});
->> <Activity object>
-```
-
-###### Get Activity with strict error-first callback
-
-Requires the config option `strictCallbacks` to be `true`.
-
-```JavaScript
-XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question", function(err, res, body) {
-    if (err) {
-        // Handle error case
-        return;
-    }
-
-    console.log(body);
+XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question", (err, resp, data) => {
+  console.log(data);
 });
 >> <Activity object>
 ```
 
-
 ##### Activity State
-`function putState(activityid, agent, stateid, registration, statevalue, callback)`  
-`function postState(activityid, agent, stateid, registration, statevalue, callback)`  
-`function getState(activityid, agent, stateid, registration, since, callback)`  
-`function deleteState(activityid, agent, stateid, registration, callback)`
+`putState(activityid, agent, stateid, registration, statevalue, callback)`  
+`postState(activityid, agent, stateid, registration, statevalue, callback)`  
+`getState(activityid, agent, stateid, registration, since, callback)`  
+`deleteState(activityid, agent, stateid, registration, callback)`
 Save / Retrieve / Delete activity state information for a particular agent, and optional registration.
 
 ###### Post / Retrieve New Activity State
@@ -760,10 +689,15 @@ Save / Retrieve / Delete activity state information for a particular agent, and 
 ```JavaScript
 let stateval = {"info":"the state info"};
 XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
-                          {"mbox":"mailto:tom@example.com"},
-                          "questionstate", null, stateval);
-XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+                          {"mbox":"mailto:user@example.com"},
+                          "questionstate", null, stateval)
+  .then((r) => {
+    return XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+                                {"mbox":"mailto:user@example.com"}, "questionstate")
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the state info"}
 ```
 
@@ -773,12 +707,17 @@ XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
 let oldstateval = {"info":"the state info"};
 let newstateval = {"info":"the new value"};
 XAPIWrapper.putState("http://adlnet.gov/expapi/activities/question",
-                          {"mbox":"mailto:tom@example.com"},
+                          {"mbox":"mailto:user@example.com"},
                           "questionstate", null, newstateval,
-                          XAPIWrapper.hash(JSON.stringify(oldstateval)));
-XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-                        {"mbox":"mailto:tom@example.com"}, "questionstate",
-                        null, null, function(r){XAPIWrapper.log(JSON.parse(r.response));});
+                          XAPIWrapper.hash(JSON.stringify(oldstateval)))
+  .then((r) => {
+    return XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+                                {"mbox":"mailto:user@example.com"},
+                                "questionstate", null, null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the new value"}
 ```
 
@@ -787,11 +726,15 @@ XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
 ```JavaScript
 let anotherstate = {"more": "info about act and agent"};
 XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
-                          {"mbox":"mailto:tom@example.com"},
-                          "another_state", null, anotherstate);
-let states = XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-                        {"mbox":"mailto:tom@example.com"});
-console.log(states);
+                          {"mbox":"mailto:user@example.com"},
+                          "another_state", null, anotherstate)
+  .then((r) => {
+    return XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+                                {"mbox":"mailto:user@example.com"})
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> ["another_state", "questionstate"]
 ```
 
@@ -799,22 +742,29 @@ console.log(states);
 
 ```JavaScript
 let actid = "tag:adlnet.gov,2013:expapi:1.0.0:activity:question/1";
-let stateval = {"info":"the state info"};
 let statehash = XAPIWrapper.hash(JSON.stringify(stateval));
-XAPIWrapper.postState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate", null, stateval);
-let stateret = XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"}, "questionstate");
-console.log(stateret);
+XAPIWrapper.postState(actid, {"mbox":"mailto:user@example.com"}, "questionstate", null, stateval)
+  .then((r) => {
+    return XAPIWrapper.getState(actid, {"mbox":"mailto:user@example.com"}, "questionstate")
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {"info":"the state info"}
 
 let sincehere = new Date();
 let anotherstate = {"more": "info about act and agent","other":"stuff"};
-XAPIWrapper.postState(actid, {"mbox":"mailto:tom@example.com"}, "another_state", null, anotherstate);
-let states = XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"});
-console.log(states);
+XAPIWrapper.postState(actid, {"mbox":"mailto:user@example.com"}, "another_state", null, anotherstate)
+  .then((r) => {
+    return XAPIWrapper.getState(actid, {"mbox":"mailto:user@example.com"})
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> ["questionstate", "another_state"]
 
-let states = XAPIWrapper.getState(actid, {"mbox":"mailto:tom@example.com"}, null, null, sincehere);
-console.log(states);
+let res = await XAPIWrapper.getState(actid, {"mbox":"mailto:user@example.com"}, null, null, sincehere);
+console.log(res.data);
 >> ["another_state"]
 ```
 
@@ -823,59 +773,83 @@ console.log(states);
 ```javascript
 let stateval = {"info":"the state info"};
 XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
-                          {"mbox":"mailto:tom@example.com"},
-                          "questionstate", null, stateval);
-XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+                          {"mbox":"mailto:user@example.com"},
+                          "questionstate", null, stateval)
+  .then((r) => {
+    return XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+                                {"mbox":"mailto:user@example.com"}, "questionstate")
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the state info"}
 
-XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
-                        {"mbox":"mailto:tom@example.com"}, "questionstate");
->> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+let res = await XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
+                                        {"mbox":"mailto:user@example.com"}, "questionstate");
+console.log(res.data);
+>> {statusText: "NO CONTENT", status: 204}
 
-XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
-                        {"mbox":"mailto:tom@example.com"}, "questionstate");
+let res = await XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+                                    {"mbox":"mailto:user@example.com"}, "questionstate");
+console.log(res.resp.status);
 >> 404
 ```
 
 ##### Activity Profile
-`function putActivityProfile(activityid, profileid, profilevalue, eHeader, eHash, callback)`  
-`function postActivityProfile(activityid, profileid, profilevalue, callback)` 
-`function getActivityProfile(activityid, profileid, since, callback)`  
-`function deleteActivityProfile(activityid, profileid, callback)`  
+`putActivityProfile(activityid, profileid, profileval, eHeader, eHash, callback)`  
+`postActivityProfile(activityid, profileid, profileval, callback)`
+`getActivityProfile(activityid, profileid, since, callback)`  
+`deleteActivityProfile(activityid, profileid, callback)`  
 Allows for the storage, retrieval and deletion of data about an Activity.
 
-###### Put / Post / Retrieve New Activity Profile
+###### Post / Retrieve New Activity Profile
+
+```JavaScript
+let postProfile = {"info":"the post profile"};
+XAPIWrapper.postActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                    "actpostprofile", postProfile)
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                          "actpostprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
+>> {info: "the post profile"}
+```
+
+###### Put / Retrieve New Activity Profile
 
 ```JavaScript
 let putProfile = {"info":"the put profile"};
-let postProfile = {"info":"the post profile"};
 XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "actputprofile", putProfile, "*");
-XAPIWrapper.postActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "actpostprofile", postProfile);
-XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  "actputprofile", null,
-                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
-XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  "actpostprofile", null,
-                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+                                    "actputprofile", putProfile, "If-None-Match", "*")
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                          "actputprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the put profile"}
->> {info: "the post profile"}
 ```
 
 ###### Update Activity Profile
 
 ```JavaScript
-let profile = XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+let profile = await XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
                                                  "actprofile");
-let oldprofhash = XAPIWrapper.hash(JSON.stringify(profile));
+let oldprofhash = XAPIWrapper.hash(JSON.stringify(profile.data));
 profile['new'] = "changes to profile";
 XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "actprofile", profile, oldprofhash);
-XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  "actprofile", null,
-                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+                                    "actprofile", profile, "If-Match", oldprofhash)
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                          "actprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the profile", new: "changes to profile"}
 ```
 
@@ -884,10 +858,14 @@ XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
 ```JavaScript
 let profile = {"info":"the profile"};
 XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "otheractprofile", profile, "*");
-XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  null, null,
-                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+                                    "otheractprofile", profile, "If-None-Match", "*")
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                          null, null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> ["otheractprofile", "actprofile"]
 ```
 
@@ -899,10 +877,13 @@ let profid = "testprofile";
 let actprof = {"info":"the activity profile info"};
 let actprofhash = XAPIWrapper.hash(JSON.stringify(actprof));
 
-XAPIWrapper.putActivityProfile(actid, profid, actprof, actprofhash);
-let actprofret = XAPIWrapper.getActivityProfile(actid, profid);
-
-console.log(actprofret);
+XAPIWrapper.putActivityProfile(actid, profid, actprof, "If-None-Match", actprofhash)
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile(actid, profid)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {"info": "the activity profile info"}
 
 let since = new Date();
@@ -910,10 +891,13 @@ let since = new Date();
 let newprofid = "new-profile";
 let profile = {"info":"the profile"};
 
-XAPIWrapper.putActivityProfile(actid, newprofid, profile, "*");
-let profiles = XAPIWrapper.getActivityProfile(actid, null, since);
-
-console.log(profiles);
+XAPIWrapper.putActivityProfile(actid, newprofid, profile, "If-None-Match", "*")
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile(actid, null, since)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> ["new-profile"]
 ```
 
@@ -922,24 +906,30 @@ console.log(profiles);
 ```javascript
 let profile = {"info":"the profile"};
 XAPIWrapper.putActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                    "actprofile", profile, "*");
-XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  "actprofile", null,
-                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+                                    "actprofile", profile, "*")
+  .then((r) => {
+    return XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                          "actprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the profile"}
 
-XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
-                        "actprofile");
->> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+let res = await XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                                  "actprofile");
+console.log(res.resp);
+>> {statusText: "NO CONTENT", status: 204}
 
-XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
-                                  "actprofile");
+let res = await XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+                                               "actprofile");
+console.log(res.resp.status);
 >> 404
 ```
 
 #### Agents
 ##### Get Agent
-`function getAgents(agent, callback)`  
+`getAgents(agent, callback)`  
 Gets a special Person object containing all the values
 of an Agent the LRS knows about. The Person object's
 identifying properties are arrays and it may have more
@@ -947,73 +937,75 @@ than one identifier. [See more about Person in the spec](https://github.com/adln
 ###### Get Agent without callback
 
 ```JavaScript
-let res = XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
-console.log(res);
+let res = await XAPIWrapper.getAgents({"mbox":"mailto:user@example.com"});
+console.log(res.data);
 >> <Person object>
 ```
 
 ###### Get Agent with callback
 
 ```JavaScript
-XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"},
-                         function(r){XAPIWrapper.log(JSON.parse(r.response));});
->> <Person object>
-```
-
-###### Get Agent with strict error-first callbacks
-
-Requires the config option `strictCallbacks` to be `true`.
-
-```JavaScript
-XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"}, function(err, res, body) {
-    if (err) {
-        // Handle error case
-        return;
-    }
-
-    console.log(body);
+XAPIWrapper.getAgents({"mbox":"mailto:user@example.com"}, (err, resp, data) => {
+  console.log(data);
 });
 >> <Person object>
 ```
 
 ##### Agent Profile
-`function putAgentProfile(agent, profileid, profilevalue, matchHash, callback)`  
-`function postAgentProfile(agent, profileid, profilevalue, callback)`  
-`function getAgentProfile(agent, profileid, since, callback)`  
-`function deleteAgentProfile(agent, profileid, callback)`  
+`putAgentProfile(agent, profileid, profileval, eHeader, eHash, callback)`  
+`postAgentProfile(agent, profileid, profileval, callback)`  
+`getAgentProfile(agent, profileid, since, callback)`  
+`deleteAgentProfile(agent, profileid, callback)`  
 Allows for the storage, retrieval and deletion of data about an Agent.
 
-###### Put / Post / Retrieve New Agent Profile
+###### Post / Retrieve New Agent Profile
+
+```JavaScript
+let postProfile = {"info":"the agent post profile"};
+XAPIWrapper.postAgentProfile({"mbox":"mailto:user@example.com"},
+                                  "agentpostprofile", postProfile)
+  .then((r) => {
+    return XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
+                                        "agentpostprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
+>> {info: "the agent post profile"}
+```
+
+###### Put / Retrieve New Agent Profile
 
 ```JavaScript
 let putProfile = {"info":"the agent put profile"};
-let postProfile = {"info":"the agent post profile"};
-XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "agentputprofile", putProfile, "*");
-XAPIWrapper.postAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "agentpostprofile", postProfile);
-XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 "agentputprofile", null,
-                                 function(r){XAPIWrapper.log(JSON.parse(r.response));});
-XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 "agentpostprofile", null,
-                                 function(r){XAPIWrapper.log(JSON.parse(r.response));});
+XAPIWrapper.putAgentProfile({"mbox":"mailto:user@example.com"},
+                                  "agentputprofile", putProfile, "If-None-Match", "*")
+  .then((r) => {
+    return XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
+                                        "agentputprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });                                
 >> {info: "the agent put profile"}
->> {info: "the agent post profile"}
 ```
 
 ###### Update Agent Profile
 
 ```JavaScript
-let profile = XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
+let profile = await XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
                                                "agentprofile");
-let oldprofhash = XAPIWrapper.hash(JSON.stringify(profile));
+let oldprofhash = XAPIWrapper.hash(JSON.stringify(profile.data));
 profile['new'] = "changes to the agent profile";
-XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "agentprofile", profile, oldprofhash);
-XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 "agentprofile", null,
-                                 function(r){XAPIWrapper.log(JSON.parse(r.response));});
+XAPIWrapper.putAgentProfile({"mbox":"mailto:user@example.com"},
+                                  "agentprofile", profile, "If-Match", oldprofhash)
+  .then((r) => {
+    return XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
+                                        "agentprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });                                
 >> {info: "the agent profile", new: "changes to the agent profile"}
 ```
 
@@ -1021,31 +1013,37 @@ XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 
 ```JavaScript
 let profile = {"info":"the agent profile"};
-XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "otheragentprofile", profile, "*");
-XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 null, null,
-                                 function(r){XAPIWrapper.log(JSON.parse(r.response));});
+XAPIWrapper.putAgentProfile({"mbox":"mailto:user@example.com"},
+                                  "otheragentprofile", profile, "If-None-Match", "*")
+  .then((r) => {
+    return XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
+                                        null, null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> ["otheragentprofile", "agentprofile"]
 ```
 
 ###### Get profiles about an Agent since a certain time
 
 ```JavaScript
-let otheragent = {"mbox":"mailto:tom@example.com"};
+let otheragent = {"mbox":"mailto:user@example.com"};
 let profile = {"info":"the other agent profile"};
 let otherprofid = "the-other-profile-id";
-
-XAPIWrapper.putAgentProfile(otheragent, otherprofid, profile, "*");
-
-let since = new Date();
-let newprof = {"info":"the new other agent profile"};
-let newotherprofid = "the-new-other-profile-id";
-
-XAPIWrapper.putAgentProfile(otheragent, newotherprofid, newprof, "*");
-let sinceprofiles = XAPIWrapper.getAgentProfile(otheragent, null, since);
-
-console.log(sinceprofiles);
+XAPIWrapper.putAgentProfile(otheragent, otherprofid, profile, "If-None-Match", "*")
+  .then((r) => {
+    let since = new Date();
+    let newprof = {"info":"the new other agent profile"};
+    let newotherprofid = "the-new-other-profile-id";
+    return XAPIWrapper.putAgentProfile(otheragent, newotherprofid, newprof, "If-Match", "*")
+      .then((r) => {
+        return XAPIWrapper.getAgentProfile(otheragent, null, since)
+          .then((res) => {
+            console.log(res.data);
+          })
+      });
+  });
 >> ["the-new-other-profile-id"]
 ```
 
@@ -1053,19 +1051,29 @@ console.log(sinceprofiles);
 
 ```javascript
 let profile = {"info":"the agent profile"};
-XAPIWrapper.putAgentProfile({"mbox":"mailto:tom@example.com"},
-                                  "agentprofile", profile, "*");
-XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 "agentprofile", null,
-                                 function(r){XAPIWrapper.log(JSON.parse(r.response));});
+XAPIWrapper.putAgentProfile({"mbox":"mailto:user@example.com"},
+                                  "agentprofile", profile, "If-None-Match", "*")
+  .then((r) => {
+    return XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
+                                        "agentprofile", null)
+      .then((res) => {
+        console.log(res.data);
+      });
+  });
 >> {info: "the agent profile"}
 
-XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
-                        "agentprofile");
->> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
+XAPIWrapper.deleteAgentProfile({"mbox":"mailto:user@example.com"},
+                                "agentprofile")
+  .then((res) => {
+    console.log(res.resp);
+  });
+>> {statusText: "NO CONTENT", status: 204}
 
-XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
-                                 "agentprofile");
+XAPIWrapper.getAgentProfile({"mbox":"mailto:user@example.com"},
+                                 "agentprofile")
+  .then((res) => {
+    console.log(res.resp.status);
+  });
 >> 404
 ```
 

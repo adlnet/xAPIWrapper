@@ -98,7 +98,7 @@ class Group {
                     Object.assign(this, identifier);
                 }
             }
-            // determine IRI type
+                // determine IRI type
             else {
                 if (/^mailto:/.test(identifier)) {
                     this.mbox = identifier;

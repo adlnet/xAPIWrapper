@@ -81,15 +81,15 @@ let xAPILaunch = (cb, terminate_on_unload) => {
             launch.pathname += `launch/${launchToken}/terminate`;
 
             let conf = {
-              'method': 'POST',
-              'credentials': 'include',
-              'headers': {'Content-type': 'application/json'},
-              'body': JSON.stringify({ "code": 0, "description": message || "User closed content" })
+                'method': 'POST',
+                'credentials': 'include',
+                'headers': { 'Content-type': 'application/json' },
+                'body': JSON.stringify({ "code": 0, "description": message || "User closed content" })
             }
 
             fetch(launch.toString(), conf)
               .then((resp) => {
-                return resp.json();
+                  return resp.json();
               });
         };
 
@@ -100,36 +100,36 @@ let xAPILaunch = (cb, terminate_on_unload) => {
         launch.pathname += `launch/${launchToken}`;
 
         let config = {
-          'method': 'POST',
-          'credentials': 'include'
+            'method': 'POST',
+            'credentials': 'include'
         }
 
         fetch(launch.toString(), config)
           .then((resp) => {
-            return resp.json().then((data) => {
-              let conf = {};
-              conf.endpoint = data.endpoint;
-              conf.actor = data.actor;
-              conf.withCredentials = true;
+              return resp.json().then((data) => {
+                  let conf = {};
+                  conf.endpoint = data.endpoint;
+                  conf.actor = data.actor;
+                  conf.withCredentials = true;
 
-              window.onunload = () => {
-                if (terminate_on_unload)
-                  xAPILaunch.terminate("User closed content");
-              }
+                  window.onunload = () => {
+                      if (terminate_on_unload)
+                          xAPILaunch.terminate("User closed content");
+                  }
 
-              let wrapper = new ADL.XAPIWrapper.constructor();
-              wrapper.changeConfig(conf);
-              //Links that include "courseLink='true'"
-              setupCourseLinks(document.body.querySelectorAll('a'));
-              //Also, if links are added dynamically, we will do the same logic for those links.
-              observeForNewLinks();
-              cb(null, data, wrapper);
-            });
+                  let wrapper = new ADL.XAPIWrapper.constructor();
+                  wrapper.changeConfig(conf);
+                  //Links that include "courseLink='true'"
+                  setupCourseLinks(document.body.querySelectorAll('a'));
+                  //Also, if links are added dynamically, we will do the same logic for those links.
+                  observeForNewLinks();
+                  cb(null, data, wrapper);
+              });
           })
           .catch((error) => {
-            window.setTimeout(() => {
-                return cb(err);
-            });
+              window.setTimeout(() => {
+                  return cb(err);
+              });
           });
     }
     catch (e) {

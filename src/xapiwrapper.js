@@ -6,15 +6,17 @@ if (typeof module !== 'undefined') {
     onBrowser = false;
     var fetch = require('node-fetch');
     Util = require('./Utils');
+    Statement = require('./Statement').Statement
 } else {
     window.ADL = window.ADL || {};
     Util = window.ADL.Util;
 }
 
 /*
+ * Config
  * Config object used w/ url params to configure the lrs object
  * change these to match your lrs
- * @return {object} config object
+ * @return {object} conf   the new configuration of the lrs
  * @example
  * let conf = {
  *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
@@ -23,10 +25,10 @@ if (typeof module !== 'undefined') {
  * XAPIWrapper.changeConfig(conf);
  *
  * Statement Defaults
- * conf["actor"] = {"mbox":"default@example.com"};
+ * conf["actor"] = {"mbox":"user@example.com"};
  * conf["registration"] =  Util.ruuid();
- * conf["grouping"] = {"id":"ctxact:default/grouping"};
- * conf["activity_platform"] = "default platform";
+ * conf["grouping"] = {"id":"ctxact:user/grouping"};
+ * conf["activity_platform"] = "user platform";
  */
 let Config = (() => {
     let conf = {};
@@ -42,6 +44,7 @@ let Config = (() => {
 })();
 
 /*
+ * log
  * Outputs messages to the console (debug mode only)
  */
 let log = (message) => {
@@ -53,8 +56,8 @@ let log = (message) => {
 
 class XAPIWrapper {
     /*
-     * XAPIWrapper Constructor
-     * @param {object} config   with a minimum of an endoint property
+     * constructor
+     * @param {object}  config              with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
     constructor(config = {}, verifyxapiversion = false) {
@@ -99,6 +102,11 @@ class XAPIWrapper {
         }
     }
 
+    /*
+     * getbase
+     * @param  {string} url    the url endpoint
+     * @return {string} base   the parsed url containing the protocol & host
+     */
     getbase(url) {
         if (!onBrowser) {
             let base = Util.parseURL(url);
@@ -114,14 +122,29 @@ class XAPIWrapper {
             log(`Couldn't create base url from endpoint: ${url}`);
     }
 
+    /*
+     * updateAuth
+     * @param {object} obj        the lrs object
+     * @param {string} username   the name of the current lrs user
+     * @param {string} password   the password of the current lrs user
+     */
     updateAuth(obj, username, password) {
         obj.auth = `Basic ${Util.toBase64(`${username}:${password}`)}`;
     }
 
+    /*
+     * searchParams
+     * @return {object} searchParams   an object of key(search parameter)-value(parameter value) pairs
+     */
     searchParams() {
         return { "format": "exact" };
     }
 
+    /*
+     * hash
+     * @param  {string} tohash   the string to be hashed
+     * @return {string} hashed   the hashed string or null if it failed
+     */
     hash(tohash) {
         try {
             return Util.toSHA1(tohash);
@@ -131,6 +154,11 @@ class XAPIWrapper {
         }
     }
 
+    /*
+     * changeConfig
+     * changeConfig
+     * @param {object} config   the new lrs configuration
+     */
     changeConfig(config) {
         try {
             Object.assign(this.lrs, config);
@@ -178,6 +206,9 @@ class XAPIWrapper {
             if (this.lrs.activity_platform) {
                 stmt.context.platform = this.lrs.activity_platform;
             }
+
+            // If stmt is a JSON object, create new Statement
+            return (stmt instanceof Statement) ? stmt : new Statement(stmt);
         } catch (e) {
             log(`Error while preparing statement: ${e}`);
         }
@@ -253,7 +284,18 @@ class XAPIWrapper {
      * @return {object} object containing xhr object and id of statement
      */
     putStatement(stmt, id, attachments, callback) {
-        if (this.testConfig() && (stmt && !Array.isArray(stmt) && stmt.isValid())) {
+        if (this.testConfig() && (stmt && !Array.isArray(stmt))) {
+            // validate stmt object
+            stmt = this.prepareStatement(stmt);
+            if (!stmt || !stmt.isValid()) {
+                if (callback) {
+                    callback('Error: invalid parameters');
+                    return;
+                } else {
+                    return new Promise((res, rej) => { rej('Error: invalid parameters'); });
+                }
+            }
+
             // validate id parameter
             if (!id || id == "") {
                 if (callback) {
@@ -289,8 +331,6 @@ class XAPIWrapper {
             }
 
             stmt.id = id;
-
-            this.prepareStatement(stmt);
 
             let payload = JSON.stringify(stmt);
             let extraHeaders = null;
@@ -340,7 +380,18 @@ class XAPIWrapper {
      * @return {object} object containing xhr object and id of statement
      */
     postStatement(stmt, attachments, callback) {
-        if (this.testConfig() && (stmt && !Array.isArray(stmt) && stmt.isValid())) {
+        if (this.testConfig() && (stmt && !Array.isArray(stmt))) {
+            // validate stmt object
+            stmt = this.prepareStatement(stmt);
+            if (!stmt || !stmt.isValid()) {
+                if (callback) {
+                    callback('Error: invalid parameters');
+                    return;
+                } else {
+                    return new Promise((res, rej) => { rej('Error: invalid parameters'); });
+                }
+            }
+
             // validate attachments if specified
             if (attachments) {
                 let isValid = true;
@@ -364,8 +415,6 @@ class XAPIWrapper {
                     }
                 }
             }
-
-            this.prepareStatement(stmt);
 
             let payload = JSON.stringify(stmt);
             let extraHeaders = null;
@@ -428,9 +477,19 @@ class XAPIWrapper {
      */
     postStatements(stmtArray, callback) {
         if (this.testConfig() && (stmtArray && Array.isArray(stmtArray) && stmtArray.length > 0)) {
+            // validate stmts in stmtArray
             for (let i in stmtArray) {
-                if (stmtArray.hasOwnProperty(i))
-                    this.prepareStatement(stmtArray[i]);
+                if (stmtArray.hasOwnProperty(i)) {
+                    stmtArray[i] = this.prepareStatement(stmtArray[i]);
+                    if (!stmtArray[i] || !stmtArray[i].isValid()) {
+                        if (callback) {
+                            callback('Error: invalid parameters');
+                            return;
+                        } else {
+                            return new Promise((res, rej) => { rej('Error: invalid parameters'); });
+                        }
+                    }
+                }
             }
 
             let payload = JSON.stringify(stmtArray);
@@ -1340,7 +1399,7 @@ class XAPIWrapper {
     asyncRequest(conf) {
         // Check if we're using credentials
         if (this.withCredentials) {
-          conf.credentials = 'include';
+            conf.credentials = 'include';
         }
 
         return new Promise((res, rej) => {
@@ -1353,7 +1412,7 @@ class XAPIWrapper {
                                 error.status = resp.status;
                                 rej(error);
                             }
-                            // Failed to parse JSON (NOT AN ERROR)
+                                // Failed to parse JSON (NOT AN ERROR)
                             else {
                                 res({ resp });
                             }
@@ -1373,16 +1432,16 @@ class XAPIWrapper {
     callbackRequest(conf, callback, callbackargs, ignore404) {
         // Check if we're using credentials
         if (this.withCredentials) {
-          conf.credentials = 'include';
+            conf.credentials = 'include';
         }
 
         fetch(conf.url, conf)
             .then((resp) => {
                 return resp.json().then((data) => {
                     if (callbackargs) {
-                      callback(null, resp, callbackargs);
+                        callback(null, resp, callbackargs);
                     } else {
-                      callback(null, resp, data);
+                        callback(null, resp, data);
                     }
                 })
                     .catch((error) => {
@@ -1390,12 +1449,12 @@ class XAPIWrapper {
                             log(error);
                             this.requestError(resp, error, callback, callbackargs);
                         }
-                        // Failed to parse JSON (NOT AN ERROR)
+                            // Failed to parse JSON (NOT AN ERROR)
                         else {
                             if (callbackargs) {
-                              callback(null, resp, callbackargs);
+                                callback(null, resp, callbackargs);
                             } else {
-                              callback(null, resp, null);
+                                callback(null, resp, null);
                             }
                         }
                     });
@@ -1417,12 +1476,12 @@ class XAPIWrapper {
             if (callbackargs) {
                 callback(error, resp, callbackargs);
             } else {
-                var body;
+                let body;
 
                 try {
-                    body = JSON.parse(resp.responseText);
+                    body = JSON.parse(resp.statusText);
                 } catch (e) {
-                    body = resp.responseText;
+                    body = resp.statusText;
                 }
 
                 callback(error, resp, body);

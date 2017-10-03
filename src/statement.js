@@ -35,42 +35,26 @@ function _getobj(obj, path) {
     else
         return _getobj(obj[part], path);
 }
-/*******************************************************************************
- * Statement - a convenience class to wrap statement objects
- *
- * This sub-API is supposed to make it easier to author valid statements
- * by adding constructors and encouraging best practices. All objects in this
- * API are fully JSON-compatible, so anything expecting an statement can
- * take an improved statement and vice versa.
- *
- * A working knowledge of what exactly the LRS expects is still expected,
- * but it's easier to map an 'I did this' statement to xAPI now.
- *
- * Tech note: All constructors also double as shallow clone functions. E.g.
- *
- *   var activity1 = new Activity('A walk in the park');
- *   var activity2 = new Activity(activity1);
- *   var activity3 = new Activity(stmt_from_lrs.object);
- *
- *******************************************************************************/
+
 
 /*
  * A convenient JSON-compatible statement wrapper
  * All args are optional, but the statement may not be complete or valid
  * Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args
+ * Tech note: All constructors also double as shallow clone functions
  * @param {string} [actor]   The Agent or Group committing the action described by the statement
  * @param {string} [verb]   The Verb for the action described by the statement
  * @param {string} [object]   The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
  * @example
- * var stmt = new Statement(
- *     'mailto:steve.vergenz.ctr@adlnet.gov',
+ * let stmt = new Statement(
+ *     'mailto:user@example.com',
  *    'http://adlnet.gov/expapi/verbs/launched',
  *    'http://vwf.adlnet.gov/xapi/virtual_world_sandbox'
  * );
  * >> {
  * "actor": {
  *     "objectType": "Agent",
- *     "mbox": "mailto:steve.vergenz.ctr@adlnet.gov" },
+ *     "mbox": "mailto:user@example.com" },
  * "verb": {
  *     "id": "http://adlnet.gov/expapi/verbs/launched" },
  * "object": {
@@ -154,11 +138,11 @@ class Statement {
 
 
 /*
- * A self-contained statement as the object of another statement
- * @param {string} actor   The Agent or Group committing the action described by the statement
- * @param {string} verb   The Verb for the action described by the statement
- * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
- */
+    * A self-contained statement as the object of another statement
+    * @param {string} actor   The Agent or Group committing the action described by the statement
+    * @param {string} verb   The Verb for the action described by the statement
+    * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
+    */
 class SubStatement {
     constructor(actor = null, verb = null, object = null) {
         this.objectType = 'SubStatement';

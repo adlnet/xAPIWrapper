@@ -1,7 +1,7 @@
 {
   "name": "xAPIWrapper",
   "description": "An easier way to build, send, and retrieve xAPI statements",
-  "version": "1.10.2",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/adlnet/xAPIWrapper.git"
@@ -29,9 +29,7 @@
   "dependencies": {
     "crypto-js": "^3.1.9-1",
     "fs": "0.0.1-security",
-    "node-fetch": "^1.7.1",
-    "request": "^2.81.0",
-    "xhr2": "^0.1.4"
+    "node-fetch": "^1.7.1"
   },
   "scripts": {
     "testwrapper": "mocha --no-timeouts --compilers js:babel-register test/testWrapper.js",

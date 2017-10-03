@@ -183,8 +183,8 @@
     </div>
 
     <script>
-        var wrapper;
-        ADL.launch(function(err, launchdata, xAPIWrapper) {
+        let wrapper;
+        ADL.launch(function (err, launchdata, xAPIWrapper) {
             if (!err) {
                 wrapper = ADL.XAPIWrapper = xAPIWrapper;
                 console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
@@ -202,7 +202,7 @@
     </script>
 
     <script>
-        var editor = ace.edit("stmtinput");
+        let editor = ace.edit("stmtinput");
         editor.$blockScrolling = Infinity;
         editor.setTheme("ace/theme/twilight");
         editor.getSession().setMode("ace/mode/json");
@@ -213,30 +213,30 @@
     </script>
 
     <script>
-        var mkstmt = function (opts) {
-            var parts = {
+        let mkstmt = function (opts) {
+            let parts = {
                 actor: {
-                    mbox: {mbox:"mailto:placeholder@fixme.com"},
-                    account: {account:{name:"accountname", homePage:"http://account.com/homepage"}}
+                    mbox: { mbox: "mailto:placeholder@fixme.com" },
+                    account: { account: { name: "accountname", homePage: "http://account.com/homepage" } }
                 },
-                verb: {id:"http://verb.com/id", display: {"en": "verbed"}},
+                verb: { id: "http://verb.com/id", display: { "en": "verbed" } },
                 object: {
-                    Activity: {id:"http://activity.com/id"},
-                    Agent: {objectType: "Agent", mbox:"mailto:placeholder@fixme.com"},
-                    StatementRef: {objectType: "StatementRef", id:"8f87ccde-bb56-4c2e-ab83-44982ef22df0"}
+                    Activity: { id: "http://activity.com/id" },
+                    Agent: { objectType: "Agent", mbox: "mailto:placeholder@fixme.com" },
+                    StatementRef: { objectType: "StatementRef", id: "8f87ccde-bb56-4c2e-ab83-44982ef22df0" }
                 }
             };
 
-            var ret = {};
-            var base = (editor.getValue() && JSON.parse(editor.getValue()))
+            let ret = {};
+            let base = (editor.getValue() && JSON.parse(editor.getValue()))
                         || {
-                              actor: parts.actor.mbox,
-                              verb: parts.verb,
-                              object: parts.object.Activity,
-                              timestamp: (new Date()).toISOString()
-                           };
+                            actor: parts.actor.mbox,
+                            verb: parts.verb,
+                            object: parts.object.Activity,
+                            timestamp: (new Date()).toISOString()
+                        };
 
-            if (! opts)
+            if (!opts)
                 return base;
 
             ret.actor = (base.actor.hasOwnProperty(opts.actor)) ?
@@ -245,26 +245,26 @@
             ret.object = (((base.object.objectType) ? base.object.objectType : "Activity") === opts.object) ? base.object : parts.object[opts.object];
             ret.timestamp = base.timestamp;
 
-            for (var a in opts.result) {
+            for (let a in opts.result) {
                 ret.result = ret.result || {};
-                var att = opts.result[a];
+                let att = opts.result[a];
                 if (att === "scaled") {
                     if (!ret.result.score) ret.result.score = {};
                     ret.result.score.scaled =
                         (base.result && base.result.score && base.result.score.scaled) || .95;
                 }
                 else if (att === "raw") {
-                    if (! ret.result.score) ret.result.score = {};
+                    if (!ret.result.score) ret.result.score = {};
                     ret.result.score.raw =
                         (base.result && base.result.score && base.result.score.raw) || 95;
                 }
                 else if (att === "min") {
-                    if (! ret.result.score) ret.result.score = {};
+                    if (!ret.result.score) ret.result.score = {};
                     ret.result.score.min =
                         (base.result && base.result.score && base.result.score.min) || 0;
                 }
                 else if (att === "max") {
-                    if (! ret.result.score) ret.result.score = {};
+                    if (!ret.result.score) ret.result.score = {};
                     ret.result.score.max =
                         (base.result && base.result.score && base.result.score.max) || 100;
                 }
@@ -279,15 +279,15 @@
                 }
                 else if (att === "duration") {
                     ret.result.duration = (base.result && base.result.duration) || "PT5H4M";
-                 }
+                }
                 else if (att === "ext") {
-                    ret.result.extensions = (base.result && base.result.extensions) || {"http://ext.com/key":"value"};
+                    ret.result.extensions = (base.result && base.result.extensions) || { "http://ext.com/key": "value" };
                 }
             }
 
-            for (var a in opts.ctx) {
+            for (let a in opts.ctx) {
                 ret.context = ret.context || {};
-                var att = opts.ctx[a];
+                let att = opts.ctx[a];
                 if (att === "registration") {
                     ret.context.registration =
                         (base.context && base.context.registration) ||
@@ -296,22 +296,22 @@
                 else if (att === "parent") {
                     ret.context.contextActivities = ret.context.contextActivities || {};
                     ret.context.contextActivities.parent =
-                        (base.context && base.context.contextActivities && base.context.contextActivities.parent) || [{id:"http://cxt.com/parent/0"}];
+                        (base.context && base.context.contextActivities && base.context.contextActivities.parent) || [{ id: "http://cxt.com/parent/0" }];
                 }
                 else if (att === "grouping") {
                     ret.context.contextActivities = ret.context.contextActivities || {};
-                    ret.context.contextActivities.grouping = (base.context && base.context.contextActivities && base.context.contextActivities.grouping) ||  [{id:"http://cxt.com/grouping/0"}];
+                    ret.context.contextActivities.grouping = (base.context && base.context.contextActivities && base.context.contextActivities.grouping) || [{ id: "http://cxt.com/grouping/0" }];
                 }
                 else if (att === "category") {
                     ret.context.contextActivities = ret.context.contextActivities || {};
-                    ret.context.contextActivities.category = (base.context && base.context.contextActivities && base.context.contextActivities.category) ||  [{id:"http://cxt.com/category/0"}];
+                    ret.context.contextActivities.category = (base.context && base.context.contextActivities && base.context.contextActivities.category) || [{ id: "http://cxt.com/category/0" }];
                 }
                 else if (att === "other") {
                     ret.context.contextActivities = ret.context.contextActivities || {};
-                    ret.context.contextActivities.other = (base.context && base.context.contextActivities && base.context.contextActivities.other) ||  [{id:"http://cxt.com/other/0"}];
+                    ret.context.contextActivities.other = (base.context && base.context.contextActivities && base.context.contextActivities.other) || [{ id: "http://cxt.com/other/0" }];
                 }
                 else if (att === "ext") {
-                    ret.context.extensions = (base.context && base.context.extensions) || {"http://ext.com/key":"value"};
+                    ret.context.extensions = (base.context && base.context.extensions) || { "http://ext.com/key": "value" };
                 }
             }
 
@@ -320,44 +320,40 @@
     </script>
 
     <script>
-        var outputResults = function (error, resp, thing) {
-            var spanclass = "text-info";
-            var text = "";
-            if (resp.status >= 400) {
+        let outputResults = (err, resp, data) => {
+            let spanclass = "text-info";
+            let text = "";
+            // Check for error
+            if (err) {
                 spanclass = "text-danger";
-                text = (thing.totalErrors > 1) ? "Errors: " : "Error: ";
-                for ( var res in thing.results ) {
-                    text += "<br>" + ((thing.results[res].instance.id) ? thing.results[res].instance.id : "Statement " + res);
-                    for ( var err in thing.results[res].errors ) {
-                        text += "<br>&nbsp;&nbsp;" + thing.results[res].errors[err].trace;
-                        text += "<br>&nbsp;&nbsp;&nbsp;&nbsp;" + thing.results[res].errors[err].message;
-                    }
+                text = `<br>${err}</br>`;
+            } else if (resp) {
+                if (resp.status >= 400 || !resp.ok) {
+                    spanclass = "text-danger";
+                    text = `<br>Failed: ${resp.statusText}</br>`;
+                } else {
+                    text = `<br>Succeeded: [${data}]</br>`;
                 }
-            } else {
-                if ( resp.responseText )
-                    text = "Successfully sent " + resp.responseText;
-                else
-                    text = thing;
             }
 
-            var p = $('<p>').addClass(spanclass).html(text);
+            let p = $('<p>').addClass(spanclass).html(text);
             $('#results').append(p);
         };
 
         $('#sendbtn').on('click', function (ev) {
-            var instmt = JSON.parse(editor.getValue());
+            let instmt = JSON.parse(editor.getValue());
             if (Array.isArray(instmt)) {
                 console.log('sending array - multi stmt... ');
                 wrapper.postStatements(instmt, outputResults);
             } else {
                 console.log('sending object - single stmt... ');
-                wrapper.postStatement(new ADL.Statement(instmt));
+                wrapper.postStatement(instmt, null, outputResults);
             }
 
         });
 
         $('#createstmtbtn').on('click', function (e) {
-            editor.setValue( JSON.stringify(mkstmt(), null, 4) );
+            editor.setValue(JSON.stringify(mkstmt(), null, 4));
             clearForm();
         });
 
@@ -368,24 +364,24 @@
 
         $('#makestmtform').on('change', function (ev) {
             ev.preventDefault();
-            var actor = $('input[name=actorradio]:checked').val();
-            var object = $('input[name=objectradio]:checked').val();
-            var reschkd = $('input[name=resultcbx]:checked').map(function () {
+            let actor = $('input[name=actorradio]:checked').val();
+            let object = $('input[name=objectradio]:checked').val();
+            let reschkd = $('input[name=resultcbx]:checked').map(function () {
                 return this.value;
             }).get();
-            var ctxchkd = $('input[name=contextcbx]:checked').map(function () {
+            let ctxchkd = $('input[name=contextcbx]:checked').map(function () {
                 return this.value;
             }).get();
-            var opts = {
+            let opts = {
                 actor: actor,
                 object: object,
                 result: reschkd,
                 ctx: ctxchkd
             };
-            editor.setValue( JSON.stringify(mkstmt(opts), null, 4) );
+            editor.setValue(JSON.stringify(mkstmt(opts), null, 4));
         });
 
-        function clearForm () {
+        function clearForm() {
             $('input[id=actormbox]').prop('checked', true);
             $('input[id=actoraccount]').prop('checked', false);
             $('input[id=objectactivity]').prop('checked', true);
