@@ -46,6 +46,7 @@ let Config = (() => {
 /*
  * log
  * Outputs messages to the console (debug mode only)
+ * @param {string} message   the message to output to the console
  */
 let log = (message) => {
     if (!debug)
@@ -104,7 +105,7 @@ class XAPIWrapper {
 
     /*
      * getbase
-     * @param  {string} url    the url endpoint
+     * @param  {string} url    the base url endpoint
      * @return {string} base   the parsed url containing the protocol & host
      */
     getbase(url) {
@@ -156,7 +157,7 @@ class XAPIWrapper {
 
     /*
      * changeConfig
-     * changeConfig
+     * Updates the current lrs configuration & credentials
      * @param {object} config   the new lrs configuration
      */
     changeConfig(config) {
@@ -174,9 +175,11 @@ class XAPIWrapper {
     }
 
     /*
+     * prepareStatement
      * Adds info from the lrs object to the statement, if available.
      * These values could be initialized from the Config object or from the url query string.
-     * @param {object} stmt   the statement object
+     * @param  {object} stmt      the statement object to prepare
+     * @return {object} newStmt   the newly created statement if stmt is a JSON object
      */
     prepareStatement(stmt) {
         try {
@@ -215,17 +218,22 @@ class XAPIWrapper {
     }
 
     /*
+    * buildMultipart
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
-    * attachments should be an array of objects of the type
-    * {
-          type:"signature" || {
-            usageType : URI,
-            display: Language-map
-            description: Language-map
-          },
-          value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
-       }
-    * extraHeaders should be an object. It will have the multipart boundary value set
+    * @param {object} statement      the statement object to attach the metadata to
+    * @param {array}  attachments    an array of objects containing metadata about a file(s)
+    * @param {object} extraHeaders   object headers that will have the multipart boundary value set
+    *
+    * Example Metadata
+    * [{
+    *   type:"signature" || {
+    *     usageType : URI,
+    *     display: Language-map,
+    *     description: Language-map
+    *   },
+    *   value: a UTF8 string containing the binary data of the attachment.
+    *          For string values, this can just be the JS string.
+    * }]
     */
     buildMultipart(statement, attachments, extraHeaders) {
         statement.attachments = [];
@@ -272,16 +280,14 @@ class XAPIWrapper {
     }
 
     /*
-     * Send a single statement to the LRS using a PUT request.
-     * @param {object} stmt   statement object to send
-     * @param {string} id   id of the statement object to send
-     * @param [array] attachments   array of objects to send with statement
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id
-     *            of the statement
-     * @return {object} object containing xhr object and id of statement
+     * putStatement
+     * Stores a single statement in the LRS with the given ID.
+     * Makes a Javascript object with the statement id as 'id' available to the callback function.
+     * @param  {object}   stmt          statement object to send
+     * @param  {string}   id            id of the statement object to send
+     * @param  {array}    attachments   array of metadata objects to send with statement
+     * @param  {function} callback      (Optional) function to be called after the LRS responds
+     * @return {promise}  res           the response promise object if no callback
      */
     putStatement(stmt, id, attachments, callback) {
         if (this.testConfig() && (stmt && !Array.isArray(stmt))) {
@@ -368,16 +374,12 @@ class XAPIWrapper {
     }
 
     /*
-     * Send a single statement to the LRS using a POST request.
-     * Makes a Javascript object with the statement id as 'id' available to the callback function.
-     * @param {object} stmt   statement object to send
-     * @param [array] attachments   array of objects to send with statement
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     *            and an object with an id property assigned the id
-     *            of the statement
-     * @return {object} object containing xhr object and id of statement
+     * postStatement
+     * Stores a single statement in the LRS using a POST request.
+     * @param  {object}   stmt          statement object to send
+     * @param  {array}    attachments   array of metadata objects to send with statement
+     * @param  {function} callback      (Optional) function to be called after the LRS responds
+     * @return {promise}  res           the response promise object if no callback
      */
     postStatement(stmt, attachments, callback) {
         if (this.testConfig() && (stmt && !Array.isArray(stmt))) {
@@ -452,24 +454,24 @@ class XAPIWrapper {
     }
 
     /*
-     * Send a list of statements to the LRS.
-     * @param {array} stmtArray   the list of statement objects to send
-     * @param {function} [callback]   function to be called after the LRS responds
-     *            to this request (makes the call asynchronous)
-     *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object
+     * postStatements
+     * Sends a list of statements to the LRS.
+     * @param  {array}    stmtArray   the list of statements to send
+     * @param  {function} callback    (Optional) function to be called after the LRS responds
+     * @return {promise}  res         the response promise object if no callback
      * @example
-     * let stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
+     * let stmt = {"actor" : {"mbox" : "mailto:user@example.com"},
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
      *                       "display" : {"en-US" : "answered"}},
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * let resp_obj = XAPIWrapper.postStatement(stmt);
-     * XAPIWrapper.getStatements({"statementId":resp_obj.id});
+     * let res = await XAPIWrapper.postStatement(stmt);
+     * let getRes = await XAPIWrapper.getStatements({"statementId":res.data.id});
+     * console.log(getRes.data);
      * >> {"version": "1.0.0",
-     *     "timestamp": "2013-09-09 21:36:40.185841+00:00",
+     *     "timestamp": "2017-10-03 21:36:40.185841+00:00",
      *     "object": {"id": "http://adlnet.gov/expapi/activities/question", "objectType": "Activity"},
-     *     "actor": {"mbox": "mailto:tom@example.com", "name": "tom creighton", "objectType": "Agent"},
-     *     "stored": "2013-09-09 21:36:40.186124+00:00",
+     *     "actor": {"mbox": "mailto:user@example.com", "name": "user", "objectType": "Agent"},
+     *     "stored": "2017-10-03 21:36:40.186124+00:00",
      *     "verb": {"id": "http://adlnet.gov/expapi/verbs/answered", "display": {"en-US": "answered"}},
      *     "authority": {"mbox": "mailto:tom@adlnet.gov", "name": "tom", "objectType": "Agent"},
      *     "context": {"registration": "51a6f860-1997-11e3-8ffd-0800200c9a66"},

@@ -176,7 +176,7 @@ XAPIWrapper.testConfig();
 #### Launch Parameters
 The configuration will also look for url query parameters and use those
 name - value pairs in the XAPIWrapper's internal configuration. That means
-that `http://localhost:8000/content/example.html?actor={"mbox":"mailto:tom@example.com"}`  
+that `http://localhost:8000/content/example.html?actor={"mbox":"mailto:user@example.com"}`  
 (not url encoded for illustrative purposes) would be parsed for an actor,
 which would automatically be included in the wrapper configuration.  
 __NOTE:__ endpoint, auth, actor, registration, activity_id, grouping, and activity_platform
@@ -317,14 +317,14 @@ let stmt = new Statement(
 
 ```JavaScript
 let stmt = new Statement(
-	new Agent(XAPIWrapper.hash('mailto:user@example.com'), 'User'),
+	new Agent(XAPIWrapper.hash('mailto:user@example.com'), 'user'),
 	new Verb('http://adlnet.gov/expapi/verbs/launched', 'launched'),
 	new Activity('http://vwf.adlnet.gov/xapi/virtual_world_sandbox', 'the Virtual World Sandbox')
 );
 >> {
 	"actor": {
 		"objectType": "Agent",
-		"name": "User",
+		"name": "user",
 		"mbox_sha1sum": "220322e6f00c8c88ae97398ed7e9150228859d9c" },
 	"verb": {
 		"id": "http://adlnet.gov/expapi/verbs/launched",
@@ -403,7 +403,7 @@ Manually specified verbs have been used until now for illustrative purposes, but
 as easily use the verbs.
 
 ```JavaScript
-let stmt = Statement(myactor, verbs.launched, myactivity);
+let stmt = new Statement(myactor, verbs.launched, myactivity);
 ```
 
 ##### Put Statement
@@ -422,6 +422,7 @@ takes in a Statement, Attachments, and optionally, provides a callback
 function. Providing a function to call after the postStatement
 request will make the request happen asynchronously, otherwise
 postStatement will return a Promise object.
+
 ###### Post Statement without Callback
 
 ```JavaScript
@@ -433,6 +434,7 @@ let resp_obj = await XAPIWrapper.postStatement(stmt);
 console.log("[" + resp_obj.data.id + "]: " + resp_obj.resp.status + " - " + resp_obj.resp.statusText);
 >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 200 - OK
 ```
+
 ###### Post Statement with Callback
 
 ```JavaScript
