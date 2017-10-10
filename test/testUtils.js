@@ -1,6 +1,6 @@
 describe('Utils Test:', () => {
 
-    let should, Util;
+    let should, Utils;
 
     let defObject, defDisplay, enOnly, invDisplay;
 

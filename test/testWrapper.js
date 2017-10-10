@@ -590,21 +590,21 @@ describe("xAPIWrapper Test:", () => {
     });
 
     describe("Activity Profile", () => {
-        let activityId1, profileId1, profileVal1;
-        let activityId2, profileId2, profileVal2;
         let etag;
 
-        before(() => {
-            activityId1 = 'http://www.example.com/activityId/hashset1';
-            profileId1 = Util.ruuid();
-            profileVal1 = { "activityId": activityId1, "profileId": profileId1 };
-
-            activityId2 = 'http://www.example.com/activityId/hashset2';
-            profileId2 = Util.ruuid();
-            profileVal2 = { "activityId": activityId2, "profileId": profileId2 };
-        });
-
         describe("PUT", () => {
+            let activityId1, profileId1, profileVal1;
+            let activityId2, profileId2, profileVal2;
+            before(() => {
+                activityId1 = 'http://www.example.com/activityId/hashset1';
+                profileId1 = Util.ruuid();
+                profileVal1 = { "activityId": activityId1, "profileId": profileId1 };
+
+                activityId2 = 'http://www.example.com/activityId/hashset2';
+                profileId2 = Util.ruuid();
+                profileVal2 = { "activityId": activityId2, "profileId": profileId2 };
+            });
+
             describe("If-None-Match", () => {
                 it("should pass storing new profile if none exist", () => {
                     return XAPIWrapper.putActivityProfile(activityId1, profileId1, profileVal1, IF_NONE_MATCH, "*")
@@ -725,6 +725,18 @@ describe("xAPIWrapper Test:", () => {
             });
         });
         describe("POST", () => {
+            let activityId1, profileId1, profileVal1;
+            let activityId2, profileId2, profileVal2;
+            before(() => {
+                activityId1 = 'http://www.example.com/activityId/hashset1';
+                profileId1 = Util.ruuid();
+                profileVal1 = { "activityId": activityId1, "profileId": profileId1 };
+
+                activityId2 = 'http://www.example.com/activityId/hashset2';
+                profileId2 = Util.ruuid();
+                profileVal2 = { "activityId": activityId2, "profileId": profileId2 };
+            });
+
             it("should pass storing profile if none exist", () => {
                 return XAPIWrapper.postActivityProfile(activityId1, profileId1, profileVal1)
                     .then((res) => {
@@ -777,34 +789,31 @@ describe("xAPIWrapper Test:", () => {
         });
         describe("GET", () => {
             let prof, date;
-            before(() => {
-                prof = [
-                    { "activityId": 'http://www.example.com/activityId/1', "profileId": Util.ruuid() },
-                    { "activityId": 'http://www.example.com/activityId/1', "profileId": Util.ruuid() },
-                    { "activityId": 'http://www.example.com/activityId/1', "profileId": Util.ruuid() }
-                ];
+            before((done) => {
+                prof = {
+                  "activityId": 'http://www.example.com/activityId/1',
+                  "profileId": Util.ruuid()
+                }
                 date = Date().now;
-                XAPIWrapper.postActivityProfile(prof[0].activityId, prof[0].profileId, prof[0]);
-                XAPIWrapper.postActivityProfile(prof[1].activityId, prof[1].profileId, prof[1]);
-                XAPIWrapper.postActivityProfile(prof[2].activityId, prof[2].profileId, prof[2]);
+                XAPIWrapper.postActivityProfile(prof.activityId, prof.profileId, prof, ()=>{done();});
             });
 
             it("should return list of profile IDs using valid activityId & no profileId", () => {
-                return XAPIWrapper.getActivityProfile(prof[0].activityId)
+                return XAPIWrapper.getActivityProfile(prof.activityId)
                     .then((res) => {
                         (Array.isArray(res.data)).should.eql(true);
                         (res.data.length).should.not.eql(0);
                     });
             });
             it("should return single activity profile using valid activity/profile IDs & timestamp", () => {
-                return XAPIWrapper.getActivityProfile(prof[0].activityId, prof[0].profileId, date)
+                return XAPIWrapper.getActivityProfile(prof.activityId, prof.profileId, date)
                     .then((res) => {
-                        res.data['activityId'].should.eql(prof[0].activityId);
-                        res.data['profileId'].should.eql(prof[0].profileId);
+                        res.data['activityId'].should.eql(prof.activityId);
+                        res.data['profileId'].should.eql(prof.profileId);
                     });
             });
             it("should return list of profile IDs using valid activityId & timestamp", () => {
-                return XAPIWrapper.getActivityProfile(prof[0].activityId, null, date)
+                return XAPIWrapper.getActivityProfile(prof.activityId, null, date)
                     .then((res) => {
                         (Array.isArray(res.data)).should.eql(true);
                         (res.data.length).should.not.eql(0);
@@ -817,38 +826,48 @@ describe("xAPIWrapper Test:", () => {
                     });
             });
             it("should fail using invalid 'since' timestamp", () => {
-                return XAPIWrapper.getActivityProfile(activityId1, profileId1, {})
+                return XAPIWrapper.getActivityProfile(prof.activityId, prof.profileId, {})
                     .catch((error) => {
                         error.should.eql(INVALID_TIMESTAMP);
                     });
             });
 
             after(() => {
-                XAPIWrapper.deleteActivityProfile(prof[0].activityId, prof[0].profileId);
-                XAPIWrapper.deleteActivityProfile(prof[1].activityId, prof[1].profileId);
-                XAPIWrapper.deleteActivityProfile(prof[2].activityId, prof[2].profileId);
+                XAPIWrapper.deleteActivityProfile(prof.activityId, prof.profileId);
             });
         });
         describe("DELETE", () => {
+            let activityId, profileId, profile;
+            before((done) => {
+                activityId = 'http://www.example.com/activityId/hashset1',
+                profileId = Util.ruuid()
+                profile = {
+                  "activityId": activityId,
+                  "profileId": profileId
+                };
+
+                XAPIWrapper.postActivityProfile(activityId, profileId, profile, ()=>{done();});
+            });
+
             it("should pass deleting the profile using valid activity/profile IDs", () => {
-                return XAPIWrapper.deleteActivityProfile(activityId1, profileId1)
+                return XAPIWrapper.deleteActivityProfile(activityId, profileId)
                     .then((res) => {
                         res.resp.status.should.eql(NO_CONTENT);
 
-                        return XAPIWrapper.getActivityProfile(activityId1, profileId1)
+                        return XAPIWrapper.getActivityProfile(activityId, profileId)
                             .catch((error) => {
                                 error.name.should.eql('FetchError');
                             });
                     });
             });
             it("should fail deleting the profile using invalid activityId", () => {
-                return XAPIWrapper.deleteActivityProfile(null, profileId1)
+                return XAPIWrapper.deleteActivityProfile(null, profileId)
                     .catch((error) => {
                         error.should.eql(INVALID_PARAMETERS);
                     });
             });
             it("should fail deleting the profile using invalid profileId", () => {
-                return XAPIWrapper.deleteActivityProfile(activityId1, null)
+                return XAPIWrapper.deleteActivityProfile(activityId, null)
                     .catch((error) => {
                         error.should.eql(INVALID_PARAMETERS);
                     });
@@ -890,26 +909,26 @@ describe("xAPIWrapper Test:", () => {
     });
 
     describe("Agent Profile", () => {
-        let agent1, profileId1, profile1;
-        let agent2, profileId2, profile2;
         let etag;
 
-        before(() => {
-            agent1 = { "mbox": "mailto:user@example.com" };
-            profileId1 = Util.ruuid();
-            profile1 = { "agent": agent1, "profileId": profileId1 };
-
-            agent2 = {
-                "account": {
-                    "homePage": "http://www.example.com/agentId2",
-                    "name": "Agent2"
-                }
-            };
-            profileId2 = Util.ruuid();
-            profile2 = { "agent": agent2, "profileId": profileId2 };
-        });
-
         describe("PUT", () => {
+            let agent1, profileId1, profile1;
+            let agent2, profileId2, profile2;
+            before(() => {
+              agent1 = { "mbox": "mailto:user@example.com" };
+              profileId1 = Util.ruuid();
+              profile1 = { "agent": agent1, "profileId": profileId1 };
+
+              agent2 = {
+                "account": {
+                  "homePage": "http://www.example.com/agentId2",
+                  "name": "Agent2"
+                }
+              };
+              profileId2 = Util.ruuid();
+              profile2 = { "agent": agent2, "profileId": profileId2 };
+            });
+
             describe("If-None-Match", () => {
                 it("should pass storing new profile if none exist", () => {
                     return XAPIWrapper.putAgentProfile(agent1, profileId1, profile1, IF_NONE_MATCH, "*")
@@ -1028,11 +1047,26 @@ describe("xAPIWrapper Test:", () => {
             });
         });
         describe("POST", () => {
+            let agent1, profileId1, profile1;
+            let agent2, profileId2, profile2;
+            before(() => {
+              agent1 = { "mbox": "mailto:user@example.com" };
+              profileId1 = Util.ruuid();
+              profile1 = { "agent": agent1, "profileId": profileId1 };
+
+              agent2 = {
+                "account": {
+                  "homePage": "http://www.example.com/agentId2",
+                  "name": "Agent2"
+                }
+              };
+              profileId2 = Util.ruuid();
+              profile2 = { "agent": agent2, "profileId": profileId2 };
+            });
+
             it("should pass storing profile if none exist", () => {
                 return XAPIWrapper.postAgentProfile(agent1, profileId1, profile1)
                     .then((res) => {
-                        res.resp.status.should.eql(NO_CONTENT);
-
                         return XAPIWrapper.getAgentProfile(agent1, profileId1)
                             .then((res) => {
                                 res.data.should.eql(profile1);
@@ -1083,41 +1117,41 @@ describe("xAPIWrapper Test:", () => {
         describe("GET", () => {
             let prof, date;
             let agentId;
-            before(() => {
-                agentId = XAPIWrapper.hash(agent1);
+            before((done) => {
+                agentId = XAPIWrapper.hash("mailto:u@example.com");
+                prof = {
+                  "agent": {
+                    "mbox_sha1sum": agentId
+                  },
+                  "profileId": Util.ruuid()
+                };
 
-                prof = [
-                    { "agent": { "mbox_sha1sum": agentId }, "profileId": Util.ruuid() },
-                    { "agent": { "mbox_sha1sum": agentId }, "profileId": Util.ruuid() },
-                    { "agent": { "mbox_sha1sum": agentId }, "profileId": Util.ruuid() }
-                ];
                 date = Date().now;
-                XAPIWrapper.postAgentProfile(prof[0].agent, prof[0].profileId, prof[0]);
-                XAPIWrapper.postAgentProfile(prof[1].agent, prof[1].profileId, prof[1]);
-                XAPIWrapper.postAgentProfile(prof[2].agent, prof[2].profileId, prof[2]);
+
+                XAPIWrapper.postAgentProfile(prof.agent, prof.profileId, prof, ()=>{done();});
             });
 
             it("should return single activity profile using valid agent & profileId", () => {
-                return XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId)
+                return XAPIWrapper.getAgentProfile(prof.agent, prof.profileId)
                     .then((res) => {
-                        res.data.should.eql(prof[0]);
+                        res.data.should.eql(prof);
                     });
             });
             it("should return list of profile IDs using valid agent & no profileId", () => {
-                return XAPIWrapper.getAgentProfile(prof[0].agent)
+                return XAPIWrapper.getAgentProfile(prof.agent)
                     .then((res) => {
                         (Array.isArray(res.data)).should.eql(true);
                         (res.data.length).should.not.eql(0);
                     });
             });
             it("should return single activity profile using valid agent, profileId & timestamp", () => {
-                return XAPIWrapper.getAgentProfile(prof[0].agent, prof[0].profileId, date)
+                return XAPIWrapper.getAgentProfile(prof.agent, prof.profileId, date)
                     .then((res) => {
-                        res.data.should.eql(prof[0]);
+                        res.data.should.eql(prof);
                     });
             });
             it("should return list of profile IDs using valid agent & timestamp", () => {
-                return XAPIWrapper.getAgentProfile(prof[0].agent, null, date)
+                return XAPIWrapper.getAgentProfile(prof.agent, null, date)
                     .then((res) => {
                         (Array.isArray(res.data)).should.eql(true);
                         (res.data.length).should.not.eql(0);
@@ -1130,38 +1164,48 @@ describe("xAPIWrapper Test:", () => {
                     });
             });
             it("should fail using invalid 'since' timestamp", () => {
-                return XAPIWrapper.getAgentProfile(agent1, profileId1, {})
+                return XAPIWrapper.getAgentProfile(prof.agent, prof.profileId, {})
                     .catch((error) => {
                         error.should.eql(INVALID_TIMESTAMP);
                     });
             });
 
             after(() => {
-                XAPIWrapper.deleteAgentProfile(prof[0].agent, prof[0].profileId);
-                XAPIWrapper.deleteAgentProfile(prof[1].agent, prof[1].profileId);
-                XAPIWrapper.deleteAgentProfile(prof[2].agent, prof[2].profileId);
+                XAPIWrapper.deleteAgentProfile(prof.agent, prof.profileId);
             });
         });
         describe("DELETE", () => {
+            let agent, profileId, profile;
+            before((done) => {
+                agent = { "mbox": "mailto:user@example.com" };
+                profileId = Util.ruuid();
+                profile = {
+                  "agent": agent,
+                  "profileId": profileId
+                };
+
+                XAPIWrapper.postAgentProfile(agent, profileId, profile, ()=>{done();});
+            });
+
             it("should pass deleting the profile using valid agent & profileId", () => {
-                return XAPIWrapper.deleteAgentProfile(agent1, profileId1)
+                return XAPIWrapper.deleteAgentProfile(agent, profileId)
                     .then((res) => {
                         res.resp.status.should.eql(NO_CONTENT);
 
-                        return XAPIWrapper.getAgentProfile(agent1, profileId1)
+                        return XAPIWrapper.getAgentProfile(agent, profileId)
                             .catch((error) => {
                                 error.name.should.eql('FetchError');
                             });
                     });
             });
             it("should fail deleting the profile using invalid agent", () => {
-                return XAPIWrapper.deleteAgentProfile(null, profileId1)
+                return XAPIWrapper.deleteAgentProfile(null, profileId)
                     .catch((error) => {
                         error.should.eql(INVALID_PARAMETERS);
                     });
             });
             it("should fail deleting the profile using invalid profileId", () => {
-                return XAPIWrapper.deleteAgentProfile(agent1, null)
+                return XAPIWrapper.deleteAgentProfile(agent, null)
                     .catch((error) => {
                         error.should.eql(INVALID_PARAMETERS);
                     });

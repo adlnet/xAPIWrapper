@@ -1,14 +1,13 @@
 /*jshint esversion: 6*/
-let debug = false;
+let debug = true;
 let onBrowser = true;
 
 if (typeof module !== 'undefined') {
     onBrowser = false;
     var fetch = require('node-fetch');
     Util = require('./Utils');
-    Statement = require('./Statement').Statement
+    Statement = require('./Statement').Statement;
 } else {
-    window.ADL = window.ADL || {};
     Util = window.ADL.Util;
 }
 
@@ -1293,7 +1292,7 @@ class XAPIWrapper {
     }
 
     /*
-     * Get agnet profile from the LRS
+     * Get agent profile from the LRS
      * @param {object} agent   the agent associated with this profile
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
      *              associated with the agent

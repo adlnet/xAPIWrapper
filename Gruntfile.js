@@ -14,14 +14,14 @@ module.exports = function (grunt) {
                 src: [
                     'lib/cryptojs_v3.1.2.js',
                     'src/Utils.js',
-                    'src/xAPIWrapper.js',
-                    'src/xAPILaunch.js',
-                    'src/ActivityTypes.js',
                     'src/Verbs.js',
+                    'src/ActivityTypes.js',
                     'src/Agent.js',
                     'src/Verb.js',
                     'src/Object.js',
-                    'src/Statement.js'
+                    'src/Statement.js',
+                    'src/xAPIWrapper.js',
+                    'src/xAPILaunch.js'
                 ],
                 dest: 'dist/xapiwrapper.min.js'
             }

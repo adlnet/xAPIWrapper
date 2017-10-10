@@ -1,5 +1,5 @@
 /*jshint esversion: 6*/
-// Require Utils module when using node
+// Require Util module when using node
 if (typeof module !== 'undefined') {
     Util = require('./Utils');
 } else {
