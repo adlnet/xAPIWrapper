@@ -36,7 +36,8 @@ let Config = (() => {
         conf.auth = `Basic ${Util.toBase64('tom:1234')}`;
     }
     catch (e) {
-        console.log(`Exception in Config trying to encode auth: ${e}`);
+        log('Failed to encode auth');
+        throw new Error(`${e}`);
     }
 
     return conf;
@@ -149,7 +150,8 @@ class xAPIWrapper {
         try {
             return Util.toSHA1(tohash);
         } catch (e) {
-            log(`Error trying to hash -- ${e}`);
+            log(`Failed to hash -- ${tohash}`);
+            throw new Error(`${e}`);
             return null;
         }
     }
@@ -169,7 +171,8 @@ class xAPIWrapper {
             this.withCredentials = config.withCredentials;
         }
         catch (e) {
-            log(`Error while changing configuration -- ${e}`);
+            log('Failed to change configuration');
+            throw new Error(`${e}`);
         }
     }
 
@@ -183,7 +186,7 @@ class xAPIWrapper {
     prepareStatement(stmt) {
         try {
             if (stmt.actor === undefined) {
-                stmt.actor = JSON.parse(this.lrs.actor);
+                stmt.actor = JSON.parse("this.lrs.actor");
             }
             else if (typeof stmt.actor === "string") {
                 stmt.actor = JSON.parse(stmt.actor);
@@ -213,7 +216,8 @@ class xAPIWrapper {
             // If stmt is a JSON object, create new Statement
             return (stmt instanceof Statement) ? stmt : new Statement(stmt);
         } catch (e) {
-            console.error(`Error while preparing statement: ${e}`);
+            log('Failed to prepare statement');
+            throw new Error(`${e}`);
             return null;
         }
     }
@@ -518,7 +522,7 @@ class xAPIWrapper {
         } else if (callback) {
             callback('Error: invalid parameters');
         } else {
-            return new Promise((res, rej) => { return res('Error: invalid parameters'); });
+            return new Promise((res, rej) => { rej('Error: invalid parameters'); });
         }
     }
 

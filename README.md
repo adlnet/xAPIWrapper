@@ -134,7 +134,8 @@ let Config = (() => {
     }
     catch (e)
     {
-        log(`Exception in Config trying to encode auth: ${e}`);
+        log('Failed to encode auth');
+        throw new Error(`${e}`);
     }
 
     return conf;
@@ -637,7 +638,6 @@ xAPIWrapper.getMoreStatements(0, null, (error, resp, data) => {
     console.log(data);
 });
 >> <Array of statements>
-...
 ```
 
 ###### Get Statements based on search parameters
@@ -750,7 +750,7 @@ xAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
 
 ```JavaScript
 let actid = "tag:adlnet.gov,2013:expapi:1.0.0:activity:question/1";
-let statehash = xAPIWrapper.hash(JSON.stringify(stateval));
+let stateval = {"info": "the state info"};
 xAPIWrapper.postState(actid, {"mbox":"mailto:user@example.com"}, "questionstate", null, stateval)
   .then((r) => {
     return xAPIWrapper.getState(actid, {"mbox":"mailto:user@example.com"}, "questionstate")
