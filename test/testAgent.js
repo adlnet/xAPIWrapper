@@ -3,7 +3,7 @@ describe('Agent Test:', () => {
     let def, account, accountName, accountHomepage, mboxsha1sum, openId;
 
     // Testing module functionality
-    let should, XAPIWrapper, Agent, Statement, verbs;
+    let should, xAPIWrapper, Agent, Statement, verbs;
 
     // Test statements
     let s1, s2, s3, s4, s5, s6;
@@ -28,12 +28,12 @@ describe('Agent Test:', () => {
 
         // Require necessary modules
         should = require('should');
-        XAPIWrapper = require('./../src/xAPIWrapper');
+        xAPIWrapper = require('./../src/xAPIWrapper');
         Agent = require('./../src/Agent').Agent;
         Statement = require('./../src/Statement').Statement;
         verbs = require('./../src/Verbs');
 
-        XAPIWrapper.changeConfig({
+        xAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",
             "user": "aaron",
             "password": "1234"
@@ -79,7 +79,7 @@ describe('Agent Test:', () => {
         });
         describe("Default", () => {
             it('should pass with valid mbox object', (done) => {
-                XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -90,7 +90,7 @@ describe('Agent Test:', () => {
         });
         describe("Account", () => {
             it('should pass with valid account object', (done) => {
-                XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -99,14 +99,14 @@ describe('Agent Test:', () => {
                 });
             });
             it('should fail with no valid homepage', (done) => {
-                XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it('should fail with no valid name', (done) => {
-                XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -115,7 +115,7 @@ describe('Agent Test:', () => {
         });
         describe("Mbox Sha1sum", () => {
             it('should pass with valid mbox_sha1sum object', (done) => {
-                XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s5, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -126,7 +126,7 @@ describe('Agent Test:', () => {
         });
         describe("OpenId", () => {
             it('should pass with valid openid object', (done) => {
-                XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s6, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -157,7 +157,7 @@ describe('Agent Test:', () => {
         });
         describe("Default", () => {
             it('should pass with valid mbox object', (done) => {
-                XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -168,7 +168,7 @@ describe('Agent Test:', () => {
         });
         describe("Account", () => {
             it('should pass with valid account object', (done) => {
-                XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -177,14 +177,14 @@ describe('Agent Test:', () => {
                 });
             });
             it('should fail with no valid homepage', (done) => {
-                XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it('should fail with no valid name', (done) => {
-                XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -193,7 +193,7 @@ describe('Agent Test:', () => {
         });
         describe("Mbox Sha1sum", () => {
             it('should pass with valid mbox_sha1sum object', (done) => {
-                XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s5, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -204,7 +204,7 @@ describe('Agent Test:', () => {
         });
         describe("OpenId", () => {
             it('should pass with valid openid object', (done) => {
-                XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s6, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);

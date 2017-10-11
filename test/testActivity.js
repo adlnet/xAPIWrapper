@@ -13,7 +13,7 @@ describe("Activity Test:", () => {
     const BAD_REQUEST = 400;
 
     // Testing module functionality
-    let should, XAPIWrapper, Activity, Statement, verbs;
+    let should, xAPIWrapper, Activity, Statement, verbs;
 
     // Test statements
     let s1, s2, s3, s4, s5;
@@ -48,12 +48,12 @@ describe("Activity Test:", () => {
 
         // Require necessary modules
         should = require('should');
-        XAPIWrapper = require('./../src/xAPIWrapper');
+        xAPIWrapper = require('./../src/xAPIWrapper');
         Activity = require('./../src/Object').Activity;
         Statement = require('./../src/Statement').Statement;
         verbs = require('./../src/Verbs');
 
-        XAPIWrapper.changeConfig({
+        xAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",
             "user": "aaron",
             "password": "1234"
@@ -137,7 +137,7 @@ describe("Activity Test:", () => {
         });
         describe("Default", () => {
             it('should pass with valid id & definition', (done) => {
-                XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -146,7 +146,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should fail with no id', (done) => {
-                XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -155,7 +155,7 @@ describe("Activity Test:", () => {
         });
         describe("Name/Description", () => {
             it('should pass with no definition name', (done) => {
-                XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -164,7 +164,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with no definition description', (done) => {
-                XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -173,7 +173,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with no definition', (done) => {
-                XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s5, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -184,7 +184,7 @@ describe("Activity Test:", () => {
         });
         describe("Interaction Types", () => {
             it('should pass with valid true/false type', (done) => {
-                XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s6, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -192,7 +192,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid choice type', (done) => {
-                XAPIWrapper.postStatement(s7, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s7, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -200,7 +200,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid fill-in type', (done) => {
-                XAPIWrapper.postStatement(s8, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s8, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -208,7 +208,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid long-fill-in type', (done) => {
-                XAPIWrapper.postStatement(s9, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s9, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -216,7 +216,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid matching type', (done) => {
-                XAPIWrapper.postStatement(s10, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s10, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -224,7 +224,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid performance type', (done) => {
-                XAPIWrapper.postStatement(s11, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s11, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -232,7 +232,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid sequencing type', (done) => {
-                XAPIWrapper.postStatement(s12, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s12, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -240,7 +240,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid likert type', (done) => {
-                XAPIWrapper.postStatement(s13, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s13, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -248,7 +248,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid numeric type', (done) => {
-                XAPIWrapper.postStatement(s14, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s14, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -256,7 +256,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid other type', (done) => {
-                XAPIWrapper.postStatement(s15, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s15, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -313,7 +313,7 @@ describe("Activity Test:", () => {
         });
         describe("Default", () => {
             it('should pass with valid id & definition', (done) => {
-                XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -322,7 +322,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should fail with no id', (done) => {
-                XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -331,7 +331,7 @@ describe("Activity Test:", () => {
         });
         describe("Name/Description", () => {
             it('should pass with no definition name', (done) => {
-                XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -340,7 +340,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with no definition description', (done) => {
-                XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -349,7 +349,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with no definition', (done) => {
-                XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s5, null, (error, resp, data) => {
                     (!error).should.eql(true);
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
@@ -360,7 +360,7 @@ describe("Activity Test:", () => {
         });
         describe("Interaction Types", () => {
             it('should pass with valid true/false type', (done) => {
-                XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s6, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -368,7 +368,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid choice type', (done) => {
-                XAPIWrapper.postStatement(s7, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s7, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -376,7 +376,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid fill-in type', (done) => {
-                XAPIWrapper.postStatement(s8, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s8, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -384,7 +384,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid long-fill-in type', (done) => {
-                XAPIWrapper.postStatement(s9, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s9, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -392,7 +392,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid matching type', (done) => {
-                XAPIWrapper.postStatement(s10, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s10, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -400,7 +400,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid performance type', (done) => {
-                XAPIWrapper.postStatement(s11, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s11, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -408,7 +408,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid sequencing type', (done) => {
-                XAPIWrapper.postStatement(s12, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s12, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -416,7 +416,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid likert type', (done) => {
-                XAPIWrapper.postStatement(s13, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s13, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -424,7 +424,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid numeric type', (done) => {
-                XAPIWrapper.postStatement(s14, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s14, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -432,7 +432,7 @@ describe("Activity Test:", () => {
                 });
             });
             it('should pass with valid other type', (done) => {
-                XAPIWrapper.postStatement(s15, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s15, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 

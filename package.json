@@ -1,7 +1,9 @@
 {
   "name": "xAPIWrapper",
   "description": "An easier way to build, send, and retrieve xAPI statements",
+  "author": "ADL",
   "version": "2.0.0",
+  "main": "src/xAPIWrapper.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/adlnet/xAPIWrapper.git"
@@ -28,7 +30,6 @@
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1",
-    "fs": "0.0.1-security",
     "node-fetch": "^1.7.1"
   },
   "scripts": {

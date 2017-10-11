@@ -10,7 +10,7 @@ describe("StatementRef Test:", () => {
     const BAD_REQUEST = 400;
 
     // Testing module functionality
-    let should, XAPIWrapper, Util, Statement, StatementRef, verbs;
+    let should, xAPIWrapper, Util, Statement, StatementRef, verbs;
 
     // Test statements
     let s1, s2, s3, s4;
@@ -26,13 +26,13 @@ describe("StatementRef Test:", () => {
 
         // Require necessary modules
         should = require('should');
-        XAPIWrapper = require('./../src/xAPIWrapper');
+        xAPIWrapper = require('./../src/xAPIWrapper');
         Util = require('./../src/Utils');
         Statement = require('./../src/Statement').Statement;
         StatementRef = require('./../src/Object').StatementRef;
         verbs = require('./../src/Verbs');
 
-        XAPIWrapper.changeConfig({
+        xAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",
             "user": "aaron",
             "password": "1234"
@@ -70,7 +70,7 @@ describe("StatementRef Test:", () => {
             (s4.object.isValid()).should.eql(false);
         });
         it("should pass with valid id", (done) => {
-            XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                 (!error).should.eql(true);
                 resp.status.should.eql(OK);
                 resp.ok.should.eql(true);
@@ -79,21 +79,21 @@ describe("StatementRef Test:", () => {
             });
         });
         it("should fail with no id", (done) => {
-            XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                 error.should.not.eql(null);
 
                 done();
             });
         });
         it("should fail with invalid id", (done) => {
-            XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                 error.should.not.eql(null);
 
                 done();
             });
         });
         it("should fail with invalid property", (done) => {
-            XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                 error.should.not.eql(null);
 
                 done();
@@ -116,7 +116,7 @@ describe("StatementRef Test:", () => {
             (s4.object.isValid()).should.eql(false);
         });
         it("should pass with valid id & objectType", (done) => {
-            XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                 (!error).should.eql(true);
                 resp.status.should.eql(OK);
                 resp.ok.should.eql(true);
@@ -125,21 +125,21 @@ describe("StatementRef Test:", () => {
             });
         });
         it("should fail with undefined id", (done) => {
-            XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                 error.should.not.eql(null);
 
                 done();
             });
         });
         it("should fail with invalid id", (done) => {
-            XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                 error.should.not.eql(null);
 
                 done();
             });
         });
         it("should fail with invalid property", (done) => {
-            XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                 error.should.not.eql(null);
 
                 done();

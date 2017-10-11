@@ -2,12 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <script src="../dist/xapiwrapper.min.js"></script>
+    <script src="./../dist/xapiwrapper.min.js"></script>
     <script type="text/javascript">
 
         function init() {
             let stmt = new ADL.Statement(
-                new ADL.Agent(ADL.XAPIWrapper.hash('mailto:user@example.com'), 'user'),
+                new ADL.Agent(ADL.xAPIWrapper.hash('mailto:user@example.com'), 'user'),
                 ADL.verbs.launched,
                 new ADL.Activity('act:wrapper_test', 'xAPIWrapper test page',
                     'A website that exercises the functions of the xAPIWrapper')
@@ -15,11 +15,11 @@
             stmt.addOtherContextActivity(new ADL.Activity('compId:internet_proficiency'));
             stmt.generateRegistration();
 
-            ADL.XAPIWrapper.changeConfig({
+            ADL.xAPIWrapper.changeConfig({
                 'endpoint': 'https://lrs.adlnet.gov/xapi/'
             });
 
-            ADL.XAPIWrapper.postStatement(stmt);
+            ADL.xAPIWrapper.postStatement(stmt);
 
             let o = document.getElementById('output');
             o.innerText = JSON.stringify(stmt, null, '    ');

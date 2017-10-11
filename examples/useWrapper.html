@@ -2,23 +2,30 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <script src="../test/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="./../test/libs/jquery/2.1.4/jquery.min.js"></script>
 
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css" rel="stylesheet">
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js"></script>
 
     <script src="./libs/ace-editor/ace.js"></script>
 
-    <script src="../dist/xapiwrapper.min.js"></script>
+    <script src="./../dist/xapiwrapper.min.js"></script>
+    <!-- <script src="./../lib/cryptojs_v3.1.2.js"></script>
+    <script src="./../src/Utils.js"></script>
+    <script src="./../src/Verbs.js"></script>
+    <script src="./../src/ActivityTypes.js"></script>
+    <script src="./../src/Agent.js"></script>
+    <script src="./../src/Verb.js"></script>
+    <script src="./../src/Object.js"></script>
+    <script src="./../src/Statement.js"></script>
+    <script src="./../src/xAPIWrapper.js"></script>
+    <script src="./../src/xAPILaunch.js"></script> -->
 
     <style>
         #stmtinput {
@@ -186,10 +193,10 @@
         let wrapper;
         ADL.launch(function (err, launchdata, xAPIWrapper) {
             if (!err) {
-                wrapper = ADL.XAPIWrapper = xAPIWrapper;
+                wrapper = ADL.xAPIWrapper = xAPIWrapper;
                 console.log("--- content launched via xAPI Launch ---\n", wrapper.lrs, "\n", launchdata);
             } else {
-                wrapper = ADL.XAPIWrapper;
+                wrapper = ADL.xAPIWrapper;
                 wrapper.changeConfig({
                     endpoint: "https://lrs.adlnet.gov/xapi/",
                     user: 'tom',

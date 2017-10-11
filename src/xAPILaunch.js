@@ -117,7 +117,7 @@ let xAPILaunch = (cb, terminate_on_unload) => {
                           xAPILaunch.terminate("User closed content");
                   }
 
-                  let wrapper = new ADL.XAPIWrapper.constructor();
+                  let wrapper = new ADL.xAPIWrapper.constructor();
                   wrapper.changeConfig(conf);
                   //Links that include "courseLink='true'"
                   setupCourseLinks(document.body.querySelectorAll('a'));

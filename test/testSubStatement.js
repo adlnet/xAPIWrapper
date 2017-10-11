@@ -12,7 +12,7 @@ describe("SubStatement Test:", () => {
     const BAD_REQUEST = 400;
 
     // Testing module functionality
-    let should, XAPIWrapper, Util, Statement, SubStatement, StatementRef, verbs;
+    let should, xAPIWrapper, Util, Statement, SubStatement, StatementRef, verbs;
 
     // Test statements
     let s1, s2, s3, s4, s5, s6, s7, s8, s9, s10, s11,
@@ -42,14 +42,14 @@ describe("SubStatement Test:", () => {
 
         // Require necessary modules
         should = require('should');
-        XAPIWrapper = require('./../src/xAPIWrapper');
+        xAPIWrapper = require('./../src/xAPIWrapper');
         Util = require('./../src/Utils');
         Statement = require('./../src/Statement').Statement;
         SubStatement = require('./../src/Statement').SubStatement;
         StatementRef = require('./../src/Object').StatementRef;
         verbs = require('./../src/Verbs');
 
-        XAPIWrapper.changeConfig({
+        xAPIWrapper.changeConfig({
             "endpoint": "https://lrs.adlnet.gov/xapi/",
             "user": "aaron",
             "password": "1234"
@@ -137,7 +137,7 @@ describe("SubStatement Test:", () => {
         });
         describe("Default", () => {
             it("should pass with valid default actor/verb/object", (done) => {
-                XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -147,14 +147,14 @@ describe("SubStatement Test:", () => {
         });
         describe("Actor", () => {
             it("should fail with no actor", (done) => {
-                XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid actor", (done) => {
-                XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s5, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -163,14 +163,14 @@ describe("SubStatement Test:", () => {
         });
         describe("Verb", () => {
             it("should fail with no verb", (done) => {
-                XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid verb", (done) => {
-                XAPIWrapper.postStatement(s7, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s7, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -179,49 +179,49 @@ describe("SubStatement Test:", () => {
         });
         describe("Object", () => {
             it("should fail with no object", (done) => {
-                XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid activity", (done) => {
-                XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s6, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid agent object", (done) => {
-                XAPIWrapper.postStatement(s8, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s8, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid group object", (done) => {
-                XAPIWrapper.postStatement(s9, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s9, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid statementref object", (done) => {
-                XAPIWrapper.postStatement(s10, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s10, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with nested substatement object", (done) => {
-                XAPIWrapper.postStatement(s11, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s11, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should pass with valid agent object", (done) => {
-                XAPIWrapper.postStatement(s12, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s12, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -229,7 +229,7 @@ describe("SubStatement Test:", () => {
                 });
             });
             it("should pass with valid group object", (done) => {
-                XAPIWrapper.postStatement(s13, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s13, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -237,7 +237,7 @@ describe("SubStatement Test:", () => {
                 });
             });
             it("should pass with valid activity object", (done) => {
-                XAPIWrapper.postStatement(s14, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s14, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -245,7 +245,7 @@ describe("SubStatement Test:", () => {
                 });
             });
             it("should pass with valid statementref object", (done) => {
-                XAPIWrapper.postStatement(s15, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s15, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -254,7 +254,7 @@ describe("SubStatement Test:", () => {
             });
         });
         it("should pass with valid context", (done) => {
-            XAPIWrapper.postStatement(s16, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s16, null, (error, resp, data) => {
                 resp.status.should.eql(OK);
                 resp.ok.should.eql(true);
 
@@ -262,7 +262,7 @@ describe("SubStatement Test:", () => {
             });
         });
         it("should pass with valid results", (done) => {
-            XAPIWrapper.postStatement(s17, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s17, null, (error, resp, data) => {
                 resp.status.should.eql(OK);
                 resp.ok.should.eql(true);
 
@@ -313,7 +313,7 @@ describe("SubStatement Test:", () => {
         });
         describe("Default", () => {
             it("should pass with valid default actor/verb/object", (done) => {
-                XAPIWrapper.postStatement(s1, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s1, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -323,14 +323,14 @@ describe("SubStatement Test:", () => {
         });
         describe("Actor", () => {
             it("should fail with no actor", (done) => {
-                XAPIWrapper.postStatement(s2, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s2, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid actor", (done) => {
-                XAPIWrapper.postStatement(s5, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s5, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -339,14 +339,14 @@ describe("SubStatement Test:", () => {
         });
         describe("Verb", () => {
             it("should fail with no verb", (done) => {
-                XAPIWrapper.postStatement(s3, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s3, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid verb", (done) => {
-                XAPIWrapper.postStatement(s7, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s7, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
@@ -355,49 +355,49 @@ describe("SubStatement Test:", () => {
         });
         describe("Object", () => {
             it("should fail with no object", (done) => {
-                XAPIWrapper.postStatement(s4, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s4, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid activity", (done) => {
-                XAPIWrapper.postStatement(s6, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s6, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid agent object", (done) => {
-                XAPIWrapper.postStatement(s8, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s8, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid group object", (done) => {
-                XAPIWrapper.postStatement(s9, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s9, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with invalid statementref object", (done) => {
-                XAPIWrapper.postStatement(s10, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s10, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should fail with nested substatement object", (done) => {
-                XAPIWrapper.postStatement(s11, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s11, null, (error, resp, data) => {
                     error.should.not.eql(null);
 
                     done();
                 });
             });
             it("should pass with valid agent object", (done) => {
-                XAPIWrapper.postStatement(s12, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s12, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -405,7 +405,7 @@ describe("SubStatement Test:", () => {
                 });
             });
             it("should pass with valid group object", (done) => {
-                XAPIWrapper.postStatement(s13, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s13, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -413,7 +413,7 @@ describe("SubStatement Test:", () => {
                 });
             });
             it("should pass with valid activity object", (done) => {
-                XAPIWrapper.postStatement(s14, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s14, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -421,7 +421,7 @@ describe("SubStatement Test:", () => {
                 });
             });
             it("should pass with valid statementref object", (done) => {
-                XAPIWrapper.postStatement(s15, null, (error, resp, data) => {
+                xAPIWrapper.postStatement(s15, null, (error, resp, data) => {
                     resp.status.should.eql(OK);
                     resp.ok.should.eql(true);
 
@@ -430,7 +430,7 @@ describe("SubStatement Test:", () => {
             });
         });
         it("should pass with valid context", (done) => {
-            XAPIWrapper.postStatement(s16, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s16, null, (error, resp, data) => {
                 resp.status.should.eql(OK);
                 resp.ok.should.eql(true);
 
@@ -438,7 +438,7 @@ describe("SubStatement Test:", () => {
             });
         });
         it("should pass with valid results", (done) => {
-            XAPIWrapper.postStatement(s17, null, (error, resp, data) => {
+            xAPIWrapper.postStatement(s17, null, (error, resp, data) => {
                 resp.status.should.eql(OK);
                 resp.ok.should.eql(true);
 

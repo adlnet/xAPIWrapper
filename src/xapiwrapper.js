@@ -1,5 +1,5 @@
 /*jshint esversion: 6*/
-let debug = true;
+let debug = false;
 let onBrowser = true;
 
 if (typeof module !== 'undefined') {
@@ -21,7 +21,7 @@ if (typeof module !== 'undefined') {
  *    "endpoint" : "https://lrs.adlnet.gov/xapi/",
  *    "auth" : `Basic ${Util.toBase64('tom:1234')}`,
  * };
- * XAPIWrapper.changeConfig(conf);
+ * xAPIWrapper.changeConfig(conf);
  *
  * Statement Defaults
  * conf["actor"] = {"mbox":"user@example.com"};
@@ -49,12 +49,12 @@ let Config = (() => {
  */
 let log = (message) => {
     if (!debug)
-        return;
+      return;
 
     console.log(message);
 };
 
-class XAPIWrapper {
+class xAPIWrapper {
     /*
      * constructor
      * @param {object}  config              with a minimum of an endoint property
@@ -188,6 +188,7 @@ class XAPIWrapper {
             else if (typeof stmt.actor === "string") {
                 stmt.actor = JSON.parse(stmt.actor);
             }
+
             if (this.lrs.grouping ||
                 this.lrs.registration ||
                 this.lrs.activity_platform) {
@@ -212,7 +213,8 @@ class XAPIWrapper {
             // If stmt is a JSON object, create new Statement
             return (stmt instanceof Statement) ? stmt : new Statement(stmt);
         } catch (e) {
-            log(`Error while preparing statement: ${e}`);
+            console.error(`Error while preparing statement: ${e}`);
+            return null;
         }
     }
 
@@ -463,8 +465,8 @@ class XAPIWrapper {
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
      *                       "display" : {"en-US" : "answered"}},
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-     * let res = await XAPIWrapper.postStatement(stmt);
-     * let getRes = await XAPIWrapper.getStatements({"statementId":res.data.id});
+     * let res = await xAPIWrapper.postStatement(stmt);
+     * let getRes = await xAPIWrapper.getStatements({"statementId":res.data.id});
      * console.log(getRes.data);
      * >> {"version": "1.0.0",
      *     "timestamp": "2017-10-03 21:36:40.185841+00:00",
@@ -522,12 +524,12 @@ class XAPIWrapper {
 
     /*
      * Get statement(s) based on the searchparams or more url.
-     * @param {object} searchparams   an XAPIWrapper.searchParams object of
+     * @param {object} searchparams   an xAPIWrapper.searchParams object of
      *                key(search parameter)-value(parameter value) pairs.
      *                Example:
-     *                  let myparams = XAPIWrapper.searchParams();
+     *                  let myparams = xAPIWrapper.searchParams();
      *                  myparams['verb'] = verbs.completed.id;
-     *                  let completedStmts = XAPIWrapper.getStatements(myparams);
+     *                  let completedStmts = xAPIWrapper.getStatements(myparams);
      * @param {string} more   the more url found in the StatementResults object, if there are more
      *        statements available based on your get statements request. Pass the
      *        more url as this parameter to retrieve those statements.
@@ -536,9 +538,9 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * let ret = XAPIWrapper.getStatements();
+     * let ret = xAPIWrapper.getStatements();
      * if (ret)
-     *     XAPIWrapper.log(ret.statements);
+     *     xAPIWrapper.log(ret.statements);
      *
      * >> <Array of statements>
      */
@@ -585,12 +587,12 @@ class XAPIWrapper {
     /*
      * Get more statements based on the more url returned from first call.
      * @param {integer} iterations   number of recursive calls when retrieving statements
-     * @param {object} searchparams   an XAPIWrapper.searchParams object of
+     * @param {object} searchparams   an xAPIWrapper.searchParams object of
      *                key(search parameter)-value(parameter value) pairs.
      *                Example:
-     *                  let myparams = XAPIWrapper.searchParams();
+     *                  let myparams = xAPIWrapper.searchParams();
      *                  myparams['verb'] = verbs.completed.id;
-     *                  let completedStmts = XAPIWrapper.getStatements(myparams);
+     *                  let completedStmts = xAPIWrapper.getStatements(myparams);
      * @param {function} [callback] - function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
@@ -762,7 +764,7 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> {info: "the state info"}
      */
@@ -826,18 +828,18 @@ class XAPIWrapper {
      * @return {object} xhr response object or null if 404
      * @example
      * let stateval = {"info":"the state info"};
-     * XAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.postState("http://adlnet.gov/expapi/activities/question",
      *                           {"mbox":"mailto:tom@example.com"},
      *                           "questionstate", null, stateval);
-     * XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> {info: "the state info"}
      *
-     * XAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.deleteState("http://adlnet.gov/expapi/activities/question",
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      *
-     * XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                         {"mbox":"mailto:tom@example.com"}, "questionstate");
      * >> 404
      */
@@ -885,7 +887,7 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * let res = XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
+     * let res = xAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
      * log(res);
      * >> <Activity object>
      */
@@ -1044,9 +1046,9 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                    "actprofile", null,
-     *                                    function(r){XAPIWrapper.log(JSON.parse(r.response));});
+     *                                    function(r){xAPIWrapper.log(JSON.parse(r.response));});
      * >> {info: "the profile"}
      */
     getActivityProfile(activityid, profileid, since, callback) {
@@ -1102,7 +1104,7 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
+     * xAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                       "actprofile");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
@@ -1144,8 +1146,8 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * let res = XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
-     * XAPIWrapper.log(res);
+     * let res = xAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
+     * xAPIWrapper.log(res);
      * >> <Person object>
      */
     getAgents(agent, callback) {
@@ -1302,9 +1304,9 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
+     * xAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                  "agentprofile", null,
-     *                                  function(r){XAPIWrapper.log(JSON.parse(r.response));});
+     *                                  function(r){xAPIWrapper.log(JSON.parse(r.response));});
      * >> {info: "the agent profile"}
      */
     getAgentProfile(agent, profileid, since, callback) {
@@ -1360,7 +1362,7 @@ class XAPIWrapper {
      *            the function will be passed the XMLHttpRequest object
      * @return {object} xhr response object or null if 404
      * @example
-     * XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
+     * xAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                     "agentprofile");
      * >> XMLHttpRequest {statusText: "NO CONTENT", status: 204, response: "", responseType: "", responseXML: null…}
      */
@@ -1423,7 +1425,7 @@ class XAPIWrapper {
     }
 
     /*
-     * makes a request to a server (if possible, use functions provided in XAPIWrapper)
+     * makes a request to a server (if possible, use functions provided in xAPIWrapper)
      * @param {object} conf   the configuration of this request
      * @param {function} callback   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
@@ -1534,7 +1536,7 @@ class XAPIWrapper {
 
 
 if (!onBrowser) {
-    module.exports = new XAPIWrapper(Config, false);
+    module.exports = new xAPIWrapper(Config, false);
 } else {
-    window.ADL.XAPIWrapper = new XAPIWrapper(Config, false);
+    window.ADL.xAPIWrapper = new xAPIWrapper(Config, false);
 }
