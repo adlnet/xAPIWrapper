@@ -5,6 +5,7 @@ describe("xAPIWrapper Test:", () => {
     const OK = 200;
     const NO_CONTENT = 204;
     const BAD_REQUEST = 400;
+    const NOT_FOUND = 404;
     const PRE_COND_FAILED = 412;
 
     // Error messages
@@ -856,7 +857,7 @@ describe("xAPIWrapper Test:", () => {
 
                         return xAPIWrapper.getActivityProfile(activityId, profileId)
                             .catch((error) => {
-                                error.name.should.eql('FetchError');
+                                error.status.should.eql(NOT_FOUND);
                             });
                     });
             });
@@ -1194,7 +1195,7 @@ describe("xAPIWrapper Test:", () => {
 
                         return xAPIWrapper.getAgentProfile(agent, profileId)
                             .catch((error) => {
-                                error.name.should.eql('FetchError');
+                                error.status.should.eql(NOT_FOUND);
                             });
                     });
             });

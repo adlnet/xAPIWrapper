@@ -1409,23 +1409,26 @@ class xAPIWrapper {
             conf.credentials = 'include';
         }
 
-        return new Promise((res, rej) => {
-            fetch(conf.url, conf)
-                .then((resp) => {
-                    return resp.json()
-                        .then((data) => res({ resp, data }))
-                        .catch((error) => {
-                            if (!resp.ok) {
-                                error.status = resp.status;
-                                rej(error);
-                            }
-                                // Failed to parse JSON (NOT AN ERROR)
-                            else {
-                                res({ resp });
-                            }
-                        });
-                });
-        });
+        return fetch(conf.url, conf)
+          .then((resp) => {
+            // check response state
+            if (resp.ok) {
+              let type = resp.headers.get('Content-Type');
+
+              // JSON parse
+              if (type.includes('application/json')) {
+                return resp.json().then((data) => Promise.resolve({resp,data}));
+              }
+
+              return Promise.resolve({resp});
+            }
+
+            // reject promise for 404s & invalid content types
+            return Promise.reject({
+              'status': resp.status,
+              'statusText': resp.statusText
+            });
+          });
     }
 
     /*
@@ -1442,30 +1445,34 @@ class xAPIWrapper {
             conf.credentials = 'include';
         }
 
-        fetch(conf.url, conf)
-            .then((resp) => {
-                return resp.json().then((data) => {
-                    if (callbackargs) {
-                        callback(null, resp, callbackargs);
-                    } else {
-                        callback(null, resp, data);
-                    }
-                })
-                    .catch((error) => {
-                        if (!resp.ok) {
-                            log(error);
-                            this.requestError(resp, error, callback, callbackargs);
-                        }
-                            // Failed to parse JSON (NOT AN ERROR)
-                        else {
-                            if (callbackargs) {
-                                callback(null, resp, callbackargs);
-                            } else {
-                                callback(null, resp, null);
-                            }
-                        }
-                    });
-            });
+        let res = {};
+        async function request() {
+          let resp = await fetch(conf.url, conf);
+          if (resp.ok) {
+            // callbackargs provided, do not parse
+            if (callbackargs) {
+              res.data = callbackargs;
+            } else if (resp.headers.get('Content-Type').includes('application/json')) {
+              res.data = await resp.json();
+            }
+
+            res.resp = resp;
+            res.error = null;
+          } else {
+            res.error = {
+              'status': resp.status,
+              'statusText': resp.statusText
+            };
+          }
+
+          return res;
+        }
+
+        request().then((res) => {
+          callback(res.error, res.resp, res.data);
+        }).catch((error) => {
+          callback(error);
+        });
     }
 
     /*

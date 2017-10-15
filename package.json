@@ -25,22 +25,25 @@
   },
   "babel": {
     "plugins": [
-      "transform-async-to-generator"
+      [
+        "transform-regenerator"
+      ]
     ]
   },
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "crypto-js": "^3.1.9-1",
     "node-fetch": "^1.7.1"
   },
   "scripts": {
-    "testwrapper": "mocha --no-timeouts --compilers js:babel-register test/testWrapper.js",
-    "testactivity": "mocha --no-timeouts --compilers js:babel-register test/testActivity.js",
-    "testagent": "mocha --no-timeouts --compilers js:babel-register test/testAgent.js",
-    "testgroup": "mocha --no-timeouts --compilers js:babel-register test/testGroup.js",
-    "teststatementref": "mocha --no-timeouts --compilers js:babel-register test/testStatementRef.js",
-    "testsubstatement": "mocha --no-timeouts --compilers js:babel-register test/testSubStatement.js",
-    "testverb": "mocha --no-timeouts --compilers js:babel-register test/testVerb.js",
-    "testutils": "mocha --no-timeouts --compilers js:babel-register test/testUtils.js",
+    "testwrapper": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testWrapper.js",
+    "testactivity": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testActivity.js",
+    "testagent": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testAgent.js",
+    "testgroup": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testGroup.js",
+    "teststatementref": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testStatementRef.js",
+    "testsubstatement": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testSubStatement.js",
+    "testverb": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testVerb.js",
+    "testutils": "mocha --no-timeouts --require babel-polyfill --compilers js:babel-register test/testUtils.js",
     "test": "npm run testwrapper && npm run testactivity && npm run testagent && npm run testgroup && npm run teststatementref && npm run testsubstatement && npm run testverb && npm run testutils"
   }
 }
