@@ -139,11 +139,12 @@ function isDate(date) {
                             var versionOK = false;
                             for (var idx in lrsabout.version)
                             {
-                                if(lrsabout.version[idx] == ADL.XAPIWrapper.xapiVersion)
-                                {
-                                    versionOK = true;
-                                    break;
-                                }
+                                if (lrsabout.version.hasOwnProperty(idx))
+                                    if(lrsabout.version[idx] == ADL.XAPIWrapper.xapiVersion)
+                                    {
+                                        versionOK = true;
+                                        break;
+                                    }
                             }
                             if (!versionOK)
                             {
@@ -343,11 +344,14 @@ function isDate(date) {
 
                 for (s in searchparams)
                 {
-                    if (s == "until" || s == "since") {
-                        var d = new Date(searchparams[s]);
-                        urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
-                    } else {
-                        urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                    if (searchparams.hasOwnProperty(s))
+                    {
+                        if (s == "until" || s == "since") {
+                            var d = new Date(searchparams[s]);
+                            urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                        } else {
+                            urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                        }
                     }
                 }
                 if (urlparams.length > 0)
@@ -643,6 +647,9 @@ function isDate(date) {
     {
         for (var p in obj2)
         {
+            if (obj2.hasOwnProperty(p) == false)
+                continue;
+
             var prop = obj2[p];
 			log(p + " : " + prop);
             try
@@ -761,8 +768,9 @@ function isDate(date) {
 
         //Headers
         if(headers !== null){
-            for(var headerName in headers){
-                formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
+            for (var headerName in headers) {
+                if (headers.hasOwnProperty(headerName))
+                    formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
             }
         }
 
@@ -873,7 +881,8 @@ function isDate(date) {
 
         for (var k in thesekeys)
         {
-            arrstmts.push(ADL.stmts[thesekeys[k]]);
+            if (thesekeys.hasOwnProperty(k))
+                arrstmts.push(ADL.stmts[thesekeys[k]]);
         }
         //assume there's no more statements, if there are more,
         //then return the next index number

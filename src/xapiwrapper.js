@@ -72,7 +72,8 @@ function isDate(date) {
     }
 }
 
-(function(ADL){
+(function (ADL) {
+    
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -107,14 +108,14 @@ function isDate(date) {
     {
         var conf = {};
         conf['endpoint'] = "http://localhost:8000/xapi/";
-        try
-        {
+        //try
+        //{
             conf['auth'] = "Basic " + toBase64('tom:1234');
-        }
-        catch (e)
-        {
-            log("Exception in Config trying to encode auth: " + e);
-        }
+        //}
+        //catch (e)
+        //{
+        //    log("Exception in Config trying to encode auth: " + e);
+        //}
 
         // Statement defaults
         // conf["actor"] = {"mbox":"default@example.com"};
@@ -176,11 +177,12 @@ function isDate(date) {
                             var versionOK = false;
                             for (var idx in lrsabout.version)
                             {
-                                if(lrsabout.version[idx] == ADL.XAPIWrapper.xapiVersion)
-                                {
-                                    versionOK = true;
-                                    break;
-                                }
+                                if (lrsabout.version.hasOwnProperty(idx))
+                                    if(lrsabout.version[idx] == ADL.XAPIWrapper.xapiVersion)
+                                    {
+                                        versionOK = true;
+                                        break;
+                                    }
                             }
                             if (!versionOK)
                             {
@@ -396,9 +398,11 @@ function isDate(date) {
 
         for(var i in attachments)
         {
-
-            body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
-            body += attachments[i].value;
+            if (attachments.hasOwnProperty(i))
+            {
+                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+                body += attachments[i].value;
+            }
         }
         body += CRLF + "--" + boundary + "--" + CRLF
 
@@ -437,7 +441,8 @@ function isDate(date) {
         {
             for(var i in stmtArray)
             {
-                this.prepareStatement(stmtArray[i]);
+                if (stmtArray.hasOwnProperty(i))
+                    this.prepareStatement(stmtArray[i]);
             }
             var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
                 "POST", JSON.stringify(stmtArray), this.lrs.auth, callback, null,
@@ -488,11 +493,14 @@ function isDate(date) {
 
                 for (s in searchparams)
                 {
-                    if (s == "until" || s == "since") {
-                        var d = new Date(searchparams[s]);
-                        urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
-                    } else {
-                        urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                    if (searchparams.hasOwnProperty(s))
+                    {
+                        if (s == "until" || s == "since") {
+                            var d = new Date(searchparams[s]);
+                            urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                        } else {
+                            urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
+                        }
                     }
                 }
                 if (urlparams.length > 0)
@@ -1220,6 +1228,9 @@ function isDate(date) {
     {
         for (var p in obj2)
         {
+            if (obj2.hasOwnProperty(p) == false)
+                continue;
+
             prop = obj2[p];
             log(p + " : " + prop);
             try
@@ -1336,8 +1347,9 @@ function isDate(date) {
 
         //Headers
         if(headers !== null){
-            for(var headerName in headers){
-                formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
+            for (var headerName in headers) {
+                if (headers.hasOwnProperty(headerName))
+                    formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
             }
         }
 
@@ -1443,8 +1455,9 @@ function isDate(date) {
         headers["Authorization"] = auth;
         headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
         if(extraHeaders !== null){
-            for(var headerName in extraHeaders){
-                headers[headerName] = extraHeaders[headerName];
+            for (var headerName in extraHeaders) {
+                if (extraHeaders.hasOwnProperty(headerName))
+                    headers[headerName] = extraHeaders[headerName];
             }
         }
 
