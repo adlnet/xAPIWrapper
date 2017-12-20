@@ -29,7 +29,7 @@
         if (typeof navigator !== 'undefined')
             lang =  navigator.language || navigator.browserLanguage ||
             navigator.systemLanguage || navigator.userLanguage;
-        else if (process && process.env) {
+        else if (typeof process !== 'undefined' && typeof process.env !== 'undefined' && typeof process.env.LANG !== 'undefined') {
             var str = process.env.LANG;
             lang =  str.slice(0, str.indexOf('.'));
             lang = lang.replace(/_/, '-')
