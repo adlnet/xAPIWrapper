@@ -16,12 +16,22 @@
 
     <script src="./libs/ace-editor/ace.js"></script>
 
+    
+
+    <!--Min-ified version of the files below-->
     <script src="../dist/xapiwrapper.min.js"></script>
 
-    <!-- <script src="../lib/cryptojs_v3.1.2.js"></script>
-    <script src="../src/verbs.js"></script>
+    <!--Required for the base64 conversion, this is included in the minified wrapper-->
+    <!--<script src="../lib/cryptojs_v3.1.2.js"></script>-->
+
+    <!--Individual source files-->
+    <!--<script src="../src/verbs.js"></script>
+    <script src="../src/activitytypes.js"></script>
+    <script src="../src/xapistatement.js"></script>
+    <script src="../src/xapi-util.js"></script>
     <script src="../src/xapi-launch.js"></script>
-    <script src="../src/xapiwrapper.js"></script> -->
+    <script src="../src/xapiwrapper.js"></script>--> 
+
     <!-- <script src="../src/offline.js"></script>
     <script src="../src/storage.js"></script>
     <script src="../src/validator.js"></script> -->
@@ -359,7 +369,9 @@
         };
 
         $('#sendbtn').on('click', function (ev) {
+
             var instmt = JSON.parse(editor.getValue());
+
             if (Array.isArray(instmt)) {
                 console.log('sending array - multi stmt... ');
                 wrapper.sendStatements(instmt, outputResults);

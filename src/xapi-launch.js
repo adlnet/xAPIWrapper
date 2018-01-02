@@ -46,11 +46,14 @@ function observeForNewLinks()
         {
             for (var i in mutation.addedNodes)
             {
-                if (mutation.addedNodes[i].constructor == HTMLAnchorElement)
+                if (mutation.addedNodes.hasOwnProperty(i))
                 {
-                    var node = mutation.addedNodes[i];
-                    setupCourseLinks([node]);
+                    if (mutation.addedNodes[i].constructor == HTMLAnchorElement) {
+                        var node = mutation.addedNodes[i];
+                        setupCourseLinks([node]);
+                    }
                 }
+                
             }
         });
     });
