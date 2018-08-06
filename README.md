@@ -367,7 +367,7 @@ XAPIWrapper.prototype.prepareStatement = function(stmt)
     }
 ```
 
-Here we can also 2 behaviours:
+Here we notice 2 behaviours:
 
 1. In order to set `statement.context.contextActivities` you must set `grouping`.
 
