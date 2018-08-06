@@ -367,11 +367,15 @@ XAPIWrapper.prototype.prepareStatement = function(stmt)
     }
 ```
 
-In order to be able to set the context property of a statement you have to set at least one of `grouping`, `registration` or `activity_platform` during ADL configuration like so:
+Here we can also 2 behaviours:
+
+1. In order to set `statement.context.contextActivities` you must set `grouping`.
+
+2. In order to be able to set the context property of a statement you have to set at least one of `grouping`, `registration` or `activity_platform` during ADL configuration like so:
 
 ```
 const configuration = {
-      'endpoint' : LRS_ApiUrl,
+      'endpoint' : LRS.apiUrl,
       'auth' : 'Basic ' + btoa(LRS.key + ':' + LRS.secret),
       'registration': this.ADL.ruuid(),
       'activity_platform': `${this.organizationId}_organizationId`
@@ -379,7 +383,6 @@ const configuration = {
 this.ADL.XAPIWrapper.changeConfig(configuration);
 ```
 As you can see we set only `registration` and `activity_platform`.
-Note!!! be careful: in order to set `statement.context.contextActivities` you must set `grouping`.
 
 ###### Using Multiple Languages
 
