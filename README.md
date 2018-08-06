@@ -60,7 +60,7 @@ git clone https://github.com/adlnet/xAPIWrapper/
 #### Building the project
 
 Compiling the minified version is easy. Install Node.js and NPM if you don't already have them
-(download them [here](http://nodejs.org/download/)) or 
+(download them [here](http://nodejs.org/download/)) or
 
 ```bash
 $ sudo apt-get install nodejs
@@ -341,6 +341,46 @@ stmt.result = { 'response': 'Everything is a-okay!' };
 		"response": "Everything is a-okay!" }}
 ```
 
+###### Setting the `context` attribute
+
+Considering the behavior of `xapiwrapper.js`:
+
+```
+XAPIWrapper.prototype.prepareStatement = function(stmt)
+    {
+        ...........
+        if (this.lrs.grouping ||
+            this.lrs.registration ||
+            this.lrs.activity_platform) {
+            if (!stmt.context) {
+                stmt.context = {};
+            }
+        }
+
+        if (this.lrs.grouping) {
+            if (!stmt.context.contextActivities) {
+                stmt.context.contextActivities = {};
+            }
+            stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
+        }
+       ...........
+    }
+```
+
+In order to be able to set the context property of a statement you have to set at least one of `grouping`, `registration` or `activity_platform` during ADL configuration like so:
+
+```
+const configuration = {
+      'endpoint' : LRS_ApiUrl,
+      'auth' : 'Basic ' + btoa(LRS.key + ':' + LRS.secret),
+      'registration': this.ADL.ruuid(),
+      'activity_platform': `${this.organizationId}_organizationId`
+    };
+this.ADL.XAPIWrapper.changeConfig(configuration);
+```
+As you can see we set only `registration` and `activity_platform`.
+Note!!! be careful: in order to set `statement.context.contextActivities` you must set `grouping`.
+
 ###### Using Multiple Languages
 
 Any of the `name` or `description` fields in the constructors can instead take a language map,
@@ -430,8 +470,8 @@ ADL.XAPIWrapper.sendStatement(stmt, function(err, res, body) {
 ```
 
 ###### Send Statement with Attachments
-The wrapper can construct a `multipart/mixed` POST for a single statement that includes attachments. Attachments should be 
-supplied as an array in the 3rd parameter to `sendStatement`. Attachments are optional. The attachments array should consist of 
+The wrapper can construct a `multipart/mixed` POST for a single statement that includes attachments. Attachments should be
+supplied as an array in the 3rd parameter to `sendStatement`. Attachments are optional. The attachments array should consist of
 objects that have a `type` and a `value` field. `Type` should be the metadata description of the attachment as described by the spec, and `value`
 should be a string containing the data to post. The type field does not need to include the SHA2 or the length. These will be computed
 for you. The type may optionally be the string 'signature'. In this case, the wrapper will construct the proper metadata block.
