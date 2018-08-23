@@ -97,6 +97,11 @@
     };
 
     ADL.xapiutil.getActorIdString = function (a) {
+        if (a.mbox && Object.prototype.toString.call(a.mbox) === '[object Array]') {
+            // Coerce mbox to be the first item in the array.
+            a.mbox = a.mbox[0];
+        }
+        
         var id = a.mbox || a.openid || a.mbox_sha1sum;
         if (! id) {
             if (a.account) id = a.account.homePage + ":" + a.account.name;

@@ -4,7 +4,7 @@ after(function () {
 
 describe('testing xAPI utilities', function () {
 
-    var util, s1, s2, s3, s4, s5, s6, onBrowser, should, stmts;
+    var util, s1, s2, s3, s4, s5, s6, s7, onBrowser, should, stmts;
 
     before(function () {
 
@@ -31,6 +31,8 @@ describe('testing xAPI utilities', function () {
         s5 = {"actor":{"member":["joe"], "objectType": "Group"}, "verb":{"id":"http://verb.com/do5"}, "object":{"id":"http://from.tom/act5"}};
 
         s6 = {"actor":{"some":"thing else"}, "verb":{"id":"http://verb.com/do6", "display":{"fr": "établi", "de": "etabliert"}}, "object":{"some":'thing else'}};
+
+        s7 = {"actor":{"name":"Joe Soap", "mbox":["mailto:joe@joe.com"]}};
     });
 
 
@@ -156,6 +158,10 @@ describe('testing xAPI utilities', function () {
         });
         it ('should return unknown if nothing is present', function () {
             (util.getActorIdString(s6.actor)).should.eql("unknown");
+        });
+        it ('should return a String when passed an array for the mailbox', function () {
+            var firstItem = s7.actor.mbox[0];
+            (util.getActorIdString(s7.actor)).should.eql(firstItem);
         });
     });
 

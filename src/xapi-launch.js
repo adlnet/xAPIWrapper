@@ -149,6 +149,12 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
             var conf = {};
             conf['endpoint'] = launchData.endpoint;
             conf["actor"] = launchData.actor;
+
+            if (conf.actor.mbox && Object.prototype.toString.call(conf.actor.mbox) === '[object Array]') {
+                // Handle mbox if it's an array by coercing it to use the first item.
+                conf.actor.mbox = conf.actor.mbox[0];
+            }
+
             conf.withCredentials = true;
             conf.strictCallbacks = strict_callbacks || false;
 
