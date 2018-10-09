@@ -400,7 +400,7 @@ function isDate(date) {
         {
             if (attachments.hasOwnProperty(i))
             {
-                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:application/octet-stream" + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:" + attachments[i].type.contentType + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
                 body += attachments[i].value;
             }
         }
