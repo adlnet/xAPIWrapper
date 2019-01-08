@@ -40,10 +40,20 @@ function toSHA1(text){
   else
     return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
 }
-function toSHA256(text){
-  if(CryptoJS && CryptoJS.SHA256)
-    return CryptoJS.SHA256(text).toString();
 
+function toSHA256(content) {
+  if (Object.prototype.toString.call(content) !== "[object ArrayBuffer]") {
+    return CryptoJS.SHA256(content).toString(CryptoJS.enc.Hex);
+  }
+
+  // Create a WordArray from the ArrayBuffer.
+  var i8a = new Uint8Array(content);
+  var a = [];
+  for (var i = 0; i < i8a.length; i += 4) {
+    a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
+  }
+
+  return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(a, i8a.length)).toString(CryptoJS.enc.Hex);
 }
 
 // check if string or object is date, if it is, return date object
@@ -286,6 +296,9 @@ function isDate(date) {
     // writes to the console if available
     XAPIWrapper.prototype.log = log;
 
+    // Default encoding
+    XAPIWrapper.prototype.defaultEncoding = 'utf-8';
+
     /*
      * Send a single statement to the LRS. Makes a Javascript object
      * with the statement id as 'id' available to the callback function.
@@ -336,7 +349,7 @@ function isDate(date) {
             if(attachments && attachments.length > 0)
             {
                 extraHeaders = {}
-                payload = this.buildMultipartPost(stmt,attachments,extraHeaders)
+                payload = this.buildMultipartPost(stmt,attachments,extraHeaders);
             }
             var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
                 "POST", payload, this.lrs.auth, callback, {"id":id}, null, extraHeaders,
@@ -346,6 +359,20 @@ function isDate(date) {
                         "id" :id};
         }
     };
+
+    XAPIWrapper.prototype.stringToArrayBuffer = function(content, encoding)
+    {
+        encoding = encoding || ADL.XAPIWrapper.defaultEncoding;
+
+        return new TextEncoder(encoding).encode(content).buffer;
+    };
+
+    XAPIWrapper.prototype.stringFromArrayBuffer = function(content, encoding) {
+        encoding = encoding || ADL.XAPIWrapper.defaultEncoding;
+
+        return new TextDecoder(encoding).decode(content);
+    };
+
     /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
     * extraHeaders should be an object. It will have the multipart boundary value set
@@ -359,14 +386,12 @@ function isDate(date) {
           value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
        }
     */
-    XAPIWrapper.prototype.buildMultipartPost = function(statement,attachments,extraHeaders)
+    XAPIWrapper.prototype.buildMultipartPost = function(statement, attachments, extraHeaders)
     {
         statement.attachments = [];
-        for(var i =0; i < attachments.length; i++)
-        {
-            //replace the term 'signature' with the hard coded definition for a signature attachment
-            if(attachments[i].type == "signature")
-            {
+        for (var i = 0; i < attachments.length; i++) {
+            // Replace the term 'signature' with the hard coded definition for a signature attachment
+            if (attachments[i].type == "signature") {
                 attachments[i].type = {
                    "usageType": "http://adlnet.gov/expapi/attachments/signature",
                    "display": {
@@ -379,37 +404,52 @@ function isDate(date) {
                 }
             }
 
-            //compute the length and the sha2 of the attachment
-            attachments[i].type.length = attachments[i].value.length;
+            if (typeof attachments[i].value === 'string') {
+                // Convert the string value to an array buffer.
+                attachments[i].value = this.stringToArrayBuffer(attachments[i].value);
+            }
+
+            // Compute the length and the sha2 of the attachment
+            attachments[i].type.length = attachments[i].value.byteLength;
             attachments[i].type.sha2 = toSHA256(attachments[i].value);
 
-            //attach the attachment metadata to the statement
-            statement.attachments.push(attachments[i].type)
+            // Attach the attachment metadata to the statement.
+            statement.attachments.push(attachments[i].type);
         }
 
-        var body = "";
-        var CRLF = "\r\n";
-        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
+        var blobParts = [];
+        var boundary = (Math.random() + ' ').substring(2,10) + (Math.random() + ' ').substring(2,10);
 
         extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
 
-        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
-        body += JSON.stringify(statement);
+        var CRLF = "\r\n";
+        var header = [
+            "--" + boundary,
+            "Content-Type: application/json",
+            "Content-Disposition: form-data; name=\"statement\"",
+            "",
+            JSON.stringify(statement)
+        ].join(CRLF) + CRLF;
 
-        for(var i in attachments)
-        {
-            if (attachments.hasOwnProperty(i))
-            {
-                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:" + attachments[i].type.contentType + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
-                body += attachments[i].value;
+        blobParts.push(header);
+
+        for (var i in attachments) {
+            if (attachments.hasOwnProperty(i)) {
+                var attachmentHeader = [
+                    "--" + boundary,
+                    "Content-Type: " + attachments[i].type.contentType,
+                    "Content-Transfer-Encoding: binary",
+                    "X-Experience-API-Hash: " + attachments[i].type.sha2
+                ].join(CRLF) + CRLF + CRLF;
+
+                blobParts.push(attachmentHeader);
+                blobParts.push(attachments[i].value);
             }
         }
-        body += CRLF + "--" + boundary + "--" + CRLF
 
+        blobParts.push(CRLF + "--" + boundary + "--" + CRLF);
 
-
-
-        return body;
+        return new Blob(blobParts);
     }
     /*
      * Send a list of statements to the LRS.
