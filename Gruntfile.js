@@ -16,6 +16,7 @@ module.exports = function(grunt) {
       'build': {
         files: {
           'dist/xapiwrapper.min.js': [
+            'node_modules/text-encoding/lib/encoding.js',
             'lib/cryptojs_v3.1.2.js',
             'src/activitytypes.js',
             'src/verbs.js',
