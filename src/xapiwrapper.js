@@ -1468,6 +1468,17 @@ function isDate(date) {
             xDomainRequest = (urlPort === location.port);
         }
 
+        //Add extended LMS-specified values to the URL
+        if (lrs !== null && lrs.extended !== undefined) {
+            extended = new Array();
+            for (prop in lrs.extended) {
+                extended.push(prop + "=" + encodeURIComponent(lrs.extended[prop]));
+            }
+            if (extended.length > 0) {
+                url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
+            }
+        }
+        
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
