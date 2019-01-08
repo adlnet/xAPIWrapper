@@ -154,7 +154,9 @@ function isDate(date) {
         this.base = getbase(this.lrs.endpoint);
 
         this.withCredentials = false;
-        this.withCredentials = config && config.withCredentials;
+        if (config && typeof(config.withCredentials) != 'undefined') {
+            this.withCredentials = config.withCredentials;
+        }
 
         // Ensure that callbacks are always executed, first param is error (null if no error) followed
         // by the result(s)
@@ -165,10 +167,15 @@ function isDate(date) {
         {
             var l = document.createElement("a");
             l.href = url;
-            if (l.protocol && l.host)
+            if (l.protocol && l.host) {
                 return l.protocol + "//" + l.host;
+            } else if (l.href) {
+                // IE 11 fix.
+                var parts = l.href.split("//");
+                return parts[0] + "//" + parts[1].substr(0, parts[1].indexOf("/"));
+            }
             else
-                ADL.XAPIWrapper.log("Couldn't create base url from endpoint: " + this.lrs.endpoint);
+                ADL.XAPIWrapper.log("Couldn't create base url from endpoint: " + url);
         }
 
         function updateAuth(obj, username, password){
