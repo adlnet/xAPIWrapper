@@ -10,7 +10,7 @@
                       "en-US" : "answered",
                       "fr-FR" : "a répondu",
                       "es-ES" : "contestó",
-                     "ar-AR" : "أجاب"}
+                      "ar-AR" : "أجاب"}
       },
       "asked" : {
          "id" : "http://adlnet.gov/expapi/verbs/asked",
@@ -18,7 +18,7 @@
                       "en-US" : "asked",
                       "fr-FR" : "a demandé",
                       "es-ES" : "preguntó",
-                     "ar-AR" : "طلب"}
+                      "ar-AR" : "طلب"}
       },
       "attempted" : {
          "id" : "http://adlnet.gov/expapi/verbs/attempted",
@@ -26,7 +26,7 @@
                       "en-US" : "attempted",
                       "fr-FR" : "a essayé",
                       "es-ES" : "intentó"
-                     "ar-AR" : "حاول"}
+                      "ar-AR" : "حاول"}
       },
       "attended" : {
          "id" : "http://adlnet.gov/expapi/verbs/attended",
@@ -34,7 +34,7 @@
                       "en-US" : "attended",
                       "fr-FR" : "a suivi",
                       "es-ES" : "asistió",
-                     "ar-AR" : "حضر"}
+                      "ar-AR" : "حضر"}
       },
       "commented" : {
          "id" : "http://adlnet.gov/expapi/verbs/commented",
@@ -42,7 +42,7 @@
                       "en-US" : "commented",
                       "fr-FR" : "a commenté",
                       "es-ES" : "comentó",
-                     "ar-AR" ; "علق"}
+                      "ar-AR" ; "علق"}
       },
       "completed" : {
          "id" : "http://adlnet.gov/expapi/verbs/completed",
@@ -50,7 +50,7 @@
                       "en-US" : "completed",
                       "fr-FR" : "a terminé",
                       "es-ES" : "completó",
-                     "ar-AR" : "أكمل"}
+                      "ar-AR" : "أكمل"}
       },
       "exited" : {
          "id" : "http://adlnet.gov/expapi/verbs/exited",
@@ -66,7 +66,7 @@
                       "en-US" : "experienced",
                       "fr-FR" : "a éprouvé",
                       "es-ES" : "experimentó",
-                     "ar-AR" : "شاهد"}
+                      "ar-AR" : "شاهد"}
       },
       "failed" : {
          "id" : "http://adlnet.gov/expapi/verbs/failed",
@@ -74,7 +74,7 @@
                       "en-US" : "failed",
                       "fr-FR" : "a échoué",
                       "es-ES" : "fracasó",
-                     "ar-AR" : "فشل"}
+                      "ar-AR" : "فشل"}
       },
       "imported" : {
          "id" : "http://adlnet.gov/expapi/verbs/imported",
@@ -82,7 +82,7 @@
                       "en-US" : "imported",
                       "fr-FR" : "a importé",
                       "es-ES" : "importó",
-                     "ar-AR" : "مستورد"}
+                      "ar-AR" : "مستورد"}
       },
       "initialized" : {
          "id" : "http://adlnet.gov/expapi/verbs/initialized",
@@ -90,7 +90,7 @@
                       "en-US" : "initialized",
                       "fr-FR" : "a initialisé",
                       "es-ES" : "inicializó",
-                     "ar-AR" : "بدأ"}
+                      "ar-AR" : "بدأ"}
       },
       "interacted" : {
          "id" : "http://adlnet.gov/expapi/verbs/interacted",
@@ -98,7 +98,7 @@
                       "en-US" : "interacted",
                       "fr-FR" : "a interagi",
                       "es-ES" : "interactuó",
-                     "ar-AR" : "تفاعل"}
+                      "ar-AR" : "تفاعل"}
       },
       "launched" : {
          "id" : "http://adlnet.gov/expapi/verbs/launched",
@@ -106,7 +106,7 @@
                       "en-US" : "launched",
                       "fr-FR" : "a lancé",
                       "es-ES" : "lanzó",
-                     "ar-AR" : "أطلق"}
+                      "ar-AR" : "أطلق"}
       },
       "mastered" : {
          "id" : "http://adlnet.gov/expapi/verbs/mastered",
@@ -114,7 +114,7 @@
                       "en-US" : "mastered",
                       "fr-FR" : "a maîtrisé",
                       "es-ES" : "dominó",
-                     "ar-AR" : "أتقن"}
+                      "ar-AR" : "أتقن"}
       },
       "passed" : {
          "id" : "http://adlnet.gov/expapi/verbs/passed",
@@ -122,7 +122,7 @@
                       "en-US" : "passed",
                       "fr-FR" : "a réussi",
                       "es-ES" : "aprobó",
-                     "ar-AR" : "نجح"}
+                      "ar-AR" : "نجح"}
       },
       "preferred" : {
          "id" : "http://adlnet.gov/expapi/verbs/preferred",
@@ -130,7 +130,7 @@
                       "en-US" : "preferred",
                       "fr-FR" : "a préféré",
                       "es-ES" : "prefirió",
-                     "ar-AR" : "فضل"}
+                      "ar-AR" : "فضل"}
       },
       "progressed" : {
          "id" : "http://adlnet.gov/expapi/verbs/progressed",
@@ -138,7 +138,7 @@
                       "en-US" : "progressed",
                       "fr-FR" : "a progressé",
                       "es-ES" : "progresó",
-                     "ar-AR" : "تقدم"}
+                      "ar-AR" : "تقدم"}
       },
       "registered" : {
          "id" : "http://adlnet.gov/expapi/verbs/registered",
@@ -146,7 +146,7 @@
                       "en-US" : "registered",
                       "fr-FR" : "a enregistré",
                       "es-ES" : "registró",
-                     "ar-AR" : "سجل"}
+                      "ar-AR" : "سجل"}
       },
       "responded" : {
          "id" : "http://adlnet.gov/expapi/verbs/responded",
@@ -154,7 +154,7 @@
                       "en-US" : "responded",
                       "fr-FR" : "a répondu",
                       "es-ES" : "respondió",
-                     "ar-AR" : "استجاب"}
+                      "ar-AR" : "استجاب"}
       },
       "resumed" : {
          "id" : "http://adlnet.gov/expapi/verbs/resumed",
@@ -162,12 +162,15 @@
                       "en-US" : "resumed",
                       "fr-FR" : "a repris",
                       "es-ES" : "continuó",
-                     "ar-AR" : "استأنف"}
+                      "ar-AR" : "استأنف"}
       },
       "satisfied" : {
          "id" : "https://w3id.org/xapi/adl/verbs/satisfied",
-         "display" : {"en-US" : "satisfied",
-                     "ar-AR" : "راض"}
+         "display" : {"de-DE" : "befriedigt",
+                      "en-US" : "satisfied",
+                      "fr-FR" : "satisfaite",
+                      "es-ES" : "satisfecho",
+                      "ar-AR" : "راض"}
       },
       "scored" : {
          "id" : "http://adlnet.gov/expapi/verbs/scored",
@@ -175,7 +178,7 @@
                       "en-US" : "scored",
                       "fr-FR" : "a marqué",
                       "es-ES" : "anotó",
-                     "ar-AR" : "سحل النقاط"}
+                      "ar-AR" : "سحل النقاط"}
       },
       "shared" : {
          "id" : "http://adlnet.gov/expapi/verbs/shared",
@@ -183,7 +186,7 @@
                       "en-US" : "shared",
                       "fr-FR" : "a partagé",
                       "es-ES" : "compartió",
-                     "ar-AR" : "شارك"}
+                      "ar-AR" : "شارك"}
       },
       "suspended" : {
          "id" : "http://adlnet.gov/expapi/verbs/suspended",
@@ -191,7 +194,7 @@
                       "en-US" : "suspended",
                       "fr-FR" : "a suspendu",
                       "es-ES" : "aplazó",
-                     "ar-AR" : "علق"}
+                      "ar-AR" : "علق"}
       },
       "terminated" : {
          "id" : "http://adlnet.gov/expapi/verbs/terminated",
@@ -199,7 +202,7 @@
                       "en-US" : "terminated",
                       "fr-FR" : "a terminé",
                       "es-ES" : "terminó",
-                     "ar-AR" : "أنهى"}
+                      "ar-AR" : "أنهى"}
       },
       "voided" : {
          "id" : "http://adlnet.gov/expapi/verbs/voided",
@@ -207,12 +210,15 @@
                       "en-US" : "voided",
                       "fr-FR" : "a annulé",
                       "es-ES" : "anuló",
-                     "ar-AR" : "فرغ"}
+                      "ar-AR" : "فرغ"}
       },
       "waived" : {
          "id" : "https://w3id.org/xapi/adl/verbs/waived",
-         "display" : {"en-US" : "waived",
-                     "ar-AR" : "تخلى"}
+         "display" : {"de-DE" : "verzichtet",
+                      "en-US" : "waived",
+                      "fr-FR" : "renoncé",
+                      "es-ES" : "renunciado",
+                      "ar-AR" : "تخلى"}
       }
    };
 }(window.ADL = window.ADL || {}));
