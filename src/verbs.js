@@ -25,7 +25,7 @@
          "display" : {"de-DE" : "versuchte",
                       "en-US" : "attempted",
                       "fr-FR" : "a essayé",
-                      "es-ES" : "intentó"
+                      "es-ES" : "intentó",
                       "ar-AR" : "حاول"}
       },
       "attended" : {
@@ -42,7 +42,7 @@
                       "en-US" : "commented",
                       "fr-FR" : "a commenté",
                       "es-ES" : "comentó",
-                      "ar-AR" ; "علق"}
+                      "ar-AR" : "علق"}
       },
       "completed" : {
          "id" : "http://adlnet.gov/expapi/verbs/completed",
