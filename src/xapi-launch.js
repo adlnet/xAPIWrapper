@@ -1,5 +1,4 @@
-(function(obj){
-var ADL = obj;
+(function(ADL, root){
 function getQueryVariable(variable)
 {
     var query = window.location.search.substring(1);
@@ -100,6 +99,7 @@ function setupCourseLinks(_nodes)
 
 function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
 {
+    if (isNode) throw ('ADL.launch not supported in node');
     cb = cb_wrap(cb);
     try
     {
@@ -177,5 +177,16 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
         cb(e);
     }
 };
+
+var isNode = Boolean(!root.document);
+var location = isNode ?
+    // Node
+    {
+        search: "",
+        protocol: "https:"
+    } :
+    // Browser
+    root.location;
+
 ADL.launch = xAPILaunch;
-})(window.ADL = window.ADL || {});
+})(window.ADL = window.ADL || {}, this);

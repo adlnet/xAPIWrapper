@@ -1,3 +1,4 @@
+(function(ADL, root){
 // adds toISOString to date objects if not there
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 if ( !Date.prototype.toISOString ) {
@@ -82,8 +83,6 @@ function isDate(date) {
     }
 }
 
-(function (ADL) {
-    
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -143,7 +142,7 @@ function isDate(date) {
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
-    XAPIWrapper = function(config, verifyxapiversion)
+    var XAPIWrapper = function(config, verifyxapiversion)
     {
 
 
@@ -165,8 +164,7 @@ function isDate(date) {
 
         function getbase(url)
         {
-            var l = document.createElement("a");
-            l.href = url;
+            var l = parseUrl(url);
             if (l.protocol && l.host) {
                 return l.protocol + "//" + l.host;
             } else if (l.href) {
@@ -184,7 +182,7 @@ function isDate(date) {
 
         if (verifyxapiversion && testConfig.call(this))
         {
-            window.ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+            ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
                 function(r){
                     if(r.status == 200)
                     {
@@ -1346,7 +1344,7 @@ function isDate(date) {
     {
         var qs, pairs, pair, ii, parsed;
 
-        qs = window.location.search.substr(1);
+        qs = location.search.substr(1);
 
         pairs = qs.split('&');
         parsed = {};
@@ -1369,6 +1367,37 @@ function isDate(date) {
         xhr.send(null);
     }
 
+    var isNode = Boolean(!root.document);
+
+    if (isNode) {
+        // Import encoding-indexes as required by text-encoding module
+        var eIndexes = require('../node_modules/text-encoding/lib/encoding-indexes');
+        global['encoding-indexes'] = eIndexes['encoding-indexes'];
+    }
+
+    // Node shim for browser loction
+    var location = isNode ?
+        // Node
+        {
+            search: "",
+            protocol: "https:"
+        } :
+        // Browser
+        root.location;
+   /**
+     * Cross environment implementation of a url parser
+     * @param  {string} url  Url to parse
+     * @return {object}  Parsed url
+     */
+    function parseUrl(url) {
+        // Node
+        if (isNode) return require("url").parse(url);
+
+        // Brower
+        var a = document.createElement("a");
+        a.href = url;
+        return a;
+    }
     /*
      * formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
@@ -1666,4 +1695,4 @@ function isDate(date) {
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
-}(window.ADL = window.ADL || {}));
+}(window.ADL = window.ADL || {}, this));
