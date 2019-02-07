@@ -1276,7 +1276,7 @@ function isDate(date) {
             if (obj2.hasOwnProperty(p) == false)
                 continue;
 
-            prop = obj2[p];
+            var prop = obj2[p];
             log(p + " : " + prop);
             try
             {
@@ -1398,6 +1398,154 @@ function isDate(date) {
         a.href = url;
         return a;
     }
+
+    // If in node, create a loose SHIM for XMLHttpRequest API
+    var XMLHttpRequest = root.XMLHttpRequest;
+    isNode && (function() {
+        XMLHttpRequest = function XMLHttpRequest() {
+            this.method = "GET";
+            this.url = null;
+            this.async = true;
+            this.headers = {};
+        };
+        XMLHttpRequest.prototype = {
+
+            open: function(method, url, async)
+            {
+
+                if (async === false) {
+                    throw "ADL xAPIWrapper does not support synchronous http requests in node";
+                }
+
+                this.method = method;
+                this.url = url;
+                this.withCredentials = true;
+                this.crossDomain = true;
+                this.responseText = "";
+                this.responseJSON = null;
+                this.readyState = 0;
+                this.status = 0;
+                this.onreadystatechange = function() {};
+                this.onerror = function(error) {};
+                this.onload = function() {};
+            },
+
+            setRequestHeader: function(name, value)
+            {
+                this.headers[name] = value;
+            },
+
+            send: function(data)
+            {
+                var http = this.url.includes("https:") ? require('https') : require("http");
+                var options = {
+                    method: this.method,
+                    headers: this.headers
+                };
+                var parsedUrl = parseUrl(this.url);
+                for (var k in parsedUrl) {
+                    options[k] = parsedUrl[k];
+                }
+                var req = http.request(options, function (res) {
+                    res.setEncoding('utf8');
+                    this.status = res.statusCode;
+                    res.on('data', function (d) {
+                        this.responseText+=d;
+                    }.bind(this));
+                    res.on('end', function () {
+                        this.readyState = 4;
+                        try {
+                            this.responseJSON = JSON.parse(this.responseText);
+                        } catch(error) {
+                            this.responseJSON = null;
+                        }
+                        this.onload();
+                    }.bind(this));
+                }.bind(this));
+                req.on('error', function (e) {
+                    this.readyState = 4;
+                    this.onerror();
+                }.bind(this));
+                req.end(data);
+            }
+
+        };
+
+     })();
+
+    /**
+     * Cross environment http requests
+     * @param  {string} method   the http request method (ex: "PUT", "GET")
+     * @param  {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
+     * @param  {object} [headers]   headers to include in the request
+     * @param  {string} [data]   the body of the request, if there is one
+     * @param  {object} [options] request options
+     * @param  {function} [complete ] completion callback function
+     * @return {object} xhr response object
+     */
+    function http(method, url, headers, data, options, complete)
+    {
+        headers = headers || {};
+        data = data || null;
+        options = options || {};
+
+        var async = options.async === undefined ? true : options.async;
+        var withCredentials = options.withCredentials === undefined ? true : options.withCredentials;
+
+        //See if this really is a cross domain
+        var urlParts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/);
+        var isCrossDomain = (location.protocol.toLowerCase() !== urlParts[1] || location.hostname.toLowerCase() !== urlParts[2]);
+        if (!isCrossDomain) {
+            var urlPort = (urlParts[3] === null ? ( urlParts[1] === 'http' ? '80' : '443') : urlParts[3]);
+            isCrossDomain = (urlPort === location.port);
+        }
+
+        var windowsVersionCheck = root.XDomainRequest && (XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+        var ieXDomain = (isCrossDomain && !isNode && windowsVersionCheck);
+
+        var xhr;
+        if (ieXDomain) {
+
+            // Use IE XDomainRequest instead of XMLHttpRequest
+            var ieModeRequest = ie_request(method, url, headers, data);
+            xhr = new XDomainRequest();
+            xhr.open(ieModeRequest.method, ieModeRequest.url);
+
+        } else {
+
+            // Use browser XMLHttpRequest or node XMLHttpRequest SHIM
+            xhr = new XMLHttpRequest();
+            xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
+            xhr.open(method, url, async);
+            for (var headerName in headers){
+                xhr.setRequestHeader(headerName, headers[headerName]);
+            }
+
+        }
+
+        var finished = false;
+
+        // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
+        // onload or both might fire depending upon browser, just covering all bases with event hooks and
+        // using 'finished' flag to avoid triggering events multiple times
+        xhr.onload = xhr.onerror = xhr.onreadystatechange = function () {
+            if (xhr.readyState !== 4) return;
+            if (finished) return;
+            finished = true;
+            complete && complete(xhr);
+        };
+
+        xhr.send(ieXDomain ? ieModeRequest.data : data);
+
+        if (!async && ieXDomain) {
+            var until = 1000 + new Date();
+            while (new Date() < until && xhr.readyState !== 4 && !finished) {
+                delay();
+            }
+        }
+
+    };
+
     /*
      * formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
@@ -1510,99 +1658,48 @@ function isDate(date) {
      */
     ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
     {
-        "use strict";
-
-        var xhr,
-            finished = false,
-            xDomainRequest = false,
-            ieXDomain = false,
-            ieModeRequest,
-            urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-            location = window.location,
-            urlPort,
-            result,
-            extended,
-            prop,
-            until;
 
         //Consolidate headers
         var headers = {};
         headers["Content-Type"] = "application/json";
         headers["Authorization"] = auth;
         headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
-        if(extraHeaders !== null){
+        if (extraHeaders !== null){
             for (var headerName in extraHeaders) {
-                if (extraHeaders.hasOwnProperty(headerName))
-                    headers[headerName] = extraHeaders[headerName];
+                if (!extraHeaders.hasOwnProperty(headerName)) return;
+                headers[headerName] =extraHeaders[headerName];
             }
-        }
-
-        //See if this really is a cross domain
-        xDomainRequest = (location.protocol.toLowerCase() !== urlparts[1] || location.hostname.toLowerCase() !== urlparts[2]);
-        if (!xDomainRequest) {
-            urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
-            xDomainRequest = (urlPort === location.port);
         }
 
         //Add extended LMS-specified values to the URL
         if (lrs !== null && lrs.extended !== undefined) {
-            extended = new Array();
-            for (prop in lrs.extended) {
+            var extended = new Array();
+            for (var prop in lrs.extended) {
                 extended.push(prop + "=" + encodeURIComponent(lrs.extended[prop]));
             }
             if (extended.length > 0) {
                 url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
             }
         }
-        
-        //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
-        if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-            xhr = new XMLHttpRequest();
-            xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
-            xhr.open(method, url, callback != null);
-            for(var headerName in headers){
-                xhr.setRequestHeader(headerName, headers[headerName]);
-            }
-        }
-        //Otherwise, use IE's XDomainRequest object
-        else {
-            ieXDomain = true;
-            ieModeRequest = ie_request(method, url, headers, data);
-            xhr = new XDomainRequest();
-            xhr.open(ieModeRequest.method, ieModeRequest.url);
-        }
 
-        //Setup request callback
-        function requestComplete() {
-            if(!finished){
-                // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
-                // onload or both might fire depending upon browser, just covering all bases with event hooks and
-                // using 'finished' flag to avoid triggering events multiple times
-                finished = true;
+        var async = Boolean(callback)
+
+        var result;
+        http(
+            method,
+            url,
+            headers,
+            data,
+            { // options
+                async: async,
+                withCredentials: withCredentials
+            },
+            function (xhr) {
+
                 var notFoundOk = (ignore404 && xhr.status === 404);
-                if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
-                    if (callback) {
-                        if(callbackargs){
-                            strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
-                        }
-                        else {
-                          var body;
+                var isOk = (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk);
 
-                            try {
-                                body = JSON.parse(xhr.responseText);
-                            }
-                            catch(e){
-                                body = xhr.responseText;
-                            }
-
-                          strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
-                        }
-                    } else {
-                        result = xhr;
-                        return xhr;
-                    }
-                } else {
+                if (!isOk) {
                     var warning;
                     try {
                         warning = "There was a problem communicating with the Learning Record Store. ( "
@@ -1615,34 +1712,28 @@ function isDate(date) {
                     result = xhr;
                     return xhr;
                 }
-            } else {
-                return result;
-            }
-        };
 
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-               return requestComplete();
-            }
-        };
+                if (!callback) return result = xhr;
 
-        xhr.onload = requestComplete;
-        xhr.onerror = requestComplete;
-        //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
-
-        xhr.send(ieXDomain ? ieModeRequest.data : data);
-
-        if (!callback) {
-            // synchronous
-            if (ieXDomain) {
-                // synchronous call in IE, with no asynchronous mode available.
-                until = 1000 + new Date();
-                while (new Date() < until && xhr.readyState !== 4 && !finished) {
-                    delay();
+                if (callbackargs) {
+                    strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
+                    return;
                 }
+
+                var body;
+
+                try {
+                    body = JSON.parse(xhr.responseText);
+                }
+                catch(e){
+                    body = xhr.responseText;
+                }
+
+                strictCallbacks ? callback(null, xhr, body) : callback(xhr, body);
             }
-            return requestComplete();
-        }
+        );
+        return result;
+
     };
 
     /*
