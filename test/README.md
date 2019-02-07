@@ -35,7 +35,8 @@ From a browser:
 * Use the commands
     ```
     .../xAPIWrapper
-    $npm install should
+    $ npm install -g mocha
+    $ npm install should
     ...and...
     $ mocha test/tests/test.util.js
 

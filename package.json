@@ -6,10 +6,11 @@
     "type": "git",
     "url": "https://github.com/adlnet/xAPIWrapper.git"
   },
+  "main": "dist/xapiwrapper.min.js",
   "devDependencies": {
-    "grunt": "~0.4.2",
+    "grunt": "^1.0.3",
+    "grunt-contrib-uglify": "^4.0.0",
     "grunt-bump": "0.0.16",
-    "grunt-contrib-uglify": "~0.2.2",
     "grunt-exec": "~0.4.6",
     "doxstrap": "~0.0.5"
   },

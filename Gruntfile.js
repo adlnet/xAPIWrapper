@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
 
+  var wrapper = grunt.file.read('./umdwrapper.js').split('//<%= output =>');
+
   // Project configuration.
   grunt.initConfig({
     'pkg': grunt.file.readJSON('package.json'),
@@ -11,7 +13,17 @@ module.exports = function(grunt) {
     },
     'uglify': {
       options: {
-        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
+        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'+wrapper[0],
+        footer: wrapper[1],
+        // sourceMap: {
+        //     filename: 'xapiwrapper.min.js.map',
+        //     url: 'xapiwrapper.min.js.map',
+        //     root: 'dist/',
+        //     includeSources: true
+        // },
+        // output: {
+        //     beautify: true
+        // }
       },
       'build': {
         files: {
