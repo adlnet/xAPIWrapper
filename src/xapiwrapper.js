@@ -1666,7 +1666,7 @@ function isDate(date) {
         headers['X-Experience-API-Version'] = ADL.XAPIWrapper.xapiVersion;
         if (extraHeaders !== null){
             for (var headerName in extraHeaders) {
-                if (!extraHeaders.hasOwnProperty(headerName)) return;
+                if (!extraHeaders.hasOwnProperty(headerName)) continue;
                 headers[headerName] =extraHeaders[headerName];
             }
         }
