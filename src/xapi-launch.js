@@ -52,7 +52,7 @@ function observeForNewLinks()
                         setupCourseLinks([node]);
                     }
                 }
-                
+
             }
         });
     });
@@ -179,6 +179,8 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
 };
 
 var isNode = Boolean(!root.document);
+
+// Node shim for browser location
 var location = isNode ?
     // Node
     {

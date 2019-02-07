@@ -1375,7 +1375,7 @@ function isDate(date) {
         global['encoding-indexes'] = eIndexes['encoding-indexes'];
     }
 
-    // Node shim for browser loction
+    // Node shim for browser location
     var location = isNode ?
         // Node
         {
@@ -1384,7 +1384,7 @@ function isDate(date) {
         } :
         // Browser
         root.location;
-   /**
+    /**
      * Cross environment implementation of a url parser
      * @param  {string} url  Url to parse
      * @return {object}  Parsed url
@@ -1537,6 +1537,7 @@ function isDate(date) {
 
         xhr.send(ieXDomain ? ieModeRequest.data : data);
 
+        // synchronous call in IE, with no asynchronous mode available.
         if (!async && ieXDomain) {
             var until = 1000 + new Date();
             while (new Date() < until && xhr.readyState !== 4 && !finished) {
