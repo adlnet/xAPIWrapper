@@ -259,4 +259,4 @@ describe('testing xAPI utilities', function () {
         });
     });
 
-})
+});

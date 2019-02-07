@@ -19,21 +19,14 @@
     <script src="./libs/should.min.js"></script>
     <script src="./libs/blanket_mocha.min.js" data-cover-adapter="./libs/mocha-blanket-adapter.js"></script>
 
-<!--    <script src="../dist/xapiwrapper.min.js"></script>-->
-    <script type="text/javascript" src="../lib/cryptojs_v3.1.2.js"></script>
-    <script type="text/javascript" src="../src/verbs.js"></script>
-    <script type="text/javascript" src="../src/xapistatement.js"></script>
-   <script type="text/javascript" src="../src/xapiwrapper.js"></script>
-    <script type="text/javascript" src="./my.mock.wrapper.js"></script>
-    <script type="text/javascript" src="../examples/stmtBank.js"></script>
-
-    <script src="../src/xapi-util.js" data-cover></script>
+    <script src="../dist/xapiwrapper.min.js"></script>
 
     <script>
         mocha.setup('bdd')
     </script>
-    <script src="./tests/test.util.js"></script>
+    <script src="./tests/test.xapiwrapper.js"></script>
     <script>
+
         mocha.checkLeaks();
         mocha.globals(['jQuery','grandTotalTemplate','blanket_toggleSource','_$blanket']);
         mocha.run();
