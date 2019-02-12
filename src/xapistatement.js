@@ -65,7 +65,7 @@
    * "result": {
    *      "An optional property that represents a measured outcome related to the Statement in which it is included."}}
    */
-  var XAPIStatement = function(actor,verb,object,result=null)
+  var XAPIStatement = function(actor, verb, object, result)
   {
 
     // initialize
