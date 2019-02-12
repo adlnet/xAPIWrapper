@@ -61,9 +61,11 @@
    *     "id": "http://adlnet.gov/expapi/verbs/launched" },
    * "object": {
    *     "objectType": "Activity",
-   *     "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" }}
+   *     "id": "http://vwf.adlnet.gov/xapi/virtual_world_sandbox" },
+   * "result": {
+   *      "An optional property that represents a measured outcome related to the Statement in which it is included."}}
    */
-  var XAPIStatement = function(actor,verb,object)
+  var XAPIStatement = function(actor,verb,object,result=null)
   {
 
     // initialize
@@ -134,7 +136,12 @@
       else this.object = null;
     }
     else this.object = null;
-
+    
+    // add support for result object
+    if(result)
+    {
+       this.result = result;
+    }
 
     this.generateId = function(){
       this.id = ADL.ruuid();
@@ -142,13 +149,14 @@
   };
 
   XAPIStatement.prototype.toString = function(){
-    return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString();
+    return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString() + " " + this.result.toString();
   };
 
   XAPIStatement.prototype.isValid = function(){
     return this.actor && this.actor.isValid() 
       && this.verb && this.verb.isValid() 
-      && this.object && this.object.isValid();
+      && this.object && this.object.isValid()
+      && this.result && this.result.isValid();
   };
 
   XAPIStatement.prototype.generateRegistration = function(){
