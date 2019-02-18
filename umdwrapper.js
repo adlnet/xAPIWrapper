@@ -3,7 +3,7 @@
     // the main closure as it breaks the module export in node
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(['exports'], function (exports) {
+        define(function () {
             return factory({}, root, root);
         });
     } else if (typeof exports === 'object' && typeof exports.nodeName !== 'string') {
