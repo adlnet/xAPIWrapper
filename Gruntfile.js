@@ -36,27 +36,6 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'+wrapper[0],
         footer: wrapper[1]
       },
-      'development': {
-        options: {
-          mangle: false,
-          output: {
-              comments: 'all',
-              beautify: true
-          },
-        },
-        files: {
-          'dist/xapiwrapper.js': [
-            'lib/cryptojs_v3.1.2.js',
-            'lib/utf8-encoding.js',
-            'temp/activitytypes.js',
-            'temp/verbs.js',
-            'temp/xapiwrapper.js',
-            'temp/xapistatement.js',
-            'temp/xapi-util.js',
-            'temp/xapi-launch.js'
-          ]
-        }
-      },
       'build': {
         options: {
           sourceMap: {
