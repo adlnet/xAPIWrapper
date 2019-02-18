@@ -14,7 +14,7 @@ describe('testing xapiwrapper.min.js', function () {
           onBrowser = true;
       }
       else {
-          ADL = require('../../dist/xapiwrapper.min');
+          ADL = require('../../dist/xapiwrapper');
           should = require('should');
       }
   });

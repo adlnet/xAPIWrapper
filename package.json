@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/adlnet/xAPIWrapper.git"
   },
-  "main": "dist/xapiwrapper.min.js",
+  "main": "dist/xapiwrapper.js",
   "devDependencies": {
     "doxstrap": "~0.0.5",
     "grunt": "^1.0.3",
