@@ -1,8 +1,7 @@
-(function(obj){
-var ADL = obj;
+(function(ADL, root){
 function getQueryVariable(variable)
 {
-    var query = window.location.search.substring(1);
+    var query = location.search.substring(1);
     var vars = query.split('&');
     for (var i = 0; i < vars.length; i++)
     {
@@ -20,7 +19,7 @@ function cb_wrap(cb)
     return function()
     {
         var args = arguments;
-        window.setTimeout(function()
+        setTimeout(function()
         {
             var callerArgs = [];
             for (var i = 0; i < args.length; i++)
@@ -100,6 +99,7 @@ function setupCourseLinks(_nodes)
 
 function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
 {
+    if (isNode) throw ('ADL.launch not supported in node');
     cb = cb_wrap(cb);
     try
     {
@@ -135,7 +135,7 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
         xhr.onerror = function(err)
         {
             //exit the try catch so inner execptions in the callback don't trigger this catch
-            window.setTimeout(function()
+            setTimeout(function()
             {
                 return cb(err);
             })
@@ -155,7 +155,7 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
             conf.withCredentials = true;
             conf.strictCallbacks = strict_callbacks || false;
 
-            window.onunload = function()
+            root.onunload = function()
             {
                 if (!terminate_on_unload)
                     return;
@@ -177,5 +177,18 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
         cb(e);
     }
 };
+
+var isNode = Boolean(!root.document);
+
+// Node shim for browser location
+var location = isNode ?
+    // Node
+    {
+        search: "",
+        protocol: "https:"
+    } :
+    // Browser
+    root.location;
+
 ADL.launch = xAPILaunch;
-})(window.ADL = window.ADL || {});
+})(window.ADL = window.ADL || {}, this);

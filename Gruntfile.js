@@ -1,4 +1,5 @@
 module.exports = function(grunt) {
+var wrapper = grunt.file.read('./umdwrapper.js').split('//<%= output =>');
 
   // Project configuration.
   grunt.initConfig({
@@ -10,10 +11,20 @@ module.exports = function(grunt) {
       }
     },
     'uglify': {
-      options: {
-        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
-      },
       'build': {
+        options: {
+          banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'+wrapper[0],
+          footer: wrapper[1],
+          // sourceMap: {
+          //     filename: 'xapiwrapper.min.js.map',
+          //     url: 'xapiwrapper.min.js.map',
+          //     root: 'dist/',
+          //     includeSources: true
+          // },
+          // output: {
+          //     beautify: true
+          // }
+        },
         files: {
           'dist/xapiwrapper.min.js': [
             'lib/cryptojs_v3.1.2.js',

@@ -1,3 +1,4 @@
+(function(ADL) {
 // adds toISOString to date objects if not there
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
 if ( !Date.prototype.toISOString ) {
@@ -82,8 +83,6 @@ function isDate(date) {
     }
 }
 
-(function (ADL) {
-    
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -143,7 +142,7 @@ function isDate(date) {
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
-    XAPIWrapper = function(config, verifyxapiversion)
+    var XAPIWrapper = function(config, verifyxapiversion)
     {
 
 
@@ -165,8 +164,7 @@ function isDate(date) {
 
         function getbase(url)
         {
-            var l = document.createElement("a");
-            l.href = url;
+            var l = parseUrl(url);
             if (l.protocol && l.host) {
                 return l.protocol + "//" + l.host;
             } else if (l.href) {
@@ -184,7 +182,7 @@ function isDate(date) {
 
         if (verifyxapiversion && testConfig.call(this))
         {
-            window.ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+            ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
                 function(r){
                     if(r.status == 200)
                     {
@@ -1278,7 +1276,7 @@ function isDate(date) {
             if (obj2.hasOwnProperty(p) == false)
                 continue;
 
-            prop = obj2[p];
+            var prop = obj2[p];
             log(p + " : " + prop);
             try
             {
@@ -1346,7 +1344,7 @@ function isDate(date) {
     {
         var qs, pairs, pair, ii, parsed;
 
-        qs = window.location.search.substr(1);
+        qs = location.search.substr(1);
 
         pairs = qs.split('&');
         parsed = {};
@@ -1364,11 +1362,110 @@ function isDate(date) {
     function delay()
     {
         var xhr = new XMLHttpRequest();
-        var url = window.location + '?forcenocache='+ADL.ruuid();
+        var url = location + '?forcenocache='+ADL.ruuid();
         xhr.open('GET', url, false);
         xhr.send(null);
     }
 
+    var isNode = Boolean(!root.document);
+
+    // Node shim for browser location
+    var location = isNode ?
+        // Node
+        {
+            search: "",
+            protocol: "https:"
+        } :
+        // Browser
+        root.location;
+    /**
+     * Cross environment implementation of a url parser
+     * @param  {string} url  Url to parse
+     * @return {object}  Parsed url
+     */
+    function parseUrl(url) {
+        // Node
+        if (isNode) return require("url").parse(url);
+
+        // Brower
+        var a = document.createElement("a");
+        a.href = url;
+        return a;
+    }
+
+    // If in node, create a loose SHIM for XMLHttpRequest API
+    var XMLHttpRequest = root.XMLHttpRequest;
+    isNode && (function() {
+        XMLHttpRequest = function XMLHttpRequest() {
+            this.method = "GET";
+            this.url = null;
+            this.async = true;
+            this.headers = {};
+        };
+        XMLHttpRequest.prototype = {
+
+            open: function(method, url, async)
+            {
+
+                if (async === false) {
+                    throw "ADL xAPIWrapper does not support synchronous http requests in node";
+                }
+
+                this.method = method;
+                this.url = url;
+                this.withCredentials = true;
+                this.crossDomain = true;
+                this.responseText = "";
+                this.responseJSON = null;
+                this.readyState = 0;
+                this.status = 0;
+                this.onreadystatechange = function() {};
+                this.onerror = function(error) {};
+                this.onload = function() {};
+            },
+
+            setRequestHeader: function(name, value)
+            {
+                this.headers[name] = value;
+            },
+
+            send: function(data)
+            {
+                var http = this.url.includes("https:") ? require('https') : require("http");
+                var options = {
+                    method: this.method,
+                    headers: this.headers
+                };
+                var parsedUrl = parseUrl(this.url);
+                for (var k in parsedUrl) {
+                    options[k] = parsedUrl[k];
+                }
+                var req = http.request(options, function (res) {
+                    res.setEncoding('utf8');
+                    this.status = res.statusCode;
+                    res.on('data', function (d) {
+                        this.responseText+=d;
+                    }.bind(this));
+                    res.on('end', function () {
+                        this.readyState = 4;
+                        try {
+                            this.responseJSON = JSON.parse(this.responseText);
+                        } catch(error) {
+                            this.responseJSON = null;
+                        }
+                        this.onload();
+                    }.bind(this));
+                }.bind(this));
+                req.on('error', function (e) {
+                    this.readyState = 4;
+                    this.onerror();
+                }.bind(this));
+                req.end(data);
+            }
+
+        };
+
+     })();
     /*
      * formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
@@ -1489,7 +1586,6 @@ function isDate(date) {
             ieXDomain = false,
             ieModeRequest,
             urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-            location = window.location,
             urlPort,
             result,
             extended,
@@ -1527,7 +1623,7 @@ function isDate(date) {
         }
         
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
+        var windowsVersionCheck = root.XDomainRequest && (root.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
             xhr = new XMLHttpRequest();
             xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
@@ -1666,4 +1762,4 @@ function isDate(date) {
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
-}(window.ADL = window.ADL || {}));
+})(window.ADL = window.ADL || {});

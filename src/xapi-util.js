@@ -1,10 +1,5 @@
-(function (obj) {
-    var ADL = obj;
-    var onBrowser = false;
-    if (typeof window !== 'undefined') {
-        ADL = window.ADL = obj.ADL || {};
-        onBrowser = true;
-    }
+(function (ADL) {
+    var onBrowser = (typeof window !== 'undefined');
 
     var getObjDefName = function (o) {
         if (o.definition && o.definition.name) {
@@ -154,4 +149,4 @@
         return disp;
     };
 
-})(this);
+})(window.ADL = window.ADL || {});
