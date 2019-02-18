@@ -2,24 +2,21 @@ module.exports = function(grunt) {
 
   var wrapper = grunt.file.read('./umdwrapper.js').split('//<%= output =>');
 
-  var fs = require("fs");
-  var path = require("path");
-
+  // Remove the function wrapping each file and save it in a temporary folder
+  // This allows intellisense to work correctly
   (function makeStrippedTempFiles(files) {
-    if (!fs.existsSync('temp')) fs.mkdirSync('temp');
+    grunt.file.mkdir('temp');
     files.forEach((file)=>{
-      // Remove the closure wrapping each file and save in a temporary folder
-      // This allows intellisense to work correctly
-      var stripped = grunt.file.read(file).replace(/(^([^\n]+\n{1}){1})|(\n[^\n]+\n$)/g, "");
-      fs.writeFileSync(path.join('temp', path.parse(file).base), stripped);
+      var stripped = grunt.file.read('src/'+file).replace(/(^([^\n]+\n{1}){1})|(\n[^\n]+\n$)/g, "");
+      grunt.file.write('temp/'+file, stripped);
     });
   })([
-    'src/activitytypes.js',
-    'src/verbs.js',
-    'src/xapiwrapper.js',
-    'src/xapistatement.js',
-    'src/xapi-util.js',
-    'src/xapi-launch.js'
+    'activitytypes.js',
+    'verbs.js',
+    'xapiwrapper.js',
+    'xapistatement.js',
+    'xapi-util.js',
+    'xapi-launch.js'
   ]);
 
   // Project configuration.
