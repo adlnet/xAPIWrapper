@@ -43,18 +43,18 @@ module.exports = function(grunt) {
               comments: 'all',
               beautify: true
           },
-          files: {
-            'dist/xapiwrapper.js': [
-              'lib/cryptojs_v3.1.2.js',
-              'lib/utf8-encoding.js',
-              'temp/activitytypes.js',
-              'temp/verbs.js',
-              'temp/xapiwrapper.js',
-              'temp/xapistatement.js',
-              'temp/xapi-util.js',
-              'temp/xapi-launch.js'
-            ]
-          }
+        },
+        files: {
+          'dist/xapiwrapper.js': [
+            'lib/cryptojs_v3.1.2.js',
+            'lib/utf8-encoding.js',
+            'temp/activitytypes.js',
+            'temp/verbs.js',
+            'temp/xapiwrapper.js',
+            'temp/xapistatement.js',
+            'temp/xapi-util.js',
+            'temp/xapi-launch.js'
+          ]
         }
       },
       'build': {
@@ -67,7 +67,7 @@ module.exports = function(grunt) {
           }
         },
         files: {
-          'dist/xapiwrapper.js': [
+          'dist/xapiwrapper.min.js': [
             'lib/cryptojs_v3.1.2.js',
             'lib/utf8-encoding.js',
             'temp/activitytypes.js',
