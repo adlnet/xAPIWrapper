@@ -1,89 +1,89 @@
-// adds toISOString to date objects if not there
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-if ( !Date.prototype.toISOString ) {
-  ( function() {
-
-    function pad(number) {
-      var r = String(number);
-      if ( r.length === 1 ) {
-        r = '0' + r;
-      }
-      return r;
-    }
-
-    Date.prototype.toISOString = function() {
-      return this.getUTCFullYear()
-        + '-' + pad( this.getUTCMonth() + 1 )
-        + '-' + pad( this.getUTCDate() )
-        + 'T' + pad( this.getUTCHours() )
-        + ':' + pad( this.getUTCMinutes() )
-        + ':' + pad( this.getUTCSeconds() )
-        + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-        + 'Z';
-    };
-
-  }() );
-}
-
-// shim for old-style Base64 lib
-function toBase64(text){
-  if(CryptoJS && CryptoJS.enc.Base64)
-    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
-  else
-    return Base64.encode(text);
-}
-
-// shim for old-style crypto lib
-function toSHA1(text){
-  if(CryptoJS && CryptoJS.SHA1)
-    return CryptoJS.SHA1(text).toString();
-  else
-    return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
-}
-
-function toSHA256(content) {
-  if (Object.prototype.toString.call(content) !== "[object ArrayBuffer]") {
-    return CryptoJS.SHA256(content).toString(CryptoJS.enc.Hex);
-  }
-
-  // Create a WordArray from the ArrayBuffer.
-  var i8a = new Uint8Array(content);
-  var a = [];
-  for (var i = 0; i < i8a.length; i += 4) {
-    a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
-  }
-
-  return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(a, i8a.length)).toString(CryptoJS.enc.Hex);
-}
-
-// check if string or object is date, if it is, return date object
-// feburary 31st == march 3rd in this solution
-function isDate(date) {
-    // check if object is being passed
-    if ( Object.prototype.toString.call(date) === "[object Date]" )
-        var d = date;
-    else
-        var d = new Date(date);
-    // deep check on date object
-    if ( Object.prototype.toString.call(d) === "[object Date]" )
-    {
-        // it is a date
-        if ( isNaN( d.valueOf() ) )
-        {
-            ADL.XAPIWrapper.log("Invalid date String passed");
-            return null;
-        } else {
-            return d;
-        }
-    } else {
-        // not a date
-        ADL.XAPIWrapper.log("Invalid date object");
-        return null;
-    }
-}
-
 (function (ADL) {
-    
+
+    // adds toISOString to date objects if not there
+    // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+    if ( !Date.prototype.toISOString ) {
+      ( function() {
+
+        function pad(number) {
+          var r = String(number);
+          if ( r.length === 1 ) {
+            r = '0' + r;
+          }
+          return r;
+        }
+
+        Date.prototype.toISOString = function() {
+          return this.getUTCFullYear()
+            + '-' + pad( this.getUTCMonth() + 1 )
+            + '-' + pad( this.getUTCDate() )
+            + 'T' + pad( this.getUTCHours() )
+            + ':' + pad( this.getUTCMinutes() )
+            + ':' + pad( this.getUTCSeconds() )
+            + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+            + 'Z';
+        };
+
+      }() );
+    }
+
+    // shim for old-style Base64 lib
+    function toBase64(text){
+      if(CryptoJS && CryptoJS.enc.Base64)
+        return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
+      else
+        return Base64.encode(text);
+    }
+
+    // shim for old-style crypto lib
+    function toSHA1(text){
+      if(CryptoJS && CryptoJS.SHA1)
+        return CryptoJS.SHA1(text).toString();
+      else
+        return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
+    }
+
+    function toSHA256(content) {
+      if (Object.prototype.toString.call(content) !== "[object ArrayBuffer]") {
+        return CryptoJS.SHA256(content).toString(CryptoJS.enc.Hex);
+      }
+
+      // Create a WordArray from the ArrayBuffer.
+      var i8a = new Uint8Array(content);
+      var a = [];
+      for (var i = 0; i < i8a.length; i += 4) {
+        a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
+      }
+
+      return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(a, i8a.length)).toString(CryptoJS.enc.Hex);
+    }
+
+    // check if string or object is date, if it is, return date object
+    // feburary 31st == march 3rd in this solution
+    function isDate(date) {
+        // check if object is being passed
+        if ( Object.prototype.toString.call(date) === "[object Date]" )
+            var d = date;
+        else
+            var d = new Date(date);
+        // deep check on date object
+        if ( Object.prototype.toString.call(d) === "[object Date]" )
+        {
+            // it is a date
+            if ( isNaN( d.valueOf() ) )
+            {
+                ADL.XAPIWrapper.log("Invalid date String passed");
+                return null;
+            } else {
+                return d;
+            }
+        } else {
+            // not a date
+            ADL.XAPIWrapper.log("Invalid date object");
+            return null;
+        }
+    }
+
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -1525,7 +1525,7 @@ function isDate(date) {
                 url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
             }
         }
-        
+
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
