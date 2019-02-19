@@ -1070,6 +1070,9 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
 >> 404
 ```
 
+## Browser support
+IE10+
+
 ## Contributing to the project
 We welcome contributions to this project. Fork this repository,
 make changes, [re-minify](https://github.com/adlnet/xAPIWrapper#building-the-project), and submit pull requests. If you're not comfortable
