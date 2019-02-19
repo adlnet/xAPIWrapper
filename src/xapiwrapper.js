@@ -1,29 +1,24 @@
-// adds toISOString to date objects if not there
+// Normalises missing Date.prototype.toISOString for IE < 9
 // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-if ( !Date.prototype.toISOString ) {
-  ( function() {
-
-    function pad(number) {
-      var r = String(number);
-      if ( r.length === 1 ) {
-        r = '0' + r;
-      }
-      return r;
-    }
-
-    Date.prototype.toISOString = function() {
-      return this.getUTCFullYear()
-        + '-' + pad( this.getUTCMonth() + 1 )
-        + '-' + pad( this.getUTCDate() )
-        + 'T' + pad( this.getUTCHours() )
-        + ':' + pad( this.getUTCMinutes() )
-        + ':' + pad( this.getUTCSeconds() )
-        + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-        + 'Z';
-    };
-
-  }() );
+function pad(number) {
+  var r = String(number);
+  if ( r.length === 1 ) {
+    r = '0' + r;
+  }
+  return r;
 }
+
+function DateToISOString(date) {
+  if (Date.prototype.toISOString) return date.toISOString();
+  return date.getUTCFullYear()
+    + '-' + pad( date.getUTCMonth() + 1 )
+    + '-' + pad( date.getUTCDate() )
+    + 'T' + pad( date.getUTCHours() )
+    + ':' + pad( date.getUTCMinutes() )
+    + ':' + pad( date.getUTCSeconds() )
+    + '.' + String( (date.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+    + 'Z';
+};
 
 // shim for old-style Base64 lib
 function toBase64(text){
@@ -83,7 +78,7 @@ function isDate(date) {
 }
 
 (function (ADL) {
-    
+
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -544,7 +539,7 @@ function isDate(date) {
                     {
                         if (s == "until" || s == "since") {
                             var d = new Date(searchparams[s]);
-                            urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                            urlparams.push(s + "=" + encodeURIComponent(DateToISOString(d)));
                         } else {
                             urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
                         }
@@ -733,7 +728,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(DateToISOString(since));
                 }
             }
 
@@ -938,7 +933,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(DateToISOString(since));
                 }
             }
 
@@ -1163,7 +1158,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(DateToISOString(since));
                 }
             }
 
@@ -1525,7 +1520,7 @@ function isDate(date) {
                 url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
             }
         }
-        
+
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
