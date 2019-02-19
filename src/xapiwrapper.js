@@ -82,8 +82,6 @@ function isDate(date) {
     }
 }
 
-(function (ADL) {
-    
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -1525,7 +1523,7 @@ function isDate(date) {
                 url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
             }
         }
-        
+
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
@@ -1666,4 +1664,3 @@ function isDate(date) {
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
-}(window.ADL = window.ADL || {}));

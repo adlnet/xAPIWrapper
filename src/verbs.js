@@ -1,4 +1,4 @@
-(function(ADL){
+
    ADL.verbs = {
       "abandoned" : {
          "id" : "https://w3id.org/xapi/adl/verbs/abandoned",
@@ -221,4 +221,4 @@
                       "ar-AR" : "تخلى"}
       }
    };
-}(window.ADL = window.ADL || {}));
+

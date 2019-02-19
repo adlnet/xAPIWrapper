@@ -1,4 +1,3 @@
-(function(ADL){
 
   function _getobj(obj, path){
     var parts = path.split('.');
@@ -81,7 +80,7 @@
       verb = stmt.verb;
       object = stmt.object;
     }
-    
+
     if(actor){
       if( actor instanceof Agent )
         this.actor = actor;
@@ -91,7 +90,7 @@
         this.actor = new Group(actor);
     }
     else this.actor = null;
-    
+
     if(verb){
       if( verb instanceof Verb )
         this.verb = verb;
@@ -136,7 +135,7 @@
       else this.object = null;
     }
     else this.object = null;
-    
+
     // add support for result object
     if(result)
     {
@@ -153,8 +152,8 @@
   };
 
   XAPIStatement.prototype.isValid = function(){
-    return this.actor && this.actor.isValid() 
-      && this.verb && this.verb.isValid() 
+    return this.actor && this.actor.isValid()
+      && this.verb && this.verb.isValid()
       && this.object && this.object.isValid()
       && this.result && this.result.isValid();
   };
@@ -175,7 +174,7 @@
     _getobj(this,'context.contextActivities.other[]').push(new Activity(activity));
   };
 
-  
+
   /*
    * Provides an easy constructor for xAPI agent objects
    * @param {string} identifier   One of the Inverse Functional Identifiers specified in the spec.
@@ -217,7 +216,7 @@
       || (this.objectType === 'Group' && this.member);
   };
 
-  
+
   /*
    * A type of agent, can contain multiple agents
    * @param {string} [identifier]   (optional if `members` specified) See Agent.
@@ -232,7 +231,7 @@
   };
   Group.prototype = new Agent;
 
-  
+
   /*
    * Really only provides a convenient language map
    * @param {string} id   The IRI of the action taken
@@ -270,7 +269,7 @@
     return this.id;
   };
 
-  
+
   /*
    * Describes an object that an agent interacts with
    * @param {string} id   The unique activity IRI
@@ -287,18 +286,18 @@
       }
       return;
     }
-    
+
     this.objectType = 'Activity';
     this.id = id;
     if( name || description )
     {
       this.definition = {};
-      
+
       if( typeof(name) === 'string' || name instanceof String )
         this.definition.name = {'en-US': name};
       else if(name)
         this.definition.name = name;
-      
+
       if( typeof(description) === 'string' || description instanceof String )
         this.definition.description = {'en-US': description};
       else if(description)
@@ -314,7 +313,7 @@
   Activity.prototype.isValid = function(){
     return this.id && (!this.objectType || this.objectType === 'Activity');
   };
-  
+
   /*
    * An object that refers to a separate statement
    * @param {string} id   The UUID of another xAPI statement
@@ -336,7 +335,7 @@
   StatementRef.prototype.isValid = function(){
     return this.id && this.objectType && this.objectType === 'StatementRef';
   };
-  
+
   /*
    * A self-contained statement as the object of another statement
    * See XAPIStatement for constructor details
@@ -357,7 +356,7 @@
   SubStatement.prototype.toString = function(){
     return '"' + SubStatement.prototype.prototype.toString.call(this) + '"';
   };
-  
+
   XAPIStatement.Agent = Agent;
   XAPIStatement.Group = Group;
   XAPIStatement.Verb = Verb;
@@ -366,4 +365,3 @@
   XAPIStatement.SubStatement = SubStatement;
   ADL.XAPIStatement = XAPIStatement;
 
-}(window.ADL = window.ADL || {}));

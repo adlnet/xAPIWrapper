@@ -1,5 +1,4 @@
-(function(obj){
-var ADL = obj;
+
 function getQueryVariable(variable)
 {
     var query = window.location.search.substring(1);
@@ -53,7 +52,7 @@ function observeForNewLinks()
                         setupCourseLinks([node]);
                     }
                 }
-                
+
             }
         });
     });
@@ -178,4 +177,4 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
     }
 };
 ADL.launch = xAPILaunch;
-})(window.ADL = window.ADL || {});
+

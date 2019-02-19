@@ -5,14 +5,15 @@ Wrapper to simplify communication to an LRS. [Read more about the Experience API
 
 Check out the [Reference Documentation Here](http://adlnet.github.io/xAPIWrapper/)
 
-### xapiwrapper.js
+### xapiwrapper.min.js
 
 Javascript Experience API wrapper.  
 This javascript file can be included to web based xAPI clients to
 simplify the process of connecting and communicating to an LRS. It
 is enclosed in an ADL object like the
 [ADL xAPI Verbs project](https://github.com/adlnet/xAPIVerbs), allowing
-a single object to contain both the ADL verbs and the ADL xapiwrapper.
+a single object to contain the ADL verbs, the ADL xAPI Wrapper, an
+xAPI statements API and an LRS launch mechanism.
 
 This wrapper has two version identifiers within the code. One, `xapiVersion`
 is the version of the Experience API Specification for which it was built,
@@ -21,19 +22,8 @@ xAPI Specification version. The second is the build date in the header of the mi
 which can be used to tell if you're using the latest version.
 
 ### Dependencies
-The wrapper relies on external dependencies to perform some actions. Make sure you include
-our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
-in your pages if you're not using `xapiwrapper.min.js`
-
-``` html
-<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-```
-
-In the past we used the below libraries for the same purpose. You may continue to use them
-for current systems, but the CryptoJS compilation is recommended.
-
-* base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
-* 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
+The wrapper relies on an external dependency [CryptoJS](https://code.google.com/p/crypto-js/) 
+to perform some actions. A compiled version is bundled with the library. 
 
 ## Installing
 
@@ -42,8 +32,7 @@ Using this wrapper could either be done by downloading the [latest release](http
 ### Downloading the latest release version
 
 The minified wrapper is self-contained. It includes all required dependencies
-in addition to the ADL Verbs and the XAPIStatement module. For production sites,
-this version of the wrapper is recommended.
+in addition to the ADL Verbs and the [CryptoJS](https://code.google.com/p/crypto-js/) module. 
 
 Download the latest [release](https://github.com/adlnet/xAPIWrapper/releases)
 
@@ -98,17 +87,7 @@ dependencies.
 
 #### Including in your Software.
 
-Include the wrapper file, and optionally the dependencies.
-
-``` html
-<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-<script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/xapistatement.js"></script>
-<script type="text/javascript" src="./src/xapiwrapper.js"></script>
-```
-
-Alternatively, use the minified version:
-
+Include the library:
 ``` html
 <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
 ```
@@ -206,18 +185,6 @@ The xAPI Wrapper supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-lau
 This allows configuration - agent info, lrs endpoint info - to be sent to the wrapper,
 instead of using hard-coded configurations. See [Using the xAPI-Launch library](https://github.com/adlnet/xapi-launch#using-the-xapi-launch-library) for
 more details.  
-
-If you are using the src files, include xapi-launch.js.  
-
-``` html
-<script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
-<script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/xapi-launch.js"></script>
-<script type="text/javascript" src="./src/xapistatement.js"></script>
-<script type="text/javascript" src="./src/xapiwrapper.js"></script>
-```
-
-Alternatively, use the minified xapiwrapper version, which includes xapi-launch:
 
 ``` html
 <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>

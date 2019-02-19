@@ -1,4 +1,4 @@
-(function(ADL){
+
    ADL.activityTypes = {
       "assessment": "http://adlnet.gov/expapi/activities/assessment",
       "attempt": "http://adlnet.gov/expapi/activities/attempt",
@@ -16,4 +16,4 @@
       "question": "http://adlnet.gov/expapi/activities/question",
       "simulation": "http://adlnet.gov/expapi/activities/simulation"
    };
-}(window.ADL = window.ADL || {}));
+
