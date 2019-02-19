@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "mocha": "^5.2.0",
-    "should": "^13.2.3",
-    "text-encoding": "^0.7.0"
+    "should": "^13.2.3"
   }
 }
