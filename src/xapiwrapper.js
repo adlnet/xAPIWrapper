@@ -83,7 +83,7 @@ function isDate(date) {
 }
 
 (function (ADL) {
-    
+
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -1361,58 +1361,6 @@ function isDate(date) {
     }
 
 
-    function delay()
-    {
-        var xhr = new XMLHttpRequest();
-        var url = window.location + '?forcenocache='+ADL.ruuid();
-        xhr.open('GET', url, false);
-        xhr.send(null);
-    }
-
-    /*
-     * formats a request in a way that IE will allow
-     * @param {string} method   the http request method (ex: "PUT", "GET")
-     * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
-     * @param {array} [headers]   headers to include in the request
-     * @param {string} [data]   the body of the request, if there is one
-     * @return {object} xhr response object
-     */
-    function ie_request(method, url, headers, data)
-    {
-        var newUrl = url;
-
-        //Everything that was on query string goes into form vars
-        var formData = new Array();
-        var qsIndex = newUrl.indexOf('?');
-        if(qsIndex > 0){
-            formData.push(newUrl.substr(qsIndex+1));
-            newUrl = newUrl.substr(0, qsIndex);
-        }
-
-        //Method has to go on querystring, and nothing else
-        newUrl = newUrl + '?method=' + method;
-
-        //Headers
-        if(headers !== null){
-            for (var headerName in headers) {
-                if (headers.hasOwnProperty(headerName))
-                    formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
-            }
-        }
-
-        //The original data is repackaged as "content" form var
-        if(data !== null){
-            formData.push('content=' + encodeURIComponent(data));
-        }
-
-        return {
-            "method":"POST",
-            "url":newUrl,
-            "headers":{},
-            "data":formData.join("&")
-        };
-    }
-
     /*!
     Excerpt from: Math.uuid.js (v1.4)
     http://www.broofa.com
@@ -1485,16 +1433,9 @@ function isDate(date) {
 
         var xhr,
             finished = false,
-            xDomainRequest = false,
-            ieXDomain = false,
-            ieModeRequest,
-            urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
-            location = window.location,
-            urlPort,
             result,
             extended,
-            prop,
-            until;
+            prop;
 
         //Consolidate headers
         var headers = {};
@@ -1508,13 +1449,6 @@ function isDate(date) {
             }
         }
 
-        //See if this really is a cross domain
-        xDomainRequest = (location.protocol.toLowerCase() !== urlparts[1] || location.hostname.toLowerCase() !== urlparts[2]);
-        if (!xDomainRequest) {
-            urlPort = (urlparts[3] === null ? ( urlparts[1] === 'http' ? '80' : '443') : urlparts[3]);
-            xDomainRequest = (urlPort === location.port);
-        }
-
         //Add extended LMS-specified values to the URL
         if (lrs !== null && lrs.extended !== undefined) {
             extended = new Array();
@@ -1525,29 +1459,18 @@ function isDate(date) {
                 url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
             }
         }
-        
-        //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
-        if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-            xhr = new XMLHttpRequest();
-            xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
-            xhr.open(method, url, callback != null);
-            for(var headerName in headers){
-                xhr.setRequestHeader(headerName, headers[headerName]);
-            }
-        }
-        //Otherwise, use IE's XDomainRequest object
-        else {
-            ieXDomain = true;
-            ieModeRequest = ie_request(method, url, headers, data);
-            xhr = new XDomainRequest();
-            xhr.open(ieModeRequest.method, ieModeRequest.url);
+
+        xhr = new XMLHttpRequest();
+        xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
+        xhr.open(method, url, callback != null);
+        for(var headerName in headers){
+            xhr.setRequestHeader(headerName, headers[headerName]);
         }
 
         //Setup request callback
         function requestComplete() {
             if(!finished){
-                // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
+                // may be in sync or async mode, using XMLHttpRequest, onreadystatechange or
                 // onload or both might fire depending upon browser, just covering all bases with event hooks and
                 // using 'finished' flag to avoid triggering events multiple times
                 finished = true;
@@ -1601,19 +1524,8 @@ function isDate(date) {
         xhr.onerror = requestComplete;
         //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
 
-        xhr.send(ieXDomain ? ieModeRequest.data : data);
+        xhr.send(data);
 
-        if (!callback) {
-            // synchronous
-            if (ieXDomain) {
-                // synchronous call in IE, with no asynchronous mode available.
-                until = 1000 + new Date();
-                while (new Date() < until && xhr.readyState !== 4 && !finished) {
-                    delay();
-                }
-            }
-            return requestComplete();
-        }
     };
 
     /*
