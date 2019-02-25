@@ -83,7 +83,7 @@ function isDate(date) {
 }
 
 (function (ADL) {
-    
+
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -143,7 +143,7 @@ function isDate(date) {
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
-    XAPIWrapper = function(config, verifyxapiversion)
+    var XAPIWrapper = function(config, verifyxapiversion)
     {
 
 
@@ -1278,7 +1278,7 @@ function isDate(date) {
             if (obj2.hasOwnProperty(p) == false)
                 continue;
 
-            prop = obj2[p];
+            var prop = obj2[p];
             log(p + " : " + prop);
             try
             {
@@ -1525,7 +1525,7 @@ function isDate(date) {
                 url += (url.indexOf("?") > -1 ? "&" : "?") + extended.join("&");
             }
         }
-        
+
         //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
         var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
         if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
