@@ -83,6 +83,7 @@ function isDate(date) {
     }
 }
 
+(function (ADL) {
     log.debug = false;
 
     function getByteLen(normal_val) {
