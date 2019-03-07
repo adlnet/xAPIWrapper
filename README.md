@@ -23,7 +23,7 @@ which can be used to tell if you're using the latest version.
 ### Dependencies
 The wrapper relies on external dependencies to perform some actions. Make sure you include
 our compilation of the necessary [CryptoJS](https://code.google.com/p/crypto-js/) components
-in your pages if you're not using `xapiwrapper.min.js`
+in your pages if you're not using `xapiwrapper.min.js`.
 
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
@@ -34,6 +34,12 @@ for current systems, but the CryptoJS compilation is recommended.
 
 * base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
 * 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
+
+For [IE/Edge support](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder#Browser_compatibility) you 
+will need to include a `TextEncoder` and `TextDecoder` shim if you're not using `xapiwrapper.min.js`
+``` html
+<script type="text/javascript" src="./lib/utf8-text-encoding.js"></script>
+```
 
 ## Installing
 
@@ -102,6 +108,7 @@ Include the wrapper file, and optionally the dependencies.
 
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./lib/utf8-text-encoding.js"></script>
 <script type="text/javascript" src="./src/verbs.js"></script>
 <script type="text/javascript" src="./src/xapistatement.js"></script>
 <script type="text/javascript" src="./src/xapiwrapper.js"></script>
@@ -211,6 +218,7 @@ If you are using the src files, include xapi-launch.js.
 
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
+<script type="text/javascript" src="./lib/utf8-text-encoding.js"></script>
 <script type="text/javascript" src="./src/verbs.js"></script>
 <script type="text/javascript" src="./src/xapi-launch.js"></script>
 <script type="text/javascript" src="./src/xapistatement.js"></script>
@@ -1061,6 +1069,9 @@ ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
                                  "agentprofile");
 >> 404
 ```
+
+## Browser support
+IE10+
 
 ## Contributing to the project
 We welcome contributions to this project. Fork this repository,
