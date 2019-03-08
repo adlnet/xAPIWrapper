@@ -1328,9 +1328,9 @@ function isDate(date) {
                     delete qsVars[prop];
                 }
             }
-            if (Object.keys(qsVars).length !== 0) {
-              lrs.extended = qsVars;
-            }
+            // if (Object.keys(qsVars).length !== 0) {
+            //   lrs.extended = qsVars;
+            // }
 
             lrs = mergeRecursive(config, lrs);
         }
