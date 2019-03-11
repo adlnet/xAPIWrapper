@@ -1329,7 +1329,7 @@ function isDate(date) {
                 }
             }
             // if (Object.keys(qsVars).length !== 0) {
-            //   lrs.extended = qsVars;
+            //     lrs.extended = qsVars;
             // }
 
             lrs = mergeRecursive(config, lrs);
