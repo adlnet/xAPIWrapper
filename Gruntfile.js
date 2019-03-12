@@ -1,5 +1,7 @@
 module.exports = function(grunt) {
 
+  var path = require('path');
+
   // Project configuration.
   grunt.initConfig({
     'pkg': grunt.file.readJSON('package.json'),
@@ -16,7 +18,6 @@ module.exports = function(grunt) {
       'build': {
         files: {
           'dist/xapiwrapper.min.js': [
-            'node_modules/text-encoding/lib/encoding.js',
             'lib/cryptojs_v3.1.2.js',
             'src/activitytypes.js',
             'src/verbs.js',
@@ -29,7 +30,7 @@ module.exports = function(grunt) {
       }
     },
     'exec': {
-      docs: './node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js:src/xapistatement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
+      docs: `node ./node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js${path.delimiter}src/xapistatement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc`
     }
   });
 

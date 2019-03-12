@@ -1,88 +1,59 @@
-// adds toISOString to date objects if not there
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-if ( !Date.prototype.toISOString ) {
-  ( function() {
-
-    function pad(number) {
-      var r = String(number);
-      if ( r.length === 1 ) {
-        r = '0' + r;
-      }
-      return r;
-    }
-
-    Date.prototype.toISOString = function() {
-      return this.getUTCFullYear()
-        + '-' + pad( this.getUTCMonth() + 1 )
-        + '-' + pad( this.getUTCDate() )
-        + 'T' + pad( this.getUTCHours() )
-        + ':' + pad( this.getUTCMinutes() )
-        + ':' + pad( this.getUTCSeconds() )
-        + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-        + 'Z';
-    };
-
-  }() );
-}
-
-// shim for old-style Base64 lib
-function toBase64(text){
-  if(CryptoJS && CryptoJS.enc.Base64)
-    return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
-  else
-    return Base64.encode(text);
-}
-
-// shim for old-style crypto lib
-function toSHA1(text){
-  if(CryptoJS && CryptoJS.SHA1)
-    return CryptoJS.SHA1(text).toString();
-  else
-    return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
-}
-
-function toSHA256(content) {
-  if (Object.prototype.toString.call(content) !== "[object ArrayBuffer]") {
-    return CryptoJS.SHA256(content).toString(CryptoJS.enc.Hex);
-  }
-
-  // Create a WordArray from the ArrayBuffer.
-  var i8a = new Uint8Array(content);
-  var a = [];
-  for (var i = 0; i < i8a.length; i += 4) {
-    a.push(i8a[i] << 24 | i8a[i + 1] << 16 | i8a[i + 2] << 8 | i8a[i + 3]);
-  }
-
-  return CryptoJS.SHA256(CryptoJS.lib.WordArray.create(a, i8a.length)).toString(CryptoJS.enc.Hex);
-}
-
-// check if string or object is date, if it is, return date object
-// feburary 31st == march 3rd in this solution
-function isDate(date) {
-    // check if object is being passed
-    if ( Object.prototype.toString.call(date) === "[object Date]" )
-        var d = date;
-    else
-        var d = new Date(date);
-    // deep check on date object
-    if ( Object.prototype.toString.call(d) === "[object Date]" )
-    {
-        // it is a date
-        if ( isNaN( d.valueOf() ) )
-        {
-            ADL.XAPIWrapper.log("Invalid date String passed");
-            return null;
-        } else {
-            return d;
-        }
-    } else {
-        // not a date
-        ADL.XAPIWrapper.log("Invalid date object");
-        return null;
-    }
-}
-
 (function (ADL) {
+
+    // number padding for ADL.dateToISOString
+    function pad(number) {
+        var r = String(number);
+        if ( r.length === 1 ) {
+        r = '0' + r;
+        }
+        return r;
+    }
+
+    // shim for old-style Base64 lib
+    function toBase64(text){
+        if(CryptoJS && CryptoJS.enc.Base64)
+            return CryptoJS.enc.Base64.stringify(CryptoJS.enc.Latin1.parse(text));
+        else
+            return Base64.encode(text);
+    }
+
+    // shim for old-style crypto lib
+    function toSHA1(text){
+        if(CryptoJS && CryptoJS.SHA1)
+            return CryptoJS.SHA1(text).toString();
+        else
+            return Crypto.util.bytesToHex( Crypto.SHA1(text,{asBytes:true}) );
+    }
+
+    function toSHA256(content) {
+        return CryptoJS.SHA256(content).toString(CryptoJS.enc.Hex);
+    }
+
+    // check if string or object is date, if it is, return date object
+    // feburary 31st == march 3rd in this solution
+    function isDate(date) {
+        // check if object is being passed
+        if ( Object.prototype.toString.call(date) === "[object Date]" )
+            var d = date;
+        else
+            var d = new Date(date);
+        // deep check on date object
+        if ( Object.prototype.toString.call(d) === "[object Date]" )
+        {
+            // it is a date
+            if ( isNaN( d.valueOf() ) )
+            {
+                ADL.XAPIWrapper.log("Invalid date String passed");
+                return null;
+            } else {
+                return d;
+            }
+        } else {
+            // not a date
+            ADL.XAPIWrapper.log("Invalid date object");
+            return null;
+        }
+    }
 
     log.debug = false;
 
@@ -367,19 +338,6 @@ function isDate(date) {
         }
     };
 
-    XAPIWrapper.prototype.stringToArrayBuffer = function(content, encoding)
-    {
-        encoding = encoding || ADL.XAPIWrapper.defaultEncoding;
-
-        return new TextEncoder(encoding).encode(content).buffer;
-    };
-
-    XAPIWrapper.prototype.stringFromArrayBuffer = function(content, encoding) {
-        encoding = encoding || ADL.XAPIWrapper.defaultEncoding;
-
-        return new TextDecoder(encoding).decode(content);
-    };
-
     /*
     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
     * extraHeaders should be an object. It will have the multipart boundary value set
@@ -413,7 +371,7 @@ function isDate(date) {
 
             if (typeof attachments[i].value === 'string') {
                 // Convert the string value to an array buffer.
-                attachments[i].value = this.stringToArrayBuffer(attachments[i].value);
+                throw "ADL.buildMultipartPost: Cannot send string attachments as TextEncoder is unsupported in <=ie9.";
             }
 
             // Compute the length and the sha2 of the attachment
@@ -544,7 +502,7 @@ function isDate(date) {
                     {
                         if (s == "until" || s == "since") {
                             var d = new Date(searchparams[s]);
-                            urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                            urlparams.push(s + "=" + encodeURIComponent(ADL.dateToISOString(d)));
                         } else {
                             urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
                         }
@@ -733,7 +691,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(ADL.dateToISOString(since));
                 }
             }
 
@@ -938,7 +896,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(ADL.dateToISOString(since));
                 }
             }
 
@@ -1163,7 +1121,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(ADL.dateToISOString(since));
                 }
             }
 
@@ -1460,6 +1418,23 @@ function isDate(date) {
         var dateToReturn = new Date();
         dateToReturn.setTime(Number(time));
         return dateToReturn;
+    };
+
+    /*
+     * adds toISOString to date objects if not there
+     * from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+     */
+    ADL.dateToISOString = function(date)
+    {
+        if (Date.prototype.toISOString) return date.toISOString();
+        return date.getUTCFullYear()
+            + '-' + pad( date.getUTCMonth() + 1 )
+            + '-' + pad( date.getUTCDate() )
+            + 'T' + pad( date.getUTCHours() )
+            + ':' + pad( date.getUTCMinutes() )
+            + ':' + pad( date.getUTCSeconds() )
+            + '.' + String( (date.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+            + 'Z';
     };
 
     // Synchronous if callback is not provided (not recommended)
