@@ -1,6 +1,8 @@
 xAPIWrapper
 ===========
 
+LEGACY branch to preserve IE8 and IE9 support only.  
+
 Wrapper to simplify communication to an LRS. [Read more about the Experience API Spec here.](https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md)
 
 Check out the [Reference Documentation Here](http://adlnet.github.io/xAPIWrapper/)
