@@ -25,19 +25,16 @@ From a browser:
     Hit CTRL-C to stop the server
 
     ```
-* With the browser navigate to /test/testUtil.html
+* With the browser navigate to:
+    `http://localhost:8080/test/testAttachments.html`
     `http://localhost:8080/test/testUtil.html`
-* The tests will automatically run displaying the results: passes, failures, duration, percentage. Below the test results, code coverage results are displayed.
+* The tests will automatically run displaying the results: passes, failures, duration, percentage.
 
 ## Node
 
 * In the terminal navigate to the xAPIWrapper folder
 * Use the commands
     ```
-    .../xAPIWrapper
-    $npm install should
-    ...and...
-    $ mocha test/tests/test.util.js
-
+    $ mocha test/test.util.js
     ```
 * The tests will run displaying the information in the terminal including results: passing, failing, milliseconds to complete, and a stack trace of any failing tests.
