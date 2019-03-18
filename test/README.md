@@ -35,6 +35,6 @@ From a browser:
 * In the terminal navigate to the xAPIWrapper folder
 * Use the commands
     ```
-    $ mocha test/test.util.js
+    $ mocha
     ```
 * The tests will run displaying the information in the terminal including results: passing, failing, milliseconds to complete, and a stack trace of any failing tests.
