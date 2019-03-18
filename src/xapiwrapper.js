@@ -1311,9 +1311,9 @@
                     delete qsVars[prop];
                 }
             }
-            if (ObjectKeys(qsVars).length !== 0) {
-              lrs.extended = qsVars;
-            }
+            // if (ObjectKeys(qsVars).length !== 0) {
+            //   lrs.extended = qsVars;
+            // }
 
             lrs = mergeRecursive(config, lrs);
         }
