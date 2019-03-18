@@ -192,7 +192,6 @@
                                     <li><a href="#xapiwrapper-XAPIWrapper">XAPIWrapper</a></li>
                                     <li><a href="#xapiwrapper-prepareStatement">prepareStatement</a></li>
                                     <li><a href="#xapiwrapper-sendStatement">sendStatement</a></li>
-                                    <li><a href="#xapiwrapper-buildMultipartPost">buildMultipartPost</a></li>
                                     <li><a href="#xapiwrapper-sendStatements">sendStatements</a></li>
                                     <li><a href="#xapiwrapper-getStatements">getStatements</a></li>
                                     <li><a href="#xapiwrapper-getActivities">getActivities</a></li>
@@ -206,8 +205,6 @@
                                     <li><a href="#xapiwrapper-sendAgentProfile">sendAgentProfile</a></li>
                                     <li><a href="#xapiwrapper-getAgentProfile">getAgentProfile</a></li>
                                     <li><a href="#xapiwrapper-deleteAgentProfile">deleteAgentProfile</a></li>
-                                    <li><a href="#xapiwrapper-testConfig">testConfig</a></li>
-                                    <li><a href="#xapiwrapper-ie_request">ie_request</a></li>
                                     <li><a href="#xapiwrapper-ruuid">ruuid</a></li>
                                     <li><a href="#xapiwrapper-dateFromISOString">dateFromISOString</a></li>
                                     <li><a href="#xapiwrapper-dateToISOString">dateToISOString</a></li>
@@ -219,12 +216,50 @@
                             <a href="#xapistatement"><strong>XAPIstatement</strong></a>
                             <ul class="nav nav-stacked">
                                     <li><a href="#xapistatement-XAPIStatement">XAPIStatement</a></li>
+                                    <li><a href="#xapistatement-toString">toString</a></li>
+                                    <li><a href="#xapistatement-isValid">isValid</a></li>
+                                    <li><a href="#xapistatement-generateRegistration">generateRegistration</a></li>
+                                    <li><a href="#xapistatement-addParentActivity">addParentActivity</a></li>
+                                    <li><a href="#xapistatement-addGroupingActivity">addGroupingActivity</a></li>
+                                    <li><a href="#xapistatement-addOtherContextActivity">addOtherContextActivity</a></li>
                                     <li><a href="#xapistatement-Agent">Agent</a></li>
+                                    <li><a href="#xapistatement-toString">toString</a></li>
+                                    <li><a href="#xapistatement-isValid">isValid</a></li>
                                     <li><a href="#xapistatement-Group">Group</a></li>
                                     <li><a href="#xapistatement-Verb">Verb</a></li>
+                                    <li><a href="#xapistatement-toString">toString</a></li>
+                                    <li><a href="#xapistatement-isValid">isValid</a></li>
                                     <li><a href="#xapistatement-Activity">Activity</a></li>
+                                    <li><a href="#xapistatement-toString">toString</a></li>
+                                    <li><a href="#xapistatement-isValid">isValid</a></li>
                                     <li><a href="#xapistatement-StatementRef">StatementRef</a></li>
+                                    <li><a href="#xapistatement-toString">toString</a></li>
+                                    <li><a href="#xapistatement-isValid">isValid</a></li>
                                     <li><a href="#xapistatement-SubStatement">SubStatement</a></li>
+                                    <li><a href="#xapistatement-toString">toString</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#xapi-launch"><strong>XAPI-launch</strong></a>
+                            <ul class="nav nav-stacked">
+                                    <li><a href="#xapi-launch-launch">launch</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#xapi-util"><strong>XAPI-util</strong></a>
+                            <ul class="nav nav-stacked">
+                                    <li><a href="#xapi-util-language">language</a></li>
+                                    <li><a href="#xapi-util-getLang">getLang</a></li>
+                                    <li><a href="#xapi-util-getLangVal">getLangVal</a></li>
+                                    <li><a href="#xapi-util-getMoreStatements">getMoreStatements</a></li>
+                                    <li><a href="#xapi-util-getActorId">getActorId</a></li>
+                                    <li><a href="#xapi-util-getActorIdString">getActorIdString</a></li>
+                                    <li><a href="#xapi-util-getActorDisplay">getActorDisplay</a></li>
+                                    <li><a href="#xapi-util-getVerbDisplay">getVerbDisplay</a></li>
+                                    <li><a href="#xapi-util-getObjectType">getObjectType</a></li>
+                                    <li><a href="#xapi-util-getObjectId">getObjectId</a></li>
+                                    <li><a href="#xapi-util-getObjectIdString">getObjectIdString</a></li>
+                                    <li><a href="#xapi-util-getObjectDisplay">getObjectDisplay</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -245,7 +280,8 @@
 
                                 <div class="block">
 
-                                    <p>Config object used w/ url params to configure the lrs object<br />change these to match your lrs</p>
+                                    <p>Config object used w/ url params to configure the lrs object<br />
+change these to match your lrs</p>
 
 
                                     <p><strong>Returns</strong><br>
@@ -378,8 +414,15 @@ ADL.XAPIWrapper.changeConfig(conf);</code></pre>
 
     function getbase(url)
     {
-        var l &#x3D; document.createElement(&quot;a&quot;);
-        l.href &#x3D; url;
+        var l;
+        if (typeof document !&#x3D;&#x3D; &#x27;undefined&#x27;) {
+            // Browser parse url
+            l &#x3D; document.createElement(&quot;a&quot;);
+            l.href &#x3D; url;
+        } else {
+            // NodeJS parse url
+            l &#x3D; require(&#x27;url&#x27;).parse(url);
+        }
         if (l.protocol &amp;&amp; l.host) {
             return l.protocol + &quot;//&quot; + l.host;
         } else if (l.href) {
@@ -397,7 +440,7 @@ ADL.XAPIWrapper.changeConfig(conf);</code></pre>
 
     if (verifyxapiversion &amp;&amp; testConfig.call(this))
     {
-        window.ADL.XHR_request(this.lrs, this.lrs.endpoint+&quot;about&quot;, &quot;GET&quot;, null, null,
+        ADL.XHR_request(this.lrs, this.lrs.endpoint+&quot;about&quot;, &quot;GET&quot;, null, null,
             function(r){
                 if(r.status &#x3D;&#x3D; 200)
                 {
@@ -487,7 +530,8 @@ XAPIWrapper.prototype.xapiVersion &#x3D; &quot;1.0.1&quot;;</code></pre>
 
                                 <div class="block">
 
-                                    <p>Adds info from the lrs object to the statement, if available.<br />These values could be initialized from the Config object or from the url query string.</p>
+                                    <p>Adds info from the lrs object to the statement, if available.<br />
+These values could be initialized from the Config object or from the url query string.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -573,7 +617,8 @@ XAPIWrapper.prototype.defaultEncoding &#x3D; &#x27;utf-8&#x27;;</code></pre>
 
                                 <div class="block">
 
-                                    <p>Send a single statement to the LRS. Makes a Javascript object<br />with the statement id as &#39;id&#39; available to the callback function.</p>
+                                    <p>Send a single statement to the LRS. Makes a Javascript object<br />
+with the statement id as 'id' available to the callback function.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -596,7 +641,10 @@ XAPIWrapper.prototype.defaultEncoding &#x3D; &#x27;utf-8&#x27;;</code></pre>
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object<br />           and an object with an id property assigned the id<br />           of the statement</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object<br />
+and an object with an id property assigned the id<br />
+of the statement</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -681,7 +729,6 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
                                 </div>
                             </section>
 
-
                             <section id="xapiwrapper-sendStatements">
 
 
@@ -712,7 +759,8 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -804,7 +852,11 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
                                                 <td><em>searchparams</em></td>
                                                 <td><span class="label label-primary">object</span></td>
                                                 <td>
-                                                    <p>an ADL.XAPIWrapper.searchParams object of                key(search parameter)-value(parameter value) pairs.<br />               Example:<br />                 var myparams = ADL.XAPIWrapper.searchParams();<br />                 myparams[&#39;verb&#39;] = ADL.verbs.completed.id;<br />                 var completedStmts = ADL.XAPIWrapper.getStatements(myparams);</p>
+                                                    <p>an ADL.XAPIWrapper.searchParams object of                key(search parameter)-value(parameter value) pairs.<br />
+Example:<br />
+var myparams = ADL.XAPIWrapper.searchParams();<br />
+myparams['verb'] = ADL.verbs.completed.id;<br />
+var completedStmts = ADL.XAPIWrapper.getStatements(myparams);</p>
                                                     
                                                     
 
@@ -814,7 +866,8 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
                                                 <td><em>more</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>the more url found in the StatementResults object, if there are more        statements available based on your get statements request. Pass the<br />       more url as this parameter to retrieve those statements.</p>
+                                                    <p>the more url found in the StatementResults object, if there are more        statements available based on your get statements request. Pass the<br />
+more url as this parameter to retrieve those statements.</p>
                                                     
                                                     
 
@@ -825,10 +878,9 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
                                                     <ul>
-<li>function to be called after the LRS responds            to this request (makes the call asynchronous)<pre><code>     the function will be passed the XMLHttpRequest object
-</code></pre></li>
+<li>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</li>
 </ul>
-
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -947,7 +999,8 @@ if (ret)
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1102,7 +1155,8 @@ ADL.XAPIWrapper.log(res);
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1275,7 +1329,8 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1440,7 +1495,8 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1609,7 +1665,8 @@ ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1755,8 +1812,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                                 <td></td>
                                                 <td>
                                                     <pre><code>       to this request (makes the call asynchronous)
-       the function will be passed the XMLHttpRequest object
-</code></pre>
+       the function will be passed the XMLHttpRequest object</code></pre>
                                                     
                                                     
 
@@ -1896,7 +1952,8 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -1984,7 +2041,9 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
 
                                 <div class="block">
 
-                                    <p>Gets the Person object from the LRS based on an agent object.<br />The Person object may contain more information about an agent.<br />See the xAPI Spec for details.</p>
+                                    <p>Gets the Person object from the LRS based on an agent object.<br />
+The Person object may contain more information about an agent.<br />
+See the xAPI Spec for details.</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2008,8 +2067,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                                 <td></td>
                                                 <td>
                                                     <pre><code>       to this request (makes the call asynchronous)
-       the function will be passed the XMLHttpRequest object
-</code></pre>
+       the function will be passed the XMLHttpRequest object</code></pre>
                                                     
                                                     
 
@@ -2144,7 +2202,8 @@ ADL.XAPIWrapper.log(res);
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2289,7 +2348,8 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">function</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2429,7 +2489,8 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                                 <td><em>callback</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />           the function will be passed the XMLHttpRequest object</p>
+                                                    <p>function to be called after the LRS responds            to this request (makes the call asynchronous)<br />
+the function will be passed the XMLHttpRequest object</p>
                                                     <span class="label label-default">optional</span>
                                                     
 
@@ -2510,15 +2571,60 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                 </div>
                             </section>
 
+                            <section id="xapiwrapper-ruuid">
 
-                            <section id="xapiwrapper-ie_request">
 
-
-                                <h4><a href="#xapiwrapper-ie_request">ie_request</a> <small> (method, url, headers, data)</small></h4>
+                                <h4><a href="#xapiwrapper-ruuid">ruuid</a> <small> ()</small></h4>
 
                                 <div class="block">
 
-                                    <p>formats a request in a way that IE will allow</p>
+                                    <p>Unique id generator</p>
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#ruuid-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="ruuid-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.ruuid &#x3D; function()
+{
+    return &#x27;xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx&#x27;.replace(/[xy]/g, function(c) {
+        var r &#x3D; Math.random()*16|0, v &#x3D; c &#x3D;&#x3D; &#x27;x&#x27; ? r : (r&amp;0x3|0x8);
+        return v.toString(16);
+    });
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapiwrapper-dateFromISOString">
+
+
+                                <h4><a href="#xapiwrapper-dateFromISOString">dateFromISOString</a> <small> (isostr)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Convert an ISO date string to a date object</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -2528,41 +2634,11 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td><em>method</em></td>
+                                                <td><em>isostr</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>the http request method (ex: &quot;PUT&quot;, &quot;GET&quot;)</p>
                                                     
                                                     
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>url</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + &quot;statements&quot;)</p>
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>headers</em></td>
-                                                <td><span class="label label-primary">array</span></td>
-                                                <td>
-                                                    <p>headers to include in the request</p>
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>data</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>the body of the request, if there is one</p>
-                                                    <span class="label label-default">optional</span>
                                                     
 
                                                 </td>
@@ -2571,9 +2647,9 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                     </table>
 
                                     <p><strong>Returns</strong><br>
-                                        <span class="label label-primary">object</span>
+                                        <span class="label label-primary">Date</span>
                                         &nbsp;
-                                        <p>xhr response object</p>
+                                        
                                         
                                         <!--
                                         &nbsp;
@@ -2582,60 +2658,121 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
                                     </p>
 
                                     <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#ie_request-example-0" data-toggle="tab">Example</a></li>
+                                        <li class="active"><a href="#dateFromISOString-example-0" data-toggle="tab">Example</a></li>
                                         <li>
                                             <a href="#-source" data-toggle="tab">Source</a>
                                         </li>
                                     </ul>
 
                                     <div class="tab-content">
-                                        <div class="active tab-pane" id="ie_request-example-0">
+                                        <div class="active tab-pane" id="dateFromISOString-example-0">
                                             <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
                                         </div>
                                         <div class="tab-pane" id="-source">
-                                            <pre><code class="language-javascript">function ie_request(method, url, headers, data)
+                                            <pre><code class="language-javascript">ADL.dateFromISOString &#x3D; function(isostr)
 {
-    var newUrl &#x3D; url;
+    var regexp &#x3D; &quot;([0-9]{4})(-([0-9]{2})(-([0-9]{2})&quot; +
+        &quot;([T| ]([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?&quot; +
+        &quot;(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?&quot;;
+    var d &#x3D; isostr.match(new RegExp(regexp));
 
-    //Everything that was on query string goes into form vars
-    var formData &#x3D; new Array();
-    var qsIndex &#x3D; newUrl.indexOf(&#x27;?&#x27;);
-    if(qsIndex &gt; 0){
-        formData.push(newUrl.substr(qsIndex+1));
-        newUrl &#x3D; newUrl.substr(0, qsIndex);
+    var offset &#x3D; 0;
+    var date &#x3D; new Date(d[1], 0, 1);
+
+    if (d[3]) { date.setMonth(d[3] - 1); }
+    if (d[5]) { date.setDate(d[5]); }
+    if (d[7]) { date.setHours(d[7]); }
+    if (d[8]) { date.setMinutes(d[8]); }
+    if (d[10]) { date.setSeconds(d[10]); }
+    if (d[12]) { date.setMilliseconds(Number(&quot;0.&quot; + d[12]) * 1000); }
+    if (d[14]) {
+        offset &#x3D; (Number(d[16]) * 60) + Number(d[17]);
+        offset *&#x3D; ((d[15] &#x3D;&#x3D; &#x27;-&#x27;) ? 1 : -1);
     }
 
-    //Method has to go on querystring, and nothing else
-    newUrl &#x3D; newUrl + &#x27;?method&#x3D;&#x27; + method;
+    offset -&#x3D; date.getTimezoneOffset();
+    time &#x3D; (Number(date) + (offset * 60 * 1000));
 
-    //Headers
-    if(headers !&#x3D;&#x3D; null){
-        for (var headerName in headers) {
-            if (headers.hasOwnProperty(headerName))
-                formData.push(headerName + &quot;&#x3D;&quot; + encodeURIComponent(headers[headerName]));
-        }
-    }
-
-    //The original data is repackaged as &quot;content&quot; form var
-    if(data !&#x3D;&#x3D; null){
-        formData.push(&#x27;content&#x3D;&#x27; + encodeURIComponent(data));
-    }
-
-    return {
-        &quot;method&quot;:&quot;POST&quot;,
-        &quot;url&quot;:newUrl,
-        &quot;headers&quot;:{},
-        &quot;data&quot;:formData.join(&quot;&amp;&quot;)
-    };
-}</code></pre>
+    var dateToReturn &#x3D; new Date();
+    dateToReturn.setTime(Number(time));
+    return dateToReturn;
+};</code></pre>
                                         </div>
                                     </div>
 
                                 </div>
                             </section>
 
+                            <section id="xapiwrapper-dateToISOString">
 
 
+                                <h4><a href="#xapiwrapper-dateToISOString">dateToISOString</a> <small> (date)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Convert a date object to an ISO string<br />
+from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>date</em></td>
+                                                <td><span class="label label-primary">Date</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#dateToISOString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="dateToISOString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.dateToISOString &#x3D; function(date)
+{
+    if (Date.prototype.toISOString) return date.toISOString();
+    return date.getUTCFullYear()
+        + &#x27;-&#x27; + pad( date.getUTCMonth() + 1 )
+        + &#x27;-&#x27; + pad( date.getUTCDate() )
+        + &#x27;T&#x27; + pad( date.getUTCHours() )
+        + &#x27;:&#x27; + pad( date.getUTCMinutes() )
+        + &#x27;:&#x27; + pad( date.getUTCSeconds() )
+        + &#x27;.&#x27; + String( (date.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+        + &#x27;Z&#x27;;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
 
                             <section id="xapiwrapper-XHR_request">
 
@@ -2644,7 +2781,8 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
 
                                 <div class="block">
 
-                                    <p>makes a request to a server (if possible, use functions provided in XAPIWrapper)</p>
+                                    <p>Makes a request to a server (if possible, use functions provided in XAPIWrapper)<br />
+Synchronous if callback is not provided (not recommended)</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -3061,7 +3199,7 @@ ADL.formatHash &#x3D; function(hash)
 
 ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
 
-}(window.ADL &#x3D; window.ADL || {}));</code></pre>
+})(typeof window !&#x3D;&#x3D; &quot;undefined&quot; ? window.ADL &#x3D; window.ADL || {} : typeof global !&#x3D;&#x3D; &quot;undefined&quot; ? global.ADL &#x3D; global.ADL || {} : this);</code></pre>
                                         </div>
                                     </div>
 
@@ -3080,7 +3218,9 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
 
                                 <div class="block">
 
-                                    <p>A convenient JSON-compatible xAPI statement wrapper<br />All args are optional, but the statement may not be complete or valid<br />Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args</p>
+                                    <p>A convenient JSON-compatible xAPI statement wrapper<br />
+All args are optional, but the statement may not be complete or valid<br />
+Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -3091,7 +3231,7 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
                                         <tbody>
                                             <tr>
                                                 <td><em>actor</em></td>
-                                                <td><span class="label label-primary">string</span></td>
+                                                <td><span class="label label-primary">Actor</span> or <span class="label label-primary">Object</span></td>
                                                 <td>
                                                     <p>The Agent or Group committing the action described by the statement</p>
                                                     <span class="label label-default">optional</span>
@@ -3101,7 +3241,7 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
                                             </tr>
                                             <tr>
                                                 <td><em>verb</em></td>
-                                                <td><span class="label label-primary">string</span></td>
+                                                <td><span class="label label-primary">Verb</span> or <span class="label label-primary">Object</span></td>
                                                 <td>
                                                     <p>The Verb for the action described by the statement</p>
                                                     <span class="label label-default">optional</span>
@@ -3111,7 +3251,7 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
                                             </tr>
                                             <tr>
                                                 <td><em>object</em></td>
-                                                <td><span class="label label-primary">string</span></td>
+                                                <td><span class="label label-primary">Agent</span> or <span class="label label-primary">Group</span> or <span class="label label-primary">Activity</span> or <span class="label label-primary">SubStatement</span> or <span class="label label-primary">StatementRef</span> or <span class="label label-primary">Object</span></td>
                                                 <td>
                                                     <p>The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef</p>
                                                     <span class="label label-default">optional</span>
@@ -3166,7 +3306,7 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
     verb &#x3D; stmt.verb;
     object &#x3D; stmt.object;
   }
-  
+
   if(actor){
     if( actor instanceof Agent )
       this.actor &#x3D; actor;
@@ -3176,7 +3316,7 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
       this.actor &#x3D; new Group(actor);
   }
   else this.actor &#x3D; null;
-  
+
   if(verb){
     if( verb instanceof Verb )
       this.verb &#x3D; verb;
@@ -3221,7 +3361,7 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
     else this.object &#x3D; null;
   }
   else this.object &#x3D; null;
-  
+
   // add support for result object
   if(result)
   {
@@ -3231,32 +3371,287 @@ ADL.XAPIWrapper &#x3D; new XAPIWrapper(Config, false);
   this.generateId &#x3D; function(){
     this.id &#x3D; ADL.ruuid();
   };
-};
+};</code></pre>
+                                        </div>
+                                    </div>
 
-XAPIStatement.prototype.toString &#x3D; function(){
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-toString">
+
+
+                                <h4><a href="#xapistatement-toString">toString</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#toString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="toString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">XAPIStatement.prototype.toString &#x3D; function(){
   return this.actor.toString() + &quot; &quot; + this.verb.toString() + &quot; &quot; + this.object.toString() + &quot; &quot; + this.result.toString();
-};
+};</code></pre>
+                                        </div>
+                                    </div>
 
-XAPIStatement.prototype.isValid &#x3D; function(){
-  return this.actor &amp;&amp; this.actor.isValid() 
-    &amp;&amp; this.verb &amp;&amp; this.verb.isValid() 
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-isValid">
+
+
+                                <h4><a href="#xapistatement-isValid">isValid</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">boolean</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#isValid-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="isValid-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">XAPIStatement.prototype.isValid &#x3D; function(){
+  return this.actor &amp;&amp; this.actor.isValid()
+    &amp;&amp; this.verb &amp;&amp; this.verb.isValid()
     &amp;&amp; this.object &amp;&amp; this.object.isValid()
     &amp;&amp; this.result &amp;&amp; this.result.isValid();
-};
+};</code></pre>
+                                        </div>
+                                    </div>
 
-XAPIStatement.prototype.generateRegistration &#x3D; function(){
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-generateRegistration">
+
+
+                                <h4><a href="#xapistatement-generateRegistration">generateRegistration</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#generateRegistration-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="generateRegistration-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">XAPIStatement.prototype.generateRegistration &#x3D; function(){
   _getobj(this,&#x27;context&#x27;).registration &#x3D; ADL.ruuid();
-};
+};</code></pre>
+                                        </div>
+                                    </div>
 
-XAPIStatement.prototype.addParentActivity &#x3D; function(activity){
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-addParentActivity">
+
+
+                                <h4><a href="#xapistatement-addParentActivity">addParentActivity</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em></em></td>
+                                                <td><span class="label label-primary">Activity</span> or <span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#addParentActivity-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="addParentActivity-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">XAPIStatement.prototype.addParentActivity &#x3D; function(activity){
   _getobj(this,&#x27;context.contextActivities.parent[]&#x27;).push(new Activity(activity));
-};
+};</code></pre>
+                                        </div>
+                                    </div>
 
-XAPIStatement.prototype.addGroupingActivity &#x3D; function(activity){
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-addGroupingActivity">
+
+
+                                <h4><a href="#xapistatement-addGroupingActivity">addGroupingActivity</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em></em></td>
+                                                <td><span class="label label-primary">Activity</span> or <span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#addGroupingActivity-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="addGroupingActivity-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">XAPIStatement.prototype.addGroupingActivity &#x3D; function(activity){
   _getobj(this,&#x27;context.contextActivities.grouping[]&#x27;).push(new Activity(activity));
-};
+};</code></pre>
+                                        </div>
+                                    </div>
 
-XAPIStatement.prototype.addOtherContextActivity &#x3D; function(activity){
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-addOtherContextActivity">
+
+
+                                <h4><a href="#xapistatement-addOtherContextActivity">addOtherContextActivity</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em></em></td>
+                                                <td><span class="label label-primary">Activity</span> or <span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#addOtherContextActivity-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="addOtherContextActivity-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">XAPIStatement.prototype.addOtherContextActivity &#x3D; function(activity){
   _getobj(this,&#x27;context.contextActivities.other[]&#x27;).push(new Activity(activity));
 };</code></pre>
                                         </div>
@@ -3285,7 +3680,8 @@ XAPIStatement.prototype.addOtherContextActivity &#x3D; function(activity){
                                                 <td><em>identifier</em></td>
                                                 <td><span class="label label-primary">string</span></td>
                                                 <td>
-                                                    <p>One of the Inverse Functional Identifiers specified in the spec.     That is, an email, a hashed email, an OpenID, or an account object.<br />    See (<a href="https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional">https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional</a>)</p>
+                                                    <p>One of the Inverse Functional Identifiers specified in the spec.     That is, an email, a hashed email, an OpenID, or an account object.<br />
+See (https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md#inversefunctional)</p>
                                                     
                                                     
 
@@ -3340,11 +3736,89 @@ XAPIStatement.prototype.addOtherContextActivity &#x3D; function(activity){
   else if( identifier &amp;&amp; identifier.homePage &amp;&amp; identifier.name ){
     this.account &#x3D; identifier;
   }
-};
-Agent.prototype.toString &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-toString">
+
+
+                                <h4><a href="#xapistatement-toString">toString</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#toString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="toString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">Agent.prototype.toString &#x3D; function(){
   return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
-};
-Agent.prototype.isValid &#x3D; function()
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-isValid">
+
+
+                                <h4><a href="#xapistatement-isValid">isValid</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">boolean</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#isValid-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="isValid-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">Agent.prototype.isValid &#x3D; function()
 {
   return this.mbox || this.mbox_sha1sum || this.openid
     || (this.account.homePage &amp;&amp; this.account.name)
@@ -3504,14 +3978,92 @@ Group.prototype &#x3D; new Agent;</code></pre>
       this.display &#x3D; description;
     }
   }
-};
-Verb.prototype.toString &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-toString">
+
+
+                                <h4><a href="#xapistatement-toString">toString</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#toString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="toString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">Verb.prototype.toString &#x3D; function(){
   if(this.display &amp;&amp; (this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;]))
     return this.display[&#x27;en-US&#x27;] || this.display[&#x27;en&#x27;];
   else
     return this.id;
-};
-Verb.prototype.isValid &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-isValid">
+
+
+                                <h4><a href="#xapistatement-isValid">isValid</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">boolean</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#isValid-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="isValid-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">Verb.prototype.isValid &#x3D; function(){
   return this.id;
 };</code></pre>
                                         </div>
@@ -3592,31 +4144,109 @@ Verb.prototype.isValid &#x3D; function(){
     }
     return;
   }
-  
+
   this.objectType &#x3D; &#x27;Activity&#x27;;
   this.id &#x3D; id;
   if( name || description )
   {
     this.definition &#x3D; {};
-    
+
     if( typeof(name) &#x3D;&#x3D;&#x3D; &#x27;string&#x27; || name instanceof String )
       this.definition.name &#x3D; {&#x27;en-US&#x27;: name};
     else if(name)
       this.definition.name &#x3D; name;
-    
+
     if( typeof(description) &#x3D;&#x3D;&#x3D; &#x27;string&#x27; || description instanceof String )
       this.definition.description &#x3D; {&#x27;en-US&#x27;: description};
     else if(description)
       this.definition.description &#x3D; description;
   }
-};
-Activity.prototype.toString &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-toString">
+
+
+                                <h4><a href="#xapistatement-toString">toString</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#toString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="toString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">Activity.prototype.toString &#x3D; function(){
   if(this.definition &amp;&amp; this.definition.name &amp;&amp; (this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;]))
     return this.definition.name[&#x27;en-US&#x27;] || this.definition.name[&#x27;en&#x27;];
   else
     return this.id;
-};
-Activity.prototype.isValid &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-isValid">
+
+
+                                <h4><a href="#xapistatement-isValid">isValid</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">boolean</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#isValid-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="isValid-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">Activity.prototype.isValid &#x3D; function(){
   return this.id &amp;&amp; (!this.objectType || this.objectType &#x3D;&#x3D;&#x3D; &#x27;Activity&#x27;);
 };</code></pre>
                                         </div>
@@ -3677,11 +4307,89 @@ Activity.prototype.isValid &#x3D; function(){
     this.objectType &#x3D; &#x27;StatementRef&#x27;;
     this.id &#x3D; id;
   }
-};
-StatementRef.prototype.toString &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-toString">
+
+
+                                <h4><a href="#xapistatement-toString">toString</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#toString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="toString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">StatementRef.prototype.toString &#x3D; function(){
   return &#x27;statement(&#x27;+this.id+&#x27;)&#x27;;
-};
-StatementRef.prototype.isValid &#x3D; function(){
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-isValid">
+
+
+                                <h4><a href="#xapistatement-isValid">isValid</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">boolean</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#isValid-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="isValid-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">StatementRef.prototype.isValid &#x3D; function(){
   return this.id &amp;&amp; this.objectType &amp;&amp; this.objectType &#x3D;&#x3D;&#x3D; &#x27;StatementRef&#x27;;
 };</code></pre>
                                         </div>
@@ -3697,7 +4405,8 @@ StatementRef.prototype.isValid &#x3D; function(){
 
                                 <div class="block">
 
-                                    <p>A self-contained statement as the object of another statement<br />See XAPIStatement for constructor details</p>
+                                    <p>A self-contained statement as the object of another statement<br />
+See XAPIStatement for constructor details</p>
 
                                     <table class="table table-condensed">
                                         <thead>
@@ -3761,8 +4470,47 @@ StatementRef.prototype.isValid &#x3D; function(){
   delete this.version;
   delete this.authority;
 };
-SubStatement.prototype &#x3D; new XAPIStatement;
-SubStatement.prototype.toString &#x3D; function(){
+SubStatement.prototype &#x3D; new XAPIStatement;</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapistatement-toString">
+
+
+                                <h4><a href="#xapistatement-toString">toString</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#toString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="toString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">SubStatement.prototype.toString &#x3D; function(){
   return &#x27;&quot;&#x27; + SubStatement.prototype.prototype.toString.call(this) + &#x27;&quot;&#x27;;
 };
 
@@ -3774,7 +4522,1557 @@ XAPIStatement.StatementRef &#x3D; StatementRef;
 XAPIStatement.SubStatement &#x3D; SubStatement;
 ADL.XAPIStatement &#x3D; XAPIStatement;
 
-}(window.ADL &#x3D; window.ADL || {}));</code></pre>
+})(typeof window !&#x3D;&#x3D; &quot;undefined&quot; ? window.ADL &#x3D; window.ADL || {} : typeof global !&#x3D;&#x3D; &quot;undefined&quot; ? global.ADL &#x3D; global.ADL || {} : this);</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+                    </section>
+                    <section id="xapi-launch">
+
+                        <h2>XAPI-launch</h2>
+
+
+                            <section id="xapi-launch-launch">
+
+
+                                <h4><a href="#xapi-launch-launch">launch</a> <small> (callback, terminate_on_unload, strict_callbacks)</small></h4>
+
+                                <div class="block">
+
+                                    
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>callback</em></td>
+                                                <td><span class="label label-primary">Function</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>terminate_on_unload</em></td>
+                                                <td><span class="label label-primary">boolean</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>strict_callbacks</em></td>
+                                                <td><span class="label label-primary">boolean</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#launch-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="launch-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.launch &#x3D; xAPILaunch;
+})(typeof window !&#x3D;&#x3D; &quot;undefined&quot; ? window.ADL &#x3D; window.ADL || {} : typeof global !&#x3D;&#x3D; &quot;undefined&quot; ? global.ADL &#x3D; global.ADL || {} : this);</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+                    </section>
+                    <section id="xapi-util">
+
+                        <h2>XAPI-util</h2>
+
+
+                            <section id="xapi-util-language">
+
+
+                                <h4><a href="#xapi-util-language">language</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    <p>Setup language default on ADL global object. <code>'es-pa'</code>,<code>'pa-pk'</code>,<code>'en'</code> etc.<br />
+A falsey will force these functions to take the environment language<br />
+or default to <code>'en-US'</code>.</p>
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#language-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="language-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.language &#x3D; ADL.language || null;</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getLang">
+
+
+                                <h4><a href="#xapi-util-getLang">getLang</a> <small> ()</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns environment language code. Use <code>ADL.language</code> to override.</p>
+
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getLang-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getLang-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getLang &#x3D; function () {
+    var lang;
+    if (typeof navigator !&#x3D;&#x3D; &#x27;undefined&#x27;)
+        lang &#x3D;  ADL.language || navigator.language || navigator.browserLanguage ||
+        navigator.systemLanguage || navigator.userLanguage;
+    else if (typeof process !&#x3D;&#x3D; &#x27;undefined&#x27; &amp;&amp; typeof process.env !&#x3D;&#x3D; &#x27;undefined&#x27; &amp;&amp; typeof process.env.LANG !&#x3D;&#x3D; &#x27;undefined&#x27;) {
+        lang &#x3D; ADL.language || process.env.LANG;
+        var periodPos &#x3D; lang.indexOf(&#x27;.&#x27;);
+        if (periodPos &gt; 0) lang &#x3D;  lang.slice(0, periodPos);
+        lang &#x3D; lang.replace(/_/, &#x27;-&#x27;)
+    }
+    return lang || &quot;en-US&quot;;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getLangVal">
+
+
+                                <h4><a href="#xapi-util-getLangVal">getLangVal</a> <small> (langprop)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Return the value for the environment language on the object provided.</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>langprop</em></td>
+                                                <td><span class="label label-primary">Object.&lt;getLang, string&gt;</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">String</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getLangVal-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getLangVal-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getLangVal &#x3D; function (langprop) {
+
+    if (!langprop) return;
+
+    var options &#x3D; ObjectKeys(langprop);
+    // test that langprop is a dict (obj)
+    // skips if not a dict(obj) and returns
+    if (options.length &#x3D;&#x3D; 0) return undefined;
+
+    var lang &#x3D; ADL.xapiutil.getLang(),
+        ret,
+        dispGotten &#x3D; false;
+
+    do {    //test and retest
+        if (langprop[lang])
+        {
+            ret &#x3D; langprop[lang];
+            dispGotten &#x3D; true;
+        }
+        else if (lang.indexOf(&#x27;-&#x27;))
+        {
+            lang &#x3D; lang.substring(0, lang.lastIndexOf(&#x27;-&#x27;));
+        }
+    } while (!dispGotten &amp;&amp; lang !&#x3D;&#x3D;&quot;&quot;);
+
+    return ret;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getMoreStatements">
+
+
+                                <h4><a href="#xapi-util-getMoreStatements">getMoreStatements</a> <small> (iterations, callback, searchParams)</small></h4>
+
+                                <div class="block">
+
+                                    
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>iterations</em></td>
+                                                <td><span class="label label-primary">number</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>callback</em></td>
+                                                <td><span class="label label-primary">function</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>searchParams</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getMoreStatements-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getMoreStatements-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getMoreStatements &#x3D; function (iterations, callback, searchParams) {
+    if (!onBrowser) throw new Error(&quot;Node not supported.&quot;);
+
+    var stmts &#x3D; [];
+    function getMore(r) {
+        if (! (r &amp;&amp; r.response) ) return;
+        var res &#x3D; JSON.parse(r.response);
+        if (! res.statements) return;
+        stmts &#x3D; stmts.concat(res.statements);
+
+        if (iterations-- &lt;&#x3D; 0) {
+            callback(stmts);
+        }
+        else {
+            if (res.more &amp;&amp; res.more !&#x3D;&#x3D; &quot;&quot;)
+            {
+                ADL.XAPIWrapper.getStatements(searchParams, res.more, getMore);
+            }
+            else if (res.more &#x3D;&#x3D;&#x3D; &quot;&quot;)
+            {
+                callback(stmts);
+            }
+        }
+    }
+    ADL.XAPIWrapper.getStatements(searchParams, null, getMore);
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getActorId">
+
+
+                                <h4><a href="#xapi-util-getActorId">getActorId</a> <small> (actor)</small></h4>
+
+                                <div class="block">
+
+                                    
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>actor</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.mbox</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.openid</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.mbox_sha1sum</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account.homePage</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span> or <span class="label label-primary">Object</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getActorId-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getActorId-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getActorId &#x3D; function (actor) {
+    return actor.mbox || actor.openid || actor.mbox_sha1sum || actor.account;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getActorIdString">
+
+
+                                <h4><a href="#xapi-util-getActorIdString">getActorIdString</a> <small> (actor)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Renders the actor object into an identifying string or returns <code>'unknown'</code>.</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>actor</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.mbox</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.openid</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.mbox_sha1sum</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.member</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account.homePage</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getActorIdString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getActorIdString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getActorIdString &#x3D; function (actor) {
+    var id &#x3D; actor.mbox || actor.openid || actor.mbox_sha1sum;
+    if (!id) {
+        if (actor.account) id &#x3D; actor.account.homePage + &quot;:&quot; + actor.account.name;
+        else if (actor.member) id &#x3D; &quot;Anon Group &quot; + actor.member;
+        else id &#x3D; &#x27;unknown&#x27;;
+    }
+    return id;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getActorDisplay">
+
+
+                                <h4><a href="#xapi-util-getActorDisplay">getActorDisplay</a> <small> (actor)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns the <code>actor.name</code> or <code>getActorIdString</code></p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>actor</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.mbox</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.openid</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.mbox_sha1sum</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.member</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account.homePage</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>actor.account.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getActorDisplay-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getActorDisplay-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getActorDisplay &#x3D; function (actor) {
+    return actor.name || ADL.xapiutil.getActorIdString(actor);
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getVerbDisplay">
+
+
+                                <h4><a href="#xapi-util-getVerbDisplay">getVerbDisplay</a> <small> (verb)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns <code>verb.display</code> for the environment language or the <code>verb.id</code>.</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>verb</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>verb.display</em></td>
+                                                <td><span class="label label-primary">Object.&lt;getLang, string&gt;</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>verb.id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getVerbDisplay-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getVerbDisplay-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getVerbDisplay &#x3D; function (verb) {
+    if (!verb) return;
+    if (verb.display) {
+        return ADL.xapiutil.getLangVal(verb.display) || verb.id;
+    }
+    return verb.id;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getObjectType">
+
+
+                                <h4><a href="#xapi-util-getObjectType">getObjectType</a> <small> (object)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns <code>object.objectType</code> property or, if the object has an <code>id</code><br />
+then it returns <code>'Activity'</code> otherwise it returns <code>'Agent'</code></p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>object</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.objectType</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getObjectType-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getObjectType-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getObjectType &#x3D; function (object) {
+    return object.objectType || ((object.id) ? &quot;Activity&quot; : &quot;Agent&quot;);
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getObjectId">
+
+
+                                <h4><a href="#xapi-util-getObjectId">getObjectId</a> <small> (object)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns <code>object.id</code>, or if <code>getObjectType</code> is <code>'Agent'</code> or <code>'Group'</code> then<br />
+return <code>getActorId</code> otherwise it returns <code>undefined</code>.</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>object</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.type</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.mbox</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.openid</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.mbox_sha1sum</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.member</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account.homePage</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getObjectId-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getObjectId-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getObjectId &#x3D; function (object) {
+    if (object.id) return object.id;
+    var type &#x3D; ADL.xapiutil.getObjectType(object);
+    if (type &#x3D;&#x3D;&#x3D; &quot;Agent&quot; || type &#x3D;&#x3D;&#x3D; &quot;Group&quot;) return ADL.xapiutil.getActorId(object);
+    return undefined;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getObjectIdString">
+
+
+                                <h4><a href="#xapi-util-getObjectIdString">getObjectIdString</a> <small> (object)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns <code>object.id</code>, or if <code>getObjectType</code> is <code>'Agent'</code> or <code>'Group'</code> then<br />
+return <code>getActorIdString</code>, if type is <code>'SubStatement'</code> then return a SubStatement<br />
+representation of the object or return <code>'unknown'</code>.</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>object</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.type</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.mbox</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.openid</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.mbox_sha1sum</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.member</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account.homePage</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.stored</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.version</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.authority</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.actor</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.verb</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.object</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getObjectIdString-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getObjectIdString-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getObjectIdString &#x3D; function (object) {
+    if (!object) return &#x27;unknown&#x27;
+    if (object.id) return object.id;
+    var type &#x3D; ADL.xapiutil.getObjectType(object);
+    if (type &#x3D;&#x3D;&#x3D; &quot;Agent&quot; || type &#x3D;&#x3D;&#x3D; &quot;Group&quot;) return ADL.xapiutil.getActorIdString(object);
+    else if (type &#x3D;&#x3D; &quot;SubStatement&quot;) {
+        return getSubStatementDisplay(object);
+    }
+    return &#x27;unknown&#x27;;
+};</code></pre>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </section>
+
+                            <section id="xapi-util-getObjectDisplay">
+
+
+                                <h4><a href="#xapi-util-getObjectDisplay">getObjectDisplay</a> <small> (object)</small></h4>
+
+                                <div class="block">
+
+                                    <p>Returns <code>object.definition.name</code> by the environment language code,<br />
+the <code>object.name</code>, <code>object.id</code>, or if type is <code>'Agent'</code> or <code>'Group'</code> then<br />
+retursn <code>getActorDisplay</code>, if type is <code>'SubStatement</code>' then returns a<br />
+SubStatement representation of the object or return <code>'unknown'</code>.</p>
+
+                                    <table class="table table-condensed">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="3">Arguments</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><em>object</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.definition</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.definition.name</em></td>
+                                                <td><span class="label label-primary">Object.&lt;getLang, string&gt;</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.id</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.type</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.mbox</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.openid</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.mbox_sha1sum</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.member</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account.homePage</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.account.name</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.stored</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.version</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.authority</em></td>
+                                                <td><span class="label label-primary">string</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.actor</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.verb</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><em>object.object</em></td>
+                                                <td><span class="label label-primary">Object</span></td>
+                                                <td>
+                                                    
+                                                    <span class="label label-default">optional</span>
+                                                    
+
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <p><strong>Returns</strong><br>
+                                        <span class="label label-primary">string</span>
+                                        &nbsp;
+                                        
+                                        
+                                        <!--
+                                        &nbsp;
+
+                                        -->
+                                    </p>
+
+                                    <ul class="nav nav-tabs">
+                                        <li class="active"><a href="#getObjectDisplay-example-0" data-toggle="tab">Example</a></li>
+                                        <li>
+                                            <a href="#-source" data-toggle="tab">Source</a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content">
+                                        <div class="active tab-pane" id="getObjectDisplay-example-0">
+                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
+                                        </div>
+                                        <div class="tab-pane" id="-source">
+                                            <pre><code class="language-javascript">ADL.xapiutil.getObjectDisplay &#x3D; function (object) {
+    if (!object) return &quot;unknown&quot;
+    var disp &#x3D; getObjDefName(object) || object.name || object.id;
+    if (! disp) {
+        var type &#x3D; ADL.xapiutil.getObjectType(object);
+        if (type &#x3D;&#x3D;&#x3D; &quot;Agent&quot; || type &#x3D;&#x3D; &quot;Group&quot;) disp &#x3D; ADL.xapiutil.getActorDisplay(object);
+        else if (type &#x3D;&#x3D; &quot;SubStatement&quot;) {
+            disp &#x3D; getSubStatementDisplay(object);
+        }
+    }
+
+    return disp;
+};
+
+})(typeof window !&#x3D;&#x3D; &quot;undefined&quot; ? window.ADL &#x3D; window.ADL || {} : typeof global !&#x3D;&#x3D; &quot;undefined&quot; ? global.ADL &#x3D; global.ADL || {} : this);</code></pre>
                                         </div>
                                     </div>
 

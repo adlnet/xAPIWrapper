@@ -221,4 +221,4 @@
                       "ar-AR" : "تخلى"}
       }
    };
-}(window.ADL = window.ADL || {}));
+})(typeof window !== "undefined" ? window.ADL = window.ADL || {} : typeof global !== "undefined" ? global.ADL = global.ADL || {} : this);

@@ -40,13 +40,13 @@
    *
    *******************************************************************************/
 
-  /*
+  /**
    * A convenient JSON-compatible xAPI statement wrapper
    * All args are optional, but the statement may not be complete or valid
    * Can also pass an Agent IFI, Verb ID, and an Activity ID in lieu of these args
-   * @param {string} [actor]   The Agent or Group committing the action described by the statement
-   * @param {string} [verb]   The Verb for the action described by the statement
-   * @param {string} [object]   The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
+   * @param {Actor|Object} [actor]   The Agent or Group committing the action described by the statement
+   * @param {Verb|Object} [verb]   The Verb for the action described by the statement
+   * @param {Agent|Group|Activity|SubStatement|StatementRef|Object} [object]   The receiver of the action. An Agent, Group, Activity, SubStatement, or StatementRef
    * @example
    * var stmt = new ADL.XAPIStatement(
    *     'mailto:steve.vergenz.ctr@adlnet.gov',
@@ -81,7 +81,7 @@
       verb = stmt.verb;
       object = stmt.object;
     }
-    
+
     if(actor){
       if( actor instanceof Agent )
         this.actor = actor;
@@ -91,7 +91,7 @@
         this.actor = new Group(actor);
     }
     else this.actor = null;
-    
+
     if(verb){
       if( verb instanceof Verb )
         this.verb = verb;
@@ -136,7 +136,7 @@
       else this.object = null;
     }
     else this.object = null;
-    
+
     // add support for result object
     if(result)
     {
@@ -148,35 +148,53 @@
     };
   };
 
+  /**
+   * @return {string}
+   */
   XAPIStatement.prototype.toString = function(){
     return this.actor.toString() + " " + this.verb.toString() + " " + this.object.toString() + " " + this.result.toString();
   };
 
+  /**
+   * @return {boolean}
+   */
   XAPIStatement.prototype.isValid = function(){
-    return this.actor && this.actor.isValid() 
-      && this.verb && this.verb.isValid() 
+    return this.actor && this.actor.isValid()
+      && this.verb && this.verb.isValid()
       && this.object && this.object.isValid()
       && this.result && this.result.isValid();
   };
 
+  /**
+   * @return {void}
+   */
   XAPIStatement.prototype.generateRegistration = function(){
     _getobj(this,'context').registration = ADL.ruuid();
   };
 
+  /**
+   * @param {Activity|Object}
+   */
   XAPIStatement.prototype.addParentActivity = function(activity){
     _getobj(this,'context.contextActivities.parent[]').push(new Activity(activity));
   };
 
+  /**
+   * @param {Activity|Object}
+   */
   XAPIStatement.prototype.addGroupingActivity = function(activity){
     _getobj(this,'context.contextActivities.grouping[]').push(new Activity(activity));
   };
 
+  /**
+   * @param {Activity|Object}
+   */
   XAPIStatement.prototype.addOtherContextActivity = function(activity){
     _getobj(this,'context.contextActivities.other[]').push(new Activity(activity));
   };
 
-  
-  /*
+
+  /**
    * Provides an easy constructor for xAPI agent objects
    * @param {string} identifier   One of the Inverse Functional Identifiers specified in the spec.
    *     That is, an email, a hashed email, an OpenID, or an account object.
@@ -207,9 +225,15 @@
       this.account = identifier;
     }
   };
+  /**
+   * @return {string}
+   */
   Agent.prototype.toString = function(){
     return this.name || this.mbox || this.openid || this.mbox_sha1sum || this.account.name;
   };
+  /**
+   * @return {boolean}
+   */
   Agent.prototype.isValid = function()
   {
     return this.mbox || this.mbox_sha1sum || this.openid
@@ -217,12 +241,13 @@
       || (this.objectType === 'Group' && this.member);
   };
 
-  
-  /*
+
+  /**
    * A type of agent, can contain multiple agents
    * @param {string} [identifier]   (optional if `members` specified) See Agent.
    * @param {string} [members]    An array of Agents describing the membership of the group
    * @param {string} [name]   The natural-language name of the agent
+   * @extends {Agent}
    */
   var Group = function(identifier, members, name)
   {
@@ -232,8 +257,8 @@
   };
   Group.prototype = new Agent;
 
-  
-  /*
+
+  /**
    * Really only provides a convenient language map
    * @param {string} id   The IRI of the action taken
    * @param {string} [description]    An English-language description, or a Language Map
@@ -260,18 +285,24 @@
       }
     }
   };
+  /**
+   * @return {string}
+   */
   Verb.prototype.toString = function(){
     if(this.display && (this.display['en-US'] || this.display['en']))
       return this.display['en-US'] || this.display['en'];
     else
       return this.id;
   };
+  /**
+   * @return {boolean}
+   */
   Verb.prototype.isValid = function(){
     return this.id;
   };
 
-  
-  /*
+
+  /**
    * Describes an object that an agent interacts with
    * @param {string} id   The unique activity IRI
    * @param {string} name   An English-language identifier for the activity, or a Language Map
@@ -287,35 +318,41 @@
       }
       return;
     }
-    
+
     this.objectType = 'Activity';
     this.id = id;
     if( name || description )
     {
       this.definition = {};
-      
+
       if( typeof(name) === 'string' || name instanceof String )
         this.definition.name = {'en-US': name};
       else if(name)
         this.definition.name = name;
-      
+
       if( typeof(description) === 'string' || description instanceof String )
         this.definition.description = {'en-US': description};
       else if(description)
         this.definition.description = description;
     }
   };
+  /**
+   * @return {string}
+   */
   Activity.prototype.toString = function(){
     if(this.definition && this.definition.name && (this.definition.name['en-US'] || this.definition.name['en']))
       return this.definition.name['en-US'] || this.definition.name['en'];
     else
       return this.id;
   };
+  /**
+   * @return {boolean}
+   */
   Activity.prototype.isValid = function(){
     return this.id && (!this.objectType || this.objectType === 'Activity');
   };
-  
-  /*
+
+  /**
    * An object that refers to a separate statement
    * @param {string} id   The UUID of another xAPI statement
    */
@@ -330,19 +367,26 @@
       this.id = id;
     }
   };
+  /**
+   * @return {string}
+   */
   StatementRef.prototype.toString = function(){
     return 'statement('+this.id+')';
   };
+  /**
+   * @return {boolean}
+   */
   StatementRef.prototype.isValid = function(){
     return this.id && this.objectType && this.objectType === 'StatementRef';
   };
-  
-  /*
+
+  /**
    * A self-contained statement as the object of another statement
    * See XAPIStatement for constructor details
    * @param {string} actor   The Agent or Group committing the action described by the statement
    * @param {string} verb   The Verb for the action described by the statement
    * @param {string} object   The receiver of the action. An Agent, Group, Activity, or StatementRef
+   * @extends {XAPIStatement}
    */
   var SubStatement = function(actor, verb, object){
     XAPIStatement.call(this,actor,verb,object);
@@ -354,10 +398,13 @@
     delete this.authority;
   };
   SubStatement.prototype = new XAPIStatement;
+  /**
+   * @return {string}
+   */
   SubStatement.prototype.toString = function(){
     return '"' + SubStatement.prototype.prototype.toString.call(this) + '"';
   };
-  
+
   XAPIStatement.Agent = Agent;
   XAPIStatement.Group = Group;
   XAPIStatement.Verb = Verb;
@@ -366,4 +413,4 @@
   XAPIStatement.SubStatement = SubStatement;
   ADL.XAPIStatement = XAPIStatement;
 
-}(window.ADL = window.ADL || {}));
+})(typeof window !== "undefined" ? window.ADL = window.ADL || {} : typeof global !== "undefined" ? global.ADL = global.ADL || {} : this);

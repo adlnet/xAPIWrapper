@@ -16,4 +16,4 @@
       "question": "http://adlnet.gov/expapi/activities/question",
       "simulation": "http://adlnet.gov/expapi/activities/simulation"
    };
-}(window.ADL = window.ADL || {}));
+})(typeof window !== "undefined" ? window.ADL = window.ADL || {} : typeof global !== "undefined" ? global.ADL = global.ADL || {} : this);

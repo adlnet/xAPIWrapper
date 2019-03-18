@@ -13,7 +13,10 @@ module.exports = function(grunt) {
     },
     'uglify': {
       options: {
-        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
+        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n',
+        // beautify: true,
+        // compress: false,
+        // mangle: false
       },
       'build': {
         files: {
@@ -30,7 +33,8 @@ module.exports = function(grunt) {
       }
     },
     'exec': {
-      docs: `node ./node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js${path.delimiter}src/xapistatement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc`
+      // Include os delimiter for windows+unix compatibility.
+      docs: `node ./node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js${path.delimiter}src/xapistatement.js${path.delimiter}src/xapi-launch.js${path.delimiter}src/xapi-util.js${path.delimiter}src/activitytypes.js${path.delimiter}src/verbs.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc`
     }
   });
 

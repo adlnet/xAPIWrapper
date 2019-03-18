@@ -3,11 +3,8 @@ A store of valid xapi statements for testing and coverage purposes.  Please use 
 
 https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
 */
-(function (obj) {
-    var ADL = obj;
-    if (typeof window !== 'undefined') {
-        ADL = window.ADL = obj.ADL || {};
-    }
+(function (ADL) {
+
     ADL.stmts = {
         /* Requirements:
             A Statement MUST use each property no more than one time.
@@ -757,6 +754,6 @@ https://github.com/adlnet/xAPI-Spec/blob/master/xAPI.md
                 },
                 "objectType": "Activity"
             }
-        },
+        }
     }
-})(this);
+})(typeof window !== "undefined" ? window.ADL = window.ADL || {} : typeof global !== "undefined" ? global.ADL = global.ADL || {} : this);

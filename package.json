@@ -1,13 +1,13 @@
 {
   "name": "xAPIWrapper",
   "description": "An easier way to build, send, and retrieve xAPI statements",
-  "version": "1.11.0",
+  "version": "1.10.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/adlnet/xAPIWrapper.git"
   },
   "devDependencies": {
-    "doxstrap": "~0.0.5",
+    "doxstrap": "~0.0.8",
     "grunt": "^1.0.3",
     "grunt-bump": "0.0.16",
     "grunt-contrib-uglify": "^4.0.0",

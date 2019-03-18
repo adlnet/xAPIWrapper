@@ -1,5 +1,49 @@
 (function (ADL) {
 
+    /**
+     * Object.keys polyfill for IE8
+     * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+     * @private
+     */
+    var ObjectKeys = Object.keys || (function() {
+        'use strict';
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+            dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
+
+        return function(obj) {
+            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+            }
+
+            var result = [], prop, i;
+
+            for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+                result.push(prop);
+            }
+            }
+
+            if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+                if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+                }
+            }
+            }
+            return result;
+        };
+    }());
+
     // number padding for ADL.dateToISOString
     function pad(number) {
         var r = String(number);
@@ -57,24 +101,7 @@
 
     log.debug = false;
 
-    function getByteLen(normal_val) {
-        // Force string type
-        normal_val = String(normal_val);
-
-        var byteLen = 0;
-        for (var i = 0; i < normal_val.length; i++) {
-            var c = normal_val.charCodeAt(i);
-            byteLen += c < (1 <<  7) ? 1 :
-                       c < (1 << 11) ? 2 :
-                       c < (1 << 16) ? 3 :
-                       c < (1 << 21) ? 4 :
-                       c < (1 << 26) ? 5 :
-                       c < (1 << 31) ? 6 : Number.NaN;
-        }
-        return byteLen;
-    }
-
-    /*
+    /**
      * Config object used w/ url params to configure the lrs object
      * change these to match your lrs
      * @return {object} config object
@@ -109,7 +136,7 @@
         return conf
     }();
 
-    /*
+    /**
      * XAPIWrapper Constructor
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
@@ -136,8 +163,15 @@
 
         function getbase(url)
         {
-            var l = document.createElement("a");
-            l.href = url;
+            var l;
+            if (typeof document !== 'undefined') {
+                // Browser parse url
+                l = document.createElement("a");
+                l.href = url;
+            } else {
+                // NodeJS parse url
+                l = require('url').parse(url);
+            }
             if (l.protocol && l.host) {
                 return l.protocol + "//" + l.host;
             } else if (l.href) {
@@ -155,7 +189,7 @@
 
         if (verifyxapiversion && testConfig.call(this))
         {
-            window.ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+            ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
                 function(r){
                     if(r.status == 200)
                     {
@@ -233,7 +267,7 @@
     // This wrapper is based on the Experience API Spec version:
     XAPIWrapper.prototype.xapiVersion = "1.0.1";
 
-    /*
+    /**
      * Adds info from the lrs object to the statement, if available.
      * These values could be initialized from the Config object or from the url query string.
      * @param {object} stmt   the statement object
@@ -277,7 +311,7 @@
     // Default encoding
     XAPIWrapper.prototype.defaultEncoding = 'utf-8';
 
-    /*
+    /**
      * Send a single statement to the LRS. Makes a Javascript object
      * with the statement id as 'id' available to the callback function.
      * @param {object} stmt   statement object to send
@@ -338,85 +372,75 @@
         }
     };
 
-    /*
-    * Build the post body to include the multipart boundries, edit the statement to include the attachment types
-    * extraHeaders should be an object. It will have the multipart boundary value set
-    * attachments should be an array of objects of the type
-    * {
-          type:"signature" || {
-              usageType : URI,
-              display: Language-map
-              description: Language-map
-          },
-          value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
-       }
-    */
+    /**
+     * No proper support for binary attachments as IE8-9 do not support blob or typedarrays.
+     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
+     * extraHeaders should be an object. It will have the multipart boundary value set
+     * attachments should be an array of objects of the type
+     * @param {Object} statement
+     * @param {Array<object>} attachments
+     * @param {Object} extraHeaders
+     * @private
+     * @example
+     * ADL.XAPIWrapper.buildMultipartPost(statement, [{
+     *      type:"signature" || {
+     *          usageType : URI,
+     *          display: Language-map
+     *          description: Language-map
+     *      },
+     *      value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
+     * }], extraHeaders);
+     */
     XAPIWrapper.prototype.buildMultipartPost = function(statement, attachments, extraHeaders)
     {
         statement.attachments = [];
-        for (var i = 0; i < attachments.length; i++) {
-            // Replace the term 'signature' with the hard coded definition for a signature attachment
-            if (attachments[i].type == "signature") {
+        for(var i =0; i < attachments.length; i++)
+        {
+            //replace the term 'signature' with the hard coded definition for a signature attachment
+            if(attachments[i].type == "signature")
+            {
                 attachments[i].type = {
-                   "usageType": "http://adlnet.gov/expapi/attachments/signature",
-                   "display": {
+                    "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                    "display": {
                     "en-US": "A JWT signature"
-                   },
-                   "description": {
+                    },
+                    "description": {
                     "en-US": "A signature proving the statement was not modified"
-                   },
-                   "contentType": "application/octet-stream"
+                    },
+                    "contentType": "application/octet-stream"
                 }
             }
 
-            if (typeof attachments[i].value === 'string') {
-                // Convert the string value to an array buffer.
-                throw "ADL.buildMultipartPost: Cannot send string attachments as TextEncoder is unsupported in <=ie9.";
-            }
-
-            // Compute the length and the sha2 of the attachment
-            attachments[i].type.length = attachments[i].value.byteLength;
+            //compute the length and the sha2 of the attachment
+            attachments[i].type.length = attachments[i].value.length;
             attachments[i].type.sha2 = toSHA256(attachments[i].value);
 
-            // Attach the attachment metadata to the statement.
-            statement.attachments.push(attachments[i].type);
+            //attach the attachment metadata to the statement
+            statement.attachments.push(attachments[i].type)
         }
 
-        var blobParts = [];
-        var boundary = (Math.random() + ' ').substring(2,10) + (Math.random() + ' ').substring(2,10);
+        var body = "";
+        var CRLF = "\r\n";
+        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
 
         extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
 
-        var CRLF = "\r\n";
-        var header = [
-            "--" + boundary,
-            "Content-Type: application/json",
-            "Content-Disposition: form-data; name=\"statement\"",
-            "",
-            JSON.stringify(statement)
-        ].join(CRLF) + CRLF;
+        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
+        body += JSON.stringify(statement);
 
-        blobParts.push(header);
-
-        for (var i in attachments) {
-            if (attachments.hasOwnProperty(i)) {
-                var attachmentHeader = [
-                    "--" + boundary,
-                    "Content-Type: " + attachments[i].type.contentType,
-                    "Content-Transfer-Encoding: binary",
-                    "X-Experience-API-Hash: " + attachments[i].type.sha2
-                ].join(CRLF) + CRLF + CRLF;
-
-                blobParts.push(attachmentHeader);
-                blobParts.push(attachments[i].value);
+        for(var i in attachments)
+        {
+            if (attachments.hasOwnProperty(i))
+            {
+                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:" + attachments[i].type.contentType + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+                body += attachments[i].value;
             }
         }
+        body += CRLF + "--" + boundary + "--" + CRLF
 
-        blobParts.push(CRLF + "--" + boundary + "--" + CRLF);
-
-        return new Blob(blobParts);
+        return body;
     }
-    /*
+    /**
      * Send a list of statements to the LRS.
      * @param {array} stmtArray   the list of statement objects to send
      * @param {function} [callback]   function to be called after the LRS responds
@@ -461,7 +485,7 @@
         }
     };
 
-    /*
+    /**
      * Get statement(s) based on the searchparams or more url.
      * @param {object} searchparams   an ADL.XAPIWrapper.searchParams object of
      *                key(search parameter)-value(parameter value) pairs.
@@ -531,7 +555,7 @@
         }
     };
 
-    /*
+    /**
      * Gets the Activity object from the LRS.
      * @param {string} activityid   the id of the Activity to get
      * @param {function} [callback]   function to be called after the LRS responds
@@ -569,7 +593,7 @@
         }
     };
 
-    /*
+    /**
      * Store activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to
@@ -651,7 +675,7 @@
         }
     };
 
-    /*
+    /**
      * Get activity state from the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to
@@ -714,7 +738,7 @@
         }
     };
 
-    /*
+    /**
      * Delete activity state in the LRS
      * @param {string} activityid   the id of the Activity this state is about
      * @param {object} agent   the agent this Activity state is related to
@@ -791,7 +815,7 @@
         }
     };
 
-    /*
+    /**
      * Store activity profile in the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} profileid   the id you want associated with this profile
@@ -863,7 +887,7 @@
         }
     };
 
-    /*
+    /**
      * Get activity profile from the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
@@ -919,7 +943,7 @@
         }
     };
 
-    /*
+    /**
      * Delete activity profile in the LRS
      * @param {string} activityid   the id of the Activity this profile is about
      * @param {string} profileid   the id you want associated with this profile
@@ -976,7 +1000,7 @@
         }
     };
 
-    /*
+    /**
      * Gets the Person object from the LRS based on an agent object.
      * The Person object may contain more information about an agent.
      * See the xAPI Spec for details.
@@ -1016,7 +1040,7 @@
         }
     };
 
-    /*
+    /**
      * Store agent profile in the LRS
      * @param {object} agent   the agent this profile is related to
      * @param {string} profileid   the id you want associated with this profile
@@ -1088,7 +1112,7 @@
         }
     };
 
-    /*
+    /**
      * Get agnet profile from the LRS
      * @param {object} agent   the agent associated with this profile
      * @param {string} [profileid]    the id of the profile, if not included, the response will be a list of profileids
@@ -1144,7 +1168,7 @@
         }
     };
 
-    /*
+    /**
      * Delete agent profile in the LRS
      * @param {oject} agent   the id of the Agent this profile is about
      * @param {string} profileid   the id you want associated with this profile
@@ -1201,8 +1225,9 @@
         }
     };
 
-    /*
+    /**
      * Tests the configuration of the lrs object
+     * @private
      */
     function testConfig()
     {
@@ -1278,7 +1303,7 @@
         var qsVars, prop;
 
         qsVars = parseQueryString();
-        if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
+        if (qsVars !== undefined && ObjectKeys(qsVars).length !== 0) {
             for (var i = 0; i<lrsProps.length; i++){
                 prop = lrsProps[i];
                 if (qsVars[prop]){
@@ -1286,7 +1311,7 @@
                     delete qsVars[prop];
                 }
             }
-            if (Object.keys(qsVars).length !== 0) {
+            if (ObjectKeys(qsVars).length !== 0) {
               lrs.extended = qsVars;
             }
 
@@ -1302,6 +1327,9 @@
     // parses the params in the url query string
     function parseQueryString()
     {
+        // Don't parse query string if not in browser
+        if (typeof window === 'undefined') return {};
+
         var qs, pairs, pair, ii, parsed;
 
         qs = window.location.search.substr(1);
@@ -1327,13 +1355,14 @@
         xhr.send(null);
     }
 
-    /*
-     * formats a request in a way that IE will allow
+    /**
+     * Formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
      * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
      * @param {array} [headers]   headers to include in the request
      * @param {string} [data]   the body of the request, if there is one
      * @return {object} xhr response object
+     * @private
      */
     function ie_request(method, url, headers, data)
     {
@@ -1371,25 +1400,28 @@
         };
     }
 
-    /*!
-    Excerpt from: Math.uuid.js (v1.4)
-    http://www.broofa.com
-    mailto:robert@broofa.com
-    Copyright (c) 2010 Robert Kieffer
-    Dual licensed under the MIT and GPL licenses.
-    */
+    /**
+     * Unique id generator
+     * @return {string}
+     * @copyright
+     * Excerpt from: Math.uuid.js (v1.4)
+     * http://www.broofa.com
+     * mailto:robert@broofa.com
+     * Copyright (c) 2010 Robert Kieffer
+     * Dual licensed under the MIT and GPL licenses.
+     */
     ADL.ruuid = function()
     {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-                return v.toString(16);
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
         });
     };
 
-    /*
-     * dateFromISOString
-     * parses an ISO string into a date object
-     * isostr - the ISO string
+    /**
+     * Convert an ISO date string to a date object
+     * @param {string} isostr
+     * @return {Date}
      */
     ADL.dateFromISOString = function(isostr)
     {
@@ -1420,9 +1452,11 @@
         return dateToReturn;
     };
 
-    /*
-     * adds toISOString to date objects if not there
+    /**
+     * Convert a date object to an ISO string
      * from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+     * @param {Date} date
+     * @return {string}
      */
     ADL.dateToISOString = function(date)
     {
@@ -1437,9 +1471,9 @@
             + 'Z';
     };
 
-    // Synchronous if callback is not provided (not recommended)
-    /*
-     * makes a request to a server (if possible, use functions provided in XAPIWrapper)
+    /**
+     * Makes a request to a server (if possible, use functions provided in XAPIWrapper)
+     * Synchronous if callback is not provided (not recommended)
      * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
      * @param {string} url   the url of this request
      * @param {string} method   the http request method
@@ -1591,7 +1625,7 @@
         }
     };
 
-    /*
+    /**
      * Holder for custom global error callback
      * @param {object} xhr   xhr object or null
      * @param {string} method   XMLHttpRequest request method
@@ -1641,4 +1675,4 @@
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 
-}(window.ADL = window.ADL || {}));
+})(typeof window !== "undefined" ? window.ADL = window.ADL || {} : typeof global !== "undefined" ? global.ADL = global.ADL || {} : this);
