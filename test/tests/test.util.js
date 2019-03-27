@@ -1,49 +1,5 @@
 describe('testing xAPI utilities', function () {
 
-    /*
-     * Object.keys polyfill for IE8
-     * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
-     * @private
-     */
-    var ObjectKeys = Object.keys || (function() {
-        'use strict';
-        var hasOwnProperty = Object.prototype.hasOwnProperty,
-            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
-            dontEnums = [
-                'toString',
-                'toLocaleString',
-                'valueOf',
-                'hasOwnProperty',
-                'isPrototypeOf',
-                'propertyIsEnumerable',
-                'constructor'
-            ],
-            dontEnumsLength = dontEnums.length;
-
-        return function(obj) {
-            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
-            throw new TypeError('Object.keys called on non-object');
-            }
-
-            var result = [], prop, i;
-
-            for (prop in obj) {
-            if (hasOwnProperty.call(obj, prop)) {
-                result.push(prop);
-            }
-            }
-
-            if (hasDontEnumBug) {
-            for (i = 0; i < dontEnumsLength; i++) {
-                if (hasOwnProperty.call(obj, dontEnums[i])) {
-                result.push(dontEnums[i]);
-                }
-            }
-            }
-            return result;
-        };
-    }());
-
     var s1, s2, s3, s4, s5, s6;
 
     before(function () {
@@ -143,7 +99,7 @@ describe('testing xAPI utilities', function () {
             });
             it('should handle a request which overreaches the available statements', function () {
                 (util.getMoreStatements(100, function (stmts) {
-                    assert.equal(stmts.length, ObjectKeys(ADL.stmts).length);
+                    assert.equal(stmts.length, Object.keys(ADL.stmts).length);
                     assert.isArray(stmts);
                     assert.equal(util.getActorIdString(stmts[0].actor), ADL.stmts['Base-Statement'].actor.mbox);
                     assert.equal(util.getVerbDisplay(stmts[15].verb), ADL.stmts["Result"].verb.display['en-US']);

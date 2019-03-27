@@ -16,7 +16,7 @@
 
     <script src="./libs/ace-editor/ace.js"></script>
 
-    
+
 
     <!--Min-ified version of the files below-->
     <script src="../dist/xapiwrapper.min.js"></script>
@@ -30,7 +30,7 @@
     <script src="../src/xapistatement.js"></script>
     <script src="../src/xapi-util.js"></script>
     <script src="../src/xapi-launch.js"></script>
-    <script src="../src/xapiwrapper.js"></script>--> 
+    <script src="../src/xapiwrapper.js"></script>-->
 
     <!-- <script src="../src/offline.js"></script>
     <script src="../src/storage.js"></script>
@@ -257,7 +257,7 @@
                               actor: parts.actor.mbox,
                               verb: parts.verb,
                               object: parts.object.Activity,
-                              timestamp: ADL.dateToISOString(new Date())
+                              timestamp: (new Date()).toISOString()
                            };
 
             if (! opts)

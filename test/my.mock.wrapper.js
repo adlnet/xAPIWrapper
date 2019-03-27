@@ -5,53 +5,73 @@
      * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
      * @private
      */
-    var ObjectKeys = Object.keys || (function() {
-        'use strict';
-        var hasOwnProperty = Object.prototype.hasOwnProperty,
-            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
-            dontEnums = [
-                'toString',
-                'toLocaleString',
-                'valueOf',
-                'hasOwnProperty',
-                'isPrototypeOf',
-                'propertyIsEnumerable',
-                'constructor'
-            ],
-            dontEnumsLength = dontEnums.length;
+    if (!Object.keys) {
+        Object.keys = (function() {
+            'use strict';
+            var hasOwnProperty = Object.prototype.hasOwnProperty,
+                hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+                dontEnums = [
+                    'toString',
+                    'toLocaleString',
+                    'valueOf',
+                    'hasOwnProperty',
+                    'isPrototypeOf',
+                    'propertyIsEnumerable',
+                    'constructor'
+                ],
+                dontEnumsLength = dontEnums.length;
 
-        return function(obj) {
-            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
-            throw new TypeError('Object.keys called on non-object');
-            }
-
-            var result = [], prop, i;
-
-            for (prop in obj) {
-            if (hasOwnProperty.call(obj, prop)) {
-                result.push(prop);
-            }
-            }
-
-            if (hasDontEnumBug) {
-            for (i = 0; i < dontEnumsLength; i++) {
-                if (hasOwnProperty.call(obj, dontEnums[i])) {
-                result.push(dontEnums[i]);
+            return function(obj) {
+                if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+                    throw new TypeError('Object.keys called on non-object');
                 }
-            }
-            }
-            return result;
-        };
-    }());
 
-    // number padding for ADL.dateToISOString
-    function pad(number) {
+                var result = [], prop, i;
+
+                for (prop in obj) {
+                    if (hasOwnProperty.call(obj, prop)) {
+                        result.push(prop);
+                    }
+                }
+
+                if (hasDontEnumBug) {
+                    for (i = 0; i < dontEnumsLength; i++) {
+                        if (hasOwnProperty.call(obj, dontEnums[i])) {
+                            result.push(dontEnums[i]);
+                        }
+                    }
+                }
+                return result;
+            };
+        }());
+    }
+
+// adds toISOString to date objects if not there
+// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+if ( !Date.prototype.toISOString ) {
+    ( function() {
+
+      function pad(number) {
         var r = String(number);
         if ( r.length === 1 ) {
-        r = '0' + r;
+          r = '0' + r;
         }
         return r;
-    }
+      }
+
+      Date.prototype.toISOString = function() {
+        return this.getUTCFullYear()
+          + '-' + pad( this.getUTCMonth() + 1 )
+          + '-' + pad( this.getUTCDate() )
+          + 'T' + pad( this.getUTCHours() )
+          + ':' + pad( this.getUTCMinutes() )
+          + ':' + pad( this.getUTCSeconds() )
+          + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+          + 'Z';
+      };
+
+    }() );
+}
 
 // shim for old-style Base64 lib
 function toBase64(text){
@@ -375,7 +395,7 @@ function isDate(date) {
                     {
                         if (s == "until" || s == "since") {
                             var d = new Date(searchparams[s]);
-                            urlparams.push(s + "=" + encodeURIComponent(ADL.dateToISOString(d)));
+                            urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
                         } else {
                             urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
                         }
@@ -719,7 +739,7 @@ function isDate(date) {
         var qsVars, prop;
 
         qsVars = parseQueryString();
-        if (qsVars !== undefined && ObjectKeys(qsVars).length !== 0) {
+        if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
             for (var i = 0; i<lrsProps.length; i++){
                 prop = lrsProps[i];
                 if (qsVars[prop]){
@@ -727,7 +747,7 @@ function isDate(date) {
                     delete qsVars[prop];
                 }
             }
-            if (ObjectKeys(qsVars).length !== 0) {
+            if (Object.keys(qsVars).length !== 0) {
               lrs.extended = qsVars;
             }
 
@@ -863,25 +883,6 @@ function isDate(date) {
         return dateToReturn;
     };
 
-    /**
-    * Convert a date object to an ISO string
-    * from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-    * @param {Date} date
-    * @return {string}
-    */
-   ADL.dateToISOString = function(date)
-   {
-       if (Date.prototype.toISOString) return date.toISOString();
-       return date.getUTCFullYear()
-           + '-' + pad( date.getUTCMonth() + 1 )
-           + '-' + pad( date.getUTCDate() )
-           + 'T' + pad( date.getUTCHours() )
-           + ':' + pad( date.getUTCMinutes() )
-           + ':' + pad( date.getUTCSeconds() )
-           + '.' + String( (date.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-           + 'Z';
-   };
-
     // Synchronous if callback is not provided (not recommended)
     /*
      * makes a request to a server (if possible, use functions provided in XAPIWrapper)
@@ -904,7 +905,7 @@ function isDate(date) {
         var urlparts = url.split('/');
         var index = urlparts[urlparts.length - 1];
 
-        var keys = ObjectKeys(ADL.stmts);
+        var keys = Object.keys(ADL.stmts);
         var numstmts = keys.length;
         var cutoff = 4; //only send 4 statements at a time
         //index will either be zero or where to start with more statements
