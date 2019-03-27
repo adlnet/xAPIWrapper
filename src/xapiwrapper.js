@@ -189,7 +189,7 @@ function isDate(date) {
      * @param {object} config   with a minimum of an endoint property
      * @param {boolean} verifyxapiversion   indicating whether to verify the version of the LRS is compatible with this wrapper
      */
-    XAPIWrapper = function(config, verifyxapiversion)
+    var XAPIWrapper = function(config, verifyxapiversion)
     {
 
 
@@ -1301,7 +1301,7 @@ function isDate(date) {
             if (obj2.hasOwnProperty(p) == false)
                 continue;
 
-            prop = obj2[p];
+            var prop = obj2[p];
             log(p + " : " + prop);
             try
             {
