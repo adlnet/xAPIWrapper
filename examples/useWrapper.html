@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="../test/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="../test/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
@@ -257,7 +257,7 @@
                               actor: parts.actor.mbox,
                               verb: parts.verb,
                               object: parts.object.Activity,
-                              timestamp: (new Date()).toISOString()
+                              timestamp: ADL.dateToISOString(new Date())
                            };
 
             if (! opts)
@@ -361,7 +361,7 @@
                 if ( resp.responseText )
                     text = "Successfully sent " + resp.responseText;
                 else
-                    text = thing;
+                    text = JSON.stringify(thing);
             }
 
             var p = $('<p>').addClass(spanclass).html(text);
@@ -393,7 +393,6 @@
         });
 
         $('#makestmtform').on('change', function (ev) {
-            ev.preventDefault();
             var actor = $('input[name=actorradio]:checked').val();
             var object = $('input[name=objectradio]:checked').val();
             var reschkd = $('input[name=resultcbx]:checked').map(function () {

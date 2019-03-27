@@ -1,29 +1,57 @@
-// adds toISOString to date objects if not there
-// from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
-if ( !Date.prototype.toISOString ) {
-  ( function() {
+(function (ADL) {
 
+    /**
+     * Object.keys polyfill for IE8
+     * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+     * @private
+     */
+    var ObjectKeys = Object.keys || (function() {
+        'use strict';
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+            dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
+
+        return function(obj) {
+            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+            }
+
+            var result = [], prop, i;
+
+            for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+                result.push(prop);
+            }
+            }
+
+            if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+                if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+                }
+            }
+            }
+            return result;
+        };
+    }());
+
+    // number padding for ADL.dateToISOString
     function pad(number) {
-      var r = String(number);
-      if ( r.length === 1 ) {
+        var r = String(number);
+        if ( r.length === 1 ) {
         r = '0' + r;
-      }
-      return r;
+        }
+        return r;
     }
-
-    Date.prototype.toISOString = function() {
-      return this.getUTCFullYear()
-        + '-' + pad( this.getUTCMonth() + 1 )
-        + '-' + pad( this.getUTCDate() )
-        + 'T' + pad( this.getUTCHours() )
-        + ':' + pad( this.getUTCMinutes() )
-        + ':' + pad( this.getUTCSeconds() )
-        + '.' + String( (this.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
-        + 'Z';
-    };
-
-  }() );
-}
 
 // shim for old-style Base64 lib
 function toBase64(text){
@@ -82,8 +110,6 @@ function isDate(date) {
     }
 }
 
-(function (ADL) {
-    
     log.debug = false;
 
     function getByteLen(normal_val) {
@@ -367,96 +393,73 @@ function isDate(date) {
         }
     };
 
-    XAPIWrapper.prototype.stringToArrayBuffer = function(content, encoding)
-    {
-        encoding = encoding || ADL.XAPIWrapper.defaultEncoding;
-
-        return new TextEncoder(encoding).encode(content).buffer;
-    };
-
-    XAPIWrapper.prototype.stringFromArrayBuffer = function(content, encoding) {
-        encoding = encoding || ADL.XAPIWrapper.defaultEncoding;
-
-        return new TextDecoder(encoding).decode(content);
-    };
-
-    /*
-    * Build the post body to include the multipart boundries, edit the statement to include the attachment types
-    * extraHeaders should be an object. It will have the multipart boundary value set
-    * attachments should be an array of objects of the type
-    * {
-          type:"signature" || {
-              usageType : URI,
-              display: Language-map
-              description: Language-map
-          },
-          value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
-       }
-    */
+    /**
+     * No proper support for binary attachments as IE8-9 do not support blob or typedarrays.
+     * Build the post body to include the multipart boundries, edit the statement to include the attachment types
+     * extraHeaders should be an object. It will have the multipart boundary value set
+     * attachments should be an array of objects of the type
+     * @param {Object} statement
+     * @param {Array<object>} attachments
+     * @param {Object} extraHeaders
+     * @private
+     * @example
+     * ADL.XAPIWrapper.buildMultipartPost(statement, [{
+     *      type:"signature" || {
+     *          usageType : URI,
+     *          display: Language-map
+     *          description: Language-map
+     *      },
+     *      value : a UTF8 string containing the binary data of the attachment. For string values, this can just be the JS string.
+     * }], extraHeaders);
+     */
     XAPIWrapper.prototype.buildMultipartPost = function(statement, attachments, extraHeaders)
     {
         statement.attachments = [];
-        for (var i = 0; i < attachments.length; i++) {
-            // Replace the term 'signature' with the hard coded definition for a signature attachment
-            if (attachments[i].type == "signature") {
+        for(var i =0; i < attachments.length; i++)
+        {
+            //replace the term 'signature' with the hard coded definition for a signature attachment
+            if(attachments[i].type == "signature")
+            {
                 attachments[i].type = {
-                   "usageType": "http://adlnet.gov/expapi/attachments/signature",
-                   "display": {
+                    "usageType": "http://adlnet.gov/expapi/attachments/signature",
+                    "display": {
                     "en-US": "A JWT signature"
-                   },
-                   "description": {
+                    },
+                    "description": {
                     "en-US": "A signature proving the statement was not modified"
-                   },
-                   "contentType": "application/octet-stream"
+                    },
+                    "contentType": "application/octet-stream"
                 }
             }
 
-            if (typeof attachments[i].value === 'string') {
-                // Convert the string value to an array buffer.
-                attachments[i].value = this.stringToArrayBuffer(attachments[i].value);
-            }
-
-            // Compute the length and the sha2 of the attachment
-            attachments[i].type.length = attachments[i].value.byteLength;
+            //compute the length and the sha2 of the attachment
+            attachments[i].type.length = attachments[i].value.length;
             attachments[i].type.sha2 = toSHA256(attachments[i].value);
 
-            // Attach the attachment metadata to the statement.
-            statement.attachments.push(attachments[i].type);
+            //attach the attachment metadata to the statement
+            statement.attachments.push(attachments[i].type)
         }
 
-        var blobParts = [];
-        var boundary = (Math.random() + ' ').substring(2,10) + (Math.random() + ' ').substring(2,10);
+        var body = "";
+        var CRLF = "\r\n";
+        var boundary = (Math.random()+' ').substring(2,10)+(Math.random()+' ').substring(2,10);
 
         extraHeaders["Content-Type"] = "multipart/mixed; boundary=" + boundary;
 
-        var CRLF = "\r\n";
-        var header = [
-            "--" + boundary,
-            "Content-Type: application/json",
-            "Content-Disposition: form-data; name=\"statement\"",
-            "",
-            JSON.stringify(statement)
-        ].join(CRLF) + CRLF;
+        body += CRLF + '--' + boundary + CRLF + 'Content-Type:application/json' + CRLF + "Content-Disposition: form-data; name=\"statement\"" + CRLF + CRLF;
+        body += JSON.stringify(statement);
 
-        blobParts.push(header);
-
-        for (var i in attachments) {
-            if (attachments.hasOwnProperty(i)) {
-                var attachmentHeader = [
-                    "--" + boundary,
-                    "Content-Type: " + attachments[i].type.contentType,
-                    "Content-Transfer-Encoding: binary",
-                    "X-Experience-API-Hash: " + attachments[i].type.sha2
-                ].join(CRLF) + CRLF + CRLF;
-
-                blobParts.push(attachmentHeader);
-                blobParts.push(attachments[i].value);
+        for(var i in attachments)
+        {
+            if (attachments.hasOwnProperty(i))
+            {
+                body += CRLF + '--' + boundary + CRLF + 'X-Experience-API-Hash:' + attachments[i].type.sha2 + CRLF + "Content-Type:" + attachments[i].type.contentType + CRLF + "Content-Transfer-Encoding: binary" + CRLF + CRLF
+                body += attachments[i].value;
             }
         }
+        body += CRLF + "--" + boundary + "--" + CRLF
 
-        blobParts.push(CRLF + "--" + boundary + "--" + CRLF);
-
-        return new Blob(blobParts);
+        return body;
     }
     /*
      * Send a list of statements to the LRS.
@@ -544,7 +547,7 @@ function isDate(date) {
                     {
                         if (s == "until" || s == "since") {
                             var d = new Date(searchparams[s]);
-                            urlparams.push(s + "=" + encodeURIComponent(d.toISOString()));
+                            urlparams.push(s + "=" + encodeURIComponent(ADL.dateToISOString(d)));
                         } else {
                             urlparams.push(s + "=" + encodeURIComponent(searchparams[s]));
                         }
@@ -733,7 +736,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(ADL.dateToISOString(since));
                 }
             }
 
@@ -938,7 +941,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(ADL.dateToISOString(since));
                 }
             }
 
@@ -1163,7 +1166,7 @@ function isDate(date) {
             {
                 since = isDate(since);
                 if (since != null) {
-                    url += '&since=' + encodeURIComponent(since.toISOString());
+                    url += '&since=' + encodeURIComponent(ADL.dateToISOString(since));
                 }
             }
 
@@ -1320,7 +1323,7 @@ function isDate(date) {
         var qsVars, prop;
 
         qsVars = parseQueryString();
-        if (qsVars !== undefined && Object.keys(qsVars).length !== 0) {
+        if (qsVars !== undefined && ObjectKeys(qsVars).length !== 0) {
             for (var i = 0; i<lrsProps.length; i++){
                 prop = lrsProps[i];
                 if (qsVars[prop]){
@@ -1460,6 +1463,25 @@ function isDate(date) {
         var dateToReturn = new Date();
         dateToReturn.setTime(Number(time));
         return dateToReturn;
+    };
+
+    /**
+     * Convert a date object to an ISO string
+     * from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+     * @param {Date} date
+     * @return {string}
+     */
+    ADL.dateToISOString = function(date)
+    {
+        if (Date.prototype.toISOString) return date.toISOString();
+        return date.getUTCFullYear()
+            + '-' + pad( date.getUTCMonth() + 1 )
+            + '-' + pad( date.getUTCDate() )
+            + 'T' + pad( date.getUTCHours() )
+            + ':' + pad( date.getUTCMinutes() )
+            + ':' + pad( date.getUTCSeconds() )
+            + '.' + String( (date.getUTCMilliseconds()/1000).toFixed(3) ).slice( 2, 5 )
+            + 'Z';
     };
 
     // Synchronous if callback is not provided (not recommended)

@@ -1,14 +1,54 @@
-after(function () {
-    //nothing in here
-});
-
 describe('testing xAPI utilities', function () {
 
-    var util, s1, s2, s3, s4, s5, s6, onBrowser, should, stmts;
+    /*
+     * Object.keys polyfill for IE8
+     * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+     * @private
+     */
+    var ObjectKeys = Object.keys || (function() {
+        'use strict';
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+            dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
+
+        return function(obj) {
+            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+            }
+
+            var result = [], prop, i;
+
+            for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+                result.push(prop);
+            }
+            }
+
+            if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+                if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+                }
+            }
+            }
+            return result;
+        };
+    }());
+
+    var s1, s2, s3, s4, s5, s6;
 
     before(function () {
 
-        onBrowser = false;
+        var onBrowser = false;
         if (typeof window !== 'undefined') {
             util = ADL.xapiutil;
             onBrowser = true;
@@ -38,34 +78,34 @@ describe('testing xAPI utilities', function () {
         //tests relies on environment settings being 'en-US'
         //failing this test does not necessarily mean that the code is bad, change "en-US" to match your proper environment setting
         it('should get the language from the browser or node', function () {
-            (util.getLang()).should.eql("en-US");
+            assert.equal((util.getLang()), "en-US");
         });
     });
 
     describe('test getLangVal', function () {
         it('should get an object definition name', function () {
-            (util.getLangVal(s1.object.definition.name)).should.eql("soccer");
+            assert.equal((util.getLangVal(s1.object.definition.name)), "soccer");
         });
         it('should get a verb display', function () {
-            (util.getLangVal(s4.verb.display)).should.eql("initialized");
+            assert.equal((util.getLangVal(s4.verb.display)), "initialized");
         });
         it('should get the en if the en-US is not available', function () {
-            (util.getLangVal(s2.verb.display)).should.eql("recommend");
+            assert.equal((util.getLangVal(s2.verb.display)), "recommend");
         });
         it('should return the first display option if language code does not match any of the keys', function () {
-            ("undefined").should.eql(typeof util.getLangVal(s6.verb.display));
+            assert.equal(("undefined"), typeof util.getLangVal(s6.verb.display));
         });
         it('should throw out junk', function () {
-            ("undefined").should.eql(typeof util.getLangVal(s5.actor));
-            ("undefined").should.eql(typeof util.getLangVal(s5.verb));
-            ("undefined").should.eql(typeof util.getLangVal(s5.object));
-            ("undefined").should.eql(typeof util.getLangVal(s5));
+            assert.equal(("undefined"), typeof util.getLangVal(s5.actor));
+            assert.equal(("undefined"), typeof util.getLangVal(s5.verb));
+            assert.equal(("undefined"), typeof util.getLangVal(s5.object));
+            assert.equal(("undefined"), typeof util.getLangVal(s5));
         });
         it('should quit if we pass in nothing to it', function () {
-            ("undefined").should.eql(typeof util.getLangVal());
+            assert.equal(("undefined"), typeof util.getLangVal());
         });
         it('should get the proper display if given a proper dictionary even a couple levels deep', function () {
-            (util.getLangVal(stmts['Object-Sub-Statement-with-StatementRef'].object.verb.display)).should.eql(stmts['Object-Sub-Statement-with-StatementRef'].object.verb.display.en);
+            assert.equal((util.getLangVal(ADL.stmts['Object-Sub-Statement-with-StatementRef'].object.verb.display)), ADL.stmts['Object-Sub-Statement-with-StatementRef'].object.verb.display.en);
         });
     });
 
@@ -73,41 +113,41 @@ describe('testing xAPI utilities', function () {
         if (typeof window !== 'undefined')
         {
             it('should test getMoreStatements in the browser', function () {
-                (util.getMoreStatements(3, function (stmts) {
-                    stmts.length.should.eql(16);
-                    Array.isArray(stmts).should.eql(true);
-                    stmts.should.be.type('object');
-                    util.getLang().should.eql("en-US");
-                    util.getActorId(stmts[0].actor).should.eql(ADL.stmts["Base-Statement"].actor.mbox);
-                    util.getVerbDisplay(stmts[7].verb).should.eql(ADL.stmts["Verb-User-Defined"].verb.display['en-US']);
-                    util.getObjectType(stmts[10].object).should.eql(ADL.stmts["Object-Agent"].object.objectType);
-                }))
+                util.getMoreStatements(3, function (stmts) {
+                    assert.equal(stmts.length, 16);
+                    assert.isArray(stmts);
+                    assert.isObject(stmts);
+                    assert.equal(util.getLang(), "en-US");
+                    assert.equal(util.getActorId(stmts[0].actor), ADL.stmts["Base-Statement"].actor.mbox);
+                    assert.equal(util.getVerbDisplay(stmts[7].verb), ADL.stmts["Verb-User-Defined"].verb.display['en-US']);
+                    assert.equal(util.getObjectType(stmts[10].object), ADL.stmts["Object-Agent"].object.objectType);
+                });
             });
             it('should handle only a single request with no additional calls', function () {
                 (util.getMoreStatements(0, function (stmts) {
-                    stmts.length.should.eql(4);
-                    Array.isArray(stmts).should.eql(true);
-                    util.getActorIdString(stmts[0].actor).should.eql(ADL.stmts['Base-Statement'].actor.mbox);
-                    util.getVerbDisplay(stmts[3].verb).should.eql(ADL.stmts["Actor-Anon-Group"].verb.display['en-US']);
-                    util.getObjectIdString(stmts[2].object).should.eql(ADL.stmts["Actor-Id-Group"].object.id);
+                    assert.equal(stmts.length, 4);
+                    assert.isArray(stmts);
+                    assert.equal(util.getActorIdString(stmts[0].actor), ADL.stmts['Base-Statement'].actor.mbox);
+                    assert.equal(util.getVerbDisplay(stmts[3].verb), ADL.stmts["Actor-Anon-Group"].verb.display['en-US']);
+                    assert.equal(util.getObjectIdString(stmts[2].object), ADL.stmts["Actor-Id-Group"].object.id);
                 }));
             });
             it('should handle only a single additional call', function () {
                 (util.getMoreStatements(1, function (stmts) {
-                    stmts.length.should.eql(8);
-                    Array.isArray(stmts).should.eql(true);
-                    util.getActorIdString(stmts[0].actor).should.eql(ADL.stmts['Base-Statement'].actor.mbox);
-                    util.getVerbDisplay(stmts[7].verb).should.eql(ADL.stmts["Verb-User-Defined"].verb.display['en-US']);
-                    util.getObjectIdString(stmts[4].object).should.eql(ADL.stmts["Actor-Mbox"].object.id);
+                    assert.equal(stmts.length, 8);
+                    assert.isArray(stmts);
+                    assert.equal(util.getActorIdString(stmts[0].actor), ADL.stmts['Base-Statement'].actor.mbox);
+                    assert.equal(util.getVerbDisplay(stmts[7].verb), ADL.stmts["Verb-User-Defined"].verb.display['en-US']);
+                    assert.equal(util.getObjectIdString(stmts[4].object), ADL.stmts["Actor-Mbox"].object.id);
                 }));
             });
             it('should handle a request which overreaches the available statements', function () {
                 (util.getMoreStatements(100, function (stmts) {
-                    stmts.length.should.eql(Object.keys(ADL.stmts).length);
-                    Array.isArray(stmts).should.eql(true);
-                    util.getActorIdString(stmts[0].actor).should.eql(ADL.stmts['Base-Statement'].actor.mbox);
-                    util.getVerbDisplay(stmts[15].verb).should.eql(ADL.stmts["Result"].verb.display['en-US']);
-                    util.getObjectType(stmts[12].object).should.eql(ADL.stmts["Object-StatementRef"].object.objectType);
+                    assert.equal(stmts.length, ObjectKeys(ADL.stmts).length);
+                    assert.isArray(stmts);
+                    assert.equal(util.getActorIdString(stmts[0].actor), ADL.stmts['Base-Statement'].actor.mbox);
+                    assert.equal(util.getVerbDisplay(stmts[15].verb), ADL.stmts["Result"].verb.display['en-US']);
+                    assert.equal(util.getObjectType(stmts[12].object), ADL.stmts["Object-StatementRef"].object.objectType);
                 }));
             });
         }
@@ -115,147 +155,147 @@ describe('testing xAPI utilities', function () {
 
     describe('test getActorId', function () {
         it('should get the mailbox of the actor', function () {
-            (util.getActorId(s1.actor)).should.eql(s1.actor.mbox);
+            assert.equal((util.getActorId(s1.actor)), s1.actor.mbox);
         });
         it('should get the openid of the actor', function () {
-            (util.getActorId(s2.actor)).should.eql(s2.actor.openid);
+            assert.equal((util.getActorId(s2.actor)), s2.actor.openid);
         });
         it('should get the mailbox sha1sum of the actor', function () {
-            (util.getActorId(s3.actor)).should.eql(s3.actor.mbox_sha1sum);
+            assert.equal((util.getActorId(s3.actor)), s3.actor.mbox_sha1sum);
         });
         it('should get the account of the actor', function () {
-            (util.getActorId(s4.actor)).should.eql(s4.actor.account);
+            assert.equal((util.getActorId(s4.actor)), s4.actor.account);
         });
         it('should get the account of an identified group', function () {
-            (util.getActorId(stmts["Actor-Id-Group"].actor)).should.eql(stmts["Actor-Id-Group"].actor.account);
+            assert.equal((util.getActorId(ADL.stmts["Actor-Id-Group"].actor)), ADL.stmts["Actor-Id-Group"].actor.account);
         });
         it('should be undefined for an anonymous group', function () {
-            ("undefined").should.eql(typeof util.getActorId(stmts["Actor-Anon-Group"].actor));
-            ("undefined").should.eql(typeof util.getActorId(s5.actor));
+            assert.equal(("undefined"), typeof util.getActorId(ADL.stmts["Actor-Anon-Group"].actor));
+            assert.equal(("undefined"), typeof util.getActorId(s5.actor));
         });
     });
 
     describe('test getActorIdString', function () {
         it('should return the mailbox of the actor', function () {
-            (util.getActorIdString(s1.actor)).should.be.String();
-            (util.getActorIdString(s1.actor)).should.eql(s1.actor.mbox);
+            assert.isString((util.getActorIdString(s1.actor)));
+            assert.equal((util.getActorIdString(s1.actor)), s1.actor.mbox);
         });
         it('should return the openid', function () {
-            (util.getActorIdString(s2.actor)).should.eql(s2.actor.openid);
+            assert.equal((util.getActorIdString(s2.actor)), s2.actor.openid);
         });
         it('should return the sha1sum of the mailbox', function () {
-            (util.getActorIdString(s3.actor)).should.eql(s3.actor.mbox_sha1sum);
+            assert.equal((util.getActorIdString(s3.actor)), s3.actor.mbox_sha1sum);
         });
         it('should return a String of the account', function () {
-            (util.getActorIdString(s4.actor)).should.be.String();
-            (util.getActorIdString(s4.actor)).should.eql(s4.actor.account.homePage + ":" + s4.actor.account.name);
+            assert.isString((util.getActorIdString(s4.actor)));
+            assert.equal((util.getActorIdString(s4.actor)), s4.actor.account.homePage + ":" + s4.actor.account.name);
         });
         it('should return a String of the member', function () {
-            (util.getActorIdString(s5.actor)).should.be.String();
-            (util.getActorIdString(s5.actor)).should.eql("Anon Group " + s5.actor.member);
+            assert.isString((util.getActorIdString(s5.actor)));
+            assert.equal((util.getActorIdString(s5.actor)), "Anon Group " + s5.actor.member);
         });
         it ('should return unknown if nothing is present', function () {
-            (util.getActorIdString(s6.actor)).should.eql("unknown");
+            assert.equal((util.getActorIdString(s6.actor)), "unknown");
         });
     });
 
     describe('test getActorDisplay', function () {
         it('should get the actor name', function () {
-            (util.getActorDisplay(s2.actor)).should.eql(s2.actor.name);
+            assert.equal((util.getActorDisplay(s2.actor)), s2.actor.name);
         });
         it('should get the actor id string', function () {
-            (util.getActorDisplay(s1.actor).should.eql(s1.actor.mbox))
+            assert.equal((util.getActorDisplay(s1.actor)), s1.actor.mbox);
         });
     });
 
     describe('test getVerbDisplay', function () {
         it('should return undefined with no verb', function () {
-            ("undefined").should.equal(typeof util.getVerbDisplay());
+            assert.equal(("undefined"), typeof util.getVerbDisplay());
         });
         it('should get the verb in the proper language', function () {
-            (util.getVerbDisplay(s4.verb)).should.eql(s4.verb.display['en-US']);
+            assert.equal((util.getVerbDisplay(s4.verb)), s4.verb.display['en-US']);
         });
         it('should get the verb id', function () {
-            (util.getVerbDisplay(s1.verb).should.eql(s1.verb.id))
+            assert.equal((util.getVerbDisplay(s1.verb)), s1.verb.id)
         })
     });
 
     describe('test getObjectType', function () {
         it('should get the objectType when available', function () {
-            (util.getObjectType(s1.object)).should.eql(s1.object.objectType);
+            assert.equal((util.getObjectType(s1.object)), s1.object.objectType);
         });
         it('should assume "Activity" if object id available', function () {
-            (util.getObjectType(s5.object).should.eql('Activity'));
+            assert.equal((util.getObjectType(s5.object)), 'Activity');
         });
         it('should assume "Agent" if neither id nor objectType available', function () {
-            (util.getObjectType(s6.object).should.eql('Agent'));
+            assert.equal((util.getObjectType(s6.object)), 'Agent');
         });
     });
 
     describe('test getObjectId', function () {
         it('should get the id', function () {
-            (util.getObjectId(s1.object)).should.eql(s1.object.id);
+            assert.equal((util.getObjectId(s1.object)), s1.object.id);
         });
         it('should get the actor id, if no id and objectType is Agent', function () {
-            (util.getObjectId(s2.object)).should.eql(s2.object.mbox);
+            assert.equal((util.getObjectId(s2.object)), s2.object.mbox);
         });
         it('should get the actor id, if no id and objectType is Group', function () {
-            (util.getObjectId(s3.object)).should.eql(util.getActorId(s3.object));
+            assert.equal((util.getObjectId(s3.object)), util.getActorId(s3.object));
         });
         it('should get the actor id, if Statement Ref', function () {
-            (util.getObjectId(stmts["Object-StatementRef"].object)).should.eql(stmts["Object-StatementRef"].object.id);
+            assert.equal((util.getObjectId(ADL.stmts["Object-StatementRef"].object)), ADL.stmts["Object-StatementRef"].object.id);
         });
         it('should get the actor id, if Sub-Statement', function () {
-            ("undefined").should.eql(typeof util.getObjectId(stmts["Object-Sub-Statement"].object));
+            assert.equal(("undefined"), typeof util.getObjectId(ADL.stmts["Object-Sub-Statement"].object));
         });
         it('should return undefined, if malformed', function () {
-            ('undefined').should.eql(typeof util.getObjectId(s6.object));
+            assert.equal(('undefined'), typeof util.getObjectId(s6.object));
         });
     });
 
     describe('test getObjectIdString', function () {
         it('should get the id', function () {
-            (util.getActorIdString(s1.object)).should.be.String();
-            (util.getObjectIdString(s1.object)).should.eql(s1.object.id);
+            assert.isString((util.getActorIdString(s1.object)));
+            assert.equal((util.getObjectIdString(s1.object)), s1.object.id);
         });
         it('should get the Actor Id String, if no id and type is Agent or Group', function () {
-            (util.getObjectIdString(s2.object)).should.be.String();
-            (util.getObjectIdString(s2.object)).should.eql(s2.object.mbox);
+            assert.isString((util.getObjectIdString(s2.object)));
+            assert.equal((util.getObjectIdString(s2.object)), s2.object.mbox);
         });
         it('should get the Actor-Verb-Object String, if no id and type is SubStatement', function () {
-            (util.getObjectIdString(s4.object)).should.be.String();
-            (util.getObjectIdString(s4.object)).should.eql(s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
+            assert.isString((util.getObjectIdString(s4.object)));
+            assert.equal((util.getObjectIdString(s4.object)), s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
         });
         it('should return unknown, if those do not work', function () {
-            ('unknown').should.eql(util.getObjectIdString(s6.object));
+            assert.equal(('unknown'), util.getObjectIdString(s6.object));
         });
         it('should return unknown, if you pass it junk', function () {
-            ("unknown").should.eql(util.getObjectIdString(stmts));
-            ("unknown").should.eql(util.getObjectIdString('stmts'));
-            ("unknown").should.eql(util.getObjectIdString());
+            assert.equal(("unknown"), util.getObjectIdString(ADL.stmts));
+            assert.equal(("unknown"), util.getObjectIdString('stmts'));
+            assert.equal(("unknown"), util.getObjectIdString());
         });
     });
 
     describe('test getObjectDisplay', function () {
         it('should get the object definition name', function () {
-            (util.getObjectDisplay(s1.object)).should.eql(s1.object.definition.name[util.getLang()]);
+            assert.equal((util.getObjectDisplay(s1.object)), s1.object.definition.name[util.getLang()]);
         });
         it('or should get the object name', function () {
-            (util.getObjectDisplay(s3.object)).should.eql(s3.object.name);
+            assert.equal((util.getObjectDisplay(s3.object)), s3.object.name);
         });
         it('or should get the object id', function () {
-            (util.getObjectDisplay(s5.object)).should.eql(s5.object.id);
+            assert.equal((util.getObjectDisplay(s5.object)), s5.object.id);
         });
         it('or should get the object actor id', function () {
-            (util.getObjectDisplay(s2.object)).should.eql(s2.object.mbox);
+            assert.equal((util.getObjectDisplay(s2.object)), s2.object.mbox);
         });
         it('or should get the Actor-Verb-Object String', function () {
-            (util.getObjectDisplay(s4.object)).should.eql(s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
+            assert.equal((util.getObjectDisplay(s4.object)), s3.actor.mbox_sha1sum + ":" + s3.verb.id + ":" + s3.object.mbox_sha1sum);
         });
         it('should handle junk', function () {
-            ('unknown').should.eql(util.getObjectDisplay(s3));
-            ('unknown').should.eql(util.getObjectDisplay());
-            ('unknown').should.eql(util.getObjectDisplay('s3'));
+            assert.equal(('unknown'), util.getObjectDisplay(s3));
+            assert.equal(('unknown'), util.getObjectDisplay());
+            assert.equal(('unknown'), util.getObjectDisplay('s3'));
         });
     });
 

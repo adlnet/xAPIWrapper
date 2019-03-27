@@ -6,6 +6,51 @@
         onBrowser = true;
     }
 
+
+    /*
+     * Object.keys polyfill for IE8
+     * From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys
+     * @private
+     */
+    var ObjectKeys = Object.keys || (function() {
+        'use strict';
+        var hasOwnProperty = Object.prototype.hasOwnProperty,
+            hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+            dontEnums = [
+                'toString',
+                'toLocaleString',
+                'valueOf',
+                'hasOwnProperty',
+                'isPrototypeOf',
+                'propertyIsEnumerable',
+                'constructor'
+            ],
+            dontEnumsLength = dontEnums.length;
+
+        return function(obj) {
+            if (typeof obj !== 'function' && (typeof obj !== 'object' || obj === null)) {
+            throw new TypeError('Object.keys called on non-object');
+            }
+
+            var result = [], prop, i;
+
+            for (prop in obj) {
+            if (hasOwnProperty.call(obj, prop)) {
+                result.push(prop);
+            }
+            }
+
+            if (hasDontEnumBug) {
+            for (i = 0; i < dontEnumsLength; i++) {
+                if (hasOwnProperty.call(obj, dontEnums[i])) {
+                result.push(dontEnums[i]);
+                }
+            }
+            }
+            return result;
+        };
+    }());
+
     var getObjDefName = function (o) {
         if (o.definition && o.definition.name) {
             return ADL.xapiutil.getLangVal(o.definition.name);
@@ -41,7 +86,7 @@
 
         if (!langprop) return;
 
-        var options = Object.keys(langprop);
+        var options = ObjectKeys(langprop);
         // test that langprop is a dict (obj)
         // skips if not a dict(obj) and returns
         if (options.length == 0) return undefined;
