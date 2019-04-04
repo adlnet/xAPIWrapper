@@ -63,7 +63,7 @@ body {
   overflow: hidden;
 }
 
-#mocha .test.pending:hover h2::after {
+#mocha .test.pending:hover h2:after {
   content: '(pending)';
   font-family: arial, sans-serif;
 }
@@ -76,7 +76,7 @@ body {
   background: #b94a48;
 }
 
-#mocha .test.pass::before {
+#mocha .test.pass:before {
   content: '✓';
   font-size: 12px;
   display: block;
@@ -108,7 +108,7 @@ body {
   color: #0b97c4;
 }
 
-#mocha .test.pending::before {
+#mocha .test.pending:before {
   content: '◦';
   color: #0b97c4;
 }
@@ -121,7 +121,7 @@ body {
   color: black;
 }
 
-#mocha .test.fail::before {
+#mocha .test.fail:before {
   content: '✖';
   font-size: 12px;
   display: block;
