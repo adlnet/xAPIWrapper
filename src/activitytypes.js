@@ -4,6 +4,7 @@
       "attempt": "http://adlnet.gov/expapi/activities/attempt",
       "course": "http://adlnet.gov/expapi/activities/course",
       "file": "http://adlnet.gov/expapi/activities/file",
+      "cmiInteraction": "http://adlnet.gov/expapi/activities/cmi.interaction",
       "interaction": "http://adlnet.gov/expapi/activities/interaction",
       "lesson": "http://adlnet.gov/expapi/activities/lesson",
       "link": "http://adlnet.gov/expapi/activities/link",
