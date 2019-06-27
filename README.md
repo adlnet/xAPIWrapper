@@ -109,9 +109,12 @@ Include the wrapper file, and optionally the dependencies.
 ``` html
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
 <script type="text/javascript" src="./lib/utf8-text-encoding.js"></script>
+<script type="text/javascript" src="./src/activitytypes.js"></script>
 <script type="text/javascript" src="./src/verbs.js"></script>
-<script type="text/javascript" src="./src/xapistatement.js"></script>
 <script type="text/javascript" src="./src/xapiwrapper.js"></script>
+<script type="text/javascript" src="./src/xapistatement.js"></script>
+<script type="text/javascript" src="./src/xapi-util.js"></script>
+<script type="text/javascript" src="./src/xapi-launch.js"></script>
 ```
 
 Alternatively, use the minified version:
