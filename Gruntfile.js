@@ -11,7 +11,8 @@ module.exports = function(grunt) {
     },
     'uglify': {
       options: {
-        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n'
+        banner: '/*! <%= pkg.name %> v <%= pkg.version %> | Built on <%= grunt.template.today("yyyy-mm-dd HH:MM:sso") %> */\n',
+        sourceMap: true
       },
       'build': {
         files: {
