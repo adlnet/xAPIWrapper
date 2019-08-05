@@ -287,7 +287,12 @@ function isDate(date) {
             if (!stmt.context.contextActivities) {
                 stmt.context.contextActivities = {};
             }
-            stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
+
+            if (!Array.isArray(stmt.context.contextActivities.grouping)) {
+                stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
+            } else {
+                stmt.context.contextActivities.grouping.splice(0, 0, { id : this.lrs.grouping });
+            }
         }
         if (this.lrs.registration) {
             stmt.context.registration = this.lrs.registration;
