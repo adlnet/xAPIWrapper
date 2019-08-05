@@ -360,24 +360,29 @@ Considering the behavior of `xapiwrapper.js`:
 
 ```
 XAPIWrapper.prototype.prepareStatement = function(stmt)
-    {
-        ...........
-        if (this.lrs.grouping ||
-            this.lrs.registration ||
-            this.lrs.activity_platform) {
-            if (!stmt.context) {
-                stmt.context = {};
-            }
+{
+    ...........
+    if (this.lrs.grouping ||
+        this.lrs.registration ||
+        this.lrs.activity_platform) {
+        if (!stmt.context) {
+            stmt.context = {};
         }
-
-        if (this.lrs.grouping) {
-            if (!stmt.context.contextActivities) {
-                stmt.context.contextActivities = {};
-            }
-            stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
-        }
-       ...........
     }
+
+    if (this.lrs.grouping) {
+        if (!stmt.context.contextActivities) {
+            stmt.context.contextActivities = {};
+        }
+        
+        if (!Array.isArray(stmt.context.contextActivities.grouping)) {
+            stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
+        } else {
+            stmt.context.contextActivities.grouping.splice(0, 0, { id : this.lrs.grouping });
+        }
+    }
+    ...........
+}
 ```
 
 Here we notice 2 behaviours:

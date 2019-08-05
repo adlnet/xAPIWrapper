@@ -287,7 +287,8 @@ function isDate(date) {
             if (!stmt.context.contextActivities) {
                 stmt.context.contextActivities = {};
             }
-
+            
+            // PR from brian-learningpool to resolve context overwriting
             if (!Array.isArray(stmt.context.contextActivities.grouping)) {
                 stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
             } else {
