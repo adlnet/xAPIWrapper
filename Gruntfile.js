@@ -16,15 +16,15 @@ module.exports = function(grunt) {
       },
       'build': {
         files: {
-          'dist/xapiwrapper.min.js': [
-            'lib/cryptojs_v3.1.2.js',
-            'lib/utf8-text-encoding.js',
-            'src/activitytypes.js',
-            'src/verbs.js',
-            'src/xapiwrapper.js',
-            'src/xapistatement.js',
-            'src/xapi-util.js',
-            'src/xapi-launch.js'
+          "dist/xapiwrapper.min.js": [
+            "lib/cryptojs_v3.1.2.js",
+            "lib/utf8-text-encoding.js",
+            "src/activitytypes.js",
+            "src/verbs.js",
+            "src/xapiwrapper.js",
+            "src/xapistatement.js",
+            "src/xapi-util.js",
+            "src/xapi-launch.js"
           ]
         }
       }
