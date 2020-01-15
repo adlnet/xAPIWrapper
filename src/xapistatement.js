@@ -9,7 +9,9 @@
     if( !obj[part] ){
       if( /\[\]$/.test(part) ){
         part = part.slice(0,-2);
-        obj[part] = [];
+        if (!Array.isArray(obj[part])) {
+          obj[part] = [];
+        }
       }
       else
         obj[part] = {};
