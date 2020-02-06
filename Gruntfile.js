@@ -30,7 +30,7 @@ module.exports = function(grunt) {
       }
     },
     'exec': {
-      docs: './node_modules/doxstrap/bin/doxstrap.js --source "src/xapiwrapper.js:src/xapistatement.js" --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
+      docs: 'node ./node_modules/doxstrap/bin/doxstrap.js --title "xAPIWrapper <%= pkg.version %> Reference" --layout "bs-sidebar.html" --no-sort --output doc'
     }
   });
 
