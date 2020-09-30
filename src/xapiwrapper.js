@@ -184,7 +184,7 @@ function isDate(date) {
 
         if (verifyxapiversion && testConfig.call(this))
         {
-            window.ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+            window.ADL.send_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
                 function(r){
                     if(r.status == 200)
                     {
@@ -287,7 +287,7 @@ function isDate(date) {
             if (!stmt.context.contextActivities) {
                 stmt.context.contextActivities = {};
             }
-            
+
             // PR from brian-learningpool to resolve context overwriting
             if (!Array.isArray(stmt.context.contextActivities.grouping)) {
                 stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
@@ -321,7 +321,7 @@ function isDate(date) {
      *            the function will be passed the XMLHttpRequest object
      *            and an object with an id property assigned the id
      *            of the statement
-     * @return {object} object containing xhr object and id of statement
+     * @return {object} object containing response object and id of statement
      * @example
      * // Send Statement
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
@@ -329,7 +329,7 @@ function isDate(date) {
      *                       "display" : {"en-US" : "answered"}},
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
      * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.response.status + " - " + resp_obj.response.statusText);
      * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
      *
      * // Send Statement with Callback
@@ -341,7 +341,7 @@ function isDate(date) {
      *     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
      * >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT
      */
-    XAPIWrapper.prototype.sendStatement = function(stmt, callback, attachments)
+    XAPIWrapper.prototype.sendStatement = async function(stmt, callback, attachments)
     {
         if (this.testConfig())
         {
@@ -364,11 +364,11 @@ function isDate(date) {
                 extraHeaders = {}
                 payload = this.buildMultipartPost(stmt,attachments,extraHeaders);
             }
-            var resp = ADL.XHR_request(this.lrs, this.lrs.endpoint+"statements",
+            var resp = await ADL.send_request(this.lrs, this.lrs.endpoint+"statements",
                 "POST", payload, this.lrs.auth, callback, {"id":id}, null, extraHeaders,
                 this.withCredentials, this.strictCallbacks);
             if (!callback)
-                return {"xhr":resp,
+                return {"response":resp,
                         "id" :id};
         }
     };
@@ -470,7 +470,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object
+     * @return {object} response object
      * @example
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
@@ -497,7 +497,7 @@ function isDate(date) {
                 if (stmtArray.hasOwnProperty(i))
                     this.prepareStatement(stmtArray[i]);
             }
-            var resp = ADL.XHR_request(this.lrs,this.lrs.endpoint+"statements",
+            var resp = ADL.send_request(this.lrs,this.lrs.endpoint+"statements",
                 "POST", JSON.stringify(stmtArray), this.lrs.auth, callback, null,
                 false, null, this.withCredentials, this.strictCallbacks);
 
@@ -523,7 +523,7 @@ function isDate(date) {
      * @param {function} [callback] - function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var ret = ADL.XAPIWrapper.getStatements();
      * if (ret)
@@ -560,7 +560,7 @@ function isDate(date) {
                     url = url + "?" + urlparams.join("&");
             }
 
-            var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth,
+            var res = ADL.send_request(this.lrs,url, "GET", null, this.lrs.auth,
                 callback, null, false, null, this.withCredentials, this.strictCallbacks);
 
             if(res === undefined || res.status == 404)
@@ -585,7 +585,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var res = ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
      * ADL.XAPIWrapper.log(res);
@@ -598,7 +598,7 @@ function isDate(date) {
             var url = this.lrs.endpoint + "activities?activityId=<activityid>";
             url = url.replace('<activityid>', encodeURIComponent(activityid));
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "GET", null, this.lrs.auth,
                 callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -694,7 +694,7 @@ function isDate(date) {
             }
             //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
 
-            ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback,
+            ADL.send_request(this.lrs, url, method, stateval, this.lrs.auth, callback,
                 null, null, headers, this.withCredentials, this.strictCallbacks);
         }
     };
@@ -710,7 +710,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
@@ -743,7 +743,7 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "GET", null, this.lrs.auth,
                 callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -773,7 +773,7 @@ function isDate(date) {
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var stateval = {"info":"the state info"};
      * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
@@ -820,7 +820,7 @@ function isDate(date) {
                 headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "DELETE", null, this.lrs.auth,
                 callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -906,7 +906,7 @@ function isDate(date) {
                 return false;
             }
 
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
+            ADL.send_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
                 null, false, headers, this.withCredentials, this.strictCallbacks);
         }
     };
@@ -920,7 +920,7 @@ function isDate(date) {
      * @param {function [callback]    function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                    "actprofile", null,
@@ -948,7 +948,7 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "GET", null, this.lrs.auth,
                 callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -976,7 +976,7 @@ function isDate(date) {
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                       "actprofile");
@@ -1005,7 +1005,7 @@ function isDate(date) {
                 headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "DELETE", null, this.lrs.auth,
                 callback, null, false, headers,this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -1032,7 +1032,7 @@ function isDate(date) {
      * @param {function [callback]    function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var res = ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
      * ADL.XAPIWrapper.log(res);
@@ -1045,7 +1045,7 @@ function isDate(date) {
             var url = this.lrs.endpoint + "agents?agent=<agent>";
             url = url.replace('<agent>', encodeURIComponent(JSON.stringify(agent)));
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "GET", null, this.lrs.auth,
                 callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -1131,7 +1131,7 @@ function isDate(date) {
                 return false;
             }
 
-            ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
+            ADL.send_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
                 null, false, headers, this.withCredentials, this.strictCallbacks);
         }
     };
@@ -1145,7 +1145,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                  "agentprofile", null,
@@ -1173,7 +1173,7 @@ function isDate(date) {
                 }
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "GET", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "GET", null, this.lrs.auth,
                 callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -1201,7 +1201,7 @@ function isDate(date) {
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                     "agentprofile");
@@ -1230,7 +1230,7 @@ function isDate(date) {
                 headers = {"If-None-Match":ADL.formatHash(noneMatchHash)};
             }
 
-            var result = ADL.XHR_request(this.lrs, url, "DELETE", null, this.lrs.auth,
+            var result = ADL.send_request(this.lrs, url, "DELETE", null, this.lrs.auth,
                 callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
             if(result === undefined || result.status == 404)
@@ -1366,59 +1366,6 @@ function isDate(date) {
         return parsed;
     }
 
-
-    function delay()
-    {
-        var xhr = new XMLHttpRequest();
-        var url = window.location + '?forcenocache='+ADL.ruuid();
-        xhr.open('GET', url, false);
-        xhr.send(null);
-    }
-
-    /*
-     * formats a request in a way that IE will allow
-     * @param {string} method   the http request method (ex: "PUT", "GET")
-     * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
-     * @param {array} [headers]   headers to include in the request
-     * @param {string} [data]   the body of the request, if there is one
-     * @return {object} xhr response object
-     */
-    function ie_request(method, url, headers, data)
-    {
-        var newUrl = url;
-
-        //Everything that was on query string goes into form vars
-        var formData = new Array();
-        var qsIndex = newUrl.indexOf('?');
-        if(qsIndex > 0){
-            formData.push(newUrl.substr(qsIndex+1));
-            newUrl = newUrl.substr(0, qsIndex);
-        }
-
-        //Method has to go on querystring, and nothing else
-        newUrl = newUrl + '?method=' + method;
-
-        //Headers
-        if(headers !== null){
-            for (var headerName in headers) {
-                if (headers.hasOwnProperty(headerName))
-                    formData.push(headerName + "=" + encodeURIComponent(headers[headerName]));
-            }
-        }
-
-        //The original data is repackaged as "content" form var
-        if(data !== null){
-            formData.push('content=' + encodeURIComponent(data));
-        }
-
-        return {
-            "method":"POST",
-            "url":newUrl,
-            "headers":{},
-            "data":formData.join("&")
-        };
-    }
-
     /*!
     Excerpt from: Math.uuid.js (v1.4)
     http://www.broofa.com
@@ -1468,7 +1415,6 @@ function isDate(date) {
         return dateToReturn;
     };
 
-    // Synchronous if callback is not provided (not recommended)
     /*
      * makes a request to a server (if possible, use functions provided in XAPIWrapper)
      * @param {string} lrs   the lrs connection info, such as endpoint, auth, etc
@@ -1483,24 +1429,18 @@ function isDate(date) {
      * @param {object} extraHeaders   other header key-values to be added to this request
      * @param {boolean} withCredentials
      * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
-     * @return {object} xhr response object
+     * @return {object} response object
      */
-    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
+    ADL.send_request = async function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
     {
         "use strict";
 
-        var xhr,
-            finished = false,
-            xDomainRequest = false,
-            ieXDomain = false,
-            ieModeRequest,
+        var xDomainRequest = false,
             urlparts = url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
             location = window.location,
             urlPort,
-            result,
             extended,
-            prop,
-            until;
+            prop;
 
         //Consolidate headers
         var headers = {};
@@ -1532,117 +1472,62 @@ function isDate(date) {
             }
         }
 
-        //If it's not cross domain or we're not using IE, use the usual XmlHttpRequest
-        var windowsVersionCheck = window.XDomainRequest && (window.XMLHttpRequest && new XMLHttpRequest().responseType === undefined);
-        if (!xDomainRequest || windowsVersionCheck === undefined || windowsVersionCheck===false) {
-            xhr = new XMLHttpRequest();
-            xhr.withCredentials = withCredentials; //allow cross domain cookie based auth
-            xhr.open(method, url, callback != null);
-            for(var headerName in headers){
-                xhr.setRequestHeader(headerName, headers[headerName]);
+        try {
+          var response = await fetch(url, {
+            method,
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: withCredentials ? 'include' : 'same-origin',
+            headers,
+            body: data,
+          });
+          var notFound = (!ignore404 && response.status === 404);
+          var invalidResponseCode = ((response.status < 200 || response.status > 400) && response.status !== 404);
+          if (response.status === undefined || invalidResponseCode || notFound) {
+            throw new Error(response.statusText);
+          }
+          var body = await response.json();
+          if (callback) {
+            if (callbackargs) {
+              strictCallbacks ? callback(null, response, callbackargs) : callback(response, callbackargs);
             }
-        }
-        //Otherwise, use IE's XDomainRequest object
-        else {
-            ieXDomain = true;
-            ieModeRequest = ie_request(method, url, headers, data);
-            xhr = new XDomainRequest();
-            xhr.open(ieModeRequest.method, ieModeRequest.url);
-        }
-
-        //Setup request callback
-        function requestComplete() {
-            if(!finished){
-                // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
-                // onload or both might fire depending upon browser, just covering all bases with event hooks and
-                // using 'finished' flag to avoid triggering events multiple times
-                finished = true;
-                var notFoundOk = (ignore404 && xhr.status === 404);
-                if (xhr.status === undefined || (xhr.status >= 200 && xhr.status < 400) || notFoundOk) {
-                    if (callback) {
-                        if(callbackargs){
-                            strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
-                        }
-                        else {
-                          var body;
-
-                            try {
-                                body = JSON.parse(xhr.responseText);
-                            }
-                            catch(e){
-                                body = xhr.responseText;
-                            }
-
-                          strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
-                        }
-                    } else {
-                        result = xhr;
-                        return xhr;
-                    }
-                } else {
-                    var warning;
-                    try {
-                        warning = "There was a problem communicating with the Learning Record Store. ( "
-                            + xhr.status + " | " + xhr.response+ " )" + url
-                    } catch (ex) {
-                        warning = ex.toString();
-                    }
-                    ADL.XAPIWrapper.log(warning);
-                    ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
-                    result = xhr;
-                    return xhr;
-                }
-            } else {
-                return result;
+            else {
+              strictCallbacks ? callback(null, response, body) : callback(response, body);
             }
-        };
-
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-               return requestComplete();
-            }
-        };
-
-        xhr.onload = requestComplete;
-        xhr.onerror = requestComplete;
-        //xhr.onerror =  ADL.xhrRequestOnError(xhr, method, url);
-
-        xhr.send(ieXDomain ? ieModeRequest.data : data);
-
-        if (!callback) {
-            // synchronous
-            if (ieXDomain) {
-                // synchronous call in IE, with no asynchronous mode available.
-                until = 1000 + new Date();
-                while (new Date() < until && xhr.readyState !== 4 && !finished) {
-                    delay();
-                }
-            }
-            return requestComplete();
+          }
+          return response;
+        } catch (error) {
+          var warning;
+          try {
+            warning = "There was a problem communicating with the Learning Record Store. ( "
+              + response.status + " | " + response.statusText + " )" + url
+          } catch (ex) {
+            warning = ex.toString();
+          }
+          ADL.XAPIWrapper.log(warning);
+          ADL.errorOnRequest(response, callback, callbackargs, strictCallbacks);
         }
     };
 
     /*
      * Holder for custom global error callback
-     * @param {object} xhr   xhr object or null
-     * @param {string} method   XMLHttpRequest request method
-     * @param {string} url   full endpoint url
+     * @param {object} response   response object or null
      * @param {function} callback   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
      * @param {boolean} strictCallbacks Callback must be executed and first param is error or null if no error
      * @example
-     * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
-     *   console.log(xhr);
-     *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
+     * ADL.errorOnRequest = function(response, callback, callbackargs) {
+     *   console.log(response);
+     *   alert(response.status + " " + response.statusText);
      * };
      */
-    ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs, strictCallbacks){
+    ADL.errorOnRequest = function(response, callback, callbackargs, strictCallbacks){
         if (callback && strictCallbacks) {
-            var status = xhr ? xhr.status : undefined;
+            var status = response ? response.status : undefined;
             var error;
             if (status) {
-                error = new Error('Request error: ' + xhr.status);
+              error = new Error('Request error: ' + response.status);
             } else if (status === 0 || status === null) { // 0 and null = aborted
                 error = new Error('Request error: aborted');
             } else {
@@ -1650,17 +1535,17 @@ function isDate(date) {
             }
 
             if (callbackargs) {
-                callback(error, xhr, callbackargs);
+                callback(error, response, callbackargs);
             } else {
               var body;
 
                 try {
-                    body = JSON.parse(xhr.responseText);
+                  body = JSON.parse(response.statusText);
                 } catch(e){
-                    body = xhr.responseText;
+                  body = response.statusText
                 }
 
-              callback(error, xhr, body);
+              callback(error, response, body);
             }
         }
     };

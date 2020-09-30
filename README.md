@@ -7,7 +7,7 @@ Check out the [Reference Documentation Here](https://adlnet.github.io/xAPIWrappe
 
 ### xapiwrapper.js
 
-Javascript Experience API wrapper.  
+Javascript Experience API wrapper.
 This javascript file can be included to web based xAPI clients to
 simplify the process of connecting and communicating to an LRS. It
 is enclosed in an ADL object like the
@@ -32,10 +32,10 @@ in your pages if you're not using `xapiwrapper.min.js`.
 In the past we used the below libraries for the same purpose. You may continue to use them
 for current systems, but the CryptoJS compilation is recommended.
 
-* base64.js - https://code.google.com/p/javascriptbase64/downloads/list  
+* base64.js - https://code.google.com/p/javascriptbase64/downloads/list
 * 2.5.3-crypto-sha1.js - https://code.google.com/p/crypto-js/downloads/detail?name=2.5.3-crypto-sha1.js&can=4&q=
 
-For [IE/Edge support](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder#Browser_compatibility) you 
+For [IE/Edge support](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder#Browser_compatibility) you
 will need to include a `TextEncoder` and `TextDecoder` shim if you're not using `xapiwrapper.min.js`
 ``` html
 <script type="text/javascript" src="./lib/utf8-text-encoding.js"></script>
@@ -128,7 +128,7 @@ Alternatively, use the minified version:
 The wrapper at a minimum needs to know the url of the LRS, though
 most cases will also require the authorization information as well.
 
-This wrapper provides two options for configuration. You may:  
+This wrapper provides two options for configuration. You may:
 * Edit the configuration object (`Config`) in the xapiwrapper.js file
 
 ```JavaScript
@@ -155,7 +155,7 @@ var Config = function()
     // conf["strictCallbacks"] = false; // Strict error-first callbacks
     return conf
 }();
-```  
+```
 * Create your own configuration object and pass it to the xapiwrapper object
 
 ```JavaScript
@@ -164,9 +164,9 @@ var conf = {
   "auth" : "Basic " + toBase64('tom:1234'),
 };
 ADL.XAPIWrapper.changeConfig(conf);
-```  
+```
 Optionally, auth credentials can be updated by user and password properties on the
-configuration object:  
+configuration object:
 
 ```JavaScript
 var conf = {
@@ -175,8 +175,8 @@ var conf = {
   "password" : "1234",
 };
 ADL.XAPIWrapper.changeConfig(conf);
-```  
-or  
+```
+or
 
 ```JavaScript
 var creds = {
@@ -184,7 +184,7 @@ var creds = {
   "password" : "1234",
 };
 ADL.XAPIWrapper.updateAuth(ADL.XAPIWrapper.lrs, creds.user, creds.password);
-```  
+```
 
 The script automatically runs, creating or adding to an ADL object an
 instantiated xAPI Wrapper object. The object is created using the
@@ -199,14 +199,14 @@ ADL.XAPIWrapper.testConfig();
 #### Launch Parameters
 The configuration will also look for url query parameters and use those
 name - value pairs in the XAPIWrapper's internal configuration. That means
-that `http://localhost:8000/content/example.html?actor={"mbox":"mailto:tom@example.com"}`  
+that `http://localhost:8000/content/example.html?actor={"mbox":"mailto:tom@example.com"}`
 (not url encoded for illustrative purposes) would be parsed for an actor,
-which would automatically be included in the wrapper configuration.  
+which would automatically be included in the wrapper configuration.
 __NOTE:__ endpoint, auth, actor, registration, activity_id, grouping, and activity_platform
 are keywords that if found are used in send statement requests. See below for
 usage examples.
 
-#### Logging  
+#### Logging
 The wrapper comes with a logging function (`ADL.XAPIWrapper.log(message)`)
 which attempts to write a message to console.log. This can be configured
 to not write messages by setting `log.debug = false;`.
@@ -215,11 +215,13 @@ to not write messages by setting `log.debug = false;`.
 The xAPI Wrapper supports [ADL's xAPI Launch](https://github.com/adlnet/xapi-launch).
 This allows configuration - agent info, lrs endpoint info - to be sent to the wrapper,
 instead of using hard-coded configurations. See [Using the xAPI-Launch library](https://github.com/adlnet/xapi-launch#using-the-xapi-launch-library) for
-more details.  
+more details.
 
-If you are using the src files, include xapi-launch.js.  
+If you are using the src files, include xapi-launch.js.
 
 ``` html
+<script type="text/javascript" src="./lib/fetch.umd.js"></script>
+<script type="text/javascript" src="./lib/promise.polyfill.min.js"></script>
 <script type="text/javascript" src="./lib/cryptojs_v3.1.2.js"></script>
 <script type="text/javascript" src="./lib/utf8-text-encoding.js"></script>
 <script type="text/javascript" src="./src/activitytypes.js"></script>
@@ -234,9 +236,9 @@ Alternatively, use the minified xapiwrapper version, which includes xapi-launch:
 
 ``` html
 <script type="text/javascript" src="./dist/xapiwrapper.min.js"></script>
-```  
+```
 
-To use, construct and ADL.launch object passing in a callback.  
+To use, construct and ADL.launch object passing in a callback.
 
 ``` javascript
 var wrapper;
@@ -255,7 +257,7 @@ ADL.launch(function(err, launchdata, xAPIWrapper) {
     }
     $('#endpoint').text(wrapper.lrs.endpoint);
 }, true);
-```  
+```
 
 ### Use
 
@@ -374,7 +376,7 @@ XAPIWrapper.prototype.prepareStatement = function(stmt)
         if (!stmt.context.contextActivities) {
             stmt.context.contextActivities = {};
         }
-        
+
         if (!Array.isArray(stmt.context.contextActivities.grouping)) {
             stmt.context.contextActivities.grouping = [{ id : this.lrs.grouping }];
         } else {
@@ -442,12 +444,12 @@ var stmt = ADL.XAPIStatement(myactor, ADL.verbs.launched, myactivity);
 ```
 
 ##### Send Statement
-`function sendStatement(statement, callback, [attachments])`  
+`function sendStatement(statement, callback, [attachments])`
 Sends a single Statement to the LRS using a PUT request. This
 method will automatically create the Statement ID. Providing a
 function to call after the send Statement request will make
 the request happen asynchronously, otherwise Send Statement
-will block until it receives the response from the LRS.  
+will block until it receives the response from the LRS.
 ###### Send Statement without Callback
 
 ```JavaScript
@@ -456,7 +458,7 @@ var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
                       "display" : {"en-US" : "answered"}},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
 var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.response.status + " - " + resp_obj.response.statusText);
 >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 200 - OK
 ```
 ###### Send Statement with Callback
@@ -466,7 +468,7 @@ var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
                       "display" : {"en-US" : "answered"}},
             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
-ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){  
+ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
     ADL.XAPIWrapper.log("[" + obj.id + "]: " + resp.status + " - " + resp.statusText);});
 >> [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 200 - OK
 ```
@@ -517,9 +519,9 @@ ADL.XAPIWrapper.sendStatement(stmt,callback,[attachment]);
 The wrapper looks for URL query string values to include in
 its internal configuration. If certain keys
 ("endpoint","auth","actor","registration","activity_id", "grouping", "activity_platform")
-are found, the values are included in a Statement.  
-_URL_  
-` http://localhost:8000/content/example.html?registration=51a6f860-1997-11e3-8ffd-0800200c9a66 `  
+are found, the values are included in a Statement.
+_URL_
+` http://localhost:8000/content/example.html?registration=51a6f860-1997-11e3-8ffd-0800200c9a66 `
 _Client Calls_
 
 ```JavaScript
@@ -542,10 +544,10 @@ ADL.XAPIWrapper.getStatements({"statementId":resp_obj.id});
 
 ###### Send Statement with ADL xAPI Verbs
 ADL also has collected the [ADL xAPI Verbs](https://github.com/adlnet/xAPIVerbs)
-into a Javascript object to easily include. To use...  
-_Include verbs.js_  
-`<script type="text/javascript" src="./src/verbs.js"></script>`  
-_Client Calls_  
+into a Javascript object to easily include. To use...
+_Include verbs.js_
+`<script type="text/javascript" src="./src/verbs.js"></script>`
+_Client Calls_
 
 ```JavaScript
 var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
@@ -585,11 +587,11 @@ ADL.XAPIWrapper.getStatements({"statementId": stmt.id});
 ```
 
 ##### Send Statements
-`function sendStatements(statementArray, callback)`  
+`function sendStatements(statementArray, callback)`
 Sends a list of Statements to the LRS in one batch. It
 accepts the list of Statements and a callback function as
-arguments and returns the XHR request object if no callback
-is supplied. The response of the XHR request upon success will
+arguments and returns the response object.
+The response upon success will
 contain a list of Statement IDs.
 
 ###### Send Statements without callback
@@ -645,7 +647,7 @@ ADL.XAPIWrapper.sendStatements(stmts, function(err, res, body) {
 ```
 
 ##### Get Statements
-`function getStatements(searchParams, more, callback)`  
+`function getStatements(searchParams, more, callback)`
 Get a single or collection of Statements based on
 search parameters or a StatementResult more value.
 
@@ -726,7 +728,7 @@ search['verb'] = ADL.verbs.answered.id;
 var res = ADL.XAPIWrapper.getStatements(search);
 ADL.XAPIWrapper.log(res.statements);
 >> <Array of statements with verb id of "http://adlnet.gov/expapi/verbs/answered">
-```  
+```
 
 ```JavaScript
 var search = ADL.XAPIWrapper.searchParams();
@@ -777,8 +779,8 @@ ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question", fu
 
 
 ##### Activity State
-`function sendState(activityid, agent, stateid, registration, statevalue, matchHash, noneMatchHash, callback)`  
-`function getState(activityid, agent, stateid, registration, since, callback)`  
+`function sendState(activityid, agent, stateid, registration, statevalue, matchHash, noneMatchHash, callback)`
+`function getState(activityid, agent, stateid, registration, since, callback)`
 `function deleteState(activityid, agent, stateid, registration, matchHash, noneMatchHash, callback)`
 Save / Retrieve / Delete activity state information for a particular agent, and optional registration.
 
@@ -866,9 +868,9 @@ ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
 ```
 
 ##### Activity Profile
-`function sendActivityProfile(activityid, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
-`function getActivityProfile(activityid, profileid, since, callback)`  
-`function deleteActivityProfile(activityid, profileid, matchHash, noneMatchHash, callback)`  
+`function sendActivityProfile(activityid, profileid, profilevalue, matchHash, noneMatchHash, callback)`
+`function getActivityProfile(activityid, profileid, since, callback)`
+`function deleteActivityProfile(activityid, profileid, matchHash, noneMatchHash, callback)`
 Allows for the storage, retrieval and deletion of data about an Activity.
 
 ###### Send / Retrieve New Activity Profile
@@ -958,7 +960,7 @@ ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question
 
 #### Agents
 ##### Get Agent
-`function getAgents(agent, callback)`  
+`function getAgents(agent, callback)`
 Gets a special Person object containing all the values
 of an Agent the LRS knows about. The Person object's
 identifying properties are arrays and it may have more
@@ -996,9 +998,9 @@ ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"}, function(err, res, 
 ```
 
 ##### Agent Profile
-`function sendAgentProfile(agent, profileid, profilevalue, matchHash, noneMatchHash, callback)`  
-`function getAgentProfile(agent, profileid, since, callback)`  
-`function deleteAgentProfile(agent, profileid, matchHash, noneMatchHash, callback)`  
+`function sendAgentProfile(agent, profileid, profilevalue, matchHash, noneMatchHash, callback)`
+`function getAgentProfile(agent, profileid, since, callback)`
+`function deleteAgentProfile(agent, profileid, matchHash, noneMatchHash, callback)`
 Allows for the storage, retrieval and deletion of data about an Agent.
 
 ###### Send / Retrieve New Agent Profile

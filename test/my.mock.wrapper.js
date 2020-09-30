@@ -129,7 +129,7 @@ function isDate(date) {
 
         if (verifyxapiversion && testConfig.call(this))
         {
-            window.ADL.XHR_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
+            window.ADL.send_request(this.lrs, this.lrs.endpoint+"about", "GET", null, null,
                 function(r){
                     if(r.status == 200)
                     {
@@ -253,7 +253,7 @@ function isDate(date) {
      *            the function will be passed the XMLHttpRequest object
      *            and an object with an id property assigned the id
      *            of the statement
-     * @return {object} object containing xhr object and id of statement
+     * @return {object} object containing response object and id of statement
      * @example
      * // Send Statement
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
@@ -261,7 +261,7 @@ function isDate(date) {
      *                       "display" : {"en-US" : "answered"}},
      *             "object" : {"id" : "http://adlnet.gov/expapi/activities/question"}};
      * var resp_obj = ADL.XAPIWrapper.sendStatement(stmt);
-     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.xhr.status + " - " + resp_obj.xhr.statusText);
+     * ADL.XAPIWrapper.log("[" + resp_obj.id + "]: " + resp_obj.response.status + " - " + resp_obj.response.statusText);
      * >> [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
      *
      * // Send Statement with Callback
@@ -284,7 +284,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object
+     * @return {object} response object
      * @example
      * var stmt = {"actor" : {"mbox" : "mailto:tom@example.com"},
      *             "verb" : {"id" : "http://adlnet.gov/expapi/verbs/answered",
@@ -321,7 +321,7 @@ function isDate(date) {
      * @param {function} [callback] - function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var ret = ADL.XAPIWrapper.getStatements();
      * if (ret)
@@ -358,7 +358,7 @@ function isDate(date) {
                     url = url + "?" + urlparams.join("&");
             }
 
-            var res = ADL.XHR_request(this.lrs,url, "GET", null, this.lrs.auth, callback);
+            var res = ADL.send_request(this.lrs,url, "GET", null, this.lrs.auth, callback);
             if(res === undefined || res.status == 404)
             {
                 return null
@@ -381,7 +381,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var res = ADL.XAPIWrapper.getActivities("http://adlnet.gov/expapi/activities/question");
      * ADL.XAPIWrapper.log(res);
@@ -427,7 +427,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.getState("http://adlnet.gov/expapi/activities/question",
      *                  {"mbox":"mailto:tom@example.com"}, "questionstate");
@@ -449,7 +449,7 @@ function isDate(date) {
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var stateval = {"info":"the state info"};
      * ADL.XAPIWrapper.sendState("http://adlnet.gov/expapi/activities/question",
@@ -502,7 +502,7 @@ function isDate(date) {
      * @param {function [callback]    function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.getActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                    "actprofile", null,
@@ -523,7 +523,7 @@ function isDate(date) {
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.deleteActivityProfile("http://adlnet.gov/expapi/activities/question",
      *                                       "actprofile");
@@ -542,7 +542,7 @@ function isDate(date) {
      * @param {function [callback]    function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * var res = ADL.XAPIWrapper.getAgents({"mbox":"mailto:tom@example.com"});
      * ADL.XAPIWrapper.log(res);
@@ -583,7 +583,7 @@ function isDate(date) {
      * @param {function} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.getAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                  "agentprofile", null,
@@ -604,7 +604,7 @@ function isDate(date) {
      * @param {string} [callback]   function to be called after the LRS responds
      *            to this request (makes the call asynchronous)
      *            the function will be passed the XMLHttpRequest object
-     * @return {object} xhr response object or null if 404
+     * @return {object} response object or null if 404
      * @example
      * ADL.XAPIWrapper.deleteAgentProfile({"mbox":"mailto:tom@example.com"},
      *                                     "agentprofile");
@@ -734,22 +734,13 @@ function isDate(date) {
         return parsed;
     }
 
-
-    function delay()
-    {
-        var xhr = new XMLHttpRequest();
-        var url = window.location + '?forcenocache='+ADL.ruuid();
-        xhr.open('GET', url, false);
-        xhr.send(null);
-    }
-
     /*
      * formats a request in a way that IE will allow
      * @param {string} method   the http request method (ex: "PUT", "GET")
      * @param {string} url   the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + "statements")
      * @param {array} [headers]   headers to include in the request
      * @param {string} [data]   the body of the request, if there is one
-     * @return {object} xhr response object
+     * @return {object} response object
      */
     function ie_request(method, url, headers, data)
     {
@@ -849,9 +840,9 @@ function isDate(date) {
      * @param {object} [callbackargs]   additional javascript object to be passed to the callback function
      * @param {boolean} ignore404    allow page not found errors to pass
      * @param {object} extraHeaders   other header key-values to be added to this request
-     * @return {object} xhr response object
+     * @return {object} response object
      */
-    ADL.XHR_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
+    ADL.send_request = function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
     {
         var arrstmts = [];
 
@@ -902,16 +893,16 @@ function isDate(date) {
 
     /*
      * Holder for custom global error callback
-     * @param {object} xhr   xhr object or null
+     * @param {object} response   response object or null
      * @param {string} method   XMLHttpRequest request method
      * @param {string} url   full endpoint url
      * @example
-     * ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs) {
-     *   console.log(xhr);
-     *   alert(xhr.status + " " + xhr.statusText + ": " + xhr.response);
+     * ADL.errorOnRequest = function(response, method, url, callback, callbackargs) {
+     *   console.log(response);
+     *   alert(response.status + " " + response.statusText + ": " + response.response);
      * };
      */
-    ADL.xhrRequestOnError = function(xhr, method, url, callback, callbackargs){};
+  ADL.errorOnRequest = function (response, method, url, callback, callbackargs){};
 
     ADL.XAPIWrapper = new XAPIWrapper(Config, false);
 }(window.ADL = window.ADL || {}));

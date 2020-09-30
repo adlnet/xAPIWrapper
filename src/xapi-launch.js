@@ -53,7 +53,7 @@ function observeForNewLinks()
                         setupCourseLinks([node]);
                     }
                 }
-                
+
             }
         });
     });
@@ -98,7 +98,7 @@ function setupCourseLinks(_nodes)
     };
 }
 
-function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
+async function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
 {
     cb = cb_wrap(cb);
     try
@@ -111,66 +111,72 @@ function xAPILaunch(cb, terminate_on_unload, strict_callbacks)
             //here, we'd have to implement decryption for the data. This makes little sense in a client side only course
         }
 
-        xAPILaunch.terminate = function(message)
+        xAPILaunch.terminate = async function(message)
         {
             var launch = new URL(launchEndpoint);
             launch.pathname += "launch/" + launchToken + "/terminate";
-            var xhr2 = new XMLHttpRequest();
-            xhr2.withCredentials = true;
-            xhr2.crossDomain = true;
-
-            xhr2.open('POST', launch.toString(), false);
-            xhr2.setRequestHeader("Content-type" , "application/json");
-            xhr2.send(JSON.stringify({"code":0,"description": message ||"User closed content"}));
-
+            try {
+              const response = await fetch(launch.toString(), {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'include',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "code": 0, "description": message || "User closed content" })
+              })
+              await response.json();
+            } catch (err) {
+            }
         }
 
         if (!launchToken || !launchEndpoint)
             return cb("invalid launch parameters");
         var launch = new URL(launchEndpoint);
         launch.pathname += "launch/" + launchToken;
-        var xhr = new XMLHttpRequest();
-        xhr.withCredentials = true;
-        xhr.crossDomain = true;
-        xhr.onerror = function(err)
-        {
+        try {
+          const response = await fetch(launch.toString(), {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ "code": 0, "description": message || "User closed content" })
+          })
+          if (!response.status !== 200) {
+            throw new Error(status.statusText);
+          }
+          var body = await response.json();
+          var launchData = body;
+
+          var conf = {};
+          conf['endpoint'] = launchData.endpoint;
+          conf["actor"] = launchData.actor;
+          conf.withCredentials = true;
+          conf.strictCallbacks = strict_callbacks || false;
+
+          window.onunload = function () {
+            if (!terminate_on_unload)
+              return;
+            xAPILaunch.terminate("User closed content")
+          }
+          var wrapper = new ADL.XAPIWrapper.constructor();
+          wrapper.changeConfig(conf);
+          //Links that include "courseLink='true'"
+          setupCourseLinks(document.body.querySelectorAll('a'));
+          //Also, if links are added dynamically, we will do the same logic for those links.
+          observeForNewLinks();
+          return cb(null, body, wrapper);
+        } catch (err) {
             //exit the try catch so inner execptions in the callback don't trigger this catch
             window.setTimeout(function()
             {
                 return cb(err);
-            })
+            });
         }
-        xhr.onload = function(e)
-        {
-            if (xhr.status !== 200)
-            {
-                return xhr.onerror(xhr.responseText);
-            }
-            var body = JSON.parse(xhr.responseText);
-            var launchData = body;
-
-            var conf = {};
-            conf['endpoint'] = launchData.endpoint;
-            conf["actor"] = launchData.actor;
-            conf.withCredentials = true;
-            conf.strictCallbacks = strict_callbacks || false;
-
-            window.onunload = function()
-            {
-                if (!terminate_on_unload)
-                    return;
-                xAPILaunch.terminate("User closed content")
-            }
-            var wrapper = new ADL.XAPIWrapper.constructor();
-            wrapper.changeConfig(conf);
-            //Links that include "courseLink='true'"
-            setupCourseLinks(document.body.querySelectorAll('a'));
-            //Also, if links are added dynamically, we will do the same logic for those links.
-            observeForNewLinks();
-            return cb(null, body, wrapper);
-        }
-        xhr.open('POST', launch.toString(), true);
-        xhr.send();
     }
     catch (e)
     {

@@ -24,15 +24,15 @@ describe('testing xAPI attachments', function () {
         var agent = {"mbox":"mailto:tom@example.com"};
         var stateval = {"info":"the state info"};
 
-        ADL.XAPIWrapper.sendState(activityId, agent, activityState, null, stateval, null, null, function(xhr, body){ 
+        ADL.XAPIWrapper.sendState(activityId, agent, activityState, null, stateval, null, null, function(response, body){
 
-                xhr.should.be.type('object');
-                xhr.status.should.eql(204);
+                response.should.be.type('object');
+                response.status.should.eql(204);
 
-                ADL.XAPIWrapper.getState(activityId, agent, activityState, null, null, function(xhr, body){ 
+                ADL.XAPIWrapper.getState(activityId, agent, activityState, null, null, function(response, body){
 
-                        xhr.should.be.type('object');
-                        xhr.status.should.eql(200);
+                        response.should.be.type('object');
+                        response.status.should.eql(200);
                         body.info.should.eql(stateval.info);
                         done();
                     }
