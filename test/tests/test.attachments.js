@@ -40,9 +40,9 @@ describe('testing xAPI attachments', function () {
                 type:attachmentMetadata
             }
 
-        ADL.XAPIWrapper.sendStatement(statement, function (xhr) {
-            xhr.should.be.type('object');
-            xhr.status.should.eql(200);
+        ADL.XAPIWrapper.sendStatement(statement, function (response) {
+            response.should.be.type('object');
+            response.status.should.eql(200);
             done();
         }, [attachment]);
     });

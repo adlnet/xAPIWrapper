@@ -17,6 +17,8 @@ module.exports = function(grunt) {
       'build': {
         files: {
           "dist/xapiwrapper.min.js": [
+            "lib/promise.polyfill.min.js",
+            "lib/fetch.umd.js",
             "lib/cryptojs_v3.1.2.js",
             "lib/utf8-text-encoding.js",
             "src/activitytypes.js",
@@ -36,7 +38,7 @@ module.exports = function(grunt) {
 
   // Load the plugins.
   grunt.loadNpmTasks('grunt-bump');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-uglify-es');
   grunt.loadNpmTasks('grunt-exec');
 
   // Default task(s).

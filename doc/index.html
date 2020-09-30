@@ -219,11 +219,10 @@
                                     <li><a href="#xapiwrapper-getAgentProfile">getAgentProfile</a></li>
                                     <li><a href="#xapiwrapper-deleteAgentProfile">deleteAgentProfile</a></li>
                                     <li><a href="#xapiwrapper-testConfig">testConfig</a></li>
-                                    <li><a href="#xapiwrapper-ie_request">ie_request</a></li>
                                     <li><a href="#xapiwrapper-ruuid">ruuid</a></li>
                                     <li><a href="#xapiwrapper-dateFromISOString">dateFromISOString</a></li>
-                                    <li><a href="#xapiwrapper-XHR_request">XHR_request</a></li>
-                                    <li><a href="#xapiwrapper-xhrRequestOnError">xhrRequestOnError</a></li>
+                                    <li><a href="#xapiwrapper-send_request">send_request</a></li>
+                                    <li><a href="#xapiwrapper-errorOnRequest">errorOnRequest</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -1114,7 +1113,7 @@ ADL.XAPIWrapper.changeConfig(conf);</code></pre>
 
     if (verifyxapiversion &amp;&amp; testConfig.call(this))
     {
-        window.ADL.XHR_request(this.lrs, this.lrs.endpoint+&quot;about&quot;, &quot;GET&quot;, null, null,
+        window.ADL.send_request(this.lrs, this.lrs.endpoint+&quot;about&quot;, &quot;GET&quot;, null, null,
             function(r){
                 if(r.status &#x3D;&#x3D; 200)
                 {
@@ -1260,7 +1259,7 @@ These values could be initialized from the Config object or from the url query s
         if (!stmt.context.contextActivities) {
             stmt.context.contextActivities &#x3D; {};
         }
-        
+
         // PR from brian-learningpool to resolve context overwriting
         if (!Array.isArray(stmt.context.contextActivities.grouping)) {
             stmt.context.contextActivities.grouping &#x3D; [{ id : this.lrs.grouping }];
@@ -1336,7 +1335,7 @@ of the statement</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>object containing xhr object and id of statement</p>
+                                        <p>object containing response object and id of statement</p>
                                         
                                         <!--
                                         &nbsp;
@@ -1359,7 +1358,7 @@ var stmt &#x3D; {&quot;actor&quot; : {&quot;mbox&quot; : &quot;mailto:tom@exampl
                       &quot;display&quot; : {&quot;en-US&quot; : &quot;answered&quot;}},
             &quot;object&quot; : {&quot;id&quot; : &quot;http://adlnet.gov/expapi/activities/question&quot;}};
 var resp_obj &#x3D; ADL.XAPIWrapper.sendStatement(stmt);
-ADL.XAPIWrapper.log(&quot;[&quot; + resp_obj.id + &quot;]: &quot; + resp_obj.xhr.status + &quot; - &quot; + resp_obj.xhr.statusText);
+ADL.XAPIWrapper.log(&quot;[&quot; + resp_obj.id + &quot;]: &quot; + resp_obj.response.status + &quot; - &quot; + resp_obj.response.statusText);
 &gt;&gt; [3e616d1c-5394-42dc-a3aa-29414f8f0dfe]: 204 - NO CONTENT
 
 // Send Statement with Callback
@@ -1372,7 +1371,7 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
 &gt;&gt; [4edfe763-8b84-41f1-a355-78b7601a6fe8]: 204 - NO CONTENT</code></pre>
                                         </div>
                                         <div class="tab-pane" id="-source">
-                                            <pre><code class="language-javascript">XAPIWrapper.prototype.sendStatement &#x3D; function(stmt, callback, attachments)
+                                            <pre><code class="language-javascript">XAPIWrapper.prototype.sendStatement &#x3D; async function(stmt, callback, attachments)
 {
     if (this.testConfig())
     {
@@ -1395,11 +1394,11 @@ ADL.XAPIWrapper.sendStatement(stmt, function(resp, obj){
             extraHeaders &#x3D; {}
             payload &#x3D; this.buildMultipartPost(stmt,attachments,extraHeaders);
         }
-        var resp &#x3D; ADL.XHR_request(this.lrs, this.lrs.endpoint+&quot;statements&quot;,
+        var resp &#x3D; await ADL.send_request(this.lrs, this.lrs.endpoint+&quot;statements&quot;,
             &quot;POST&quot;, payload, this.lrs.auth, callback, {&quot;id&quot;:id}, null, extraHeaders,
             this.withCredentials, this.strictCallbacks);
         if (!callback)
-            return {&quot;xhr&quot;:resp,
+            return {&quot;response&quot;:resp,
                     &quot;id&quot; :id};
     }
 };
@@ -1466,7 +1465,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object</p>
+                                        <p>response object</p>
                                         
                                         <!--
                                         &nbsp;
@@ -1509,7 +1508,7 @@ ADL.XAPIWrapper.getStatements({&quot;statementId&quot;:resp_obj.id});
             if (stmtArray.hasOwnProperty(i))
                 this.prepareStatement(stmtArray[i]);
         }
-        var resp &#x3D; ADL.XHR_request(this.lrs,this.lrs.endpoint+&quot;statements&quot;,
+        var resp &#x3D; ADL.send_request(this.lrs,this.lrs.endpoint+&quot;statements&quot;,
             &quot;POST&quot;, JSON.stringify(stmtArray), this.lrs.auth, callback, null,
             false, null, this.withCredentials, this.strictCallbacks);
 
@@ -1586,7 +1585,7 @@ the function will be passed the XMLHttpRequest object</li>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -1639,7 +1638,7 @@ if (ret)
                 url &#x3D; url + &quot;?&quot; + urlparams.join(&quot;&amp;&quot;);
         }
 
-        var res &#x3D; ADL.XHR_request(this.lrs,url, &quot;GET&quot;, null, this.lrs.auth,
+        var res &#x3D; ADL.send_request(this.lrs,url, &quot;GET&quot;, null, this.lrs.auth,
             callback, null, false, null, this.withCredentials, this.strictCallbacks);
 
         if(res &#x3D;&#x3D;&#x3D; undefined || res.status &#x3D;&#x3D; 404)
@@ -1706,7 +1705,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -1735,7 +1734,7 @@ ADL.XAPIWrapper.log(res);
         var url &#x3D; this.lrs.endpoint + &quot;activities?activityId&#x3D;&lt;activityid&gt;&quot;;
         url &#x3D; url.replace(&#x27;&lt;activityid&gt;&#x27;, encodeURIComponent(activityid));
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
             callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -1943,7 +1942,7 @@ ADL.XAPIWrapper.sendState(&quot;http://adlnet.gov/expapi/activities/question&quo
         }
         //(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders)
 
-        ADL.XHR_request(this.lrs, url, method, stateval, this.lrs.auth, callback,
+        ADL.send_request(this.lrs, url, method, stateval, this.lrs.auth, callback,
             null, null, headers, this.withCredentials, this.strictCallbacks);
     }
 };</code></pre>
@@ -2036,7 +2035,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -2085,7 +2084,7 @@ the function will be passed the XMLHttpRequest object</p>
             }
         }
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
             callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -2202,7 +2201,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -2265,7 +2264,7 @@ ADL.XAPIWrapper.getState(&quot;http://adlnet.gov/expapi/activities/question&quot
             headers &#x3D; {&quot;If-None-Match&quot;:ADL.formatHash(noneMatchHash)};
         }
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;DELETE&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;DELETE&quot;, null, this.lrs.auth,
             callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -2445,7 +2444,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
             return false;
         }
 
-        ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
+        ADL.send_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
             null, false, headers, this.withCredentials, this.strictCallbacks);
     }
 };</code></pre>
@@ -2518,7 +2517,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -2562,7 +2561,7 @@ ADL.XAPIWrapper.sendActivityProfile(&quot;http://adlnet.gov/expapi/activities/qu
             }
         }
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
             callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -2659,7 +2658,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -2704,7 +2703,7 @@ the function will be passed the XMLHttpRequest object</p>
             headers &#x3D; {&quot;If-None-Match&quot;:ADL.formatHash(noneMatchHash)};
         }
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;DELETE&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;DELETE&quot;, null, this.lrs.auth,
             callback, null, false, headers,this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -2773,7 +2772,7 @@ See the xAPI Spec for details.</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -2802,7 +2801,7 @@ ADL.XAPIWrapper.log(res);
         var url &#x3D; this.lrs.endpoint + &quot;agents?agent&#x3D;&lt;agent&gt;&quot;;
         url &#x3D; url.replace(&#x27;&lt;agent&gt;&#x27;, encodeURIComponent(JSON.stringify(agent)));
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
             callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -2982,7 +2981,7 @@ ADL.XAPIWrapper.sendAgentProfile({&quot;mbox&quot;:&quot;mailto:tom@example.com&
             return false;
         }
 
-        ADL.XHR_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
+        ADL.send_request(this.lrs, url, method, profileval, this.lrs.auth, callback,
             null, false, headers, this.withCredentials, this.strictCallbacks);
     }
 };</code></pre>
@@ -3055,7 +3054,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -3099,7 +3098,7 @@ the function will be passed the XMLHttpRequest object</p>
             }
         }
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;GET&quot;, null, this.lrs.auth,
             callback, null, true, null, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -3196,7 +3195,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object or null if 404</p>
+                                        <p>response object or null if 404</p>
                                         
                                         <!--
                                         &nbsp;
@@ -3241,7 +3240,7 @@ the function will be passed the XMLHttpRequest object</p>
             headers &#x3D; {&quot;If-None-Match&quot;:ADL.formatHash(noneMatchHash)};
         }
 
-        var result &#x3D; ADL.XHR_request(this.lrs, url, &quot;DELETE&quot;, null, this.lrs.auth,
+        var result &#x3D; ADL.send_request(this.lrs, url, &quot;DELETE&quot;, null, this.lrs.auth,
             callback, null, false, headers, this.withCredentials, this.strictCallbacks);
 
         if(result &#x3D;&#x3D;&#x3D; undefined || result.status &#x3D;&#x3D; 404)
@@ -3266,135 +3265,12 @@ the function will be passed the XMLHttpRequest object</p>
                             </section>
 
 
-                            <section id="xapiwrapper-ie_request">
 
 
-                                <h4><a href="#xapiwrapper-ie_request">ie_request</a> <small> (method, url, headers, data)</small></h4>
-
-                                <div class="block">
-
-                                    <p>formats a request in a way that IE will allow</p>
-
-                                    <table class="table table-condensed">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="3">Arguments</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><em>method</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>the http request method (ex: &quot;PUT&quot;, &quot;GET&quot;)</p>
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>url</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>the url to the request (ex: ADL.XAPIWrapper.lrs.endpoint + &quot;statements&quot;)</p>
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>headers</em></td>
-                                                <td><span class="label label-primary">array</span></td>
-                                                <td>
-                                                    <p>headers to include in the request</p>
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>data</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>the body of the request, if there is one</p>
-                                                    <span class="label label-default">optional</span>
-                                                    
-
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-
-                                    <p><strong>Returns</strong><br>
-                                        <span class="label label-primary">object</span>
-                                        &nbsp;
-                                        <p>xhr response object</p>
-                                        
-                                        <!--
-                                        &nbsp;
-
-                                        -->
-                                    </p>
-
-                                    <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#ie_request-example-0" data-toggle="tab">Example</a></li>
-                                        <li>
-                                            <a href="#-source" data-toggle="tab">Source</a>
-                                        </li>
-                                    </ul>
-
-                                    <div class="tab-content">
-                                        <div class="active tab-pane" id="ie_request-example-0">
-                                            <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
-                                        </div>
-                                        <div class="tab-pane" id="-source">
-                                            <pre><code class="language-javascript">function ie_request(method, url, headers, data)
-{
-    var newUrl &#x3D; url;
-
-    //Everything that was on query string goes into form vars
-    var formData &#x3D; new Array();
-    var qsIndex &#x3D; newUrl.indexOf(&#x27;?&#x27;);
-    if(qsIndex &gt; 0){
-        formData.push(newUrl.substr(qsIndex+1));
-        newUrl &#x3D; newUrl.substr(0, qsIndex);
-    }
-
-    //Method has to go on querystring, and nothing else
-    newUrl &#x3D; newUrl + &#x27;?method&#x3D;&#x27; + method;
-
-    //Headers
-    if(headers !&#x3D;&#x3D; null){
-        for (var headerName in headers) {
-            if (headers.hasOwnProperty(headerName))
-                formData.push(headerName + &quot;&#x3D;&quot; + encodeURIComponent(headers[headerName]));
-        }
-    }
-
-    //The original data is repackaged as &quot;content&quot; form var
-    if(data !&#x3D;&#x3D; null){
-        formData.push(&#x27;content&#x3D;&#x27; + encodeURIComponent(data));
-    }
-
-    return {
-        &quot;method&quot;:&quot;POST&quot;,
-        &quot;url&quot;:newUrl,
-        &quot;headers&quot;:{},
-        &quot;data&quot;:formData.join(&quot;&amp;&quot;)
-    };
-}</code></pre>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </section>
+                            <section id="xapiwrapper-send_request">
 
 
-
-                            <section id="xapiwrapper-XHR_request">
-
-
-                                <h4><a href="#xapiwrapper-XHR_request">XHR_request</a> <small> (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)</small></h4>
+                                <h4><a href="#xapiwrapper-send_request">send_request</a> <small> (lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)</small></h4>
 
                                 <div class="block">
 
@@ -3523,7 +3399,7 @@ the function will be passed the XMLHttpRequest object</p>
                                     <p><strong>Returns</strong><br>
                                         <span class="label label-primary">object</span>
                                         &nbsp;
-                                        <p>xhr response object</p>
+                                        <p>response object</p>
                                         
                                         <!--
                                         &nbsp;
@@ -3532,33 +3408,27 @@ the function will be passed the XMLHttpRequest object</p>
                                     </p>
 
                                     <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#XHR_request-example-0" data-toggle="tab">Example</a></li>
+                                        <li class="active"><a href="#send_request-example-0" data-toggle="tab">Example</a></li>
                                         <li>
                                             <a href="#-source" data-toggle="tab">Source</a>
                                         </li>
                                     </ul>
 
                                     <div class="tab-content">
-                                        <div class="active tab-pane" id="XHR_request-example-0">
+                                        <div class="active tab-pane" id="send_request-example-0">
                                             <pre><code class="language-javascript">// Sorry, no example available.</code></pre>
                                         </div>
                                         <div class="tab-pane" id="-source">
-                                            <pre><code class="language-javascript">ADL.XHR_request &#x3D; function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
+                                            <pre><code class="language-javascript">ADL.send_request &#x3D; async function(lrs, url, method, data, auth, callback, callbackargs, ignore404, extraHeaders, withCredentials, strictCallbacks)
 {
     &quot;use strict&quot;;
 
-    var xhr,
-        finished &#x3D; false,
-        xDomainRequest &#x3D; false,
-        ieXDomain &#x3D; false,
-        ieModeRequest,
+    var xDomainRequest &#x3D; false,
         urlparts &#x3D; url.toLowerCase().match(/^(.+):\/\/([^:\/]*):?(\d+)?(\/.*)?$/),
         location &#x3D; window.location,
         urlPort,
-        result,
         extended,
-        prop,
-        until;
+        prop;
 
     //Consolidate headers
     var headers &#x3D; {};
@@ -3590,93 +3460,40 @@ the function will be passed the XMLHttpRequest object</p>
         }
     }
 
-    //If it&#x27;s not cross domain or we&#x27;re not using IE, use the usual XmlHttpRequest
-    var windowsVersionCheck &#x3D; window.XDomainRequest &amp;&amp; (window.XMLHttpRequest &amp;&amp; new XMLHttpRequest().responseType &#x3D;&#x3D;&#x3D; undefined);
-    if (!xDomainRequest || windowsVersionCheck &#x3D;&#x3D;&#x3D; undefined || windowsVersionCheck&#x3D;&#x3D;&#x3D;false) {
-        xhr &#x3D; new XMLHttpRequest();
-        xhr.withCredentials &#x3D; withCredentials; //allow cross domain cookie based auth
-        xhr.open(method, url, callback !&#x3D; null);
-        for(var headerName in headers){
-            xhr.setRequestHeader(headerName, headers[headerName]);
+    try {
+      var response &#x3D; await fetch(url, {
+        method,
+        mode: &#x27;cors&#x27;,
+        cache: &#x27;no-cache&#x27;,
+        credentials: withCredentials ? &#x27;include&#x27; : &#x27;same-origin&#x27;,
+        headers,
+        body: data,
+      });
+      var notFound &#x3D; (!ignore404 &amp;&amp; response.status &#x3D;&#x3D;&#x3D; 404);
+      var invalidResponseCode &#x3D; ((response.status &lt; 200 || response.status &gt; 400) &amp;&amp; response.status !&#x3D;&#x3D; 404);
+      if (response.status &#x3D;&#x3D;&#x3D; undefined || invalidResponseCode || notFound) {
+        throw new Error(response.statusText);
+      }
+      var body &#x3D; await response.json();
+      if (callback) {
+        if (callbackargs) {
+          strictCallbacks ? callback(null, response, callbackargs) : callback(response, callbackargs);
         }
-    }
-    //Otherwise, use IE&#x27;s XDomainRequest object
-    else {
-        ieXDomain &#x3D; true;
-        ieModeRequest &#x3D; ie_request(method, url, headers, data);
-        xhr &#x3D; new XDomainRequest();
-        xhr.open(ieModeRequest.method, ieModeRequest.url);
-    }
-
-    //Setup request callback
-    function requestComplete() {
-        if(!finished){
-            // may be in sync or async mode, using XMLHttpRequest or IE XDomainRequest, onreadystatechange or
-            // onload or both might fire depending upon browser, just covering all bases with event hooks and
-            // using &#x27;finished&#x27; flag to avoid triggering events multiple times
-            finished &#x3D; true;
-            var notFoundOk &#x3D; (ignore404 &amp;&amp; xhr.status &#x3D;&#x3D;&#x3D; 404);
-            if (xhr.status &#x3D;&#x3D;&#x3D; undefined || (xhr.status &gt;&#x3D; 200 &amp;&amp; xhr.status &lt; 400) || notFoundOk) {
-                if (callback) {
-                    if(callbackargs){
-                        strictCallbacks ? callback(null, xhr, callbackargs) : callback(xhr, callbackargs);
-                    }
-                    else {
-                      var body;
-
-                        try {
-                            body &#x3D; JSON.parse(xhr.responseText);
-                        }
-                        catch(e){
-                            body &#x3D; xhr.responseText;
-                        }
-
-                      strictCallbacks ? callback(null, xhr, body) : callback(xhr,body);
-                    }
-                } else {
-                    result &#x3D; xhr;
-                    return xhr;
-                }
-            } else {
-                var warning;
-                try {
-                    warning &#x3D; &quot;There was a problem communicating with the Learning Record Store. ( &quot;
-                        + xhr.status + &quot; | &quot; + xhr.response+ &quot; )&quot; + url
-                } catch (ex) {
-                    warning &#x3D; ex.toString();
-                }
-                ADL.XAPIWrapper.log(warning);
-                ADL.xhrRequestOnError(xhr, method, url, callback, callbackargs, strictCallbacks);
-                result &#x3D; xhr;
-                return xhr;
-            }
-        } else {
-            return result;
+        else {
+          strictCallbacks ? callback(null, response, body) : callback(response, body);
         }
-    };
-
-    xhr.onreadystatechange &#x3D; function () {
-        if (xhr.readyState &#x3D;&#x3D;&#x3D; 4) {
-           return requestComplete();
-        }
-    };
-
-    xhr.onload &#x3D; requestComplete;
-    xhr.onerror &#x3D; requestComplete;
-    //xhr.onerror &#x3D;  ADL.xhrRequestOnError(xhr, method, url);
-
-    xhr.send(ieXDomain ? ieModeRequest.data : data);
-
-    if (!callback) {
-        // synchronous
-        if (ieXDomain) {
-            // synchronous call in IE, with no asynchronous mode available.
-            until &#x3D; 1000 + new Date();
-            while (new Date() &lt; until &amp;&amp; xhr.readyState !&#x3D;&#x3D; 4 &amp;&amp; !finished) {
-                delay();
-            }
-        }
-        return requestComplete();
+      }
+      return response;
+    } catch (error) {
+      var warning;
+      try {
+        warning &#x3D; &quot;There was a problem communicating with the Learning Record Store. ( &quot;
+          + response.status + &quot; | &quot; + response.statusText + &quot; )&quot; + url
+      } catch (ex) {
+        warning &#x3D; ex.toString();
+      }
+      ADL.XAPIWrapper.log(warning);
+      ADL.errorOnRequest(response, callback, callbackargs, strictCallbacks);
     }
 };</code></pre>
                                         </div>
@@ -3685,10 +3502,10 @@ the function will be passed the XMLHttpRequest object</p>
                                 </div>
                             </section>
 
-                            <section id="xapiwrapper-xhrRequestOnError">
+                            <section id="xapiwrapper-errorOnRequest">
 
 
-                                <h4><a href="#xapiwrapper-xhrRequestOnError">xhrRequestOnError</a> <small> (xhr, method, url, callback, callbackargs, strictCallbacks)</small></h4>
+                                <h4><a href="#xapiwrapper-errorOnRequest">errorOnRequest</a> <small> (response, callback, callbackargs, strictCallbacks)</small></h4>
 
                                 <div class="block">
 
@@ -3702,30 +3519,10 @@ the function will be passed the XMLHttpRequest object</p>
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td><em>xhr</em></td>
+                                                <td><em>response</em></td>
                                                 <td><span class="label label-primary">object</span></td>
                                                 <td>
-                                                    <p>xhr object or null</p>
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>method</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>XMLHttpRequest request method</p>
-                                                    
-                                                    
-
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td><em>url</em></td>
-                                                <td><span class="label label-primary">string</span></td>
-                                                <td>
-                                                    <p>full endpoint url</p>
+                                                    <p>response object or null</p>
                                                     
                                                     
 
@@ -3766,26 +3563,26 @@ the function will be passed the XMLHttpRequest object</p>
 
 
                                     <ul class="nav nav-tabs">
-                                        <li class="active"><a href="#xhrRequestOnError-example-0" data-toggle="tab">Example</a></li>
+                                        <li class="active"><a href="#errorOnRequest-example-0" data-toggle="tab">Example</a></li>
                                         <li>
                                             <a href="#-source" data-toggle="tab">Source</a>
                                         </li>
                                     </ul>
 
                                     <div class="tab-content">
-                                        <div class="active tab-pane" id="xhrRequestOnError-example-0">
-                                            <pre><code class="language-javascript">ADL.xhrRequestOnError &#x3D; function(xhr, method, url, callback, callbackargs) {
-  console.log(xhr);
-  alert(xhr.status + &quot; &quot; + xhr.statusText + &quot;: &quot; + xhr.response);
+                                        <div class="active tab-pane" id="errorOnRequest-example-0">
+                                            <pre><code class="language-javascript">ADL.errorOnRequest &#x3D; function(response, callback, callbackargs) {
+  console.log(response);
+  alert(response.status + &quot; &quot; + response.statusText);
 };</code></pre>
                                         </div>
                                         <div class="tab-pane" id="-source">
-                                            <pre><code class="language-javascript">ADL.xhrRequestOnError &#x3D; function(xhr, method, url, callback, callbackargs, strictCallbacks){
+                                            <pre><code class="language-javascript">ADL.errorOnRequest &#x3D; function(response, callback, callbackargs, strictCallbacks){
     if (callback &amp;&amp; strictCallbacks) {
-        var status &#x3D; xhr ? xhr.status : undefined;
+        var status &#x3D; response ? response.status : undefined;
         var error;
         if (status) {
-            error &#x3D; new Error(&#x27;Request error: &#x27; + xhr.status);
+          error &#x3D; new Error(&#x27;Request error: &#x27; + response.status);
         } else if (status &#x3D;&#x3D;&#x3D; 0 || status &#x3D;&#x3D;&#x3D; null) { // 0 and null &#x3D; aborted
             error &#x3D; new Error(&#x27;Request error: aborted&#x27;);
         } else {
@@ -3793,17 +3590,17 @@ the function will be passed the XMLHttpRequest object</p>
         }
 
         if (callbackargs) {
-            callback(error, xhr, callbackargs);
+            callback(error, response, callbackargs);
         } else {
           var body;
 
             try {
-                body &#x3D; JSON.parse(xhr.responseText);
+              body &#x3D; JSON.parse(response.statusText);
             } catch(e){
-                body &#x3D; xhr.responseText;
+              body &#x3D; response.statusText
             }
 
-          callback(error, xhr, body);
+          callback(error, response, body);
         }
     }
 };
